@@ -1,0 +1,38 @@
+version: "3.3"
+   
+services:
+  db:
+    image: postgres
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  web:
+    build: .
+    env_file:
+      - ./.env
+    command: python app/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+      - ./data/content:/data/
+      - ./data/media:/appmedia/
+      - ./data/static:/static/
+      - ./data/compute:/compute/
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  redis:
+    image: "redis:alpine"
+
+    command: redis-server --requirepass sOmE_sEcUrE_pAsS
+
+    ports:
+      - "6379:6379"
+
+    volumes:
+      - ./data/content:/data/
+      - ./data/compute:/compute/

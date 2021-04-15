@@ -1,0 +1,8 @@
+django
+pandas
+matplotlib
+seaborn
+plotly
+psycopg2
+django-oauth-toolkit
+django-cors-headers
