@@ -1,0 +1,171 @@
+#title{
+    color:rgb(240, 240, 240);
+    font-size: 30;
+    font-weight: bold;
+    text-align: left;
+    padding: 20;
+}
+
+.header {
+    width: 70%;
+    align-content: left;
+}
+
+.container {
+    margin-top: 100px;
+}
+
+body {
+    background-color:white;
+}
+
+
+hr {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.nobull {
+    list-style-type: none !important;
+   }
+
+nav {
+    background-color: inherit;
+    height: inherit;
+}
+
+navbar {
+    background-color: black;
+    float: right;
+}
+
+.nav-wrapper {
+    height: inherit;
+}
+
+nav ul {
+    text-align: center;
+    margin: auto;
+    #display: inline-block;    
+}
+
+nav ul li {
+    margin: 1px;
+    padding: 1px;
+}
+
+.side-nav ul {
+    padding-top: 20px;
+}
+
+.side-nav li>a {
+    float: center;
+    text-align: center;
+    padding: 0px;
+}
+
+nav ul a {
+    padding: 0px;
+}
+
+.no-shadows {
+    box-shadow: none!important;
+}
+
+.dashapp {
+    padding-top: 10px;
+}
+
+.btn{
+    width: 220px;
+    padding: 0px;
+    margin: 0px;
+    margin-top: 5px;
+    background-color: darkcyan;
+
+}
+
+.btn:hover {
+    background-color: blue;
+}
+
+nav ul a:hover {
+    background-color: lightcyan;
+}
+
+h1 {
+    font-size: 30;
+    color: rgb(0, 80, 80);
+    font-weight: bold;
+
+}
+
+iframe {
+    overflow: hidden;
+}
+
+.button {
+    background-color: #27A69A !important;
+}
+
+tr th .btn {
+    height: 30px;
+    font-weight: normal;
+}
+
+#sortnsearch {
+    padding-bottom: 50px; 
+}
+
+.figure_a {
+    max-width:1200; 
+    height:400;
+}
+
+
+.figure_large_quare {
+    max-width:1200; 
+    height:120;
+}
+
+.figure_large_rect {
+    max-width:1200; 
+}
+
+.block {
+    background-color: lightgrey;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.project {
+    font-weight: bold;
+}
+
+table tr th {
+    vertical-align: middle;
+}
+
+
+  
+#CookielawBanner {
+    background: #fff;
+    padding: 15px 0;
+}
+
+#CookielawBanner .container {
+    position: relative;
+}
+
+#CookielawBanner #CookielawCross {
+    background: url('../img/close.png') no-repeat 0 0;
+    cursor: pointer;
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 15px;
+    height: 15px;
+}

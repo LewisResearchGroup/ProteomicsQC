@@ -16,10 +16,10 @@ services:
     command: python app/manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
-      - ./data/content:/data/
-      - ./data/media:/appmedia/
-      - ./data/static:/static/
-      - ./data/compute:/compute/
+      - ${DATALAKE}:/datalake/
+      - ${MEDIA}:/appmedia/
+      - ${STATIC}:/static/
+      - ${COMPUTE}:/compute/
     ports:
       - "8000:8000"
     depends_on:

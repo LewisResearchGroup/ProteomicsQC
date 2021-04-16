@@ -1,8 +1,9 @@
 import os
-from pathlib import Path
+from pathlib import Path as P
+from django.core.files.storage import FileSystemStorage
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = P(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -10,16 +11,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY')
+HOME_TITLE = os.getenv('HOME_TITLE', 'Omics Pipelines')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = (os.getenv('ENVIRONMENT') == 'develop')
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [ os.getenv('HOSTNAME', 'localhost')]
 
 # Application definition
 
 INSTALLED_APPS = [
+    'user',
+    'project',
+    'maxquant',
+    'dashboards',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -27,7 +32,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'oauth2_provider',
-    'user'
+    'sysmon',
+    'cookielaw',
+    'django_plotly_dash.apps.DjangoPlotlyDashConfig',    
 ]
 
 # ========================================================================
@@ -41,6 +48,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_currentuser.middleware.ThreadLocalUserMiddleware',
 ]
 
 ROOT_URLCONF = 'main.urls'
@@ -118,10 +126,15 @@ USE_TZ = True
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = '/media'
+STATIC_ROOT = '/static/'
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'main', "static"),
+]
+
+print('STATICFILES_DIRS:', STATICFILES_DIRS )
 
 CELERY_BROKER_URL = 'redis://localhost'
-
 
 AUTH_USER_MODEL='user.User'
 LOGIN_URL='/admin/login/'
@@ -134,3 +147,22 @@ OAUTH2_PROVIDER = {
         "openid": "OpenID Connect scope",
     },
 }
+
+
+DATALAKE_ROOT = P('/datalake/')
+COMPUTE_ROOT = P('/compute/')
+
+
+class MediaFileSystemStorage(FileSystemStorage):
+    def get_available_name(self, name, max_length=None):
+        if max_length and len(name) > max_length:
+            raise(Exception("name's length is greater than max_length"))
+        return name
+    
+    def _save(self, name, content):
+        if self.exists(name):
+            return name
+        return super(MediaFileSystemStorage, self)._save(name, content)
+
+DATALAKE = MediaFileSystemStorage(location=str(DATALAKE_ROOT))
+COMPUTE = MediaFileSystemStorage(location=str(COMPUTE_ROOT))

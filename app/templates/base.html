@@ -1,0 +1,152 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>{{ home_title }}</title>
+  
+  {% load static %}
+
+  <script src="{% static 'js/jquery-latest.min.js' %}"></script> 
+
+  <script src="{% static 'js/bootstrap.min.js' %}"></script> 
+
+  <script src="{% static 'js/cookielaw.js' %}"></script> 
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/js/materialize.min.js"></script>
+  
+  <script src="{% static 'js/jquery-file-upload/js/vendor/jquery.ui.widget.js' %}"></script>
+  <script src="{% static 'js/jquery-file-upload/js/jquery.iframe-transport.js' %}"></script>
+  <script src="{% static 'js/jquery-file-upload/js/jquery.fileupload.js' %}"></script>
+
+  <script src="{% static 'js/basic-upload.js' %}"></script>
+
+  {% if user.is_authenticated %}
+  
+  <script>
+    $(document).ready(function () {
+      $(".button-collapse").sideNav();
+      $('select').material_select(); 
+    });
+  </script>
+  {% endif %}
+    
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+  <link rel="stylesheet" type="text/css" href="/static/admin/css/base.css">
+  <link rel="stylesheet" type="text/css" href="/static/admin/css/forms.css">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/custom.css' %}"> 
+  <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+
+</head>
+
+
+<body>
+  <header >
+    <div style='background-color: darkcyan; color: white; width:100%;'>
+
+      <ul class="side-nav" id="mobile-demo"> 
+        {% if user.is_authenticated %}
+        {% include 'nav.html' %}
+        {% endif %}
+      </ul>
+      
+      <div style="float: right; font-size: 20; padding: 20px; color: white;">
+        {% if user.is_authenticated %}
+          <a href="{% url 'logout'%}?next={{request.path}}" style='color: white'>
+            <lu class='nobull'>
+              <li>Logged in as</li>
+              <li style='text-align: center'>{{ user.get_username }}</li>
+            </lu> 
+          </a>
+        {% endif %}
+      </div>
+      
+      <h1 id="title"><a href="{% url 'home' %}" style='color: white'>{{ home_title }}</a></h1>
+
+      {% if user.is_authenticated %}
+        <nav>
+          <div>
+            <a href="#" data-activates="mobile-demo" class="button-collapse"><div class="material-icons">menu</div></a>
+          </div>
+        </nav>
+      {% endif %}
+      
+    </div>
+
+    <div class="container center-align">
+      <div class="navbar">
+        <nav class='z-depth-0'>
+          <div class="hide-on-med-and-down">
+            {% if user.is_authenticated %}
+              {% include 'nav.html' %}
+            {% endif %}
+          </div>
+        </nav>
+      </div>
+    </div>
+
+  </header>
+
+
+
+  <div class='auth' style='max-width: 600px; margin: auto; margin-top: 10%;'>
+    {% block auth %}
+    {% endblock %}
+  </div>
+
+  <div class="container">
+    {% block free_content %}
+    {% endblock %}
+  </div>
+
+
+  {% if user.is_authenticated %}
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
+    
+  {% block app %}{% endblock %}
+
+  {% if is_paginated %}
+    <div class='container'>  
+      <ul class="pagination">
+        {% if page_obj.has_previous %}
+          <li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+          <li class="disabled"><span>&laquo;</span></li>
+        {% endif %}
+        {% for i in paginator.page_range %}
+          {% if page_obj.number == i %}
+            <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+          {% else %}
+            <li><a href="?page={{ i }}">{{ i }}</a></li>
+          {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+          <li><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+        {% else %}
+          <li class="disabled"><span>&raquo;</span></li>
+        {% endif %}
+      </ul>
+    </div>>
+  {% endif %}
+
+  {% if messages %}
+  <div class="container">
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  
+{% endif %}
+
+{% load cookielaw_tags%}
+{% cookielaw_banner %}
+
+</body>
+</html> 

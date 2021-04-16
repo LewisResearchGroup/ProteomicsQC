@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class='project'>Projects</h1>
+
+  {% if project_list %}
+  <table style="width:100%" class='block'>
+    <tr>
+      <th>Project</th>
+      <th>Created</th>
+    </tr>
+    {% for project in project_list %}
+      <tr>
+        <th>
+          <a href='p/{{project.slug}}'><button class='btn'>{{ project.name }}</button></a>
+        </th>
+        <th>
+          {{ project.created }}
+        </th>
+      </li>
+    {% endfor %}
+     </table>
+  {% else %}
+    <p>There were no project created yet.</p>
+  {% endif %}       
+{% endblock %}
+

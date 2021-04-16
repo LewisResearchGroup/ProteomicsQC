@@ -1,0 +1,9 @@
+<ul>
+    <li><a href="{% url 'project:list' %}"><button class="btn" title='List of all projects.'>Projects</button></a></li>
+    <li><a href="{% url 'dash:primary_dashboard' %}"><button class="btn" title='Interactive dashboard for quality control and quick analysis.'>Dashboard</button></a></li>
+    <!--
+    <li><a href="{\% url 'search_rawfile' %}"><button class="btn" title='Search for RAW files in all projects.'>Search RAW</button></a></li>
+    <li><a href="{\% url 'search_maxquant' %}"><button class="btn" title='Search MaxQuant runs in all projects and/or pipelines.'>Search MaxQuant</button></a></li>
+    -->
+    <li><a href="{% url 'admin:index' %}"><button class="btn" title='Manage projects/pipelines/users etc.'>Admin</button></a></li>
+</ul>
