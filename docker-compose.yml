@@ -9,6 +9,7 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+
   web:
     build: .
     env_file:
@@ -24,11 +25,14 @@ services:
       - "8000:8000"
     depends_on:
       - db
+      - redis
+    links:
+      - redis:redis
 
   redis:
-    image: "redis:alpine"
+    restart: always
 
-    command: redis-server --requirepass sOmE_sEcUrE_pAsS
+    image: redis:latest
 
     ports:
       - "6379:6379"

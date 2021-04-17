@@ -132,9 +132,11 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'main', "static"),
 ]
 
-print('STATICFILES_DIRS:', STATICFILES_DIRS )
 
-CELERY_BROKER_URL = 'redis://localhost'
+CELERY_BROKER_URL = 'redis://redis:6379'
+#CELERY_RESULT_BACKEND = 'redis://redis:6379'
+CELERY_IMPORTS = ('maxquant.tasks',)
+
 
 AUTH_USER_MODEL='user.User'
 LOGIN_URL='/admin/login/'

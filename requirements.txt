@@ -22,5 +22,6 @@ matplotlib
 pandas
 plotly
 psycopg2
+redis
 seaborn
 waitress
