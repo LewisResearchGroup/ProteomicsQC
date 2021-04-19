@@ -1,8 +1,23 @@
-FROM python:3
+FROM continuumio/miniconda3
+
+RUN cat /etc/os-release
+
 ENV PYTHONUNBUFFERED=1
+
 RUN mkdir /data /compute /static /appmedia
-WORKDIR /app
-COPY requirements.txt /app/
+
+RUN apt update && apt install -y build-essential
+
+RUN conda install -c conda-forge -c bioconda pip rawtools maxquant mono=5
+
+COPY requirements.txt .
+
 RUN pip install -r requirements.txt
-COPY . /app/
-RUN pip install -e /app/lrg_omics
+
+COPY ./lrg_omics /lrg-omics
+
+RUN cd /lrg-omics && pip install -e .
+
+COPY ./app /app
+
+WORKDIR /app/

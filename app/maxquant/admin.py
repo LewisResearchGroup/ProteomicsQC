@@ -17,6 +17,9 @@ class RawFileAdmin(admin.ModelAdmin):
     exclude = ('md5sum', 'slug', 'created', 'created_by')
     list_display =('name', 'path', 'pipeline')
     read_only_fields = ('path',)
+    def regroup_by(self):
+        return 'pipeline'
+
 
 class MaxQuantPipelineAdmin(admin.ModelAdmin):
     readonly_fields = ('path', 'path_exists', 'slug', 'fasta_path', 'mqpar_path', 'created_by')
@@ -26,7 +29,7 @@ class MaxQuantPipelineAdmin(admin.ModelAdmin):
 
 
 class MaxQuantResultAdmin(admin.ModelAdmin):
-    readonly_fields = ('path', 'run_directory', 'raw_fn', 'pipeline')
+    readonly_fields = ('path', 'run_directory', 'raw_fn', 'mqpar_fn', 'fasta_fn', 'pipeline')
 
 
 admin.site.register(MaxQuantPipeline, MaxQuantPipelineAdmin)

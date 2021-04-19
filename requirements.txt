@@ -21,7 +21,7 @@ dpd-static-support 
 matplotlib
 pandas
 plotly
-psycopg2
+psycopg2-binary
 redis
 seaborn
 waitress

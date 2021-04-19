@@ -31,7 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'oauth2_provider',
+    # 'oauth2_provider',
     'sysmon',
     'cookielaw',
     'django_plotly_dash.apps.DjangoPlotlyDashConfig',    
@@ -42,7 +42,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware', # oauth2
+    # 'corsheaders.middleware.CorsMiddleware', # oauth2
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -56,7 +56,7 @@ ROOT_URLCONF = 'main.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['/app/app/templates'],
+        'DIRS': ['/app/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -134,8 +134,7 @@ STATICFILES_DIRS = [
 
 
 CELERY_BROKER_URL = 'redis://redis:6379'
-#CELERY_RESULT_BACKEND = 'redis://redis:6379'
-CELERY_IMPORTS = ('maxquant.tasks',)
+CELERY_RESULT_BACKEND = 'redis://redis:6379'
 
 
 AUTH_USER_MODEL='user.User'
