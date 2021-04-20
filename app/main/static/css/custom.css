@@ -11,13 +11,12 @@
     align-content: left;
 }
 
-.container {
-    margin-top: 100px;
-}
+
 
 body {
     background-color:white;
 }
+
 
 
 hr {
@@ -82,7 +81,14 @@ nav ul a {
     margin: 0px;
     margin-top: 5px;
     background-color: darkcyan;
+}
 
+.right{
+    float: right !important;
+}
+
+.full_width {
+    width: 100% !important;
 }
 
 .btn:hover {
@@ -149,7 +155,6 @@ table tr th {
 }
 
 
-  
 #CookielawBanner {
     background: #fff;
     padding: 15px 0;

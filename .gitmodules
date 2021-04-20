@@ -1,3 +1,6 @@
-[submodule "lrg_omics"]
-	path = lrg_omics
-	url = git@github.com:LSARP/lrg_omics.git
+[submodule "lib/lrg-omics"]
+	path = lib/lrg-omics
+	url = git@github.com:LSARP/lrg-omics.git
+[submodule "lib/lrg_omics"]
+	path = lib/lrg_omics
+	url = git@github.com:LSARP/lrg-omics.git

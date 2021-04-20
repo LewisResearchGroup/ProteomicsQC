@@ -6,16 +6,12 @@
   {% if project_list %}
   <table style="width:100%" class='block'>
     <tr>
-      <th>Project</th>
-      <th>Created</th>
+      <th>Project Name</th>
     </tr>
     {% for project in project_list %}
       <tr>
         <th>
-          <a href='p/{{project.slug}}'><button class='btn'>{{ project.name }}</button></a>
-        </th>
-        <th>
-          {{ project.created }}
+          <a href="{% url 'project:detail' slug=project.slug %}"><button class='btn full_width'>{{ project.name }}</button></a>
         </th>
       </li>
     {% endfor %}

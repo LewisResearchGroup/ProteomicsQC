@@ -10,6 +10,9 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls'), {'extra_context': {'home_title': settings.HOME_TITLE}}),
     #path('o/', include('oauth2_provider.urls',  namespace='oauth2_provider')),
     path('P/', include(('project.urls', 'project'),  namespace='project')),
-    path('d/', include(('dashboards.urls', 'dashboards'), namespace='dash')),
+    path('proteomics/', include(('maxquant.urls', 'maxquant'),  namespace='maxquant')),
+    path('dashboard/', include(('dashboards.urls', 'dashboards'), namespace='dash')),
+    path('django_plotly_dash/', include('django_plotly_dash.urls')),
+    path('api/', include(('api.urls', 'api'), namespace='api')),
 ]
 

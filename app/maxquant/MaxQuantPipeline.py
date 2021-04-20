@@ -11,6 +11,8 @@ from django.template.defaultfilters import slugify
 from django.dispatch import receiver
 from django.utils import timezone
 from django.conf import settings 
+from django.shortcuts import render, reverse
+
 from uuid import uuid4
 
 
@@ -23,6 +25,8 @@ COMPUTE = settings.COMPUTE
 class MaxQuantPipeline(models.Model):
     
     created_by = CurrentUserField()
+
+    created = models.DateField(default=timezone.now)
 
     project = models.ForeignKey('project.Project', on_delete=models.PROTECT, null=True)
 
@@ -50,8 +54,7 @@ class MaxQuantPipeline(models.Model):
     
     slug = models.SlugField(max_length=256, unique=False, default=uuid4)
 
-    #rawtools_config = models.ForeignKey(RawToolsConfig, on_delete=models.PROTECT, null=True)
-
+    rawtools = models.ForeignKey('RawToolsSetup', on_delete=models.SET_NULL, null=True, parent_link=True)
 
     def __str__(self):
         return self.name
@@ -70,6 +73,10 @@ class MaxQuantPipeline(models.Model):
     @property
     def path(self):
         return self.project.path / self._id
+
+    @property
+    def path_as_str(self):
+        return str( self.path )
 
     @property
     def _id(self):
@@ -102,6 +109,15 @@ class MaxQuantPipeline(models.Model):
     @property
     def path_exists(self):
         return self.path.is_dir()
+
+    @property
+    def url(self):
+        return reverse('maxquant:detail', kwargs={'project':  self.project.slug,
+                                                  'pipeline': self.slug})
+
+    @property
+    def parquet_path(self):
+        return self.path / 'parquet'
 
 
 @receiver(models.signals.post_save, sender=MaxQuantPipeline)

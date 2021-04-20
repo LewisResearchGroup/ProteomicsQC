@@ -50,8 +50,7 @@ else:
     app = DjangoDash('dashboard', 
                      add_bootstrap_links=True,
                      suppress_callback_exceptions=True, 
-                     external_stylesheets=[],
-                     debug=True )
+                     external_stylesheets=[] )
 
 timeout = 360
 

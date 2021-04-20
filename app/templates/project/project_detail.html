@@ -9,25 +9,11 @@
   </div>
 
   <div class='block'>
-    <a href="{% url 'project-list' %}"><button class='btn' title='Back to projects overview.'>..</button></a>
-    <a href="{% url 'upload_raw' object.slug %}"><button class="btn" title='Upload new RAW file to a pipeline.'>Upload RAW</button></a>    
+    <a href="{% url 'project:list' %}"><button class='btn' title='Back to projects overview.'>..</button></a>
   </div>
   <div class='block'>
     <h3>Pipelines</h3>
     {% include 'proteomics/include/list_pipelines.html' with project=object.slug %}
   </div>
-
-  <div class='block'>
-    <h3>RAW files</h3>
-    <p>All RAW file that were added to this project so far.</p>
-    {% include 'proteomics/include/list_raw_files.html' with raw_files=raw_files %}
-  </div>
-
-  <!--
-  <div class='block'>
-    <h3>MaxQuant Results</h3>
-    {% include 'proteomics/include/list_mq_runs.html' with mq_runs=mq_runs %}
-  </div>
-  -->
   
 {% endblock %}

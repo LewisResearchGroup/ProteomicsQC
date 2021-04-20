@@ -1,0 +1,16 @@
+{% if maxquant_runs %}
+<table style="width:100%" class='block'>
+    <tr> 
+        <th>
+            Pipeline Results
+        </th>
+    </tr>
+    {% for maxquant_run in maxquant_runs %}
+        </tr>
+            <th>
+                <a href="{{ maxquant_run.url }}"><button class='btn full_width'> {{ maxquant_run.raw_file  }}</button></a>
+            </th>
+        </tr>
+    {% endfor %}
+</table>
+{% endif %}

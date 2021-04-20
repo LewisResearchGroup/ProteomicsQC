@@ -63,19 +63,20 @@ class RawFile(models.Model):
         
         try:
             super(RawFile, self).save(*args, **kwargs) 
+            
         except IntegrityError as e:
             pass
         
     def __str__(self):
-        return self.name
+        return str( self.name )
     
     @property
     def name(self):
-        return P( self.orig_file.name ).name
+        return P(P( self.orig_file.name ).name)
 
     @property
     def path(self): 
-        return self.pipeline.input_path / self.name
+        return self.pipeline.input_path /  self.name.with_suffix('').name / self.name
 
     @property
     def upload_path(self):
@@ -131,7 +132,8 @@ class RawFile(models.Model):
 @receiver(models.signals.post_save, sender=RawFile)
 def move_rawfile_to_input_dir(sender, instance, created, *args, **kwargs):
     raw_file = instance
-    raw_file.move_to_input_dir()
+    if created:
+        raw_file.move_to_input_dir()
 
     
 @receiver(models.signals.post_delete, sender=RawFile)

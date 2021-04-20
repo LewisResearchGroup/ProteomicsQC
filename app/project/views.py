@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings 
 
 from .models import Project
+from maxquant.models import MaxQuantPipeline
 
 class ListView(LoginRequiredMixin, generic.ListView):
     model = Project 
@@ -26,14 +27,7 @@ class DetailView(LoginRequiredMixin, generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = context['project']
-
-        raw_files = RawFile.objects.filter(project=project)
-        context['raw_files'] = raw_files
-
-        maxquant_runs = MaxQuantResult.objects.filter(project=project)
-        context['maxquant_runs'] = maxquant_runs
-
-        maxquant_setups = ProteomicsPipeline.objects.filter(project=project)
-        context['maxquant_setups'] = maxquant_setups
+        proteomics_pipelines = MaxQuantPipeline.objects.filter(project=project)
+        context['maxquant_pipelines'] = proteomics_pipelines
         context['home_title'] = settings.HOME_TITLE
         return context

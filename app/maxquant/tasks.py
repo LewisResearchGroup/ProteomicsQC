@@ -14,7 +14,7 @@ from lrg_omics.proteomics.quality_control.rawtools import rawtools_metrics_cmd, 
 ## Do NOT call print() inside a celery task!!!
 
 @shared_task
-def rawtools_metrics(raw, output_dir, rerun=False, arguments=None):
+def rawtools_metrics(raw, output_dir, arguments=None, rerun=False):
     cmd = rawtools_metrics_cmd(raw=raw, 
             output_dir=output_dir, rerun=rerun, arguments=arguments)
     print('RawTools Metrics command:', cmd)

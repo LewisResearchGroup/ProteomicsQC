@@ -40,7 +40,7 @@ def table_from_dataframe(df, id='table'):
 
 
 def get_projects():
-    url = f'{URL}/p/api/projects'
+    url = f'{URL}/api/projects'
     print(f'URL: {url}', file=sys.stderr)
     try:
         json = requests.get(url).json()
@@ -51,7 +51,7 @@ def get_projects():
 
 
 def get_pipelines(project):
-    url = f'{URL}/p/api/mq/pipelines?project={project}'
+    url = f'{URL}/api/mq/pipelines?project={project}'
     print(f'URL:{url}', file=sys.stderr)
     json = requests.get(url).json()
     if len(json) == 0:
@@ -72,9 +72,10 @@ def get_protein_groups(project, pipeline, protein_names=None, columns=None,
 
 
 def get_qc_data(project, pipeline, columns, data_range):
-    url = f'{URL}/p/api/qc/data'
+    url = f'{URL}/api/qc/data'
     print(f'URL: {url}', file=sys.stderr)
     headers = {'Content-type': 'application/json'}
     data =  json.dumps( dict(project=project, pipeline=pipeline, 
                              columns=columns, data_range=data_range) ) 
     return requests.get(url, data=data, headers=headers).json()
+

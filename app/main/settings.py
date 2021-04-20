@@ -21,10 +21,12 @@ ALLOWED_HOSTS = [ os.getenv('HOSTNAME', 'localhost')]
 # Application definition
 
 INSTALLED_APPS = [
+    'api',
     'user',
     'project',
     'maxquant',
     'dashboards',
+    'rawtools',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -34,7 +36,7 @@ INSTALLED_APPS = [
     # 'oauth2_provider',
     'sysmon',
     'cookielaw',
-    'django_plotly_dash.apps.DjangoPlotlyDashConfig',    
+    'django_plotly_dash.apps.DjangoPlotlyDashConfig',
 ]
 
 # ========================================================================
@@ -50,6 +52,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_currentuser.middleware.ThreadLocalUserMiddleware',
 ]
+
+# django-plotly-dash
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 ROOT_URLCONF = 'main.urls'
 

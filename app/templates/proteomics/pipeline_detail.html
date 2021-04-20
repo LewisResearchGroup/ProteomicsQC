@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% include 'proteomics/include/pipeline_head.html' with project=project %}
+    <div style='margin-top: 50px'>
+        {% include 'proteomics/include/list_mq_runs.html' with maxquant_runs=maxquant_runs %}
+    </div>
+{% endblock %}

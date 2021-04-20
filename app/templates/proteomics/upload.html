@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}File upload{% endblock %}
+
+{% block content %} 
+
+<div class='block'>
+  <h1 class='project'>Upload .RAW files to {{ project.name }}</h1>
+</div>
+
+<div class='block'>
+  <ul>
+    <li>
+      <a href="{% url 'maxquant:detail' project=project.slug pipeline=pipeline.slug %}"><button class="btn" title='Back to the project overview.'>..</button></a>
+    </li>
+  </ul>
+</div>
+
+{{ form.as_table }}
+
+<div class="well text-muted text-center" style="padding-top: 4rem; padding-bottom: 4rem;">
+  <span class="glyphicon glyphicon-arrow-down" style="font-size: 4rem;"></span>
+  <h3>Drop RAW files here to upload</h3>
+</div>
+
+
+<div class="modal fade" id="modal-progress" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Uploading...</h4>
+      </div>
+      <div class="modal-body">
+        <div class="progress">
+          <div class="progress-bar" role="progressbar" style="width: 0%;">0%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{# 1. BUTTON TO TRIGGER THE ACTION #}
+<button type="button" class="btn btn-primary js-upload-photos">
+  <span class="glyphicon glyphicon-cloud-upload"></span> Upload .RAW
+</button>
+
+
+{# 2. FILE INPUT TO BE USED BY THE PLUG-IN #}
+<input id="fileupload" type="file" name="orig_file" multiple btn class='btn'
+       style="display: none;"
+       data-url="{% url 'maxquant:basic_upload' %}"
+       data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}", "pipeline": "{{ pipeline.pk }}"  }'>
+
+
+{# 3. TABLE TO DISPLAY THE UPLOADED PHOTOS #}
+<table id="gallery" class="table table-bordered">
+  <thead>
+    <tr>
+      <th>RawFile Uploaded</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for photo in photos %}
+      <tr>
+        <td>{{ photo.file.name }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

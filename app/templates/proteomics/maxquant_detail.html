@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  <div class='block'>
+    <h1 class='pipeline'>{{ project.name }} - {{ pipeline.name }}</h1>
+    <h2>{{ raw_file.name }}</h2>
+  </div>
+
+
+  <div class='block'>  
+    <p>
+      <ul>
+        <li>
+            <a href="{% url 'maxquant:detail' project=project.slug pipeline=pipeline.slug %}"><button class="btn" title='Back to pipeline overview.'>..</button></a>
+
+            <a href="{% url 'maxquant:download_run' object.pk %}" download><button class='btn' title='Download all MaxQuant files for this particular run (~70MB).'>Download</button></a>
+        </li> 
+      </ul>
+    </p>
+  </div>
+  
+
+  <br> 
+
+  <h2>{{ object.raw_file }}</h2>
+  <p>MaxQuant data specific to {{object.raw_file}} processed with the pipeline {{ object.project.name }} - {{ object.setup.name }}.</p>
+
+  <hr />
+
+  {% for figure in figures %}
+    <div style="width:100%; height:400">
+    {{ figure|safe }}
+    </div>
+    <hr />
+  {% endfor %}
+
+{% endblock %}

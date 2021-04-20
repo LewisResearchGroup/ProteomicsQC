@@ -21,3 +21,8 @@ showenv:
 
 manage:
 	sudo docker-compose run web python manage.py $(CMD)
+
+reset_db:
+	sudo rm -r ./data/db
+	sudo find . -path "*/migrations/*.pyc"  -delete
+	sudo find . -path "*/migrations/*.py" -not -name "__init__.py" -delete

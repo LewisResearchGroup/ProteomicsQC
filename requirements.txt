@@ -9,6 +9,7 @@ django_admin_index 
 django_admin_index 
 django_plotly_dash 
 django-bootstrap4
+django-cache-memoize
 django-cookie-law
 django-cors-headers
 django-currentuser
