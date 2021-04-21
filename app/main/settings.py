@@ -19,6 +19,8 @@ print('DEBUG:', DEBUG)
 
 ALLOWED_HOSTS = [ os.getenv('HOSTNAME'), 'localhost']
 
+CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
+
 # Application definition
 
 INSTALLED_APPS = [
