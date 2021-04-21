@@ -28,9 +28,9 @@ manage:
 reset_migrations:
 	sudo find . -path "*/migrations/*.pyc"  -delete
 	sudo find . -path "*/migrations/*.py" -not -name "__init__.py" -delete
-	make init
+	make init-db
 
-init-db:
+initiate:
     make migrations ARGS=user
 	make migrations ARGS=maxquant
 	make migrations ARGS=api
