@@ -234,7 +234,7 @@ COOKIEBANNER = {
 #    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 #}
 
-# Email settings
+
 EMAIL_HOST = os.getenv('EMAIL_HOST', None)
 
 if EMAIL_HOST is not None:
@@ -246,8 +246,9 @@ if EMAIL_HOST is not None:
     EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
     DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@yourpipelines.com')
 
-    print('Useing e-mail settings:')
+    print('EMAIL SETTINGS:')
     print(EMAIL_HOST)
     print(EMAIL_HOST_USER)
     print(EMAIL_PORT)
     print(DEFAULT_FROM_EMAIL)
+    print('='*80)
