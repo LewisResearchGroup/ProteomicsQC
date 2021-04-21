@@ -31,7 +31,7 @@ reset_migrations:
 	make init-db
 
 initiate:
-    make migrations ARGS=user
+	make migrations ARGS=user
 	make migrations ARGS=maxquant
 	make migrations ARGS=api
 	make migrations ARGS=rawtools
