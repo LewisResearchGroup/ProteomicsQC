@@ -81,8 +81,16 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-level="1"><a href="#lrg-proteomics-pipelines" class="nav-link">LRG Proteomics Pipelines</a>
+            <li class="nav-item" data-level="1"><a href="#django3-omics-pipelines" class="nav-link">Django3 Omics Pipelines</a>
               <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#maxquant-parameter-file-mqparxml" class="nav-link">MaxQuant Parameter file (mqpar.xml)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#_1" class="nav-link"></a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
               </ul>
             </li>
         </ul>
@@ -90,13 +98,24 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<h1 id="lrg-proteomics-pipelines">LRG Proteomics Pipelines</h1>
-<p>Pipelines for the automated processing of proteomics .RAW files with RawTools and MaxQuant.
-RAW files are expected to be independent of eachother. The user has to provide an <code>mqpar.xml</code>
-file using the MaxQuant GUI and a Fasta file with protein sequences to create a pipeline.</p>
-<p>Once the pipeline is created <code>.RAW</code> files can be submitted. </p>
-<p>The server is implemented in <em>Django</em> and uses <em>Celery</em> as a queueing system.</p>
-<p>Configuration files for NGINX reverse proxy and <em>Supervisor</em> for automated restarts are provided.</p></div>
+<h1 id="django3-omics-pipelines">Django3 Omics Pipelines</h1>
+<p>A web-server to setup processing pipelines proteomics .RAW files.</p>
+<p>1) Create a project
+2) Create a pipeline by providing a fasta file and a MaxQuant parameter template (mqpar.xml)
+3) Submit .RAW files to the pipeline
+4) Download results
+5) Explore data with the integrated dashboard</p>
+<p>The server organizes files into projects. Therefore, at least one project hast to be created.
+Then a pipeline can be created. Herefore, a MaxQuant parameter file (mqpar.xml) and a fasta file have to 
+be provided. </p>
+<h2 id="maxquant-parameter-file-mqparxml">MaxQuant Parameter file (<code>mqpar.xml</code>)</h2>
+<p>The <code>mqpar.xml</code> has to be created as a blueprint for the pipeline jobs for example using 
+the MaxQuant GUI. The pipeline is currently restricted to process a single .RAW per job, 
+therefore the <code>mqpar.xml</code> file <strong>has to be created with a single .RAW file</strong>. 
+The MaxQuant version supported is <code>MaxQuant 1.6.10</code> due to limited compatability 
+between <code>.NET</code> versions used by MaxQuant and current <code>mono</code> versions. <code>mono</code> is a 
+reimplementation for <code>.NET</code> that runs on Linux platforms.ll</p>
+<h2 id="_1"></h2></div>
             </div>
         </div>
 
@@ -180,5 +199,5 @@ file using the MaxQuant GUI and a Fasta file with protein sequences to create a 
 
 <!--
 MkDocs version : 1.1.2
-Build Date UTC : 2021-04-21 17:24:43.172359+00:00
+Build Date UTC : 2021-04-21 18:58:06.016063+00:00
 -->
