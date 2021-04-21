@@ -40,4 +40,5 @@ init:
 	make createsuperuser
 
 make update:
-	git pull 
+	git pull --recurse-submodules
+	make build
