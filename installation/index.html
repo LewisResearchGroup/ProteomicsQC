@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Installation - LRG Proteomics Pipelines</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">LRG Proteomics Pipelines</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href=".." class="nav-link">Home</a>
+                            </li>
+                            <li class="navitem active">
+                                <a href="./" class="nav-link">Installation</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../manual/" class="nav-link">User Manual</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../about/" class="nav-link">About</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href=".." class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../manual/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="2"><a href="#install-and-activate-environment" class="nav-link">Install and activate environment:</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#install-and-start-redis-with" class="nav-link">Install and start redis with:</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#nginx" class="nav-link">NGINX</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#postgres" class="nav-link">Postgres</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#run-celery-worker-process" class="nav-link">Run celery worker process:</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#setup-django" class="nav-link">Setup django</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#supervisor" class="nav-link">Supervisor</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h2 id="install-and-activate-environment">Install and activate environment:</h2>
+<pre><code>conda create -y -n omics -c conda-forge -c bioconda -c plotly redis-py django\
+    django-extensions celery psycopg2 waitress pandas mono rawtools django-filter
+
+conda activate omics
+
+pip install django_plotly_dash dash-table-experiments colorlover \
+    plotly_express django_admin_index djangorestframework django-system-monitor\
+    dpd-static-support dash_bootstrap_components django-bootstrap4
+
+git clone https://github.com/soerendip/django_proteomics_quality_control
+cd django_proteomics_quality_control/proteomics_tools
+pip install -e .
+</code></pre>
+<h2 id="install-and-start-redis-with">Install and start redis with:</h2>
+<pre><code>sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) universe"
+sudo apt install redis-server
+</code></pre>
+<p>Test redis with <code>reis-cli ping</code> which should return</p>
+<pre><code>&gt; PONG
+</code></pre>
+<h2 id="nginx">NGINX</h2>
+<pre><code>sudo apt install nginx
+
+sudo cp config/nginx/omics.conf  /etc/nginx/sites-available/
+sudo ln -s /etc/nginx/sites-available/omics.conf /etc/nginx/sites-enabled/
+
+sudo systemctl enable nginx
+</code></pre>
+<h2 id="postgres">Postgres</h2>
+<p>Django requires a database to be running to store web-site information and make changes persistent. The database can be installed and configured with the following commands: </p>
+<pre><code>./scripts/generate_omics_config.sh  # creates OMICS.conf
+
+source OMICS.conf  # customize if needed
+sudo apt install postgresql postgresql-contrib
+sudo -u postgres createuser $PGUSER
+sudo -u postgres createdb omics_server
+sudo -u postgres psql -c "ALTER USER pgadmin PASSWORD '$PGPW';"
+
+sudo mkdir $OMICS_PUBLIC_MEDIA_ROOT $OMICS_PRIVATE_MEDIA_ROOT
+sudo chown $USER $OMICS_PUBLIC_MEDIA_ROOT $OMICS_PRIVATE_MEDIA_ROOT
+mkdir $OMICS_PUBLIC_MEDIA_ROOT/static
+</code></pre>
+<p>Add the secrets to the <code>.bashrc</code>. E.g. with:</p>
+<pre><code>echo "export OMICS_QC_SECRET_KEY=`openssl rand -hex 64`" &gt;&gt; ~/.bashrc
+
+echo "source `pwd`/OMICS.conf" &gt;&gt; ~/.bashrc
+</code></pre>
+<p>The configuration file <code>OMICS.conf</code> contains configuration settings that can be adjusted if needed.
+For example the title shown in the website, Postgres configurations can be changed here.</p>
+<h2 id="run-celery-worker-process">Run celery worker process:</h2>
+<p>Celerery is a job-queing system that is used to run MaxQuant and RawTools jobs. It can be started manually with the command:</p>
+<pre><code>cd omics_server
+celery -A omics_server worker -l info -c 1 -E
+</code></pre>
+<p>However, this can be ommited if Supervisor is used to start the cerlery server (see below). </p>
+<h2 id="setup-django">Setup django</h2>
+<p>Django is a Python based web-frameworks for perfectionists with deadlines. It is opinionated and brings a lot of functionallity out of the box such as the admin pages that are used to control the Proteomics Pipelines. The Postgres database used by Django needs to be created before the server can run with the following commands:</p>
+<pre><code>cd omics_server
+python manage.py makemigrations
+python manage.py makemigrations pipelines
+python manage.py migrate
+python manage.py createsuperuser
+</code></pre>
+<p>When the server is updated the first three commands may have to be repeated to update the database. </p>
+<h2 id="supervisor">Supervisor</h2>
+<p>Supervisor is a process contol system that lets programs run as a service. It starts the celery server as well as the django backend and restarts them automatically in case something goes wrong. The configuration file have to be copied to <code>/etc/supervisor/conf.d/</code> and then supervisor can be started/stopped with the following commands:</p>
+<pre><code>sudo apt install supervisor
+
+sed s+PATH+`pwd`+ config/supervisor/omics_celery_worker.conf &gt; tmp
+sudo mv tmp /etc/supervisor/conf.d/omics_celery_worker.conf 
+sed s+PATH+`pwd`+ config/supervisor/omics_server.conf &gt; tmp
+sudo mv tmp /etc/supervisor/conf.d/omics_server.conf
+
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl stop all
+sudo supervisorctl start all
+sudo supervisorctl status all
+</code></pre></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
