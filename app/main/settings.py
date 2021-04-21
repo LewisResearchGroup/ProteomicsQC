@@ -17,13 +17,19 @@ HOME_TITLE = os.getenv('HOME_TITLE', 'Django-3 Omics Pipelines')
 DEBUG = (os.getenv('ENVIRONMENT') == 'develop')
 print('DEBUG:', DEBUG)
 
-ALLOWED_HOSTS = [ os.getenv('HOSTNAME'), 'localhost', 'web', f'https://{HOSTNAME}']
+HOSTNAME = os.getenv('HOSTNAME', 'localhost')
+ALLOWED_HOSTS = [ HOSTNAME, 'localhost', f'https://{HOSTNAME}']
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
+
 #CSRF_COOKIE_HTTPONLY = False
+
 #SESSION_COOKIE_SECURE = True
+
 #CSRF_COOKIE_SECURE = True
+
 #SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 # Application definition
 
