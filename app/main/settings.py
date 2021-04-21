@@ -11,7 +11,7 @@ BASE_DIR = P(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY')
-HOME_TITLE = os.getenv('HOME_TITLE', 'Omics Pipelines')
+HOME_TITLE = os.getenv('HOME_TITLE', 'Django-3 Omics Pipelines')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (os.getenv('ENVIRONMENT') == 'develop')
