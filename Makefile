@@ -5,7 +5,10 @@ migrations:
 	sudo docker-compose run web python manage.py makemigrations $(ARGS)
 
 run:
-	sudo docker-compose up
+	sudo docker-compose down && sudo docker-compose up
+
+devel:
+	sudo docker-compose -f docker-compose-develop.yml down && sudo docker-compose -f docker-compose-develop.yml up
 
 build:
 	sudo docker-compose build
@@ -25,7 +28,10 @@ manage:
 reset_migrations:
 	sudo find . -path "*/migrations/*.pyc"  -delete
 	sudo find . -path "*/migrations/*.py" -not -name "__init__.py" -delete
-	make migrations ARGS=user
+	make init
+
+init:
+    make migrations ARGS=user
 	make migrations ARGS=maxquant
 	make migrations ARGS=api
 	make migrations ARGS=rawtools

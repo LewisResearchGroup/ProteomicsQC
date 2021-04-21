@@ -5,9 +5,9 @@ services:
     build: .
     env_file:
       - ./.env
-    environment:
-      - ENVIRONMENT=develop
-    command: python manage.py runserver 0.0.0.0:8000
+    environment: 
+      - ENVIRONMENT=production
+    command: python server.py
     volumes:
       - ./app/:/app/
       - ./lib/lrg_omics/:/lrg-omics/
