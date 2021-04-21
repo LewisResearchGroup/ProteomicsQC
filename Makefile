@@ -38,6 +38,7 @@ init:
 	make migrations ARGS=project
 	make migrate
 	make createsuperuser
+	make collectstatic
 
 make update:
 	git pull --recurse-submodules

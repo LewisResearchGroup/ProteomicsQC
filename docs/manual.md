@@ -1,31 +1,21 @@
 # User manual
 
-## Start the pipeline server and the celery workers.
-
-To run the server both the celery workers and the django server have to be started. This can be done running the scripts:
-
-    scripts/omics_celery_worker.sh    
-
-    scripts/omics_server.sh        
-
-    >Starting omics server
-    >LOAD MAXQUANT DASHBOARD
-    >Dashboard API URL:http://localhost:8000
-    >URL: http://localhost:8000/api/projects
-    >LOAD PRIMARY DASHBOARD
-    >Serving on http://0.0.0.0:8123
-
-
-After installation the webinterface can be reached with the browser. By default the server runs on address [http://localhost:8123](http://localhost:8123).
-This can be changed in the configuration file (`OMICS.conf`).
+Please, have a look at the [installation instructions](installation.md) and how to start the pipeline server.
 
 
 ## Login with an admin account
+
+When you visit the website for the first time you will be redirected to the login page.
+A new user can register a new account with a valid email address. To visit the 
+admin page the user has to be granted the rights by an admin. If you do not have setup
+an admin account
 
 ![](img/login.png)
 
 
 ![](img/click-on-admin.png)
+
+To setup a 
 
 
 ## Setup MaxQuant
