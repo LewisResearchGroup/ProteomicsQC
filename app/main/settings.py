@@ -15,6 +15,7 @@ HOME_TITLE = os.getenv('HOME_TITLE', 'Omics Pipelines')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (os.getenv('ENVIRONMENT') == 'develop')
+print('DEBUG:', DEBUG)
 
 ALLOWED_HOSTS = [ os.getenv('HOSTNAME', 'localhost')]
 
