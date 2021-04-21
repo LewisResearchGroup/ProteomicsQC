@@ -61,14 +61,24 @@ def get_pipelines(project):
         return output
 
 
-def get_protein_groups(project, pipeline, protein_names=None, columns=None, 
-                       data_range=None):
-    url = f'{URL}/p/api/mq/proteingroups'
+def get_protein_groups(project, pipeline, protein_names=None, 
+        columns=None, data_range=None):
+    url = f'{URL}/api/mq/protein-groups'
     headers = {'Content-type': 'application/json'}
     data =  json.dumps( dict(project=project, pipeline=pipeline, 
                              protein_names=protein_names,
                              columns=columns, data_range=data_range) )
     return requests.get(url, data=data, headers=headers).json()
+
+
+def get_protein_names(project, pipeline):
+    url = f'{URL}/api/mq/protein-names'
+    headers = {'Content-type': 'application/json'}
+    data =  json.dumps( dict(project=project, pipeline=pipeline) )
+    print('Get me protein names for:', data)
+    obj = requests.post(url, data=data, headers=headers).json()
+    print('Received protein names:', obj)
+    return obj
 
 
 def get_qc_data(project, pipeline, columns, data_range):

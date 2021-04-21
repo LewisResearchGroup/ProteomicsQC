@@ -18,7 +18,9 @@ from django.shortcuts import reverse
 from uuid import uuid4
 
 from lrg_omics.proteomics.tools import load_rawtools_data_from, load_maxquant_data_from
+from lrg_omics.proteomics.MaxquantReader import MaxQuantReader
 
+from .rawtools import RawToolsSetup
 from .tasks import rawtools_metrics, rawtools_qc, run_maxquant
 
 DATALAKE_ROOT = settings.DATALAKE_ROOT
@@ -29,8 +31,8 @@ COMPUTE = settings.COMPUTE
 
 class MaxQuantResult(models.Model):
 
-    raw_file = models.ForeignKey('RawFile', on_delete=models.CASCADE)
-    
+    raw_file = models.OneToOneField('RawFile', on_delete=models.CASCADE)
+
     @property
     def pipeline(self):
         return self.raw_file.pipeline
@@ -135,7 +137,6 @@ class MaxQuantResult(models.Model):
         if rerun and os.path.isdir(out_dir): shutil.rmtree( out_dir )
         rawtools_metrics.delay(raw_fn, out_dir, args)
 
-
     def run(self):
         self.run_maxquant()
         self.run_rawtools_metrics()
@@ -145,11 +146,12 @@ class MaxQuantResult(models.Model):
         abs_fn = self.output_dir_maxquant / fn
         print(abs_fn, abs_fn.is_file())
         if abs_fn.is_file():
-            df = pd.read_csv(abs_fn, sep='\t')
-            df['RawFile'] = self.raw_file.name
-            df['Project'] = self.raw_file.pipeline.project.name
-            df['Pipeline'] = self.raw_file.pipeline.name   
-            df = df.set_index(['Project', 'Pipeline', 'RawFile']).reset_index()         
+            df = MaxQuantReader().read(abs_fn)
+            df['RawFile'] =  str(self.raw_file.name)
+            df['Project'] =  str(self.raw_file.pipeline.project.name)
+            df['Pipeline'] = str(self.raw_file.pipeline.name   )
+            df = df.set_index(['Project', 'Pipeline', 'RawFile']).reset_index()     
+            print(df)    
             return df
         else:
             return None
@@ -187,12 +189,13 @@ class MaxQuantResult(models.Model):
         fn_txt = 'proteinGroups.txt'
         abs_fn_txt = self.output_dir_maxquant / fn_txt
         abs_fn_par = self.protein_quant_fn
-        print(abs_fn_par, abs_fn_par.parent)
         if not abs_fn_par.is_file():
             if not abs_fn_par.parent.is_dir():
                 os.makedirs( abs_fn_par.parent )
-            pd.read_csv( abs_fn_txt, sep='\t').to_parquet(abs_fn_par)
-        return 'OK'
+            df = self.get_data_from_file('proteinGroups.txt')
+            if df is None: return None
+            df.to_parquet(abs_fn_par)
+        return abs_fn_par
 
     @property
     def protein_quant_fn(self):
@@ -203,6 +206,7 @@ class MaxQuantResult(models.Model):
 
 @receiver(models.signals.post_save, sender=MaxQuantResult)
 def run_maxquant_after_save(sender, instance, created, *args, **kwargs):
+    print('Saved MaxQuantResult')
     instance.run()
 
 @receiver(models.signals.post_delete, sender=MaxQuantResult)
@@ -211,4 +215,3 @@ def remove_maxquant_folders_after_delete(sender, instance, *args, **kwargs):
         shutil.rmtree(instance.path)
     if instance.run_directory_exists:
         shutil.rmtree(instance.run_directory)
-    

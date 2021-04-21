@@ -34,7 +34,7 @@ if __name__ == '__main__':
     app = dash.Dash(__name__)
     import proteins, quality_control, explorer
     from tools import table_from_dataframe, get_projects, get_pipelines,\
-        get_protein_groups, get_qc_data, list_to_dropdown_options
+        get_protein_groups, get_qc_data, list_to_dropdown_options, get_protein_names
     from config import qc_columns_always, data_range_options
 
     app.config.suppress_callback_exceptions = True
@@ -43,7 +43,7 @@ else:
     from django_plotly_dash import DjangoDash
     from . import proteins, quality_control, explorer
     from .tools import table_from_dataframe, get_projects, get_pipelines,\
-        get_protein_groups, get_qc_data, list_to_dropdown_options
+        get_protein_groups, get_qc_data, list_to_dropdown_options, get_protein_names
     from .config import qc_columns_always, data_range_options
 
     #from .style import graph_style
@@ -54,7 +54,7 @@ else:
 
 timeout = 360
 
-protein_table_default_cols = ['RawFile', 'Majority protein IDs']
+protein_table_default_cols = []
 
 layout = html.Div([
     dcc.Loading(dcc.Store(id='store')),
@@ -129,9 +129,10 @@ def refresh_protein_table(project, pipeline, tab):
         raise PreventUpdate
     if (tab != 'proteins'):
         raise PreventUpdate
-    data = get_protein_groups(project=project, pipeline=pipeline, columns=['Majority protein IDs'])
-    df = pd.read_json(data).sort_index(ascending=False)
-    print('Retrieved dataframe:', df)
+    data = get_protein_names(project=project, pipeline=pipeline)
+    print(type(data))
+    df = pd.DataFrame(data)
+    print('Generated dataframe:', df)
     return table_from_dataframe(df, id='protein-table')
 
 
@@ -181,7 +182,7 @@ def plot_protein_figure(data, ndxs, plot_column, project, pipeline):
     protein_names = list( df.iloc[ndxs, 0] )
 
     data = get_protein_groups(project, pipeline, protein_names=protein_names, 
-            columns=['RawFile', 'Majority protein IDs', plot_column])
+            columns=[plot_column])
 
     df = pd.read_json( data )
 

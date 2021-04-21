@@ -36,7 +36,8 @@ class MaxQuantPipeline(models.Model):
 
     regular_expressions_filter = models.CharField(max_length=256, default='.*')
 
-    maxquant_executable = models.FilePathField(path=str(COMPUTE_ROOT), match=".*MaxQuantCmd.exe", recursive=True)
+    maxquant_executable = models.FilePathField(path=str(COMPUTE_ROOT), 
+        match=".*MaxQuantCmd.exe", recursive=True, null=True, blank=True)
 
     fasta_file = models.OneToOneField(
                     'FastaFile', 
@@ -54,7 +55,9 @@ class MaxQuantPipeline(models.Model):
     
     slug = models.SlugField(max_length=256, unique=False, default=uuid4)
 
-    rawtools = models.ForeignKey('RawToolsSetup', on_delete=models.SET_NULL, null=True, parent_link=True)
+    uuid = models.CharField(max_length=36, default=uuid4)
+
+    rawtools = models.OneToOneField('RawToolsSetup', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.name
@@ -118,6 +121,15 @@ class MaxQuantPipeline(models.Model):
     @property
     def parquet_path(self):
         return self.path / 'parquet'
+
+
+
+    #def args(self):
+    #    return None
+
+    #def pipeline_id(self):
+    #    return None
+
 
 
 @receiver(models.signals.post_save, sender=MaxQuantPipeline)

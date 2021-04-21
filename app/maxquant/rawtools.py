@@ -9,11 +9,11 @@ class RawToolsSetup(models.Model):
     
     created = models.DateField(default=timezone.now)
 
+    name = models.CharField(max_length=100, null=True, default='RawTools')
+
     args = models.CharField(max_length=256, null=True, default='-p -q -x -u -l -m -r TMT11 -chro 12TB')
     
-    pipeline = models.ForeignKey('MaxQuantPipeline', on_delete=models.SET_NULL, null=True)
-
-    name = models.CharField(max_length=100, null=True, default='RawTools')
+    pipeline = models.OneToOneField('MaxQuantPipeline', on_delete=models.CASCADE, null=True, parent_link=True)
 
     def __str__(self):
         return self.name

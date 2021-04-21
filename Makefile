@@ -22,7 +22,13 @@ showenv:
 manage:
 	sudo docker-compose run web python manage.py $(CMD)
 
-reset_db:
-	sudo rm -r ./data/db
+reset_migrations:
 	sudo find . -path "*/migrations/*.pyc"  -delete
 	sudo find . -path "*/migrations/*.py" -not -name "__init__.py" -delete
+	make migrations ARGS=user
+	make migrations ARGS=maxquant
+	make migrations ARGS=api
+	make migrations ARGS=rawtools
+	make migrations ARGS=project
+	make migrate
+	make createsuperuser

@@ -30,14 +30,22 @@ class RawFileAdmin(admin.ModelAdmin):
 
 
 class MaxQuantPipelineAdmin(admin.ModelAdmin):
-    readonly_fields = ('path', 'path_exists', 'slug', 'fasta_path', 'mqpar_path', 'created_by', 'parquet_path')
-    list_display = ('pk', 'name', 'project', 'run_automatically', 'regular_expressions_filter', 'path', 'path_exists', 'rawtools')
+    readonly_fields = ('path', 'path_exists', 'slug', 'fasta_path', 'mqpar_path', 'created_by', 'parquet_path', 'uuid')
+    list_display = ('pk', 'name', 'project', 'run_automatically', 'regular_expressions_filter', 'path', 'path_exists')
     list_filter = ['project']
-    inlines = [FastaFileAdmin, MaxQuantParameterAdmin]
+    #exclude = ('rawtools',)
+    inlines = [MaxQuantParameterAdmin, FastaFileAdmin]
+
+    def queryset(self, request):
+        qs = super(MaxQuantPipelineAdmin, self).queryset(request)
+        qs = qs.exclude(relatedNameForYourProduct__isnone=True)
+        return qs
 
 
 class MaxQuantResultAdmin(admin.ModelAdmin):
-    readonly_fields = ('path', 'run_directory', 'raw_fn', 'mqpar_fn', 'fasta_fn', 'pipeline', 'parquet_path', 'create_protein_quant')
+    readonly_fields = ('path', 'run_directory', 'raw_fn', 'mqpar_fn', 
+                       'fasta_fn', 'pipeline', 'parquet_path', 
+                       'create_protein_quant')
     list_fields = ('name', 'pipeline')
 
     def regroup_by(self):

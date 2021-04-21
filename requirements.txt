@@ -1,11 +1,10 @@
 celery
 colorlover
-colorlover
 dash_bootstrap_components 
 dash-table-experiments
 dash-tabulator
+dask
 django
-django_admin_index 
 django_admin_index 
 django_plotly_dash 
 django-bootstrap4
@@ -17,8 +16,8 @@ django-extensions
 django-oauth-toolkit
 django-plotly-dash
 djangorestframework 
-django-system-monitor
-dpd-static-support 
+dpd-static-support
+fastparquet
 matplotlib
 pandas
 plotly

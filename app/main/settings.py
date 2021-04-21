@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # 'oauth2_provider',
-    'sysmon',
+    # 'sysmon',
     'cookielaw',
     'django_plotly_dash.apps.DjangoPlotlyDashConfig',
 ]

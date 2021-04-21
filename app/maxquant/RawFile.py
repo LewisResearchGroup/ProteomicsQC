@@ -5,7 +5,7 @@ import zipfile
 
 from pathlib import Path as P
 
-from django.db import models
+from django.db import models, IntegrityError
 from django_currentuser.db.models import CurrentUserField
 from django.template.defaultfilters import slugify
 from django.dispatch import receiver
@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.shortcuts import render, reverse
 
+from .MaxQuantResult import MaxQuantResult
 from uuid import uuid4
 
 
@@ -29,21 +30,20 @@ class RawFile(models.Model):
 
     created = models.DateField(default=timezone.now)
 
-    orig_file = models.FileField(upload_to = 'upload', 
-                                 storage = DATALAKE, 
-                                 max_length = 1000)
-
-    md5sum = models.CharField(max_length = 36, 
-                              default = timezone.now, 
-                              unique = False)
-
     pipeline = models.ForeignKey('MaxQuantPipeline', on_delete=models.CASCADE, null=False, default=1)
-   
+
+    md5sum = models.CharField(max_length = 36, default = timezone.now, unique = False)
+
+    #result = AutoOneToOneField('MaxQuantResult', on_delete=models.SET_NULL, null=True, blank=True)
+
+    orig_file = models.FileField(upload_to = 'upload', storage = DATALAKE, max_length = 1000, unique = False)
+
     slug = models.SlugField(max_length = 250, null=True, blank=True)
-    
-    use_downstream = models.BooleanField(default=True)
 
     flagged = models.BooleanField(default=False)
+
+    use_downstream = models.BooleanField(default=True)
+
 
     class Meta:
         unique_together = ('orig_file', 'pipeline')   
@@ -72,11 +72,11 @@ class RawFile(models.Model):
     
     @property
     def name(self):
-        return P(P( self.orig_file.name ).name)
+        return P( self.orig_file.name ).name
 
     @property
     def path(self): 
-        return self.pipeline.input_path /  self.name.with_suffix('').name / self.name
+        return self.pipeline.input_path /  P(self.name).with_suffix('').name / self.name
 
     @property
     def upload_path(self):
@@ -134,8 +134,8 @@ def move_rawfile_to_input_dir(sender, instance, created, *args, **kwargs):
     raw_file = instance
     if created:
         raw_file.move_to_input_dir()
+        MaxQuantResult.objects.create(raw_file = raw_file )
 
-    
 @receiver(models.signals.post_delete, sender=RawFile)
 def delete_rawfile(sender, instance, *args, **kwargs):
     raw_file = instance

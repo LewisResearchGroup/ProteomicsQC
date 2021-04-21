@@ -151,9 +151,9 @@ class UploadRaw(LoginRequiredMixin, View):
             _file = form.cleaned_data['orig_file']
             _file = RawFile.objects.create(orig_file=_file, pipeline=pipeline)
 
-            if _file.name.lower().endswith('.raw'): 
+            if str( _file.name ).lower().endswith('.raw'): 
                 _file.save()
-            data = {'is_valid': True, 'name': _file.name, 'url': str( _file.path ) }
+            data = {'is_valid': True, 'name': str( _file.name ), 'url': str( _file.path ) }
         else:
             data = {'is_valid': False}
         return JsonResponse(data)
