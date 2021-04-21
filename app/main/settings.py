@@ -17,7 +17,7 @@ HOME_TITLE = os.getenv('HOME_TITLE', 'Django-3 Omics Pipelines')
 DEBUG = (os.getenv('ENVIRONMENT') == 'develop')
 print('DEBUG:', DEBUG)
 
-ALLOWED_HOSTS = [ os.getenv('HOSTNAME'), 'localhost', 'web']
+ALLOWED_HOSTS = [ os.getenv('HOSTNAME'), 'localhost', 'web', f'https://{HOSTNAME}']
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 #CSRF_COOKIE_HTTPONLY = False
