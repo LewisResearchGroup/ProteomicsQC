@@ -30,7 +30,7 @@ reset_migrations:
 	sudo find . -path "*/migrations/*.py" -not -name "__init__.py" -delete
 	make init-db
 
-initiate:
+init-db:
 	make migrations ARGS=user
 	make migrations ARGS=maxquant
 	make migrations ARGS=api
