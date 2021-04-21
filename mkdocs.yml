@@ -1,0 +1,6 @@
+site_name: LRG Proteomics Pipelines
+nav:
+    - Home: index.md
+    - Installation: installation.md
+    - User Manual: manual.md
+    - About: about.md
