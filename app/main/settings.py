@@ -186,3 +186,69 @@ class MediaFileSystemStorage(FileSystemStorage):
 
 DATALAKE = MediaFileSystemStorage(location=str(DATALAKE_ROOT))
 COMPUTE = MediaFileSystemStorage(location=str(COMPUTE_ROOT))
+
+
+COOKIEBANNER = {
+    "title": "Cookie settings",
+    "header_text": "We are using cookies on this website. A few are essential, others are not.",
+    "footer_text": "Please accept our cookies",
+    "footer_links": [
+        { "title": "Impprint", "href": "/imprint"},
+        { "title": "Privacy", "href": "/privacy"},
+    ],
+    "groups": [
+        {
+            "id": "essential",
+            "name": "Essential",
+            "description": "Essential cookies allow this page to work.",
+            "cookies": [
+                {
+                    "pattern": "cookiebanner",
+                    "description": "Meta cookie for the cookies that are set.",
+                },
+                {
+                    "pattern": "csrftoken",
+                    "description": "This cookie prevents Cross-Site-Request-Forgery attacks.",
+                },
+                {
+                    "pattern": "sessionid",
+                    "description": "This cookie is necessary to allow logging in, for example.",
+                },
+            ],
+        },
+        {
+            "id": "analytics",
+            "name": "Analytics",
+            "optional": True,
+            "cookies": [
+                {
+                    "pattern": "_pk_.*",
+                    "description": "Matomo cookie for website analysis.",
+                },
+            ],
+        },
+    ],
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+}
+
+# Email settings
+EMAIL_HOST = os.getenv('EMAIL_HOST', None)
+
+if EMAIL_HOST is not None:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', None) == 'True'
+    EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', None) == 'True'
+    EMAIL_PORT = os.getenv('EMAIL_PORT', None)
+    EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+    DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@yourpipelines.com')
+
+    print('Useing e-mail settings:')
+    print(EMAIL_HOST)
+    print(EMAIL_HOST_USER)
+    print(EMAIL_PORT)
+    print(DEFAULT_FROM_EMAIL)
+    
