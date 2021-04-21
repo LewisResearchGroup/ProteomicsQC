@@ -32,12 +32,14 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-
+      - ENVIRONMENT=production  
   redis:
     restart: always
     image: redis:alpine
     ports:
       - "6379:6379"
+    environment: 
+      - ENVIRONMENT=production        
 
   celery:
     restart: always
@@ -51,7 +53,6 @@ services:
       - ENVIRONMENT=production      
     volumes:
       - ./app/:/app/
-      #- ./lib/lrg_omics/:/lrg-omics/
       - ${DATALAKE}:/datalake/      
       - ${COMPUTE}:/compute/
     environment:
