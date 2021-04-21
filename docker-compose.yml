@@ -46,7 +46,9 @@ services:
       dockerfile: Dockerfile
     command: bash -c "celery -A main worker -l info"
     env_file:
-      - ./.env    
+      - ./.env
+    environment: 
+      - ENVIRONMENT=production      
     volumes:
       - ./app/:/app/
       #- ./lib/lrg_omics/:/lrg-omics/

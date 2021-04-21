@@ -42,3 +42,5 @@ init:
 make update:
 	git pull --recurse-submodules
 	make build
+	make migrations
+	make migrate
