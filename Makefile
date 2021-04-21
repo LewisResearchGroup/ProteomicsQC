@@ -7,7 +7,7 @@ migrations:
 run:
 	sudo docker-compose down && sudo docker-compose up
 
-run_server:
+serve:
 	sudo docker-compose down && sudo docker-compose up -d
 
 devel:
