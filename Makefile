@@ -7,6 +7,9 @@ migrations:
 run:
 	sudo docker-compose down && sudo docker-compose up
 
+run_server:
+	sudo docker-compose down && sudo docker-compose up -d
+
 devel:
 	sudo docker-compose -f docker-compose-develop.yml down && sudo docker-compose -f docker-compose-develop.yml up
 
