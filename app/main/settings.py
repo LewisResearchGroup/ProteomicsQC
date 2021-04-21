@@ -89,7 +89,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'main.wsgi.application'
-
+ASGI_APPLICATION = 'mail.routing.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -251,4 +251,3 @@ if EMAIL_HOST is not None:
     print(EMAIL_HOST_USER)
     print(EMAIL_PORT)
     print(DEFAULT_FROM_EMAIL)
-    
