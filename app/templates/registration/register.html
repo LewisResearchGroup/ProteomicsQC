@@ -1,0 +1,15 @@
+{% extends "base.html" %} 
+
+{% block auth %}
+    <form method="post" action="{% url 'user:registration' %}">
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <p>Errors in the form</p>
+        {% endif %}
+
+        {{ form }}
+
+        <input type="submit" value="Register">
+    </form>
+{% endblock %}
