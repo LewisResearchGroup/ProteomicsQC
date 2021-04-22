@@ -93,7 +93,8 @@ def get_qc_data(project_slug, pipeline_slug):
     df = pd.merge(rt, mq, on='RawFile', how='outer')\
             .sort_values('Index', ascending=True)
             
-    df['DateAcquired'] = df['DateAcquired'].astype( np.int64 )
+    df['DateAcquired'] = df['DateAcquired'].astype( np.int64, errors='ignore' )
+
     assert df.columns.value_counts().max()==1, df.columns.value_counts()
     return df
 
@@ -134,13 +135,11 @@ class ProteinGroupsAPI(generics.ListAPIView):
 
         fns = get_protein_quant_fn(project_slug, pipeline_slug)
 
-
         if 'Reporter intensity corrected' in columns:
             df = pd.read_parquet(fns[0])
             intensity_columns = df.filter(regex='Reporter intensity corrected').columns.to_list()
             columns.remove('Reporter intensity corrected')
             columns = columns + intensity_columns
-
 
         df = get_protein_groups_data(fns, 
                 columns=columns, 
