@@ -14,5 +14,9 @@ urlpatterns = [
     path('dashboard/', include(('dashboards.urls', 'dashboards'), namespace='dash')),
     path('django_plotly_dash/', include('django_plotly_dash.urls')),
     path('api/', include(('api.urls', 'api'), namespace='api')),
+    path('user/', include(('user.urls', 'user'), namespace='user'))
 ]
 
+
+admin.site.site_title = settings.HOME_TITLE
+admin.site.site_header = settings.HOME_TITLE

@@ -10,7 +10,6 @@ services:
     command: python server.py
     volumes:
       - ./app/:/app/
-      #- ./lib/lrg_omics/:/lrg-omics/
       - ${DATALAKE}:/datalake/
       - ${MEDIA}:/appmedia/
       - ${STATIC}:/static/

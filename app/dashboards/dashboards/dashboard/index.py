@@ -214,10 +214,6 @@ def plot_protein_figure(data, ndxs, plot_column, project, pipeline):
 
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
     fig.update(layout_showlegend=True)
-    #fig.update_layout(
-    #        legend=dict(orientation="h")
-    #    )
-
     fig.update_xaxes(matches='x')
 
     if normalized: fig.update_layout(yaxis=dict(range=[0,1]))
