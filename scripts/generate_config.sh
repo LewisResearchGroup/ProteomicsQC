@@ -2,8 +2,6 @@
 
 echo '# OMICS PIPELINES CONFIG' > .env
 
-echo "ENVIRONMENT=develop" >> .env
-
 echo """
 ## HOMPAGE SETTINGS
 HOME_TITLE='Proteomics Pipelines'
@@ -25,6 +23,10 @@ EMAIL_PORT=587
 EMAIL_HOST_USER=''
 EMAIL_HOST_PASSWORD=''
 DEFAULT_FROM_EMAIL=''
+""" >> .env
+
+echo """## CELERY
+CONCURRENCY=8
 """ >> .env
 
 echo "## SECURITY KEYS" >> .env
