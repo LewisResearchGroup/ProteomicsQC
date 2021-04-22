@@ -18,6 +18,7 @@ django-plotly-dash
 djangorestframework 
 dpd-static-support
 fastparquet
+glob
 matplotlib
 pandas
 plotly

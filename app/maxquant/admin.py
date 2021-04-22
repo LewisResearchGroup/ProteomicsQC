@@ -3,6 +3,7 @@ from .models import MaxQuantPipeline, FastaFile, MaxQuantExecutable, MaxQuantPar
         RawFile, MaxQuantResult, RawToolsSetup
 
 
+
 class FastaFileAdmin(admin.StackedInline):
     model = FastaFile
     readonly_fields = ('md5sum', 'created', 'name', 'path', 'created_by')
@@ -45,11 +46,14 @@ class MaxQuantPipelineAdmin(admin.ModelAdmin):
 class MaxQuantResultAdmin(admin.ModelAdmin):
     readonly_fields = ('path', 'run_directory', 'raw_fn', 'mqpar_fn', 
                        'fasta_fn', 'pipeline', 'parquet_path', 
-                       'create_protein_quant')
-    list_fields = ('name', 'pipeline')
+                       'create_protein_quant', 'n_files_maxquant', 
+                       'n_files_rawtools_metics', 'n_files_rawtools_qc')
 
-    def regroup_by(self):
-        return 'pipeline'
+    list_display = ('name', 'pipeline', 'n_files_maxquant', 
+        'n_files_rawtools_metics', 'n_files_rawtools_qc')
+
+    #def regroup_by(self):
+    #    return 'pipeline'
 
     def update_maxquant(modeladmin, request, queryset):
         for mq_run in queryset:
@@ -72,7 +76,8 @@ class MaxQuantResultAdmin(admin.ModelAdmin):
         for mq_run in queryset:
             mq_run.run_maxquant(rerun=False)
 
-    actions = [run_maxquant, update_maxquant, update_rawtools, update_rawtools_qc, update_rawtools_metrics] 
+    actions = [run_maxquant, update_maxquant, update_rawtools, 
+               update_rawtools_qc, update_rawtools_metrics] 
 
 
 class RawToolsSetupAdmin(admin.ModelAdmin):

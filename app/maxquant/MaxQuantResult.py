@@ -16,6 +16,7 @@ from django.utils import timezone
 from django.conf import settings 
 from django.shortcuts import reverse
 from uuid import uuid4
+from glob import glob
 
 from lrg_omics.proteomics.tools import load_rawtools_data_from, load_maxquant_data_from
 from lrg_omics.proteomics.MaxquantReader import MaxQuantReader
@@ -202,6 +203,19 @@ class MaxQuantResult(models.Model):
         basename = self.basename
         par_path = (self.parquet_path / 'protein_groups' / basename).with_suffix('.parquet')
         return par_path
+
+    @property
+    def n_files_maxquant(self):
+        return len( os.listdir( f'{self.output_dir_maxquant}'))
+
+    @property
+    def n_files_rawtools_metics(self):
+        return len( os.listdir( f'{self.output_dir_rawtools}'))
+
+    @property
+    def n_files_rawtools_qc(self):
+        return len( os.listdir( f'{self.output_dir_rawtools_qc}'))
+
 
 
 @receiver(models.signals.post_save, sender=MaxQuantResult)
