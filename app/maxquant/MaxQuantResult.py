@@ -206,15 +206,15 @@ class MaxQuantResult(models.Model):
 
     @property
     def n_files_maxquant(self):
-        return len( os.listdir( f'{self.output_dir_maxquant}'))
+        return len( glob( f'{self.output_dir_maxquant/"*.*"}'))
 
     @property
     def n_files_rawtools_metics(self):
-        return len( os.listdir( f'{self.output_dir_rawtools}'))
+        return len( glob( f'{self.output_dir_rawtools/"*.*"}'))
 
     @property
     def n_files_rawtools_qc(self):
-        return len( os.listdir( f'{self.output_dir_rawtools_qc}'))
+        return len( glob( f'{self.output_dir_rawtools_qc/"*.*"}'))
 
 
 
