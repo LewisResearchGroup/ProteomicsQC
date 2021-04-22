@@ -55,29 +55,40 @@ class MaxQuantResultAdmin(admin.ModelAdmin):
     #def regroup_by(self):
     #    return 'pipeline'
 
-    def update_maxquant(modeladmin, request, queryset):
+    def rerun_maxquant(modeladmin, request, queryset):
         for mq_run in queryset:
             mq_run.run_maxquant(rerun=True)
 
-    def update_rawtools(modeladmin, request, queryset):
+    def rerun_rawtools(modeladmin, request, queryset):
         for mq_run in queryset:
             mq_run.run_rawtools_metrics(rerun=True)
             mq_run.run_rawtools_qc(rerun=True)
 
-    def update_rawtools_qc(modeladmin, request, queryset):
+    def rerun_rawtools_qc(modeladmin, request, queryset):
         for mq_run in queryset:
             mq_run.run_rawtools_qc(rerun=True)
 
-    def update_rawtools_metrics(modeladmin, request, queryset):
+    def rerun_rawtools_metrics(modeladmin, request, queryset):
         for mq_run in queryset:
             mq_run.run_rawtools_metrics(rerun=True)
 
-    def run_maxquant(modeladmin, request, queryset):
+    def start_maxquant(modeladmin, request, queryset):
         for mq_run in queryset:
             mq_run.run_maxquant(rerun=False)
 
-    actions = [run_maxquant, update_maxquant, update_rawtools, 
-               update_rawtools_qc, update_rawtools_metrics] 
+    def start_rawtools(modeladmin, request, queryset):
+        for mq_run in queryset:
+            mq_run.run_rawtools_qc(rerun=False)
+            mq_run.run_rawtools_metrics(rerun=False)
+
+    def start_all(modeladmin, request, queryset)
+        for mq_run in queryset:
+             mq_run.run_maxquant(rerun=False)
+            mq_run.run_rawtools_qc(rerun=False)
+            mq_run.run_rawtools_metrics(rerun=False)
+
+    actions = [start_all, start_maxquant, start_rawtools, rerun_maxquant, rerun_rawtools, 
+               rerun_rawtools_qc, rerun_rawtools_metrics] 
 
 
 class RawToolsSetupAdmin(admin.ModelAdmin):
