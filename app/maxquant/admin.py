@@ -81,13 +81,14 @@ class MaxQuantResultAdmin(admin.ModelAdmin):
             mq_run.run_rawtools_qc(rerun=False)
             mq_run.run_rawtools_metrics(rerun=False)
 
-    def start_all(modeladmin, request, queryset)
+    def start_all(modeladmin, request, queryset):
         for mq_run in queryset:
-             mq_run.run_maxquant(rerun=False)
+            mq_run.run_maxquant(rerun=False)
             mq_run.run_rawtools_qc(rerun=False)
             mq_run.run_rawtools_metrics(rerun=False)
 
-    actions = [start_all, start_maxquant, start_rawtools, rerun_maxquant, rerun_rawtools, 
+    actions = [start_all, start_maxquant, start_rawtools,
+               rerun_maxquant, rerun_rawtools, 
                rerun_rawtools_qc, rerun_rawtools_metrics] 
 
 
