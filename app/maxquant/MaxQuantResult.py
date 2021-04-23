@@ -4,7 +4,7 @@ import hashlib
 import shutil
 import zipfile
 import pandas as pd
-from functtools import lru_cache
+from functools import lru_cache
 
 from io import BytesIO
 from pathlib import Path as P
@@ -185,14 +185,14 @@ class MaxQuantResult(models.Model):
                 temp_zip_file.write(fn, arcname=basename(fn))
         return stream.getvalue()
 
-    @lru_cache(1000)
+    @lru_cache(10)
     def maxquant_qc_data(self):
         df = load_maxquant_data_from(self.path)
         if df is None: df = pd.DataFrame()
         df['RawFile'] = self.raw_fn.with_suffix('').name
         return df.set_index('RawFile').reset_index()
 
-    @lru_cache(1000)
+    @lru_cache(10)
     def rawtools_qc_data(self):
         df = load_rawtools_data_from(self.path)
         if df is None: df = pd.DataFrame()
