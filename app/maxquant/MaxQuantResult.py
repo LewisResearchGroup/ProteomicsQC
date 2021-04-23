@@ -240,7 +240,7 @@ class MaxQuantResult(models.Model):
         if not fn.is_file():
             return 'File not found'
         try:
-            read_parquet(fn)
+            pd.read_parquet(fn)
             return 'OK'
         except:
             return 'Not readable.'
