@@ -69,7 +69,6 @@ def get_qc_data(project_slug, pipeline_slug):
     rts = []
 
     for result in tqdm(results):
-        print(result.name)
         try:
             rts.append( result.rawtools_qc_data() )
         except Exception as e:
