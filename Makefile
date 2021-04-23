@@ -48,3 +48,7 @@ make update:
 	make build
 	make migrations
 	make migrate
+
+make stop:
+	sudo docker-compose down
+	sudo docker-compose -f docker-compose-develop.yml down
