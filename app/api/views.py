@@ -70,12 +70,12 @@ def get_qc_data(project_slug, pipeline_slug):
     for result in tqdm(results):
         try:
             rts.append( result.rawtools_qc_data() )
-        except:
-            pass
+        except Exception as e:
+            logging.warning(e)
         try:
             mqs.append( result.maxquant_qc_data() )
-        except:
-            pass
+        except Exception as e:
+            logging.warning(e)
 
     rt = pd.concat(rts)
     mq = pd.concat(mqs)
