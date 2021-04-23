@@ -43,7 +43,6 @@ class MaxQuantPipelineNames(generics.ListAPIView):
 
 class QcDataAPI(generics.ListAPIView):
     def get(self, request):
-        print('QcDataAPI()')
         data = request.data
         project_slug = data['project']
         pipeline_slug = data['pipeline']
@@ -81,9 +80,6 @@ def get_qc_data(project_slug, pipeline_slug):
     mq = pd.concat(mqs)
 
     del rts, mqs
-
-    if rt is not None: print('RawFile' in rt.columns)
-    if mq is not None: print('RawFile' in mq.columns)
 
     rt['Index'] = rt['DateAcquired'].rank()
 
@@ -151,7 +147,6 @@ class ProteinGroupsAPI(generics.ListAPIView):
                 columns=columns, 
                 protein_names=protein_names)
         
-        print(pd.value_counts(df.columns))
         return JsonResponse(df.to_json(), safe=False)
 
 
@@ -169,7 +164,6 @@ def get_protein_quant_fn(project_slug, pipeline_slug):
 
 
 def get_protein_groups_data(fns, columns, protein_names, protein_col='Majority protein IDs'):
-    print('Get protein groups')
     ddf = dd.read_parquet(fns, engine="pyarrow")
     ddf = ddf[ddf[protein_col].isin(protein_names)]
     ddf = ddf[['RawFile', protein_col]+columns]
