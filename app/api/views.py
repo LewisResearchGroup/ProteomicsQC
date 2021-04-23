@@ -165,7 +165,7 @@ def get_protein_quant_fn(project_slug, pipeline_slug):
 
 def get_protein_groups_data(fns, columns, protein_names, protein_col='Majority protein IDs'):
     ddf = dd.read_parquet(fns, engine="pyarrow")
-    ddf = ddf[ddf[protein_col].isin(protein_names)]
+    ddf = ddf[ddf[protein_col].isin(protein_names)] 
     ddf = ddf[['RawFile', protein_col]+columns]
     return ddf.compute().reset_index(drop=True)
 
