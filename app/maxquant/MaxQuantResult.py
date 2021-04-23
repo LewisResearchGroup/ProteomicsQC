@@ -234,6 +234,16 @@ class MaxQuantResult(models.Model):
     def n_files_rawtools_qc(self):
         return len( glob( f'{self.output_dir_rawtools_qc/"*.*"}'))
 
+    @property
+    def status_protein_quant_parquet(self):
+        fn = self.protein_quant_fn   
+        if not fn.is_file():
+            return 'File not found'
+        try:
+            read_parquet(fn)
+            return 'OK'
+        except:
+            return 'Not readable.'
 
 
 @receiver(models.signals.post_save, sender=MaxQuantResult)
