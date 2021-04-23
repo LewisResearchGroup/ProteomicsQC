@@ -164,6 +164,7 @@ class MaxQuantResult(models.Model):
         abs_fn = self.output_dir_maxquant / fn
         if abs_fn.is_file():
             df = MaxQuantReader().read(abs_fn)
+            if df is None: return None
             df['RawFile'] =  str(self.raw_file.name)
             df['Project'] =  str(self.raw_file.pipeline.project.name)
             df['Pipeline'] = str(self.raw_file.pipeline.name   )
