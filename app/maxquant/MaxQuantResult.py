@@ -7,6 +7,9 @@ import pandas as pd
 
 from io import BytesIO
 from pathlib import Path as P
+from uuid import uuid4
+from glob import glob
+
 
 from django.db import models
 from django_currentuser.db.models import CurrentUserField
@@ -15,8 +18,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.conf import settings 
 from django.shortcuts import reverse
-from uuid import uuid4
-from glob import glob
+
 
 from lrg_omics.proteomics.tools import load_rawtools_data_from, load_maxquant_data_from
 from lrg_omics.proteomics.MaxquantReader import MaxQuantReader
@@ -29,8 +31,17 @@ COMPUTE_ROOT = settings.COMPUTE_ROOT
 COMPUTE = settings.COMPUTE
 
 
+def get_time_of_file_modification(fn):
+    fn = P(fn)
+    mtime = datetime.datetime.fromtimestamp(fn.stat().st_mtime)
+    return mtime.utcnow()
+
 
 class MaxQuantResult(models.Model):
+
+    created_by = CurrentUserField()
+
+    created = models.DateTimeField(default=timezone.now)
 
     raw_file = models.OneToOneField('RawFile', on_delete=models.CASCADE)
 
@@ -123,36 +134,40 @@ class MaxQuantResult(models.Model):
         print('MQ parameters:', params)
 
         return params
-            
+
+
     def run_maxquant(self, rerun=False):
         raw_file      = str( self.raw_fn )
+        self.set_maxquant_start_time()
         run_maxquant.delay(raw_file, self.maxquant_parameters())
+        
 
     def run_rawtools_qc(self, rerun=False):
         inp_dir, out_dir = str(self.raw_file.path.parent), str(self.output_dir_rawtools_qc)
         if rerun and os.path.isdir(out_dir): shutil.rmtree( out_dir )
-        rawtools_qc.delay(inp_dir, out_dir)
+        if rerun or (self.n_files_rawtools_qc == 0):
+            rawtools_qc.delay(inp_dir, out_dir)
 
     def run_rawtools_metrics(self, rerun=False):
         raw_fn, out_dir, args = str(self.raw_file.path), str(self.output_dir_rawtools), self.pipeline.rawtools.args
         if rerun and os.path.isdir(out_dir): shutil.rmtree( out_dir )
-        rawtools_metrics.delay(raw_fn, out_dir, args)
+        if rerun or (self.n_files_rawtools_metrics == 0):
+            rawtools_metrics.delay(raw_fn, out_dir, args)
 
     def run(self):
         self.run_maxquant()
         self.run_rawtools_metrics()
         self.run_rawtools_qc()
+        
 
     def get_data_from_file(self, fn='proteinGroups.txt'):
         abs_fn = self.output_dir_maxquant / fn
-        print(abs_fn, abs_fn.is_file())
         if abs_fn.is_file():
             df = MaxQuantReader().read(abs_fn)
             df['RawFile'] =  str(self.raw_file.name)
             df['Project'] =  str(self.raw_file.pipeline.project.name)
             df['Pipeline'] = str(self.raw_file.pipeline.name   )
             df = df.set_index(['Project', 'Pipeline', 'RawFile']).reset_index()     
-            print(df)    
             return df
         else:
             return None
@@ -221,7 +236,8 @@ class MaxQuantResult(models.Model):
 @receiver(models.signals.post_save, sender=MaxQuantResult)
 def run_maxquant_after_save(sender, instance, created, *args, **kwargs):
     print('Saved MaxQuantResult')
-    instance.run()
+    if created:
+        instance.run()
 
 @receiver(models.signals.post_delete, sender=MaxQuantResult)
 def remove_maxquant_folders_after_delete(sender, instance, *args, **kwargs):

@@ -50,7 +50,8 @@ class MaxQuantResultAdmin(admin.ModelAdmin):
                        'n_files_rawtools_metics', 'n_files_rawtools_qc')
 
     list_display = ('name', 'pipeline', 'n_files_maxquant', 
-        'n_files_rawtools_metics', 'n_files_rawtools_qc')
+        'n_files_rawtools_metics', 'n_files_rawtools_qc', 
+        'maxquant_started', 'maxquant_finished')
 
     #def regroup_by(self):
     #    return 'pipeline'
