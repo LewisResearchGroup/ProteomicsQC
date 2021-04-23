@@ -68,8 +68,14 @@ def get_qc_data(project_slug, pipeline_slug):
     rts = []
 
     for result in tqdm(results):
-        rts.append( result.rawtools_qc_data() )
-        mqs.append( result.maxquant_qc_data() )
+        try:
+            rts.append( result.rawtools_qc_data() )
+        except:
+            pass
+        try:
+            mqs.append( result.maxquant_qc_data() )
+        except:
+            pass
 
     rt = pd.concat(rts)
     mq = pd.concat(mqs)
