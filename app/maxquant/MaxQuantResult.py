@@ -138,7 +138,6 @@ class MaxQuantResult(models.Model):
 
     def run_maxquant(self, rerun=False):
         raw_file      = str( self.raw_fn )
-        self.set_maxquant_start_time()
         run_maxquant.delay(raw_file, self.maxquant_parameters())
         
 
