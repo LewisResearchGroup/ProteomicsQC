@@ -47,10 +47,10 @@ class MaxQuantResultAdmin(admin.ModelAdmin):
     readonly_fields = ('path', 'run_directory', 'raw_fn', 'mqpar_fn', 
                        'fasta_fn', 'pipeline', 'parquet_path', 
                        'create_protein_quant', 'n_files_maxquant', 
-                       'n_files_rawtools_metics', 'n_files_rawtools_qc')
+                       'n_files_rawtools_metrics', 'n_files_rawtools_qc')
 
     list_display = ('name', 'pipeline', 'n_files_maxquant', 
-        'n_files_rawtools_metics', 'n_files_rawtools_qc')
+        'n_files_rawtools_metrics', 'n_files_rawtools_qc')
 
     #def regroup_by(self):
     #    return 'pipeline'

@@ -223,7 +223,7 @@ class MaxQuantResult(models.Model):
         return len( glob( f'{self.output_dir_maxquant/"*.*"}'))
 
     @property
-    def n_files_rawtools_metics(self):
+    def n_files_rawtools_metrics(self):
         return len( glob( f'{self.output_dir_rawtools/"*.*"}'))
 
     @property
