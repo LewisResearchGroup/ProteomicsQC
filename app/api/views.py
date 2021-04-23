@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import logging
+
 import dask.dataframe as dd
 
 from django.shortcuts import render
