@@ -59,7 +59,6 @@ def unzip_maxquant(sender, instance, created, *args, **kwargs):
 
 @receiver(models.signals.post_delete, sender=MaxQuantExecutable)
 def remove_maxquant(sender, instance, *args, **kwargs):
-    'Remove MaxQuant directory'
     mq_bin = instance
     path = mq_bin.path
     if path.is_dir():

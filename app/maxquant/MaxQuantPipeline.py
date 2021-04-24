@@ -63,7 +63,7 @@ class MaxQuantPipeline(models.Model):
         return self.name
     
     @property
-    def tmp_directory(self):
+    def tmp_dir(self):
          return f'{TMP_ROOT}/{self.project.slug}/{self.slug}'
 
     def save(self, *args, **kwargs):

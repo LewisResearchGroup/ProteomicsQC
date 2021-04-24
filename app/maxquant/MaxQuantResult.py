@@ -74,7 +74,7 @@ class MaxQuantResult(models.Model):
         return self.pipeline.fasta_path
         
     @property
-    def run_directory(self):
+    def run_dir(self):
         return COMPUTE_ROOT / 'tmp'/ 'MaxQuant' / self.name
 
     @property
@@ -85,6 +85,10 @@ class MaxQuantResult(models.Model):
     def path(self):
         return self.raw_file.output_dir
     
+    @property
+    def output_dir(self):
+        return self.raw_file.output_dir
+
     @property
     def output_dir_maxquant(self):
         return self.path / 'maxquant'
@@ -102,7 +106,7 @@ class MaxQuantResult(models.Model):
         return self.pipeline.maxquant_executable
     
     @property
-    def output_directory_exists(self):
+    def output_dir_exists(self):
         return self.path.is_dir()
     
     @property
@@ -110,8 +114,8 @@ class MaxQuantResult(models.Model):
         return 'maxquant'
 
     @property 
-    def run_directory_exists(self):
-        return self.run_directory.is_dir()
+    def run_dir_exists(self):
+        return self.run_dir.is_dir()
 
     @property
     def use_downstream(self):
@@ -120,7 +124,7 @@ class MaxQuantResult(models.Model):
     def maxquant_parameters(self):
         mqpar_file    = str( self.mqpar_fn ) 
         fasta_file    = str( self.fasta_fn )
-        run_directory = str( self.run_directory )
+        run_dir = str( self.run_dir )
         output_dir    = str( self.output_dir_maxquant )
         maxquantcmd   = str( self.maxquantcmd )
 
@@ -128,7 +132,7 @@ class MaxQuantResult(models.Model):
             maxquantcmd = maxquantcmd,
             mqpar_file = mqpar_file, 
             fasta_file = fasta_file, 
-            run_dir = run_directory, 
+            run_dir = run_dir, 
             output_dir = output_dir,
         )
 
@@ -141,6 +145,16 @@ class MaxQuantResult(models.Model):
         raw_file      = str( self.raw_fn )
         run_maxquant.delay(raw_file, self.maxquant_parameters())
         
+    @property
+    def maxquant_execution_time(self):
+        fn = self.output_dir_maxquant/'time.txt'
+        if fn.is_file():
+            with open(fn) as file:
+                time = file.read()
+            print('Time:', time)
+            return time
+        else:
+            return None
 
     def run_rawtools_qc(self, rerun=False):
         inp_dir, out_dir = str(self.raw_file.path.parent), str(self.output_dir_rawtools_qc)
@@ -180,10 +194,11 @@ class MaxQuantResult(models.Model):
     @property
     def download(self):
         stream = BytesIO()
-        files = glob(self.output_directory+'/**/*.*', recursive=True)
+        path = self.output_dir
+        files = glob(f'{path}/**/*.*', recursive=True)
         with zipfile.ZipFile(stream, 'w') as temp_zip_file:
             for fn in files:
-                temp_zip_file.write(fn, arcname=basename(fn))
+                temp_zip_file.write(fn, arcname=P(fn).name)
         return stream.getvalue()
 
     @lru_cache(10)
@@ -254,7 +269,10 @@ def run_maxquant_after_save(sender, instance, created, *args, **kwargs):
 
 @receiver(models.signals.post_delete, sender=MaxQuantResult)
 def remove_maxquant_folders_after_delete(sender, instance, *args, **kwargs):
-    if instance.output_directory_exists:
-        shutil.rmtree(instance.path)
-    if instance.run_directory_exists:
-        shutil.rmtree(instance.run_directory)
+    result = instance
+    if result.output_dir_exists:
+        shutil.rmtree(result.path)
+    if result.run_dir_exists:
+        shutil.rmtree(result.run_dir)
+    if result.protein_quant_fn.is_file():
+        os.remove(result.protein_quant_fn)
