@@ -30,6 +30,8 @@ The server manages:
     6. Data API for upload and download of results
     7. Dashboard for Quality Control
 
+The admin view provides and overview over all proteomics runs with list and detail views.
+
 ![](./docs/img/example-admin-view.png 'Overview over all jobs on the server.')
 
 
