@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Make - LRG Proteomics Pipelines</title>
+        <title>API - LRG Proteomics Pipelines</title>
         <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -45,8 +45,8 @@
                             <li class="navitem">
                                 <a href="../datalake/" class="nav-link">Datalake</a>
                             </li>
-                            <li class="navitem">
-                                <a href="../api/" class="nav-link">API</a>
+                            <li class="navitem active">
+                                <a href="./" class="nav-link">API</a>
                             </li>
                             <li class="navitem">
                                 <a href="../about/" class="nav-link">About</a>
@@ -59,6 +59,16 @@
                                 <i class="fa fa-search"></i> Search
                             </a>
                         </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../datalake/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../about/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
                     </ul>
                 </div>
             </div>
@@ -81,14 +91,7 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<p>The docker-compose setup spins up two docker containers. One for the 
-web-page and one for the the postgres database.</p>
-<p><code>make build</code> to build the containers</p>
-<p><code>make migrations</code> to create database migrations</p>
-<p><code>make migrate</code> to migrate the database</p>
-<p><code>make createsuperuser</code> to create credentials for a superuser</p>
-<p><code>make run</code> to run the website and postgres database. </p>
-<p><code>make init</code> initiate the database</p></div>
+</div>
             </div>
         </div>
 

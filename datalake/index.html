@@ -46,6 +46,9 @@
                                 <a href="./" class="nav-link">Datalake</a>
                             </li>
                             <li class="navitem">
+                                <a href="../api/" class="nav-link">API</a>
+                            </li>
+                            <li class="navitem">
                                 <a href="../about/" class="nav-link">About</a>
                             </li>
                         </ul>
@@ -62,7 +65,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" href="../about/" class="nav-link">
+                                <a rel="next" href="../api/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -95,7 +98,10 @@
 
 <h1 id="the-datalake">The datalake</h1>
 <p>The datalake is the central data storage of the proteomics pipelines framework.
-Its location is shared with the web-site and celery workers. </p>
+Its location is shared with the web-site and celery workers. The location of the
+data lake on the host system can be controled with the 
+<code>DATALAKE=/var/www/html/omics/datalake</code>
+variable in the <code>.env</code> file. </p>
 <pre><code>/var/www/html/omics/datalake/
 ├── P
 │   └── P1
@@ -153,7 +159,7 @@ The output directory is organized by file, so that all data from one file is col
 │           │   │       └── rawtools_qc.out
 ...
 </code></pre>
-<p>Then certain fractions of the data are cleaned and stored in a columnar data format (<code>parquet</code>) 
+<p>Certain fractions of the data are cleaned and stored in a columnar data format (<code>parquet</code>) 
 to enable fast reads. This data is a simplified and standardized version of the data in the <code>output</code> folder
 and is organized by data type rather than by input file, in contrast to the <code>output</code> directory. </p>
 <pre><code>│           ├── parquet
