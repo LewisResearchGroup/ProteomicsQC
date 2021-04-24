@@ -33,6 +33,12 @@ The server manages:
 ## Technology stack
 
 The server uses `docker-compose` to spin off multiple containers and is ready to be scaled up.
+The web server and the celery workers use a shared file system with a defined folder structure as
+the datalake, where all input and output files are collected. In addition to the standard output files a
+clean version of the data is stored in parquet format for fast read and parallel processing of the 
+generated results.
 
 ![](./docs/img/technology-stack.png 'The technology stack used by the proteomics pipeline server.')
 
+A dashboard based on Plotly/Dash is used to present quality control metrics as well as insights into
+protein identification and quantification.
