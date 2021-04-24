@@ -13,7 +13,7 @@ This repository contains git submodules and should be cloned with:
     make run  # starts the production server on port 8000
 
 
-![](./docs/img/workflow.png)
+![](./docs/img/workflow.png 'Pipeline Workflow')
 
 
 [Documentation](https://soerendip.github.io/django3-omics-pipelines/)
