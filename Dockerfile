@@ -6,7 +6,7 @@ ENV PYTHONUNBUFFERED=1
 
 RUN mkdir /data /compute /static /appmedia
 
-RUN apt update && apt install -y build-essential
+RUN apt update && apt install -y build-essential time
 
 RUN python --version
 
