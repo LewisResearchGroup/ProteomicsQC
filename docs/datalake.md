@@ -26,7 +26,7 @@ variable in the `.env` file.
 
 The proteomics jobs read the input files from the datalake from the `config` and `input` folders
 of the current project and write the _MaxQuant_ and _RawTools_ output to the corresponding `output` directory.
-The output directory is organized by file, so that all data from one file is collected in one subfolder.
+The **output directory is organized by file**, so that all data from one file is collected in one subfolder.
 
 ```
 ...
@@ -69,9 +69,10 @@ The output directory is organized by file, so that all data from one file is col
 ...
 ```
 
-Certain fractions of the data are cleaned and stored in a columnar data format (`parquet`) 
+Certain fractions of the data are cleaned and stored in a columnar data format (_parquet_) 
 to enable fast reads. This data is a simplified and standardized version of the data in the `output` folder
-and is organized by data type rather than by input file, in contrast to the `output` directory. 
+and can be regenerated easily and is organized by data type rather than by 
+input file, in contrast to the `output` directory. 
 
 ```
 │           ├── parquet
