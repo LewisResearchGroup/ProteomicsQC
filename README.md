@@ -22,13 +22,13 @@ The server manages proteomics pipelines belonging to multiple projects.
 
 The server manages:
 
-    1) Different project spaces    
-    2) Setup of different pipelines (using MaxQuant and RawTools)
-    3) Upload and processing .RAW files with a job queueing system
-    4) Data management of input and output files
-    5) User rights
-    6) Data API for upload and download of results
-    7) Dashboard for Quality Control
+    1. Different project spaces    
+    2. Setup of different pipelines (using MaxQuant and RawTools)
+    3. Upload and processing .RAW files with a job queueing system
+    4. Data management of input and output files
+    5. User rights
+    6. Data API for upload and download of results
+    7. Dashboard for Quality Control
 
 ## Technology stack
 
