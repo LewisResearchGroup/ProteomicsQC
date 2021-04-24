@@ -42,3 +42,10 @@ generated results.
 
 A dashboard based on Plotly/Dash is used to present quality control metrics as well as insights into
 protein identification and quantification.
+
+
+## Dashboard examples
+
+![](./docs/img/example-qc-barplot.png 'Many customiable Quality Control metrics in one place.')
+![](./docs/img/example-qc-scatterplot.png 'Scatterplot tool to explore relationships between variables.')
+![](./docs/img/example-qc-normalized-tmt-intensity.png 'Visualization of normalized reporter intensity (TMT11).')
