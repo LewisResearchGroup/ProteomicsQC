@@ -14,6 +14,9 @@ This repository contains git submodules and should be cloned with:
 
 More information can be found in the [Documentation](https://soerendip.github.io/django3-omics-pipelines/).
 
+# Limitations
+The pipeline is restricted to single file setup which might conflict with the setup of many laboratories which use workflows where individual runs are split into multiple files and all setups where multiple `.RAW` files have to be analyzed in tandem by MaxQuant. The pipeline processes each file separately and independently to ensure data reproducibility. This setup works very well for comparatively small  microbial samples (with file sizes of around 1-2 GB), but will be incompatible with mammalian samples, where output files have to be split into chunks in order to keep the file size reasonably small. This kind of setup is currently out of scope for the quality control pipeline. 
+
 # Overview
 
 The server manages proteomics pipelines belonging to multiple projects. 

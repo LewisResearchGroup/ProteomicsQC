@@ -75,9 +75,7 @@ def get_protein_names(project, pipeline):
     url = f'{URL}/api/mq/protein-names'
     headers = {'Content-type': 'application/json'}
     data =  json.dumps( dict(project=project, pipeline=pipeline) )
-    print('Get me protein names for:', data)
     obj = requests.post(url, data=data, headers=headers).json()
-    print('Received protein names:', obj)
     return obj
 
 

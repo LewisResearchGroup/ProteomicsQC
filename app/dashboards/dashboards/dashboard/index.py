@@ -29,6 +29,21 @@ from scipy.spatial.distance import pdist, squareform
 
 set_template()
 
+FIGURE_CONFIG = {
+  'toImageButtonOptions': {
+    'format': 'svg', # one of png, svg, jpeg, webp
+    #'filename': 'custom_image',
+    #'height': 500,
+    #'width': 700,
+    #'scale': 1 # Multiply title/legend/axis/canvas sizes by this factor
+  }
+}
+
+FIGURE_CONFIG = {
+    'toImageButtonOptions': {
+    'format': 'svg',
+    'filename': 'custom_image'}
+}
 
 if __name__ == '__main__':
     app = dash.Dash(__name__)
@@ -218,7 +233,13 @@ def plot_protein_figure(data, ndxs, plot_column, project, pipeline):
 
     if normalized: fig.update_layout(yaxis=dict(range=[0,1]))
 
-    return fig
+    config = {
+        'toImageButtonOptions': {
+        'format': 'svg',
+        'filename': 'test.csv'}
+    }
+
+    return fig.show(config=config)
 
 
 inputs = [Input('refresh-plots', 'n_clicks')]
