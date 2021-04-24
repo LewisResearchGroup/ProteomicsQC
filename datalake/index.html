@@ -83,11 +83,19 @@
     
     <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
         <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#the-datalake" class="nav-link">The datalake</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
         </ul>
     </div>
 </div></div>
                     <div class="col-md-9" role="main">
 
+<h1 id="the-datalake">The datalake</h1>
+<p>The datalake is the central data storage of the proteomics pipelines framework.
+Its location is shared with the web-site and celery workers. </p>
 <pre><code>/var/www/html/omics/datalake/
 ├── P
 │   └── P1
@@ -102,6 +110,11 @@
 │           │   ├── SA001-R1-B-200507
 │           │   │   └── SA001-R1-B-200507.raw
 ...
+</code></pre>
+<p>The proteomics jobs read the input files from the datalake from the <code>config</code> and <code>input</code> folders
+of the current project and write the <em>MaxQuant</em> and <em>RawTools</em> output to the corresponding <code>output</code> directory.
+The output directory is organized by file, so that all data from one file is collected in one subfolder.</p>
+<pre><code>...
 │           ├── output
 │           │   ├── SA001-R1-A-200507.raw
 │           │   │   ├── maxquant
@@ -139,7 +152,11 @@
 │           │   │       ├── rawtools_qc.err
 │           │   │       └── rawtools_qc.out
 ...
-│           ├── parquet
+</code></pre>
+<p>Then certain fractions of the data are cleaned and stored in a columnar data format (<code>parquet</code>) 
+to enable fast reads. This data is a simplified and standardized version of the data in the <code>output</code> folder
+and is organized by data type rather than by input file, in contrast to the <code>output</code> directory. </p>
+<pre><code>│           ├── parquet
 │           │   └── protein_groups
 │           │       ├── SA001-R1-A-200507.parquet
 │           │       ├── SA001-R1-B-200507.parquet
