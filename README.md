@@ -46,6 +46,11 @@ protein identification and quantification.
 
 ## Dashboard examples
 
+### Many customiable Quality Control metrics in one place
 ![](./docs/img/example-qc-barplot.png 'Many customiable Quality Control metrics in one place.')
+
+### Scatterplot tool to explore relationships between variables
 ![](./docs/img/example-qc-scatterplot.png 'Scatterplot tool to explore relationships between variables.')
+
+### Visualization of normalized reporter intensity (TMT11)
 ![](./docs/img/example-qc-normalied-tmt-intensity.png 'Visualization of normalized reporter intensity (TMT11).')
