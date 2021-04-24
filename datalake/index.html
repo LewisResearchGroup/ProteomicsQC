@@ -119,7 +119,7 @@ variable in the <code>.env</code> file. </p>
 </code></pre>
 <p>The proteomics jobs read the input files from the datalake from the <code>config</code> and <code>input</code> folders
 of the current project and write the <em>MaxQuant</em> and <em>RawTools</em> output to the corresponding <code>output</code> directory.
-The output directory is organized by file, so that all data from one file is collected in one subfolder.</p>
+The <strong>output directory is organized by file</strong>, so that all data from one file is collected in one subfolder.</p>
 <pre><code>...
 │           ├── output
 │           │   ├── SA001-R1-A-200507.raw
@@ -159,9 +159,10 @@ The output directory is organized by file, so that all data from one file is col
 │           │   │       └── rawtools_qc.out
 ...
 </code></pre>
-<p>Certain fractions of the data are cleaned and stored in a columnar data format (<code>parquet</code>) 
+<p>Certain fractions of the data are cleaned and stored in a columnar data format (<em>parquet</em>) 
 to enable fast reads. This data is a simplified and standardized version of the data in the <code>output</code> folder
-and is organized by data type rather than by input file, in contrast to the <code>output</code> directory. </p>
+and can be regenerated easily and is organized by data type rather than by 
+input file, in contrast to the <code>output</code> directory. </p>
 <pre><code>│           ├── parquet
 │           │   └── protein_groups
 │           │       ├── SA001-R1-A-200507.parquet
