@@ -4,4 +4,5 @@ nav:
     - Installation: installation.md
     - User Manual: manual.md
     - Datalake: datalake.md
+    - API: api.md
     - About: about.md

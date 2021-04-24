@@ -2,7 +2,10 @@
 # The datalake
 
 The datalake is the central data storage of the proteomics pipelines framework.
-Its location is shared with the web-site and celery workers. 
+Its location is shared with the web-site and celery workers. The location of the
+data lake on the host system can be controled with the 
+`DATALAKE=/var/www/html/omics/datalake`
+variable in the `.env` file. 
 
 ```
 /var/www/html/omics/datalake/
@@ -66,7 +69,7 @@ The output directory is organized by file, so that all data from one file is col
 ...
 ```
 
-Then certain fractions of the data are cleaned and stored in a columnar data format (`parquet`) 
+Certain fractions of the data are cleaned and stored in a columnar data format (`parquet`) 
 to enable fast reads. This data is a simplified and standardized version of the data in the `output` folder
 and is organized by data type rather than by input file, in contrast to the `output` directory. 
 
