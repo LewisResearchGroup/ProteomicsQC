@@ -34,5 +34,5 @@ The server manages:
 
 The server uses `docker-compose` to spin off multiple containers and is ready to be scaled up.
 
-![](./docs/img/workflow.png 'The technology stack used by the proteomics pipeline server.')
+![](./docs/img/technology-stack.png 'The technology stack used by the proteomics pipeline server.')
 
