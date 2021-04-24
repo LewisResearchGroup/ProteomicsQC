@@ -43,6 +43,9 @@
                                 <a href="./" class="nav-link">User Manual</a>
                             </li>
                             <li class="navitem">
+                                <a href="../datalake/" class="nav-link">Datalake</a>
+                            </li>
+                            <li class="navitem">
                                 <a href="../about/" class="nav-link">About</a>
                             </li>
                         </ul>
@@ -59,7 +62,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" href="../about/" class="nav-link">
+                                <a rel="next" href="../datalake/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -83,10 +86,6 @@
             
             <li class="nav-item" data-level="1"><a href="#user-manual" class="nav-link">User manual</a>
               <ul class="nav flex-column">
-            <li class="nav-item" data-level="2"><a href="#start-the-pipeline-server-and-the-celery-workers" class="nav-link">Start the pipeline server and the celery workers.</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
             <li class="nav-item" data-level="2"><a href="#login-with-an-admin-account" class="nav-link">Login with an admin account</a>
               <ul class="nav flex-column">
               </ul>
@@ -107,24 +106,15 @@
                     <div class="col-md-9" role="main">
 
 <h1 id="user-manual">User manual</h1>
-<h2 id="start-the-pipeline-server-and-the-celery-workers">Start the pipeline server and the celery workers.</h2>
-<p>To run the server both the celery workers and the django server have to be started. This can be done running the scripts:</p>
-<pre><code>scripts/omics_celery_worker.sh
-
-scripts/omics_server.sh
-
-&gt;Starting omics server
-&gt;LOAD MAXQUANT DASHBOARD
-&gt;Dashboard API URL:http://localhost:8000
-&gt;URL: http://localhost:8000/api/projects
-&gt;LOAD PRIMARY DASHBOARD
-&gt;Serving on http://0.0.0.0:8123
-</code></pre>
-<p>After installation the webinterface can be reached with the browser. By default the server runs on address <a href="http://localhost:8123">http://localhost:8123</a>.
-This can be changed in the configuration file (<code>OMICS.conf</code>).</p>
+<p>Please, have a look at the <a href="../installation/">installation instructions</a> and how to start the pipeline server.</p>
 <h2 id="login-with-an-admin-account">Login with an admin account</h2>
+<p>When you visit the website for the first time you will be redirected to the login page.
+A new user can register a new account with a valid email address. To visit the 
+admin page the user has to be granted the rights by an admin. If you do not have setup
+an admin account</p>
 <p><img alt="" src="../img/login.png" /></p>
 <p><img alt="" src="../img/click-on-admin.png" /></p>
+<p>To setup a </p>
 <h2 id="setup-maxquant">Setup MaxQuant</h2>
 <p>To setup MaxQuant you can upload a zipped MaxQuant version. 
 Version 1.6.14 works with <a href="https://www.mono-project.com/docs/about-mono/">Mono</a> and is the recommended version to use with the Proteomics Pipelines server.

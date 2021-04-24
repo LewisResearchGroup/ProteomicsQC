@@ -43,6 +43,9 @@
                                 <a href="../manual/" class="nav-link">User Manual</a>
                             </li>
                             <li class="navitem">
+                                <a href="../datalake/" class="nav-link">Datalake</a>
+                            </li>
+                            <li class="navitem">
                                 <a href="../about/" class="nav-link">About</a>
                             </li>
                         </ul>
@@ -81,38 +84,28 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-level="2"><a href="#install-and-activate-environment" class="nav-link">Install and activate environment:</a>
+            <li class="nav-item" data-level="1"><a href="#installation" class="nav-link">Installation</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#1-docker-compose" class="nav-link">1) Docker-compose</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            
-            <li class="nav-item" data-level="2"><a href="#install-and-start-redis-with" class="nav-link">Install and start redis with:</a>
+            <li class="nav-item" data-level="2"><a href="#2-download-the-repository" class="nav-link">2) Download the repository</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            
-            <li class="nav-item" data-level="2"><a href="#nginx" class="nav-link">NGINX</a>
+            <li class="nav-item" data-level="2"><a href="#3-create-configuration-file" class="nav-link">3) Create configuration file</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            
-            <li class="nav-item" data-level="2"><a href="#postgres" class="nav-link">Postgres</a>
+            <li class="nav-item" data-level="2"><a href="#4-initiate-database" class="nav-link">4) Initiate database</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            
-            <li class="nav-item" data-level="2"><a href="#run-celery-worker-process" class="nav-link">Run celery worker process:</a>
+            <li class="nav-item" data-level="2"><a href="#5" class="nav-link">5)</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            
-            <li class="nav-item" data-level="2"><a href="#setup-django" class="nav-link">Setup django</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            
-            <li class="nav-item" data-level="2"><a href="#supervisor" class="nav-link">Supervisor</a>
-              <ul class="nav flex-column">
               </ul>
             </li>
         </ul>
@@ -120,85 +113,25 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<h2 id="install-and-activate-environment">Install and activate environment:</h2>
-<pre><code>conda create -y -n omics -c conda-forge -c bioconda -c plotly redis-py django\
-    django-extensions celery psycopg2 waitress pandas mono rawtools django-filter
-
-conda activate omics
-
-pip install django_plotly_dash dash-table-experiments colorlover \
-    plotly_express django_admin_index djangorestframework django-system-monitor\
-    dpd-static-support dash_bootstrap_components django-bootstrap4
-
-git clone https://github.com/soerendip/django_proteomics_quality_control
-cd django_proteomics_quality_control/proteomics_tools
-pip install -e .
+<h1 id="installation">Installation</h1>
+<h2 id="1-docker-compose">1) Docker-compose</h2>
+<p>The server can be started with <code>docker-compose</code>. Therefore,
+docker and docker-compose have to be installed on the host.
+The server can also be used without docker-compose, 
+if the postgres and redis servers are running already. </p>
+<p>For official Docker installation instructions please visit:</p>
+<p>https://docs.docker.com/engine/install/ubuntu/</p>
+<h2 id="2-download-the-repository">2) Download the repository</h2>
+<pre><code>git clone --recursive git@github.com:soerendip/django3-omics-pipelines.git
 </code></pre>
-<h2 id="install-and-start-redis-with">Install and start redis with:</h2>
-<pre><code>sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) universe"
-sudo apt install redis-server
+<h2 id="3-create-configuration-file">3) Create configuration file</h2>
+<pre><code>./scripts/generate_config.sh  # generates a .env file for configuration
 </code></pre>
-<p>Test redis with <code>reis-cli ping</code> which should return</p>
-<pre><code>&gt; PONG
+<h2 id="4-initiate-database">4) Initiate database</h2>
+<pre><code>make init  # to start the server the first time
 </code></pre>
-<h2 id="nginx">NGINX</h2>
-<pre><code>sudo apt install nginx
-
-sudo cp config/nginx/omics.conf  /etc/nginx/sites-available/
-sudo ln -s /etc/nginx/sites-available/omics.conf /etc/nginx/sites-enabled/
-
-sudo systemctl enable nginx
-</code></pre>
-<h2 id="postgres">Postgres</h2>
-<p>Django requires a database to be running to store web-site information and make changes persistent. The database can be installed and configured with the following commands: </p>
-<pre><code>./scripts/generate_omics_config.sh  # creates OMICS.conf
-
-source OMICS.conf  # customize if needed
-sudo apt install postgresql postgresql-contrib
-sudo -u postgres createuser $PGUSER
-sudo -u postgres createdb omics_server
-sudo -u postgres psql -c "ALTER USER pgadmin PASSWORD '$PGPW';"
-
-sudo mkdir $OMICS_PUBLIC_MEDIA_ROOT $OMICS_PRIVATE_MEDIA_ROOT
-sudo chown $USER $OMICS_PUBLIC_MEDIA_ROOT $OMICS_PRIVATE_MEDIA_ROOT
-mkdir $OMICS_PUBLIC_MEDIA_ROOT/static
-</code></pre>
-<p>Add the secrets to the <code>.bashrc</code>. E.g. with:</p>
-<pre><code>echo "export OMICS_QC_SECRET_KEY=`openssl rand -hex 64`" &gt;&gt; ~/.bashrc
-
-echo "source `pwd`/OMICS.conf" &gt;&gt; ~/.bashrc
-</code></pre>
-<p>The configuration file <code>OMICS.conf</code> contains configuration settings that can be adjusted if needed.
-For example the title shown in the website, Postgres configurations can be changed here.</p>
-<h2 id="run-celery-worker-process">Run celery worker process:</h2>
-<p>Celerery is a job-queing system that is used to run MaxQuant and RawTools jobs. It can be started manually with the command:</p>
-<pre><code>cd omics_server
-celery -A omics_server worker -l info -c 1 -E
-</code></pre>
-<p>However, this can be ommited if Supervisor is used to start the cerlery server (see below). </p>
-<h2 id="setup-django">Setup django</h2>
-<p>Django is a Python based web-frameworks for perfectionists with deadlines. It is opinionated and brings a lot of functionallity out of the box such as the admin pages that are used to control the Proteomics Pipelines. The Postgres database used by Django needs to be created before the server can run with the following commands:</p>
-<pre><code>cd omics_server
-python manage.py makemigrations
-python manage.py makemigrations pipelines
-python manage.py migrate
-python manage.py createsuperuser
-</code></pre>
-<p>When the server is updated the first three commands may have to be repeated to update the database. </p>
-<h2 id="supervisor">Supervisor</h2>
-<p>Supervisor is a process contol system that lets programs run as a service. It starts the celery server as well as the django backend and restarts them automatically in case something goes wrong. The configuration file have to be copied to <code>/etc/supervisor/conf.d/</code> and then supervisor can be started/stopped with the following commands:</p>
-<pre><code>sudo apt install supervisor
-
-sed s+PATH+`pwd`+ config/supervisor/omics_celery_worker.conf &gt; tmp
-sudo mv tmp /etc/supervisor/conf.d/omics_celery_worker.conf 
-sed s+PATH+`pwd`+ config/supervisor/omics_server.conf &gt; tmp
-sudo mv tmp /etc/supervisor/conf.d/omics_server.conf
-
-sudo supervisorctl reread
-sudo supervisorctl update
-sudo supervisorctl stop all
-sudo supervisorctl start all
-sudo supervisorctl status all
+<h2 id="5">5)</h2>
+<pre><code>make run  # starts the production server on port 8000
 </code></pre></div>
             </div>
         </div>

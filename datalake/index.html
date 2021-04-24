@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>About - LRG Proteomics Pipelines</title>
+        <title>Datalake - LRG Proteomics Pipelines</title>
         <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -42,11 +42,11 @@
                             <li class="navitem">
                                 <a href="../manual/" class="nav-link">User Manual</a>
                             </li>
-                            <li class="navitem">
-                                <a href="../datalake/" class="nav-link">Datalake</a>
-                            </li>
                             <li class="navitem active">
-                                <a href="./" class="nav-link">About</a>
+                                <a href="./" class="nav-link">Datalake</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../about/" class="nav-link">About</a>
                             </li>
                         </ul>
 
@@ -57,12 +57,12 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href="../datalake/" class="nav-link">
+                                <a rel="prev" href="../manual/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" class="nav-link disabled">
+                                <a rel="next" href="../about/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -83,20 +83,72 @@
     
     <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
         <ul class="nav flex-column">
-            
-            <li class="nav-item" data-level="1"><a href="#about" class="nav-link">About</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
         </ul>
     </div>
 </div></div>
                     <div class="col-md-9" role="main">
 
-<h1 id="about">About</h1>
-<p>The LRG Proteomics Pipelines server is maintained by Lewis Research Group
-at the University of Calgary, Canada. The software can be used free of charge 
-and comes without any warranties for the correctness of the generated results.</p></div>
+<pre><code>/var/www/html/omics/datalake/
+├── P
+│   └── P1
+│       └── P1MQ1
+│           ├── config
+│           │   ├── fasta.faa
+│           │   └── mqpar.xml
+│           ├── inputs
+│           │   ├── fake3
+│           │   ├── SA001-R1-A-200507
+│           │   │   └── SA001-R1-A-200507.raw
+│           │   ├── SA001-R1-B-200507
+│           │   │   └── SA001-R1-B-200507.raw
+...
+│           ├── output
+│           │   ├── SA001-R1-A-200507.raw
+│           │   │   ├── maxquant
+│           │   │   │   ├── allPeptides.txt
+│           │   │   │   ├── evidence.txt
+│           │   │   │   ├── libraryMatch.txt
+│           │   │   │   ├── matchedFeatures.txt
+│           │   │   │   ├── maxquant_quality_control.csv
+│           │   │   │   ├── modificationSpecificPeptides.txt
+│           │   │   │   ├── ms3Scans.txt
+│           │   │   │   ├── msmsScans.txt
+│           │   │   │   ├── msms.txt
+│           │   │   │   ├── mzRange.txt
+│           │   │   │   ├── Oxidation (M)Sites.txt
+│           │   │   │   ├── parameters.txt
+│           │   │   │   ├── peptides.txt
+│           │   │   │   ├── proteinGroups.txt
+│           │   │   │   ├── summary.txt
+│           │   │   │   └── tables.pdf
+│           │   │   ├── rawtools
+│           │   │   │   ├── rawtools_log.txt
+│           │   │   │   ├── rawtools_metrics.err
+│           │   │   │   ├── rawtools_metrics.out
+│           │   │   │   ├── SA001-R1-A-200507.raw_Matrix.txt
+│           │   │   │   ├── SA001-R1-A-200507.raw_Metrics.txt
+│           │   │   │   ├── SA001-R1-A-200507.raw.mgf
+│           │   │   │   ├── SA001-R1-A-200507.raw_Ms2_BP_chromatogram.txt
+│           │   │   │   ├── SA001-R1-A-200507.raw_Ms2_TIC_chromatogram.txt
+│           │   │   │   ├── SA001-R1-A-200507.raw_Ms_BP_chromatogram.txt
+│           │   │   │   └── SA001-R1-A-200507.raw_Ms_TIC_chromatogram.txt
+│           │   │   └── rawtools_qc
+│           │   │       ├── QcDataTable.csv
+│           │   │       ├── QC.xml
+│           │   │       ├── rawtools_log.txt
+│           │   │       ├── rawtools_qc.err
+│           │   │       └── rawtools_qc.out
+...
+│           ├── parquet
+│           │   └── protein_groups
+│           │       ├── SA001-R1-A-200507.parquet
+│           │       ├── SA001-R1-B-200507.parquet
+│           │       ├── SA001-R1-blank-200507.parquet
+│           │       ├── SA001-R1-C-200507.parquet
+│           │       ├── SA001-R1-D-200507.parquet
+│           │       ├── SA001-R1-E-200507.parquet
+...
+</code></pre></div>
             </div>
         </div>
 

@@ -43,6 +43,9 @@
                                 <a href="../manual/" class="nav-link">User Manual</a>
                             </li>
                             <li class="navitem">
+                                <a href="../datalake/" class="nav-link">Datalake</a>
+                            </li>
+                            <li class="navitem">
                                 <a href="../about/" class="nav-link">About</a>
                             </li>
                         </ul>
@@ -75,7 +78,14 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-</div>
+<p>The docker-compose setup spins up two docker containers. One for the 
+web-page and one for the the postgres database.</p>
+<p><code>make build</code> to build the containers</p>
+<p><code>make migrations</code> to create database migrations</p>
+<p><code>make migrate</code> to migrate the database</p>
+<p><code>make createsuperuser</code> to create credentials for a superuser</p>
+<p><code>make run</code> to run the website and postgres database. </p>
+<p><code>make init</code> initiate the database</p></div>
             </div>
         </div>
 
