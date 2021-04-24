@@ -14,7 +14,7 @@ from rest_framework import status
 from cache_memoize import cache_memoize
 
 from django.http import JsonResponse
-
+from django.conf import settings
 timeout = 360
 
 from maxquant.models import MaxQuantPipeline, MaxQuantResult
@@ -23,6 +23,8 @@ from project.models import Project
 from project.serializers import ProjectsNamesSerializer
 
 from tqdm import tqdm
+
+VERBOSE = settings.DEBUG
 
 class ProjectNames(generics.ListAPIView):
     filter_fields = ['name', 'slug']
