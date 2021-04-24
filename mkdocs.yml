@@ -3,4 +3,5 @@ nav:
     - Home: index.md
     - Installation: installation.md
     - User Manual: manual.md
+    - Datalake: datalake.md
     - About: about.md

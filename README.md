@@ -1,4 +1,4 @@
-# Django based proteomics pipeline server using MaxQuant and RawTools
+# Django based proteomics processing framework using MaxQuant and RawTools
 
 A server that automates proteomics processing jobs.
 
