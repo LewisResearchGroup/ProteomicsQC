@@ -30,6 +30,9 @@ The server manages:
     6. Data API for upload and download of results
     7. Dashboard for Quality Control
 
+![](./docs/img/example-admin-view.png 'Overview over all jobs on the server.')
+
+
 ## Technology stack
 
 The server uses `docker-compose` to spin off multiple containers and is ready to be scaled up.
@@ -44,7 +47,7 @@ A dashboard based on Plotly/Dash is used to present quality control metrics as w
 protein identification and quantification.
 
 
-## Dashboard examples
+## Dashboard features
 
 ### Many customiable Quality Control metrics in one place
 ![](./docs/img/example-qc-barplot.png 'Many customiable Quality Control metrics in one place.')
