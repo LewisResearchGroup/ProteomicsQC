@@ -27,29 +27,18 @@ from scipy.cluster.hierarchy import linkage, dendrogram
 from scipy.spatial.distance import pdist, squareform
 
 
+
 set_template()
 
-FIGURE_CONFIG = {
-  'toImageButtonOptions': {
-    'format': 'svg', # one of png, svg, jpeg, webp
-    #'filename': 'custom_image',
-    #'height': 500,
-    #'width': 700,
-    #'scale': 1 # Multiply title/legend/axis/canvas sizes by this factor
-  }
-}
-
-FIGURE_CONFIG = {
-    'toImageButtonOptions': {
-    'format': 'svg',
-    'filename': 'custom_image'}
-}
 
 if __name__ == '__main__':
     app = dash.Dash(__name__)
     import proteins, quality_control, explorer
     from tools import table_from_dataframe, get_projects, get_pipelines,\
         get_protein_groups, get_qc_data, list_to_dropdown_options, get_protein_names
+    
+    import tools as T
+
     from config import qc_columns_always, data_range_options
 
     app.config.suppress_callback_exceptions = True
@@ -59,6 +48,9 @@ else:
     from . import proteins, quality_control, explorer
     from .tools import table_from_dataframe, get_projects, get_pipelines,\
         get_protein_groups, get_qc_data, list_to_dropdown_options, get_protein_names
+
+    from . import tools as T
+
     from .config import qc_columns_always, data_range_options
 
     #from .style import graph_style
@@ -174,14 +166,15 @@ def refresh_qc_table(n_clicks, tab, pipeline, project, optional_columns, data_ra
 
 
 @app.callback(
-Output('protein-figure','figure'),
+[Output('protein-figure','figure'),
+ Output('protein-figure','config')],
 [Input('protein-table', 'data'),
  Input('protein-table', 'selected_rows'),
  Input('protein-plot-column', 'value')],
 [State('project', 'value'),
  State('pipeline', 'value')])
-#@cache_memoize(timeout)
 def plot_protein_figure(data, ndxs, plot_column, project, pipeline):
+    '''Create the protein groups figure.'''
     if (project is None) or (pipeline is None):
         raise PreventUpdate
     if (ndxs is None) or (ndxs == []):
@@ -233,13 +226,9 @@ def plot_protein_figure(data, ndxs, plot_column, project, pipeline):
 
     if normalized: fig.update_layout(yaxis=dict(range=[0,1]))
 
-    config = {
-        'toImageButtonOptions': {
-        'format': 'svg',
-        'filename': 'test.csv'}
-    }
+    config = T.gen_figure_config(filename='protein-quant', format='svg')
 
-    return fig.show(config=config)
+    return fig, config
 
 
 inputs = [Input('refresh-plots', 'n_clicks')]
@@ -298,8 +287,12 @@ plot_map = [
 
 #@lru_cache(maxsize=32)
 @app.callback(
-    Output('qc-figure', 'figure'), inputs, states)
+    Output('qc-figure', 'figure'),
+    Output('qc-figure', 'config'),
+    inputs,
+    states)
 def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
+    '''Creates the bar-plot figure'''
     if (data is None) or (ndxs is None) or (len(ndxs) == 0):
         raise PreventUpdate
     
@@ -309,11 +302,11 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
     titles = [el['title'] for el in plot_map]
     
     df = pd.DataFrame(data)
+
     assert pd.value_counts(df.columns).max() == 1, pd.value_counts(df.columns)
     df['DateAcquired'] = pd.to_datetime(df['DateAcquired'])
 
-    if ndxs is not None:
-        df = df.reindex(ndxs)
+    if ndxs is not None: df = df.reindex(ndxs)
     
     numeric_columns = df[optional_columns].head(1)._get_numeric_data().columns
 
@@ -322,18 +315,6 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
                         shared_xaxes=True,
                         vertical_spacing=0.05,
                         print_grid=True)
-    '''
-    for i, plot_data in enumerate(plot_map):
-        title = plot_data['title']
-        plots = plot_data['plots']            
-        for plot in plots:
-            label = plot['label']
-            y = plot['y']
-            trace = go.Bar(x=df[x], y=df[y], name=label, 
-                           text=None if x == 'RawFile' else df['RawFile']
-                           )
-            fig.add_trace(trace, row=1+i, col=1)
-    '''
 
     for i, col in enumerate(numeric_columns):
         trace = go.Bar(x=df[x], y=df[col], name=col,
@@ -369,12 +350,16 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
                 ticktext = tuple(df[x])
             )
         )
-    return fig
+ 
+    config = T.gen_figure_config(filename='QC-barplot')
+    
+    return fig, config
 
 
 # EXPLORER Callbacks
 @app.callback(
-Output('explorer-figure', 'figure'),
+[Output('explorer-figure', 'figure'),
+ Output('explorer-figure', 'config')],
 [Input('explorer-x', 'value'),
  Input('explorer-y', 'value'),
  Input('explorer-color', 'value'),
@@ -434,7 +419,9 @@ def explorer_plot(x, y, color, size, facet_row, facet_col, project, pipeline, da
                 pad=0
             ))
 
-    return fig
+    config = T.gen_figure_config(filename='QC-scatter')
+
+    return fig, config
 
 
 if __name__ == '__main__':

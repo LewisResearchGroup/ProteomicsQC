@@ -6,11 +6,12 @@ import dash_table as dt
 try:
     from .tools import list_to_dropdown_options
     from .config import qc_columns_options, qc_columns_default
+    from . import tools as T
 except:
     from tools import list_to_dropdown_options
     from config import qc_columns_options, qc_columns_default
+    import tools as T
 
-figure_config = {"toImageButtonOptions": {"width": None, "height": None}}
 
 x_options = [dict(label=x, value=x) for x in ['Index', 'RawFile', 'DateAcquired',]]
 
@@ -39,7 +40,7 @@ layout = html.Div([
 
     dcc.Loading([ 
         html.Div([
-            dcc.Graph(id="qc-figure", style={'max-width': '100%'}, config=figure_config),        
+            dcc.Graph(id="qc-figure", style={'max-width': '100%'}),        
     ], style={'textAlign': 'center'})
     ]),
 ])

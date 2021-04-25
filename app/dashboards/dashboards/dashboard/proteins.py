@@ -5,10 +5,11 @@ import dash_table as dt
 
 try:
     from .tools import list_to_dropdown_options
+    from . import tools as T
 except:
     from tools import list_to_dropdown_options
+    import tools as T
 
-figure_config = {"toImageButtonOptions": {"width": None, "height": None}}
 
 
 plot_columns = ['Peptide counts (all)',
@@ -29,6 +30,6 @@ layout = html.Div([
 
     dcc.Loading([ 
         html.Div(style={'min-width': 400}),
-        dcc.Graph(id="protein-figure", config=figure_config),
+        dcc.Graph(id="protein-figure", config=T.gen_figure_config(filename='protein-groups')),
     ])
 ])

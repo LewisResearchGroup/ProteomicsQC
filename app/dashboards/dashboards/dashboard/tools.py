@@ -87,3 +87,16 @@ def get_qc_data(project, pipeline, columns, data_range):
                              columns=columns, data_range=data_range) ) 
     return requests.get(url, data=data, headers=headers).json()
 
+def gen_figure_config(filename='plot', format='svg', 
+        height=None, width=None, scale=None, editable=True):
+    config = {
+        'toImageButtonOptions': {
+            'format': format,
+            'filename': filename
+            },
+        'height': height,
+        'width': width,
+        'scale': scale,
+        'editable': editable
+        }
+    return config

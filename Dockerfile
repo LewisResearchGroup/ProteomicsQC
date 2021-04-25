@@ -20,11 +20,11 @@ RUN pip install -r requirements_app.txt
 
 RUN pip install -r requirements_lrg_omics.txt
 
+RUN conda update --all
+
 COPY ./lib/lrg_omics /lrg-omics
 
 RUN cd /lrg-omics && pip install -e .
-
-RUN conda update --all
 
 COPY ./app /app
 
