@@ -1,19 +1,18 @@
 <div class='block'>
     <h1 class='pipeline'>{{ project.name }} - {{ pipeline.name }}</h1>
-    <a href="{% url 'project:detail' project.slug %}"><button class='btn' title='Back to underlying project.'>..</button></a>
+    <a href="{% url 'project:detail' project.slug %}"><button class='btn' title='Back to underlying project.'>Back</button></a>
+    <a href="{% url 'maxquant:upload_raw' pipeline.pk %}"><button class="btn" title='Upload new RAW file to a pipeline.'>Upload RAW</button></a>
 </div>
 
 
 <div class='block'>
     <h2>MaxQuant Bulk Downloads</h2>
     <p> This will download all MaxQuant results in the current pipeline. <br> That may take a long time, depending on how many files there are.</p>
-    <a href="{% url 'maxquant:pipeline-download-file' project.slug pipeline.slug %}?file=evidence.txt"><button class='btn'>Evidence</button></a>
-    <a href="{% url 'maxquant:pipeline-download-file' project.slug pipeline.slug %}?file=summary.txt"><button class='btn'>Summary</button></a>
-    <a href="{% url 'maxquant:pipeline-download-file' project.slug pipeline.slug %}?file=proteinGroups.txt"><button class='btn'>Protein Groups</button></a>
-    <a href="{% url 'maxquant:pipeline-download-file' project.slug pipeline.slug %}?file=peptides.txt"><button class='btn'>Peptides</button></a>
-    <a href="{% url 'maxquant:pipeline-download-file' project.slug pipeline.slug %}?file=msms.txt"><button class='btn'>MSMS</button></a>
-    <a href="{% url 'maxquant:pipeline-download-file' project.slug pipeline.slug %}?file=ms3Scans.txt"><button class='btn'>MS3Scans</button></a>
-    <a href="{% url 'maxquant:pipeline-download-file' project.slug pipeline.slug %}?file=matchedFeatures.txt"><button class='btn'>Matched Features</button></a>
-    <a href="{% url 'maxquant:upload_raw' pipeline.pk %}"><button class="btn" title='Upload new RAW file to a pipeline.'>Upload RAW</button></a>
-
+    <a href="{% url 'maxquant:pipeline-download-file' pipeline.pk %}?file=evidence.txt"><button class='btn'>Evidence</button></a>
+    <a href="{% url 'maxquant:pipeline-download-file' pipeline.pk %}?file=proteinGroups.txt"><button class='btn'>Protein Groups</button></a>
+    <a href="{% url 'maxquant:pipeline-download-file' pipeline.pk %}?file=peptides.txt"><button class='btn'>Peptides</button></a>
+    <a href="{% url 'maxquant:pipeline-download-file' pipeline.pk %}?file=msms.txt"><button class='btn'>MSMS</button></a>
+    <a href="{% url 'maxquant:pipeline-download-file' pipeline.pk %}?file=ms3Scans.txt"><button class='btn'>MS3Scans</button></a>
+    <a href="{% url 'maxquant:pipeline-download-file' pipeline.pk %}?file=matchedFeatures.txt"><button class='btn'>Matched Features</button></a>
+    <a href="{% url 'maxquant:pipeline-download-file' pipeline.pk %}?file=summary.txt"><button class='btn'>Summary</button></a>
 </div>

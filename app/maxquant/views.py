@@ -31,35 +31,44 @@ def maxquant_pipeline_view(request, project, pipeline):
     return render(request, 'proteomics/pipeline_detail.html', context)
 
 
-def pipeline_download_file(request, project, pipeline):
+def pipeline_download_file(request, pk):
 
-    maxquant_runs = MaxQuantResult.objects.filter(raw_file__pipeline__slug=pipeline)
+    pipeline_pk = pk
 
-    file = request.GET.get('file')
-    project_name = Project.objects.get(slug=project).name
-    pipeline_name = MaxQuantPipeline.objects.get(project__slug=project, slug=pipeline).name
-    print(f'Get {file} from {project_name}/{pipeline_name}')
+    maxquant_runs = MaxQuantResult.objects.filter(raw_file__pipeline__pk=pipeline_pk)
+
+    fn = request.GET.get('file')
+
+    pipeline = MaxQuantPipeline.objects.get(pk=pipeline_pk)
+    project = pipeline.project
+    project_name = project.name
+    pipeline_name = pipeline.name
+
+    print(f'Get {fn} from {project_name}/{pipeline_name}')
 
     stream = BytesIO()
     dfs = []
 
     for mq_run in maxquant_runs:
-        if mq_run.use_downstream:
-            print('Write', mq_run.name)
-            df = mq_run.get_data_from_file(file)
-            if df is None:
-                continue
-            dfs.append(df)
+        df = mq_run.get_data_from_file(fn)
+        print(df)
+        if df is None:
+            continue
+        dfs.append(df)
 
     if dfs == []:
-        raise Http404(f'No file named {file} found on the server.')
+        raise Http404(f'No file named {fn} found on the server.')
+
     data = pd.concat(dfs).set_index('RawFile').reset_index()    
     stream.write(data.to_csv(index=False).encode())
     stream.seek(0)
 
     response = HttpResponse(stream, content_type='text/csv')
-    fn = f"{today()}_{project}_{pipeline}__{file.replace('.txt', '')}.csv"
+
+    fn = f"{today()}_{project}_{pipeline}__{fn.replace('.txt', '')}.csv"
+    print(fn)
     response['Content-Disposition'] = 'attachment; filename="{}"'.format(fn)
+    
     return response
 
 

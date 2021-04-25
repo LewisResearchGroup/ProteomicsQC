@@ -176,13 +176,16 @@ class MaxQuantResult(models.Model):
 
     def get_data_from_file(self, fn='proteinGroups.txt'):
         abs_fn = self.output_dir_maxquant / fn
+        print(abs_fn, abs_fn.is_file())
         if abs_fn.is_file():
             df = MaxQuantReader().read(abs_fn)
             if df is None: return None
             df['RawFile'] =  str(self.raw_file.name)
             df['Project'] =  str(self.raw_file.pipeline.project.name)
-            df['Pipeline'] = str(self.raw_file.pipeline.name   )
-            df = df.set_index(['Project', 'Pipeline', 'RawFile']).reset_index()     
+            df['Pipeline'] = str(self.raw_file.pipeline.name)
+            df['UseDownstream'] = str(self.raw_file.use_downstream)
+            df['Flagged'] = str(self.raw_file.flagged)
+            df = df.set_index(['Project', 'Pipeline', 'RawFile', 'UseDownstream', 'Flagged']).reset_index()     
             return df
         else:
             return None
@@ -201,14 +204,12 @@ class MaxQuantResult(models.Model):
                 temp_zip_file.write(fn, arcname=P(fn).name)
         return stream.getvalue()
 
-    @lru_cache(10)
     def maxquant_qc_data(self):
         df = load_maxquant_data_from(self.path)
         if df is None: df = pd.DataFrame()
         df['RawFile'] = self.raw_fn.with_suffix('').name
         return df.set_index('RawFile').reset_index()
 
-    @lru_cache(10)
     def rawtools_qc_data(self):
         df = load_rawtools_data_from(self.path)
         if df is None: df = pd.DataFrame()
