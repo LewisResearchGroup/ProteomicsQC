@@ -6,7 +6,14 @@ from django.conf import settings
 
 class CustomUserAdmin(UserAdmin):
     list_display = ('email', 'is_staff')
-    ordering = ('email', )
-    #list_select_related = ('profile', )
+    readonly_fields = ('last_login', 'date_joined')
+    ordering = ('email',)
+    fieldsets = (
+        ('Fields', 
+            {'fields': ('email', 'date_joined', 'last_login', 'is_active', 'is_staff', 
+                        'is_superuser', 'groups', 'user_permissions', 'password') 
+            }
+        ),
+    )
 
 admin.site.register(User, CustomUserAdmin)
