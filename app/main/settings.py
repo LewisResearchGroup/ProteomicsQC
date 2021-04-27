@@ -36,12 +36,6 @@ print('ALLOWED_HOSTS:', ALLOWED_HOSTS)
 # Application definition
 
 INSTALLED_APPS = [
-    'api',
-    'user',
-    'project',
-    'maxquant',
-    'dashboards',
-    'rawtools',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -52,6 +46,12 @@ INSTALLED_APPS = [
     # 'sysmon',
     'cookielaw',
     'django_plotly_dash.apps.DjangoPlotlyDashConfig',
+    'api',
+    'user',
+    'project',
+    'maxquant',
+    'dashboards',
+    'rawtools',    
 ]
 
 # ========================================================================
