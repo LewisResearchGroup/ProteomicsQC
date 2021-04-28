@@ -19,11 +19,11 @@ class MaxQuantParameter(models.Model):
 
     mqpar_id = models.AutoField(primary_key=True)
 
-    pipeline = models.OneToOneField(
-                        'MaxQuantPipeline', 
-                        on_delete=models.CASCADE, 
-                        null=True, 
-                        parent_link=True)
+    #pipeline = models.OneToOneField(
+    #                    'MaxQuantPipeline', 
+    #                    on_delete=models.CASCADE, 
+    #                    null=True, 
+    #                    parent_link=True)
 
     mqpar_file = models.FileField(
                 upload_to  = 'uploads', 

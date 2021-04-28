@@ -54,7 +54,6 @@ INSTALLED_APPS = [
     'project',
     'maxquant',
     'dashboards',
-    'rawtools',    
 ]
 
 # ========================================================================
