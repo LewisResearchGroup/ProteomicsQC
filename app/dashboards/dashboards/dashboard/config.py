@@ -1,6 +1,6 @@
 import pandas as pd
 
-qc_columns_always = ['Index', 'Date', 'RawFile',  'DateAcquired']
+qc_columns_always = ['Index', 'Date', 'RawFile',  'DateAcquired', 'Flagged']
 
 qc_columns_default = [ 
  'MS/MS Identified [%]', 'N_peptides', 'N_protein_groups', 

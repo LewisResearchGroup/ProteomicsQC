@@ -4,6 +4,8 @@ import logging
 
 import dask.dataframe as dd
 
+from pathlib import Path as P
+
 from django.shortcuts import render
 
 from rest_framework import generics
@@ -65,12 +67,17 @@ def get_qc_data(project_slug, pipeline_slug):
     pipeline = MaxQuantPipeline.objects.get( slug=pipeline_slug )
     path = pipeline.path
 
-    results = MaxQuantResult.objects.filter( raw_file__pipeline = pipeline)
+    results = MaxQuantResult.objects.filter( raw_file__pipeline = pipeline,
+                                             raw_file__use_downstream = True )
 
     mqs = []
     rts = []
 
+    flagged = pd.DataFrame()
     for result in tqdm(results):
+        raw_fn = P(result.raw_file.name).with_suffix('').name
+        raw_is_flagged = result.raw_file.flagged
+        flagged.loc[raw_fn, 'Flagged'] = raw_is_flagged
         try:
             rts.append( result.rawtools_qc_data() )
         except Exception as e:
@@ -96,9 +103,14 @@ def get_qc_data(project_slug, pipeline_slug):
 
     if 'Index' in mq.columns:
         mq = mq.drop('Index', axis=1)
+
     df = pd.merge(rt, mq, on='RawFile', how='outer')\
             .sort_values('Index', ascending=True)
-            
+
+    df = pd.merge(df, flagged, left_on='RawFile', right_index=True)
+
+    print(df)
+
     df['DateAcquired'] = df['DateAcquired'].astype( np.int64, errors='ignore' )
 
     assert df.columns.value_counts().max()==1, df.columns.value_counts()

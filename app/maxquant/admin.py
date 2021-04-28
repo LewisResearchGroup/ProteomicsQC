@@ -24,8 +24,10 @@ class RawToolsSetupInline(admin.StackedInline):
 class RawFileAdmin(admin.ModelAdmin):
     model = RawFile
     exclude = ('md5sum', 'slug', 'created', 'created_by')
-    list_display =('name', 'path', 'pipeline')
+    list_display =('name', 'path', 'pipeline', 'use_downstream', 'flagged')
+    list_filter = ('pipeline',)
     read_only_fields = ('path',)
+
     def regroup_by(self):
         return 'pipeline'
 
@@ -54,8 +56,10 @@ class MaxQuantResultAdmin(admin.ModelAdmin):
         'n_files_rawtools_metrics', 'n_files_rawtools_qc', 
         'status_protein_quant_parquet', 'maxquant_execution_time')
 
-    #def regroup_by(self):
-    #    return 'pipeline'
+    list_filter = ('raw_file__pipeline', )
+
+    def regroup_by(self):
+        return 'pipeline'
 
     def rerun_maxquant(modeladmin, request, queryset):
         for mq_run in queryset:

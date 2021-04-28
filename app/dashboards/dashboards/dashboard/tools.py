@@ -14,15 +14,15 @@ def list_to_dropdown_options(values):
     return [{'label': v, 'value': v} for v in values]
 
 
-def table_from_dataframe(df, id='table'):
+def table_from_dataframe(df, id='table', row_deletable=True, row_selectable='multi'):
     return dt.DataTable(
         id=id,
         columns=[{"name": i, "id": i, 'format': Format(precision=2)} for i in df.columns],
         data=df.iloc[::-1].to_dict('records'),
         sort_action="native",
         sort_mode="single",
-        row_selectable="multi",
-        row_deletable=False,
+        row_selectable=row_selectable,
+        row_deletable=row_deletable,
         selected_rows=[],
         filter_action='native',
         page_action="native",
@@ -86,6 +86,7 @@ def get_qc_data(project, pipeline, columns, data_range):
     data =  json.dumps( dict(project=project, pipeline=pipeline, 
                              columns=columns, data_range=data_range) ) 
     return requests.get(url, data=data, headers=headers).json()
+
 
 def gen_figure_config(filename='plot', format='svg', 
         height=None, width=None, scale=None, editable=True):

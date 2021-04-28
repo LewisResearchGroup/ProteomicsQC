@@ -15,7 +15,6 @@ from django.shortcuts import render, reverse
 
 from uuid import uuid4
 
-
 DATALAKE_ROOT = settings.DATALAKE_ROOT
 COMPUTE_ROOT = settings.COMPUTE_ROOT
 COMPUTE = settings.COMPUTE

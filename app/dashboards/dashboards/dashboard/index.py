@@ -140,7 +140,7 @@ def refresh_protein_table(project, pipeline, tab):
     print(type(data))
     df = pd.DataFrame(data)
     print('Generated dataframe:', df)
-    return table_from_dataframe(df, id='protein-table')
+    return table_from_dataframe(df, id='protein-table', row_deletable=False)
 
 
 @app.callback(
@@ -162,7 +162,7 @@ def refresh_qc_table(n_clicks, tab, pipeline, project, optional_columns, data_ra
     if 'DateAcquired' in df.columns:
         df['DateAcquired'] = pd.to_datetime( df['DateAcquired'] )
         df = df.replace('not detected', np.NaN)[qc_columns_always+optional_columns]
-    return table_from_dataframe(df, id='qc-table')
+    return table_from_dataframe(df, id='qc-table', row_selectable=False)
 
 
 @app.callback(
@@ -317,7 +317,7 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
                         print_grid=True)
 
     for i, col in enumerate(numeric_columns):
-        trace = go.Bar(x=df[x], y=df[col], name=col,
+        trace = go.Bar(x=df[x], y=df[col], name=col, marker_color=df['Flagged'],
                        text=None if x == 'RawFile' else df['RawFile']
                        )
         fig.add_trace(trace, row=1+i, col=1)        
