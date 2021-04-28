@@ -31,24 +31,26 @@ manage:
 reset_migrations:
 	sudo find . -path "*/migrations/*.pyc"  -delete
 	sudo find . -path "*/migrations/*.py" -not -name "__init__.py" -delete
-	make init-db
+	make init
 
 init:
+	make migrations
 	make migrations ARGS=user
 	make migrations ARGS=maxquant
 	make migrations ARGS=api
 	make migrations ARGS=rawtools
 	make migrations ARGS=project
+	make migrations ARGS=dashboards
 	make migrate
 	make createsuperuser
 	make collectstatic
 
-make update:
+update:
 	git pull --recurse-submodules
 	make build
 	make migrations
 	make migrate
 
-make stop:
+stop:
 	sudo docker-compose down
 	sudo docker-compose -f docker-compose-develop.yml down

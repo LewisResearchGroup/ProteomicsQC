@@ -15,14 +15,21 @@ from django.shortcuts import render, reverse
 
 from uuid import uuid4
 
+from .rawtools import RawToolsSetup
+from .MaxQuantParameter import MaxQuantParameter
+from .FastaFile import FastaFile
+
+
 DATALAKE_ROOT = settings.DATALAKE_ROOT
 COMPUTE_ROOT = settings.COMPUTE_ROOT
 COMPUTE = settings.COMPUTE
 
 
 
-class MaxQuantPipeline(models.Model):
+class MaxQuantPipeline(MaxQuantParameter, FastaFile, RawToolsSetup):
     
+    maxquant_pipepline_id = models.AutoField(primary_key=True)
+
     created_by = CurrentUserField()
 
     created = models.DateField(default=timezone.now)
@@ -38,25 +45,9 @@ class MaxQuantPipeline(models.Model):
     maxquant_executable = models.FilePathField(path=str(COMPUTE_ROOT), 
         match=".*MaxQuantCmd.exe", recursive=True, null=True, blank=True)
 
-    fasta_file = models.OneToOneField(
-                    'FastaFile', 
-                    on_delete=models.SET_DEFAULT, 
-                    null=True, 
-                    default='', 
-                    parent_link=True)
-    
-    mqpar_file = models.OneToOneField(
-                    'MaxQuantParameter', 
-                    on_delete=models.SET_DEFAULT, 
-                    null=True, 
-                    default='', 
-                    parent_link=True)
-    
     slug = models.SlugField(max_length=256, unique=False, default=uuid4)
 
     uuid = models.CharField(max_length=36, default=uuid4)
-
-    rawtools = models.OneToOneField('RawToolsSetup', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.name
@@ -123,23 +114,21 @@ class MaxQuantPipeline(models.Model):
 
 
 
-    #def args(self):
-    #    return None
-
-    #def pipeline_id(self):
-    #    return None
-
-
-
 @receiver(models.signals.post_save, sender=MaxQuantPipeline)
 def create_maxquant_path(sender, instance, created, *args, **kwargs):
     mq_pipe = instance
+
     if created:
         os.makedirs( mq_pipe.path )
         os.makedirs( mq_pipe.config_path )
         os.makedirs( mq_pipe.result_path )
         os.makedirs( mq_pipe.input_path)
         os.makedirs( mq_pipe.output_path)
+
+    mq_pipe.move_fasta_to_config()
+    mq_pipe.move_mqpar_to_config()
+
+
 
 
 @receiver(models.signals.post_delete, sender=MaxQuantPipeline)

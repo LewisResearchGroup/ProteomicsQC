@@ -2,8 +2,7 @@ from django.contrib import admin
 from .models import MaxQuantPipeline, FastaFile, MaxQuantExecutable, MaxQuantParameter,\
         RawFile, MaxQuantResult, RawToolsSetup
 
-
-
+'''
 class FastaFileAdmin(admin.StackedInline):
     model = FastaFile
     readonly_fields = ('md5sum', 'created', 'name', 'path', 'created_by')
@@ -19,31 +18,43 @@ class RawToolsSetupInline(admin.StackedInline):
     model = RawToolsSetup
     exclude = ('created', 'created_by')
     readonly_fields = ('created', 'created_by')
-
+'''
 
 class RawFileAdmin(admin.ModelAdmin):
     model = RawFile
-    exclude = ('md5sum', 'slug', 'created', 'created_by')
-    list_display =('name', 'path', 'pipeline', 'use_downstream', 'flagged')
-    list_filter = ('pipeline',)
+    exclude = ('md5sum', 'slug', 'created_by')
+    list_display =('name', 'pipeline', 'use_downstream', 'flagged', 'path',)
+    list_filter = ('pipeline', 'use_downstream', 'flagged')
     read_only_fields = ('path',)
-
+    search_fields = ('orig_file', )
+    sortable_by = ('sortable_by', 'created', 'pipeline', 'name', 'use_downstream', 'flagged')
+    group_by = ('pipeline')
     def regroup_by(self):
         return 'pipeline'
-
-
+'''
 class MaxQuantPipelineAdmin(admin.ModelAdmin):
     readonly_fields = ('path', 'path_exists', 'slug', 'fasta_path', 'mqpar_path', 'created_by', 'parquet_path', 'uuid')
     list_display = ('pk', 'name', 'project', 'run_automatically', 'regular_expressions_filter', 'path', 'path_exists')
     list_filter = ['project']
-    #exclude = ('rawtools',)
-    inlines = [MaxQuantParameterAdmin, FastaFileAdmin]
+    exclude = ('rawtools',)
+    inlines = [MaxQuantParameterAdmin, FastaFileAdmin, RawToolsSetupInline]
 
     def queryset(self, request):
         qs = super(MaxQuantPipelineAdmin, self).queryset(request)
         qs = qs.exclude(relatedNameForYourProduct__isnone=True)
         return qs
+'''
 
+class MaxQuantPipelineAdmin(admin.ModelAdmin):
+    readonly_fields = ('created', 'created_by', 'slug', 'uuid', 'path', 'fasta_path', 'mqpar_path')
+
+    fieldsets = (
+        (None,       {'fields': ('project', 'name', 'created', 'created_by')}),
+        ('MaxQuant', {'fields': ('mqpar_file', 'fasta_file')                }),
+        ('RawTools', {'fields': ('rawtools_args',)                          }),
+        ('Info',     {'fields': ('slug', 'uuid', 'path', 'fasta_path', 
+                                 'mqpar_path')                              })
+    )
 
 class MaxQuantResultAdmin(admin.ModelAdmin):
     readonly_fields = ('path', 'run_dir', 'raw_fn', 'mqpar_fn', 
@@ -106,4 +117,4 @@ admin.site.register(MaxQuantPipeline, MaxQuantPipelineAdmin)
 admin.site.register(MaxQuantExecutable)
 admin.site.register(RawFile, RawFileAdmin)
 admin.site.register(MaxQuantResult, MaxQuantResultAdmin)
-admin.site.register(RawToolsSetup, RawToolsSetupAdmin)
+#admin.site.register(RawToolsSetup, RawToolsSetupAdmin)

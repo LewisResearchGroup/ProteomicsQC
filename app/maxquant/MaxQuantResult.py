@@ -163,7 +163,7 @@ class MaxQuantResult(models.Model):
             rawtools_qc.delay(inp_dir, out_dir)
 
     def run_rawtools_metrics(self, rerun=False):
-        raw_fn, out_dir, args = str(self.raw_file.path), str(self.output_dir_rawtools), self.pipeline.rawtools.args
+        raw_fn, out_dir, args = str(self.raw_file.path), str(self.output_dir_rawtools), self.pipeline.rawtools_args
         if rerun and os.path.isdir(out_dir): shutil.rmtree( out_dir )
         if rerun or (self.n_files_rawtools_metrics == 0):
             rawtools_metrics.delay(raw_fn, out_dir, args)
