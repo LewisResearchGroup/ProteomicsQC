@@ -31,7 +31,6 @@ manage:
 reset_migrations:
 	sudo find . -path "*/migrations/*.pyc"  -delete
 	sudo find . -path "*/migrations/*.py" -not -name "__init__.py" -delete
-	make init
 
 init:
 	make migrations

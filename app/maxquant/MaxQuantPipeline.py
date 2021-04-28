@@ -26,7 +26,6 @@ COMPUTE = settings.COMPUTE
 
 
 
-
 class MaxQuantPipeline(MaxQuantParameter, FastaFile, RawToolsSetup):
     
     maxquant_pipepline_id = models.AutoField(primary_key=True)
