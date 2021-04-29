@@ -21,15 +21,12 @@
 
   <script src="{% static 'js/basic-upload.js' %}"></script>
 
-  {% if user.is_authenticated %}
-  
   <script>
     $(document).ready(function () {
       $(".button-collapse").sideNav();
       $('select').material_select(); 
     });
   </script>
-  {% endif %}
     
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
@@ -46,31 +43,29 @@
     <div style='background-color: darkcyan; color: white; width:100%;'>
 
       <ul class="side-nav" id="mobile-demo"> 
-        {% if user.is_authenticated %}
         {% include 'nav.html' %}
-        {% endif %}
       </ul>
       
       <div style="float: right; font-size: 20; padding: 20px; color: white;">
         {% if user.is_authenticated %}
-          <a href="{% url 'logout'%}?next={{request.path}}" style='color: white'>
+          <a href="{% url 'logout'%}?next=/" style='color: white'>
             <lu class='nobull'>
-              <li>Logged in as</li>
-              <li style='text-align: center'>{{ user.get_username }}</li>
+                <li>Logged in as</li>
+                <li style='text-align: center'>{{ user.get_username }}</li>
             </lu> 
           </a>
+        {% elif request.get_full_path|slice:":16" != "/accounts/login/" %}
+          <a href="{% url 'login'%}"><button class='btn'>Login</button></a>
         {% endif %}
       </div>
       
       <h1 id="title"><a href="{% url 'home' %}" style='color: white'>{{ home_title }}</a></h1>
 
-      {% if user.is_authenticated %}
         <nav>
           <div>
             <a href="#" data-activates="mobile-demo" class="button-collapse"><div class="material-icons">menu</div></a>
           </div>
         </nav>
-      {% endif %}
       
     </div>
 
@@ -78,9 +73,7 @@
       <div class="navbar">
         <nav class='z-depth-0'>
           <div class="hide-on-med-and-down">
-            {% if user.is_authenticated %}
               {% include 'nav.html' %}
-            {% endif %}
           </div>
         </nav>
       </div>

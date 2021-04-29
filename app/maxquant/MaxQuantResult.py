@@ -124,7 +124,7 @@ class MaxQuantResult(models.Model):
     def maxquant_parameters(self):
         mqpar_file    = str( self.mqpar_fn ) 
         fasta_file    = str( self.fasta_fn )
-        run_dir = str( self.run_dir )
+        run_dir       = str( self.run_dir )
         output_dir    = str( self.output_dir_maxquant )
         maxquantcmd   = str( self.maxquantcmd )
 

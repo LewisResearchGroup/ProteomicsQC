@@ -44,8 +44,8 @@ class MaxQuantParameter(models.Model):
     def move_mqpar_to_config(self):
         src_path = (self.mqpar_file.path)
         trg_path = (self.mqpar_path)
-        os.makedirs(trg_path.parent, exist_ok=True)
-        shutil.move(src_path, trg_path)
-
-
-
+        if P(src_path).is_file():
+            os.makedirs(trg_path.parent, exist_ok=True)
+            shutil.move(src_path, trg_path)
+        else:
+            pass

@@ -34,8 +34,6 @@ class RawFile(models.Model):
 
     md5sum = models.CharField(max_length = 36, default = timezone.now, unique = False)
 
-    #result = AutoOneToOneField('MaxQuantResult', on_delete=models.SET_NULL, null=True, blank=True)
-
     orig_file = models.FileField(upload_to = 'upload', storage = DATALAKE, max_length = 1000, unique = False)
 
     slug = models.SlugField(max_length = 250, null=True, blank=True)
@@ -86,12 +84,6 @@ class RawFile(models.Model):
     def filename(self):
         return self.path.with_suffix('')
     
-    '''
-    @property
-    def get_absolute_url(self):
-        return reverse('raw_detail', kwargs={'pk': self.pk})
-    '''
-
     @property
     def rawtools_status(self):
         path = dirname(self.abs_path)
@@ -107,6 +99,7 @@ class RawFile(models.Model):
     
     def browse(self):
         return mark_safe(r'<a href="{}">Browse</a>'.format(self.href))
+
     browse.short_description = 'Browse'
 
     def detail_view(self):
@@ -116,28 +109,13 @@ class RawFile(models.Model):
     def move_to_input_dir(self):
         src_path = (self.upload_path)
         trg_path = (self.path)
-        print('Move raw file to inputs:', src_path, trg_path)
         os.makedirs(trg_path.parent, exist_ok=True)
         shutil.move(src_path, trg_path)
-
+        self.orig_file.path = trg_path
+    
     @property
     def output_dir(self):
         return self.pipeline.output_path / self.name
 
     def submit(self):
         pass
-        
-
-
-@receiver(models.signals.post_save, sender=RawFile)
-def move_rawfile_to_input_dir(sender, instance, created, *args, **kwargs):
-    raw_file = instance
-    if created:
-        raw_file.move_to_input_dir()
-        MaxQuantResult.objects.create(raw_file = raw_file )
-
-@receiver(models.signals.post_delete, sender=RawFile)
-def delete_rawfile(sender, instance, *args, **kwargs):
-    raw_file = instance
-    if raw_file.path.is_file():
-        os.remove( raw_file.path )

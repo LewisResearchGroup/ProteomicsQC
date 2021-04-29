@@ -44,5 +44,8 @@ class FastaFile(models.Model):
     def move_fasta_to_config(self):
         src_path = (self.fasta_file.path)
         trg_path = (self.fasta_path)
-        os.makedirs(trg_path.parent, exist_ok=True)
-        shutil.move(src_path, trg_path)
+        if P(src_path).is_file():
+            os.makedirs(trg_path.parent, exist_ok=True)
+            shutil.move(src_path, trg_path)
+        else:
+            pass

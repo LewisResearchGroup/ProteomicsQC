@@ -2,51 +2,54 @@ from django.contrib import admin
 from .models import MaxQuantPipeline, FastaFile, MaxQuantExecutable, MaxQuantParameter,\
         RawFile, MaxQuantResult, RawToolsSetup
 
-'''
-class FastaFileAdmin(admin.StackedInline):
-    model = FastaFile
-    readonly_fields = ('md5sum', 'created', 'name', 'path', 'created_by')
-    list_display = ('name', 'pipeline', 'created', 'description', 'path')
-
-
-class MaxQuantParameterAdmin(admin.StackedInline):
-    model = MaxQuantParameter
-    readonly_fields = ('md5sum', 'created', 'path', 'created_by')
-
-
-class RawToolsSetupInline(admin.StackedInline):
-    model = RawToolsSetup
-    exclude = ('created', 'created_by')
-    readonly_fields = ('created', 'created_by')
-'''
 
 class RawFileAdmin(admin.ModelAdmin):
     model = RawFile
+
     exclude = ('md5sum', 'slug', 'created_by')
-    list_display =('name', 'pipeline', 'use_downstream', 'flagged', 'path',)
+
+    list_display =('name', 'pipeline', 'use_downstream', 'flagged', 'path', 'created')
+
+    sortable_by = ('created', 'pipeline', 'name', 'use_downstream', 'flagged')
+
     list_filter = ('pipeline', 'use_downstream', 'flagged')
-    read_only_fields = ('path',)
+
     search_fields = ('orig_file', )
-    sortable_by = ('sortable_by', 'created', 'pipeline', 'name', 'use_downstream', 'flagged')
+
     group_by = ('pipeline')
+
+    ordering = ('created',)
+    
+    actions = ('allow_use_downstream', 'prevent_use_downstream')
+
     def regroup_by(self):
         return 'pipeline'
-'''
-class MaxQuantPipelineAdmin(admin.ModelAdmin):
-    readonly_fields = ('path', 'path_exists', 'slug', 'fasta_path', 'mqpar_path', 'created_by', 'parquet_path', 'uuid')
-    list_display = ('pk', 'name', 'project', 'run_automatically', 'regular_expressions_filter', 'path', 'path_exists')
-    list_filter = ['project']
-    exclude = ('rawtools',)
-    inlines = [MaxQuantParameterAdmin, FastaFileAdmin, RawToolsSetupInline]
 
-    def queryset(self, request):
-        qs = super(MaxQuantPipelineAdmin, self).queryset(request)
-        qs = qs.exclude(relatedNameForYourProduct__isnone=True)
-        return qs
-'''
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return ['path', 'pipeline', 'created', 'orig_file']
+        else:
+            return ['path', 'created']
+    
+    def prevent_use_downstream(modeladmin, request, queryset):
+        queryset.update(use_downstream=False)
+
+    def allow_use_downstream(modeladmin, request, queryset):
+        queryset.update(use_downstream=True)
+
+        
+        
+
 
 class MaxQuantPipelineAdmin(admin.ModelAdmin):
-    readonly_fields = ('created', 'created_by', 'slug', 'uuid', 'path', 'fasta_path', 'mqpar_path')
+    readonly_fields = ('created', 'created_by', 'slug', 'uuid', 
+        'path', 'fasta_path', 'mqpar_path')
+
+    ordering = ('created',)
+
+    list_display = ('name', 'project', 'created', 'created_by')
+
+    sortable_by = ('sortable_by', 'created', 'pipeline')
 
     fieldsets = (
         (None,       {'fields': ('project', 'name', 'created', 'created_by')}),
@@ -56,21 +59,27 @@ class MaxQuantPipelineAdmin(admin.ModelAdmin):
                                  'mqpar_path')                              })
     )
 
+
+
 class MaxQuantResultAdmin(admin.ModelAdmin):
     readonly_fields = ('path', 'run_dir', 'raw_fn', 'mqpar_fn', 
                        'fasta_fn', 'pipeline', 'parquet_path', 
                        'create_protein_quant', 'n_files_maxquant', 
                        'n_files_rawtools_metrics', 'n_files_rawtools_qc',
-                        'maxquant_execution_time')
+                       'maxquant_execution_time', 'project')
 
-    list_display = ('name', 'pipeline', 'n_files_maxquant', 
+    list_display = ('name', 'project', 'pipeline', 'n_files_maxquant', 
         'n_files_rawtools_metrics', 'n_files_rawtools_qc', 
-        'status_protein_quant_parquet', 'maxquant_execution_time')
+        'status_protein_quant_parquet', 'maxquant_execution_time', 'created',
+        )
 
-    list_filter = ('raw_file__pipeline', )
+    list_filter = ('raw_file__pipeline__project', 'raw_file__pipeline')
+
+    def project(self, obj):
+        return obj.raw_file.pipeline.project
 
     def regroup_by(self):
-        return 'pipeline'
+        return ('project', 'pipeline')
 
     def rerun_maxquant(modeladmin, request, queryset):
         for mq_run in queryset:
@@ -109,12 +118,8 @@ class MaxQuantResultAdmin(admin.ModelAdmin):
                rerun_rawtools_qc, rerun_rawtools_metrics] 
 
 
-class RawToolsSetupAdmin(admin.ModelAdmin):
-    list_fields = ('name', 'args')
-
 
 admin.site.register(MaxQuantPipeline, MaxQuantPipelineAdmin)
 admin.site.register(MaxQuantExecutable)
 admin.site.register(RawFile, RawFileAdmin)
 admin.site.register(MaxQuantResult, MaxQuantResultAdmin)
-#admin.site.register(RawToolsSetup, RawToolsSetupAdmin)
