@@ -3,7 +3,7 @@ colorlover
 dash_bootstrap_components 
 dash-table-experiments
 dash-tabulator
-dask
+dask[distributed]
 django
 django_admin_index 
 django_plotly_dash 
