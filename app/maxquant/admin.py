@@ -20,7 +20,7 @@ class RawFileAdmin(admin.ModelAdmin):
 
     ordering = ('-created',)
     
-    actions = ('allow_use_downstream', 'prevent_use_downstream')
+    actions = ('allow_use_downstream', 'prevent_use_downstream', 'save_and_run')
 
     def regroup_by(self):
         return 'pipeline'
@@ -37,7 +37,9 @@ class RawFileAdmin(admin.ModelAdmin):
     def allow_use_downstream(modeladmin, request, queryset):
         queryset.update(use_downstream=True)
 
-        
+    def save_and_run(modeladmin, request, queryset):
+        for raw_file in queryset:
+            raw_file.save()
         
 
 
