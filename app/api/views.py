@@ -74,17 +74,19 @@ def get_qc_data(project_slug, pipeline_slug):
     pipeline = MaxQuantPipeline.objects.get( slug=pipeline_slug )
     path = pipeline.path
 
-    results = MaxQuantResult.objects.filter( raw_file__pipeline = pipeline,
-                                             raw_file__use_downstream = True )
+    results = MaxQuantResult.objects.filter( raw_file__pipeline = pipeline )
 
     mqs = []
     rts = []
 
     flagged = pd.DataFrame()
+    use_downstream = pd.DataFrame()
     for result in tqdm(results):
         raw_fn = P(result.raw_file.name).with_suffix('').name
         raw_is_flagged = result.raw_file.flagged
+        raw_use_downstream = result.raw_file.use_downstream     
         flagged.loc[raw_fn, 'Flagged'] = raw_is_flagged
+        use_downstream.loc[raw_fn, 'Use Downstream'] = raw_use_downstream
         try:
             rts.append( result.rawtools_qc_data() )
         except Exception as e:
@@ -115,8 +117,7 @@ def get_qc_data(project_slug, pipeline_slug):
             .sort_values('Index', ascending=True)
 
     df = pd.merge(df, flagged, left_on='RawFile', right_index=True)
-
-    print(df)
+    df = pd.merge(df, use_downstream, left_on='RawFile', right_index=True)
 
     df['DateAcquired'] = df['DateAcquired'].astype( np.int64, errors='ignore' )
 
