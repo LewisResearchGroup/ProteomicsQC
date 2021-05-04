@@ -4,11 +4,11 @@ import logging
 
 ### Dask setup
 import dask.dataframe as dd
-from dask.distributed import Client, LocalCluster
-cluster = LocalCluster()
-client = Client()
+#from dask.distributed import Client, LocalCluster
+#cluster = LocalCluster()
+#client = Client()
 
-print(cluster)
+#print(cluster)
 
 from pathlib import Path as P
 

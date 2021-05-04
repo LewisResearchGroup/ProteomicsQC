@@ -63,6 +63,7 @@ class RawFile(models.Model):
             super(RawFile, self).save(*args, **kwargs) 
             
         except IntegrityError as e:
+            print(e)
             pass
         
     def __str__(self):
@@ -111,7 +112,7 @@ class RawFile(models.Model):
         trg_path = (self.path)
         os.makedirs(trg_path.parent, exist_ok=True)
         shutil.move(src_path, trg_path)
-        self.orig_file.path = trg_path
+        #self.orig_file.path = trg_path
     
     @property
     def output_dir(self):
@@ -119,3 +120,17 @@ class RawFile(models.Model):
 
     def submit(self):
         pass
+
+
+@receiver(models.signals.post_save, sender=RawFile)
+def move_rawfile_to_input_dir(sender, instance, created, *args, **kwargs):
+    raw_file = instance
+    if created:
+        raw_file.move_to_input_dir()
+        MaxQuantResult.objects.create(raw_file = raw_file )
+
+@receiver(models.signals.post_delete, sender=RawFile)
+def delete_rawfile(sender, instance, *args, **kwargs):
+    raw_file = instance
+    if raw_file.path.is_file():
+        os.remove( raw_file.path )

@@ -18,7 +18,7 @@ class RawFileAdmin(admin.ModelAdmin):
 
     group_by = ('pipeline')
 
-    ordering = ('created',)
+    ordering = ('-created',)
     
     actions = ('allow_use_downstream', 'prevent_use_downstream')
 
@@ -45,7 +45,7 @@ class MaxQuantPipelineAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'created_by', 'slug', 'uuid', 
         'path', 'fasta_path', 'mqpar_path')
 
-    ordering = ('created',)
+    ordering = ('-created',)
 
     list_display = ('name', 'project', 'created', 'created_by')
 
@@ -72,6 +72,8 @@ class MaxQuantResultAdmin(admin.ModelAdmin):
         'n_files_rawtools_metrics', 'n_files_rawtools_qc', 
         'status_protein_quant_parquet', 'maxquant_execution_time', 'created',
         )
+
+    ordering = ('-created',)
 
     list_filter = ('raw_file__pipeline__project', 'raw_file__pipeline')
 
