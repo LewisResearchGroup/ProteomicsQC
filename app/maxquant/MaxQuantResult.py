@@ -151,7 +151,6 @@ class MaxQuantResult(models.Model):
         if fn.is_file():
             with open(fn) as file:
                 time = file.read()
-            print('Time:', time)
             return time
         else:
             return None
