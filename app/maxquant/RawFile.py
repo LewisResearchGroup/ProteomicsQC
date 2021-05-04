@@ -127,7 +127,8 @@ def move_rawfile_to_input_dir(sender, instance, created, *args, **kwargs):
     raw_file = instance
     if created:
         raw_file.move_to_input_dir()
-        MaxQuantResult.objects.create(raw_file = raw_file )
+    if len( MaxQuantResult.objects.filter(raw_file=raw_file) ) == 0:
+            MaxQuantResult.objects.create(raw_file = raw_file )
 
 @receiver(models.signals.post_delete, sender=RawFile)
 def delete_rawfile(sender, instance, *args, **kwargs):
