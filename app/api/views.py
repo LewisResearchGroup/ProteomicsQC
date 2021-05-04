@@ -6,10 +6,10 @@ import logging
 import dask.dataframe as dd
 from dask.distributed import Client, LocalCluster
 
-cluster = LocalCluster(n_workers=4,threads_per_worker=2)
-client = Client()
+#cluster = LocalCluster(n_workers=4, threads_per_worker=2)
+#client = Client()
 
-print(cluster)
+#print(cluster)
 
 from pathlib import Path as P
 
