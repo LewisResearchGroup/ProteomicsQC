@@ -4,7 +4,7 @@ from .models import RawFile, MaxQuantResult, MaxQuantPipeline
 class RawFileSerializer(serializers.ModelSerializer):
   class Meta():
     model = RawFile
-    fields = ('orig_file', 'pipeline')
+    fields = ('orig_file', 'pipeline', 'created_by')
 
 
 class MaxQuantPipelineSerializer(serializers.ModelSerializer):

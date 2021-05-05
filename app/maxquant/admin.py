@@ -6,7 +6,7 @@ from .models import MaxQuantPipeline, FastaFile, MaxQuantExecutable, MaxQuantPar
 class RawFileAdmin(admin.ModelAdmin):
     model = RawFile
 
-    exclude = ('md5sum', 'slug', 'created_by')
+    exclude = ('md5sum', 'slug')
 
     list_display =('name', 'pipeline', 'use_downstream', 'flagged', 'path', 'created')
 

@@ -30,6 +30,7 @@ from maxquant.models import MaxQuantPipeline, MaxQuantResult
 from maxquant.serializers import MaxQuantPipelineSerializer, RawFileSerializer
 from project.models import Project
 from project.serializers import ProjectsNamesSerializer
+from user.models import User
 
 from tqdm import tqdm
 
@@ -197,9 +198,33 @@ def get_protein_groups_data(fns, columns, protein_names, protein_col='Majority p
 class RawFileUploadAPI(APIView):
   parser_classes = (MultiPartParser, FormParser)
   def post(self, request, *args, **kwargs):
-    file_serializer = RawFileSerializer(data=request.data)
+
+    pipeline = get_pipeline(request)
+    user = get_user(request)
+
+    pipeline = MaxQuantPipeline.objects.get(uuid=pipeline_uuid)
+    orig_file = request.data['orig_file']
+
+    print(pipeline.name, user.email)
+    
+    file_serializer = RawFileSerializer(data={'orig_file': orig_file, 'pipeline': pipeline.pk, 'created_by': user.pk})
+
     if file_serializer.is_valid():
       file_serializer.save()
       return Response(file_serializer.data, status=status.HTTP_201_CREATED)
     else:
       return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+def get_user(request):
+    user_uuid = request.data['user_uuid']
+    return get_instance_from_uuid(User, user_uuid)
+    
+
+def get_pipeline(request):
+    user_uuid = request.data['pipeline_uuid']
+    return get_instance_from_uuid(User, user_uuid)
+        
+
+def get_instance_from_uuid(model, uuid):
+    return model.objects.get(uuid=uuid)
