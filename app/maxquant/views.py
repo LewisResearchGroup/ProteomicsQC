@@ -35,7 +35,8 @@ def pipeline_download_file(request, pk):
 
     pipeline_pk = pk
 
-    maxquant_runs = MaxQuantResult.objects.filter(raw_file__pipeline__pk=pipeline_pk)
+    maxquant_runs = MaxQuantResult.objects.filter(raw_file__pipeline__pk=pipeline_pk, 
+                                                  raw_file__use_downstream=True)
 
     fn = request.GET.get('file')
 
