@@ -6,8 +6,7 @@ from celery import shared_task
 
 import shutil
 
-from lrg_omics.proteomics.pipelines.maxquant import run_maxquant as run_mq
-from lrg_omics.proteomics.MaxQuantRunner import MaxQuantRunner
+from lrg_omics.proteomics import MaxquantRunner
 
 from lrg_omics.proteomics.quality_control.rawtools import rawtools_metrics_cmd, rawtools_qc_cmd
 
@@ -24,9 +23,9 @@ def rawtools_qc(input_dir, output_dir, rerun=False):
     if cmd is not None: os.system(cmd)
 
 @shared_task
-def run_maxquant(raw_file, params):
-    mq = MaxQuantRunner(verbose=True, **params)
-    mq.run(raw_file, rerun=True)
+def run_maxquant(raw_file, params, rerun=False):
+    mq = MaxquantRunner(verbose=True, **params)
+    mq.run(raw_file, rerun=rerun)
 
     
 

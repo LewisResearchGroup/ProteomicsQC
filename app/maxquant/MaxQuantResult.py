@@ -19,10 +19,11 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.conf import settings 
 from django.shortcuts import reverse
+from django.utils.translation import ugettext_lazy as _
 
 
 from lrg_omics.proteomics.tools import load_rawtools_data_from, load_maxquant_data_from
-from lrg_omics.proteomics.MaxquantReader import MaxQuantReader
+from lrg_omics.proteomics import MaxquantReader
 
 from .rawtools import RawToolsSetup
 from .tasks import rawtools_metrics, rawtools_qc, run_maxquant
@@ -40,6 +41,10 @@ def get_time_of_file_modification(fn):
 
 class MaxQuantResult(models.Model):
 
+    class Meta:
+        verbose_name = _("MaxQuant Result")
+        verbose_name_plural = _("MaxQuant Results")
+            
     created_by = CurrentUserField()
 
     created = models.DateTimeField(default=timezone.now)
@@ -143,7 +148,9 @@ class MaxQuantResult(models.Model):
 
     def run_maxquant(self, rerun=False):
         raw_file      = str( self.raw_fn )
-        run_maxquant.delay(raw_file, self.maxquant_parameters())
+        params = self.maxquant_parameters()
+        run_maxquant.delay(raw_file, params, rerun=rerun)
+        
         
     @property
     def maxquant_execution_time(self):
@@ -177,7 +184,7 @@ class MaxQuantResult(models.Model):
         abs_fn = self.output_dir_maxquant / fn
         print(abs_fn, abs_fn.is_file())
         if abs_fn.is_file():
-            df = MaxQuantReader().read(abs_fn)
+            df = MaxquantReader().read(abs_fn)
             if df is None: return None
             df['RawFile'] =  str(self.raw_file.name)
             df['Project'] =  str(self.raw_file.pipeline.project.name)
