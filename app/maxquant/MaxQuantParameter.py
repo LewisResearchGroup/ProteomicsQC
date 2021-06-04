@@ -49,3 +49,13 @@ class MaxQuantParameter(models.Model):
             shutil.move(src_path, trg_path)
         else:
             pass
+
+    @property
+    def href(self):
+        return self.mqpar_path
+
+    @property
+    def download_mqpar(self):
+        print(self.href)
+        return mark_safe('<a href="{0}" download>Download mqpar.xml</a>'.format(self.href))
+
