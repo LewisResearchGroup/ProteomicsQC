@@ -11,6 +11,8 @@ from django.template.defaultfilters import slugify
 from django.dispatch import receiver
 from django.utils import timezone
 from django.conf import settings 
+from django.utils.html import mark_safe
+
 from uuid import uuid4
 
 
@@ -49,3 +51,13 @@ class FastaFile(models.Model):
             shutil.move(src_path, trg_path)
         else:
             pass
+
+    @property
+    def href(self):
+        return self.fasta_path
+
+    @property
+    def download_fasta(self):
+        print(self.href)
+        return mark_safe('<a href="{0}" download>Download Fasta</a>'.format(self.href))
+

@@ -45,7 +45,7 @@ class RawFileAdmin(admin.ModelAdmin):
 
 class MaxQuantPipelineAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'created_by', 'slug', 'uuid', 
-        'path', 'fasta_path', 'mqpar_path')
+        'path', 'fasta_path', 'mqpar_path', 'download_fasta')
 
     ordering = ('-created',)
 
@@ -55,7 +55,7 @@ class MaxQuantPipelineAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None,       {'fields': ('project', 'name', 'created', 'created_by')}),
-        ('MaxQuant', {'fields': ('mqpar_file', 'fasta_file')                }),
+        ('MaxQuant', {'fields': ('mqpar_file', 'fasta_file', 'download_fasta')                }),
         ('RawTools', {'fields': ('rawtools_args',)                          }),
         ('Info',     {'fields': ('slug', 'uuid', 'path', 'fasta_path', 
                                  'mqpar_path')                              })
