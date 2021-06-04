@@ -13,6 +13,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.conf import settings 
 from django.utils.translation import ugettext_lazy as _
+from django.utils.html import mark_safe
 
 from uuid import uuid4
 
