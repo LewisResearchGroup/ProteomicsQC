@@ -23,7 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 from lrg_omics.proteomics.tools import load_rawtools_data_from, load_maxquant_data_from
-from lrg_omics.proteomics import MaxquantReader
+from lrg_omics.proteomics.maxquant.MaxquantReader import MaxquantReader
 
 from .rawtools import RawToolsSetup
 from .tasks import rawtools_metrics, rawtools_qc, run_maxquant
@@ -151,7 +151,7 @@ class MaxQuantResult(models.Model):
         params = self.maxquant_parameters()
         run_maxquant.delay(raw_file, params, rerun=rerun)
         
-        
+
     @property
     def maxquant_execution_time(self):
         fn = self.output_dir_maxquant/'time.txt'
@@ -162,17 +162,20 @@ class MaxQuantResult(models.Model):
         else:
             return None
 
+
     def run_rawtools_qc(self, rerun=False):
         inp_dir, out_dir = str(self.raw_file.path.parent), str(self.output_dir_rawtools_qc)
         if rerun and os.path.isdir(out_dir): shutil.rmtree( out_dir )
         if rerun or (self.n_files_rawtools_qc == 0):
             rawtools_qc.delay(inp_dir, out_dir)
 
+
     def run_rawtools_metrics(self, rerun=False):
         raw_fn, out_dir, args = str(self.raw_file.path), str(self.output_dir_rawtools), self.pipeline.rawtools_args
         if rerun and os.path.isdir(out_dir): shutil.rmtree( out_dir )
         if rerun or (self.n_files_rawtools_metrics == 0):
             rawtools_metrics.delay(raw_fn, out_dir, args)
+
 
     def run(self):
         self.run_maxquant()
@@ -266,6 +269,17 @@ class MaxQuantResult(models.Model):
             return 'OK'
         except:
             return 'Not readable.'
+
+    @property
+    def maxquant_errors(self):
+        fn = self.output_dir/'maxquant'/'maxquant.err'
+        print(fn)
+        if not fn.is_file():
+            return 'No file'
+        else:
+            with open(fn, 'r') as file:
+                lines = file.read()
+            return lines
 
 
 @receiver(models.signals.post_save, sender=MaxQuantResult)

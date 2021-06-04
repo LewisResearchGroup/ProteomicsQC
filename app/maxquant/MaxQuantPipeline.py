@@ -12,6 +12,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.conf import settings 
 from django.shortcuts import render, reverse
+from django.utils.translation import ugettext_lazy as _
 
 from uuid import uuid4
 
@@ -27,7 +28,11 @@ COMPUTE = settings.COMPUTE
 
 
 class MaxQuantPipeline(MaxQuantParameter, FastaFile, RawToolsSetup):
-    
+
+    class Meta:
+            verbose_name = _("MaxQuant Pipeline")
+            verbose_name_plural = _("MaxQuant Pipelines")
+
     maxquant_pipepline_id = models.AutoField(primary_key=True)
 
     created_by = CurrentUserField()

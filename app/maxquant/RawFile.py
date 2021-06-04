@@ -12,6 +12,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.conf import settings
 from django.shortcuts import render, reverse
+from django.utils.translation import ugettext_lazy as _
 
 from .MaxQuantResult import MaxQuantResult
 from uuid import uuid4
@@ -45,6 +46,8 @@ class RawFile(models.Model):
 
     class Meta:
         unique_together = ('orig_file', 'pipeline')   
+        verbose_name = _("RawFile")
+        verbose_name_plural = _("RawFiles")
 
     def save(self, *args, **kwargs):
 

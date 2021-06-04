@@ -12,18 +12,18 @@ from django.template.defaultfilters import slugify
 from django.dispatch import receiver
 from django.utils import timezone
 from django.conf import settings 
+from django.utils.translation import ugettext_lazy as _
+
 from uuid import uuid4
 
 
 class MaxQuantParameter(models.Model):
 
-    mqpar_id = models.AutoField(primary_key=True)
+    class Meta:
+            verbose_name = _("MaxQuant Parameter")
+            verbose_name_plural = _("MaxQuant Parameters")
 
-    #pipeline = models.OneToOneField(
-    #                    'MaxQuantPipeline', 
-    #                    on_delete=models.CASCADE, 
-    #                    null=True, 
-    #                    parent_link=True)
+    mqpar_id = models.AutoField(primary_key=True)
 
     mqpar_file = models.FileField(
                 upload_to  = 'uploads', 

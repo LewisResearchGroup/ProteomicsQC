@@ -12,6 +12,8 @@ from django.template.defaultfilters import slugify
 from django.dispatch import receiver
 from django.utils import timezone
 from django.conf import settings 
+from django.utils.translation import ugettext_lazy as _
+
 from uuid import uuid4
 
 
@@ -22,6 +24,11 @@ COMPUTE = settings.COMPUTE
 
 
 class MaxQuantExecutable(models.Model):
+
+    class Meta:
+            verbose_name = _("MaxQuant Executable")
+            verbose_name_plural = _("MaxQuant Executables")
+
     filename = models.FileField(upload_to='software/MaxQuant',
                                 storage = COMPUTE)
     
