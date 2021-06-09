@@ -8,7 +8,7 @@ class RawFileAdmin(admin.ModelAdmin):
 
     exclude = ('md5sum', 'slug')
 
-    list_display =('name', 'pipeline', 'use_downstream', 'flagged', 'path', 'created', 'download')
+    list_display =('name', 'download', 'pipeline', 'use_downstream', 'flagged', 'path', 'created')
 
     sortable_by = ('created', 'pipeline', 'name', 'use_downstream', 'flagged')
 
