@@ -20,6 +20,7 @@ from django.utils import timezone
 from django.conf import settings 
 from django.shortcuts import reverse
 from django.utils.translation import ugettext_lazy as _
+from django.utils.html import mark_safe
 
 
 from lrg_omics.proteomics.tools import load_rawtools_data_from, load_maxquant_data_from
@@ -280,6 +281,36 @@ class MaxQuantResult(models.Model):
             with open(fn, 'r') as file:
                 lines = file.read()
             return lines
+
+    @property
+    def rawtools_qc_errors(self):
+        fn = self.output_dir/'rawtools_qc'/'rawtools_qc.err'
+        print(fn)
+        if not fn.is_file():
+            return 'No file'
+        else:
+            with open(fn, 'r') as file:
+                lines = file.read()
+            return lines
+
+    @property
+    def rawtools_metrics_errors(self):
+        fn = self.output_dir/'rawtools'/'rawtools_metrics.err'
+        print(fn)
+        if not fn.is_file():
+            return 'No file'
+        else:
+            with open(fn, 'r') as file:
+                lines = file.read()
+            return lines
+
+    @property
+    def href(self):
+        return self.output_dir
+
+    @property
+    def link(self):
+        return mark_safe( f"<a href='{self.href}'>Browse</a>" ) 
 
 
 @receiver(models.signals.post_save, sender=MaxQuantResult)

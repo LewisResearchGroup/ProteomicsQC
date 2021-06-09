@@ -65,11 +65,12 @@ class MaxQuantPipelineAdmin(admin.ModelAdmin):
 
 class MaxQuantResultAdmin(admin.ModelAdmin):
     readonly_fields = ('raw_file', 'created', 'created_by', 
-                       'path', 'run_dir', 'raw_fn', 'mqpar_fn', 
+                       'path', 'link', 'run_dir', 'raw_fn', 'mqpar_fn', 
                        'fasta_fn', 'pipeline', 'parquet_path', 
                        'create_protein_quant', 'n_files_maxquant', 
                        'n_files_rawtools_metrics', 'n_files_rawtools_qc',
                        'maxquant_execution_time', 'project', 'maxquant_errors',
+                       'rawtools_qc_errors', 'rawtools_metrics_errors'
                        )
 
     list_display = ('name', 'project', 'pipeline', 'n_files_maxquant', 
