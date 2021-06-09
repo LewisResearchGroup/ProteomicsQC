@@ -8,7 +8,7 @@ class RawFileAdmin(admin.ModelAdmin):
 
     exclude = ('md5sum', 'slug')
 
-    list_display =('name', 'pipeline', 'use_downstream', 'flagged', 'path', 'created')
+    list_display =('name', 'pipeline', 'use_downstream', 'flagged', 'path', 'created', 'download')
 
     sortable_by = ('created', 'pipeline', 'name', 'use_downstream', 'flagged')
 
@@ -80,7 +80,7 @@ class MaxQuantResultAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None,       {'fields': ('project', 'pipeline', 'raw_file', 'created', 'created_by', 'link')}),
-        ('Paths',    {'fields': ('raw_fn', 'mqpar_fn', 'fasta_fn', 'run_dir', 'path', 'parquet_path', )}),
+        ('Paths',    {'fields': ('raw_fn', 'mqpar_fn', 'fasta_fn', 'run_dir', 'path')}),
         ('Info',     {'fields': ('n_files_maxquant', 'maxquant_execution_time', 'n_files_rawtools_metrics', 'n_files_rawtools_qc', )}),
         ('Errors',   {'fields': ('maxquant_errors', 'rawtools_qc_errors', 'rawtools_metrics_errors')}),
     )

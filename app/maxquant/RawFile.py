@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.shortcuts import render, reverse
 from django.utils.translation import ugettext_lazy as _
+from django.utils.html import mark_safe
 
 from .MaxQuantResult import MaxQuantResult
 from uuid import uuid4
@@ -99,8 +100,11 @@ class RawFile(models.Model):
     
     @property    
     def href(self):
-        return os.path.dirname('/'+self.orig_file.name)
+        return self.path
     
+    def download(self):
+        return mark_safe( f'<a href="{self.href}">Download</a>' ) 
+
     def browse(self):
         return mark_safe(r'<a href="{}">Browse</a>'.format(self.href))
 
@@ -108,6 +112,7 @@ class RawFile(models.Model):
 
     def detail_view(self):
         return mark_safe(r'<a href="{}">Details</a>'.format(self.get_absolute_url))
+
     detail_view.short_description = 'Details'
 
     def move_to_input_dir(self):
