@@ -78,6 +78,14 @@ class MaxQuantResultAdmin(admin.ModelAdmin):
         'status_protein_quant_parquet', 'maxquant_execution_time', 'created',
         )
 
+    fieldsets = (
+        (None,       {'fields': ('raw_file', 'created', 'created_by', 'link')}),
+        ('Paths',    {'fields': ('raw_fn', 'mqpar_fn', 'fasta_fn', 'run_dir', 'path', 'parquet_path', )}),
+        ('Info',     {'fields': ('n_files_rawtools_metrics', 'n_files_rawtools_qc', 'maxquant_execution_time', )}),
+        ('Errors',   {'fields': ('maxquant_errors', 'rawtools_qc_errors', 'rawtools_metrics_errors')}),
+    )
+
+
     ordering = ('-created',)
 
     list_filter = ('raw_file__pipeline__project', 'raw_file__pipeline')
