@@ -79,9 +79,9 @@ class MaxQuantResultAdmin(admin.ModelAdmin):
         )
 
     fieldsets = (
-        (None,       {'fields': ('raw_file', 'created', 'created_by', 'link')}),
+        (None,       {'fields': ('project', 'pipeline', 'raw_file', 'created', 'created_by', 'link')}),
         ('Paths',    {'fields': ('raw_fn', 'mqpar_fn', 'fasta_fn', 'run_dir', 'path', 'parquet_path', )}),
-        ('Info',     {'fields': ('n_files_rawtools_metrics', 'n_files_rawtools_qc', 'maxquant_execution_time', )}),
+        ('Info',     {'fields': ('n_files_maxquant', 'maxquant_execution_time', 'n_files_rawtools_metrics', 'n_files_rawtools_qc', )}),
         ('Errors',   {'fields': ('maxquant_errors', 'rawtools_qc_errors', 'rawtools_metrics_errors')}),
     )
 
