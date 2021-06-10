@@ -54,11 +54,10 @@ class MaxQuantPipelineAdmin(admin.ModelAdmin):
     sortable_by = ('sortable_by', 'created', 'pipeline')
 
     fieldsets = (
-        (None,       {'fields': ('project', 'name', 'created', 'created_by')}),
-        ('MaxQuant', {'fields': ('mqpar_file', 'download_mqpar', 'fasta_file', 'download_fasta')}),
-        ('RawTools', {'fields': ('rawtools_args',)                          }),
-        ('Info',     {'fields': ('slug', 'uuid', 'path', 'fasta_path', 
-                                 'mqpar_path')                              })
+        (None,       {'fields': ('project', 'name', 'created', 'created_by') }),
+        ('MaxQuant', {'fields': ('mqpar_file', 'download_mqpar', 'fasta_file', 'download_fasta') }),
+        ('RawTools', {'fields': ('rawtools_args',) }),
+        ('Info',     {'fields': ('slug', 'uuid', 'path', 'fasta_path', 'mqpar_path') })
     )
 
 
@@ -74,12 +73,11 @@ class MaxQuantResultAdmin(admin.ModelAdmin):
                        )
 
     list_display = ('name', 'project', 'pipeline', 'n_files_maxquant', 
-        'n_files_rawtools_metrics', 'n_files_rawtools_qc', 
-        'status_protein_quant_parquet', 'maxquant_execution_time', 'created',
-        )
+                    'n_files_rawtools_metrics', 'n_files_rawtools_qc', 
+                    'status_protein_quant_parquet', 'maxquant_execution_time', 'created')
 
     fieldsets = (
-        (None,       {'fields': ('project', 'pipeline', 'raw_file', 'created', 'created_by', 'link')}),
+        (None,       {'fields': ('project', 'pipeline', 'created', 'raw_file', 'created_by', 'link')}),
         ('Paths',    {'fields': ('raw_fn', 'mqpar_fn', 'fasta_fn', 'run_dir', 'path')}),
         ('Info',     {'fields': ('n_files_maxquant', 'maxquant_execution_time', 'n_files_rawtools_metrics', 'n_files_rawtools_qc', )}),
         ('Errors',   {'fields': ('maxquant_errors', 'rawtools_qc_errors', 'rawtools_metrics_errors')}),

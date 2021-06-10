@@ -53,11 +53,10 @@ class FastaFile(models.Model):
             pass
 
     @property
-    def href(self):
+    def fasta_href(self):
         return self.fasta_path
 
     @property
     def download_fasta(self):
-        print(self.href)
-        return mark_safe('<a href="{0}" download>Download Fasta</a>'.format(self.href))
+        return mark_safe('<a href="{0}" download>Download Fasta</a>'.format(self.fasta_href))
 
