@@ -38,8 +38,8 @@ class MaxQuantParameter(models.Model):
 
     @property
     def mqpar_path(self): 
-        if self.pipeline is None:
-            return None
+        #if self.pipeline is None:
+        #    return None
         return self.pipeline.mqpar_path
 
     def move_mqpar_to_config(self):
@@ -57,6 +57,5 @@ class MaxQuantParameter(models.Model):
 
     @property
     def download_mqpar(self):
-        print(self.href)
         return mark_safe('<a href="{0}" download>Download mqpar.xml</a>'.format(self.mqpar_href))
 
