@@ -25,7 +25,7 @@ layout = html.Div([
 
     dcc.Loading([ 
         html.Div(id='qc-table-div', children=[ dt.DataTable(id='qc-table') ], 
-                 style={'margin-top': '1.5em'}) 
+                 style={'margin-top': '1.5em', 'minHeight': '400px'}) 
     ]),
     
 

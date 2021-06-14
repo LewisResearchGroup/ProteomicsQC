@@ -102,6 +102,7 @@ class RawFile(models.Model):
     def href(self):
         return self.path
     
+    @property
     def download(self):
         return mark_safe( f'<a href="{self.href}">Download</a>' ) 
 

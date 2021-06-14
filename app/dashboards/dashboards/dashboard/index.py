@@ -380,8 +380,6 @@ def explorer_plot(x, y, color, size, facet_row, facet_col, project, pipeline, da
     if (project is None) or (pipeline is None):
         raise PreventUpdate
 
-    print(x, y, project, pipeline, data_range, file=sys.stderr)
-
     columns = [x, y, color, size, facet_row, facet_col, 'RawFile', 'Index', 'DateAcquired']
 
     if y is None:
@@ -423,7 +421,9 @@ def explorer_plot(x, y, color, size, facet_row, facet_col, project, pipeline, da
                 b=200,
                 t=50,
                 pad=0
-            ))
+            ),
+            hovermode='closest',
+            )
 
     config = T.gen_figure_config(filename='QC-scatter')
 

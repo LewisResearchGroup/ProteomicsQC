@@ -69,15 +69,19 @@ class MaxQuantResultAdmin(admin.ModelAdmin):
                        'create_protein_quant', 'n_files_maxquant', 
                        'n_files_rawtools_metrics', 'n_files_rawtools_qc',
                        'maxquant_execution_time', 'project', 'maxquant_errors',
-                       'rawtools_qc_errors', 'rawtools_metrics_errors'
+                       'rawtools_qc_errors', 'rawtools_metrics_errors',
+                       'download_raw'
                        )
+
+    search_fields = ('raw_file__orig_file',)
+
 
     list_display = ('name', 'project', 'pipeline', 'n_files_maxquant', 
                     'n_files_rawtools_metrics', 'n_files_rawtools_qc', 
                     'status_protein_quant_parquet', 'maxquant_execution_time', 'created')
 
     fieldsets = (
-        (None,       {'fields': ('project', 'pipeline', 'created', 'raw_file', 'created_by', 'link')}),
+        (None,       {'fields': ('project', 'pipeline', 'created', 'raw_file', 'created_by', 'link', 'download_raw')}),
         ('Paths',    {'fields': ('raw_fn', 'mqpar_fn', 'fasta_fn', 'run_dir', 'path')}),
         ('Info',     {'fields': ('n_files_maxquant', 'maxquant_execution_time', 'n_files_rawtools_metrics', 'n_files_rawtools_qc', )}),
         ('Errors',   {'fields': ('maxquant_errors', 'rawtools_qc_errors', 'rawtools_metrics_errors')}),
@@ -87,6 +91,9 @@ class MaxQuantResultAdmin(admin.ModelAdmin):
     ordering = ('-created',)
 
     list_filter = ('raw_file__pipeline__project', 'raw_file__pipeline')
+
+    def download_raw(self, obj):
+        return obj.raw_file.download
 
     def project(self, obj):
         return obj.raw_file.pipeline.project
