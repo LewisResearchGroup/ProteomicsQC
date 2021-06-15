@@ -86,12 +86,28 @@
     
     <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
         <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="2"><a href="#submit-a-raw-file-via-the-api" class="nav-link">Submit a raw file via the API</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
         </ul>
     </div>
 </div></div>
                     <div class="col-md-9" role="main">
 
-</div>
+<h2 id="submit-a-raw-file-via-the-api">Submit a raw file via the API</h2>
+<p>Raw files can be submitted to an existing pipeline using the API. 
+To submit a raw file the UUID of the user and the target pipeline are required which can be found in the admin panel.</p>
+<p>The target URL is: <code>https://proteomics.resistancedb.org/upload/raw</code></p>
+<p>The curl command looks like:</p>
+<pre><code>URL=https://proteomics.resistancedb.org/upload/
+
+curl -v -i -F orig_file="@&lt;/your/file.raw&gt;" -F pipeline=3388219a-f9cd-4749-9f5e-d9da5bca9286 -F user=gd5d56ac-1rb9-4181-8fbd-b6579ccb8fc1 $URL
+</code></pre>
+<p>Alternatively, the python script <code>lrg_upload_raw_file_to_qc_pipeline.py</code> that is part of the <code>lrg_omics</code> packages can be used:</p>
+<pre><code>python lrg_upload_raw_file_to_qc_pipeline.py --raw your/file.raw --host https://example.com --user 3388219a-f9cd-4749-9f5e-d9da5bca9286 --pipeline gd5d56ac-1rb9-4181-8fbd-b6579ccb8fc1
+</code></pre></div>
             </div>
         </div>
 
