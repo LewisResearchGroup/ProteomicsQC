@@ -1,6 +1,8 @@
+from django.http.response import HttpResponse
 import pandas as pd
 import numpy as np
 import logging
+import json 
 
 ### Dask setup
 import dask.dataframe as dd
@@ -38,7 +40,7 @@ VERBOSE = settings.DEBUG
 
 class ProjectNames(generics.ListAPIView):
     filter_fields = ['name', 'slug']
-    def get(self, request, format=None):
+    def post(self, request, format=None):
             queryset = Project.objects.all()
             serializer = ProjectsNamesSerializer(queryset, many=True)
             data = serializer.data
@@ -46,9 +48,11 @@ class ProjectNames(generics.ListAPIView):
 
 
 class MaxQuantPipelineNames(generics.ListAPIView):
-    def get(self, request, format=None):
-            get_data = request.query_params
-            project = get_data['project']
+    def post(self, request, format=None):
+
+            data = request.data
+            project = data['project']
+
             queryset = MaxQuantPipeline.objects.filter(project__slug=project)
             serializer = MaxQuantPipelineSerializer(queryset, many=True)
             data = serializer.data
@@ -56,17 +60,26 @@ class MaxQuantPipelineNames(generics.ListAPIView):
 
 
 class QcDataAPI(generics.ListAPIView):
-    def get(self, request):
+    def post(self, request):
+
         data = request.data
         project_slug = data['project']
         pipeline_slug = data['pipeline']
+
         df = get_qc_data(project_slug, pipeline_slug)
         response = {}
-        for col in data['columns']:
+
+        if 'columns' not in data:
+            cols = df.columns
+        else:
+            cols = data['columns']
+
+        for col in cols:
             if col in df.columns:
                 response[col] = list(df[col])
             else:
                 response[col] = ''
+    
         return JsonResponse(response)
 
 
@@ -130,8 +143,10 @@ def get_qc_data(project_slug, pipeline_slug):
 class ProteinNamesAPI(generics.ListAPIView):
     def post(self, request):
         data = request.data
+        
         project_slug = data['project']
         pipeline_slug = data['pipeline']
+        
         fns = get_protein_quant_fn(project_slug, pipeline_slug)
         if len(fns) == 0: return JsonResponse({})
         cols = ['Majority protein IDs', 'Score', 'Intensity']
@@ -146,19 +161,29 @@ class ProteinNamesAPI(generics.ListAPIView):
 
 
 class ProteinGroupsAPI(generics.ListAPIView):
-    def get(self, request):
+    def post(self, request):
         """Returns reporter corrected intensity columns for selected proteins"""
+        
         data = request.data
+        print(data)
+        
+        project_slug = data['project']
+        pipeline_slug = data['pipeline']
 
         if 'columns' in data:
             columns = data['columns']
+        else:
+            columns = None
 
-        project_slug = data['project']
-        pipeline_slug = data['pipeline']
-        protein_names = data['protein_names']
+        if 'protein_names' in data:
+            protein_names = data['protein_names']
+        else:
+            protein_names = None
+
+        print(project_slug, pipeline_slug, columns, protein_names, type(columns), type(protein_names))
 
         if columns is None or protein_names is None:
-            return JsonResponse({})
+            return HttpResponse('alive')
 
         fns = get_protein_quant_fn(project_slug, pipeline_slug)
 
@@ -201,11 +226,7 @@ class RawFileUploadAPI(APIView):
 
     pipeline = get_pipeline(request)
     user = get_user(request)
-
-    pipeline = MaxQuantPipeline.objects.get(uuid=pipeline_uuid)
     orig_file = request.data['orig_file']
-
-    print(pipeline.name, user.email)
     
     file_serializer = RawFileSerializer(data={'orig_file': orig_file, 'pipeline': pipeline.pk, 'created_by': user.pk})
 
@@ -217,13 +238,13 @@ class RawFileUploadAPI(APIView):
 
 
 def get_user(request):
-    user_uuid = request.data['user_uuid']
-    return get_instance_from_uuid(User, user_uuid)
+    uuid = request.data['user']
+    return get_instance_from_uuid(User, uuid)
     
 
 def get_pipeline(request):
-    user_uuid = request.data['pipeline_uuid']
-    return get_instance_from_uuid(User, user_uuid)
+    uuid = request.data['pipeline']
+    return get_instance_from_uuid(MaxQuantPipeline, uuid)
         
 
 def get_instance_from_uuid(model, uuid):
