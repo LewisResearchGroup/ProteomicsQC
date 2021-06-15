@@ -98,10 +98,14 @@
 
 <h2 id="submit-a-raw-file-via-the-api">Submit a raw file via the API</h2>
 <p>Raw files can be submitted to an existing pipeline using the API. 
-To submit a raw file the UUID of the user and the target pipeline are required which can be found in the admin panel.</p>
+To submit a raw file the UUID of the user and the target pipeline are required which can be found in the admin detail view of the respective user and pipeline:</p>
+<pre><code>- [https://proteomics.resistancedb.org/admin/user/user/1/change/](https://proteomics.resistancedb.org/admin/user/user/1/change/)
+
+- [https://proteomics.resistancedb.org/admin/maxquant/maxquantpipeline/1/change/](https://proteomics.resistancedb.org/admin/maxquant/maxquantpipeline/1/change/)
+</code></pre>
 <p>The target URL is: <code>https://proteomics.resistancedb.org/upload/raw</code></p>
 <p>The curl command looks like:</p>
-<pre><code>URL=https://proteomics.resistancedb.org/upload/
+<pre><code>URL=https://proteomics.resistancedb.org/upload/raw
 
 curl -v -i -F orig_file="@&lt;/your/file.raw&gt;" -F pipeline=3388219a-f9cd-4749-9f5e-d9da5bca9286 -F user=gd5d56ac-1rb9-4181-8fbd-b6579ccb8fc1 $URL
 </code></pre>
