@@ -147,11 +147,19 @@ class ProteinNamesAPI(generics.ListAPIView):
         project_slug = data['project']
         pipeline_slug = data['pipeline']
         
+        add_con = data['add_con']
+        add_rev = data['add_rev']
+
+        print(project_slug, pipeline_slug, add_con, add_rev)
+
         fns = get_protein_quant_fn(project_slug, pipeline_slug)
         if len(fns) == 0: return JsonResponse({})
         cols = ['Majority protein IDs', 'Score', 'Intensity']
         ddf = dd.read_parquet(fns, engine="pyarrow")[cols]
-        res = ddf.groupby(['Majority protein IDs']).mean().sort_values('Score').compute()
+        if not add_con: ddf = ddf[~ddf['Majority protein IDs'].str.contains('CON__')]
+        if not add_rev: ddf = ddf[~ddf['Majority protein IDs'].str.contains('REV__')]
+        dff = ddf.groupby(['Majority protein IDs']).mean().sort_values('Score')
+        res = dff.compute()
         response = {}
         response['protein_names'] = list( res.index  )
         for col in res.columns:
@@ -165,8 +173,7 @@ class ProteinGroupsAPI(generics.ListAPIView):
         """Returns reporter corrected intensity columns for selected proteins"""
         
         data = request.data
-        print(data)
-        
+
         project_slug = data['project']
         pipeline_slug = data['pipeline']
 
@@ -200,26 +207,6 @@ class ProteinGroupsAPI(generics.ListAPIView):
         return JsonResponse(df.to_json(), safe=False)
 
 
-
-def get_protein_quant_fn(project_slug, pipeline_slug):
-    pipeline = MaxQuantPipeline.objects.get( project__slug=project_slug, slug=pipeline_slug )
-    results = MaxQuantResult.objects.filter( raw_file__pipeline = pipeline, 
-                                             raw_file__use_downstream=True)
-    fns = []
-    for res in tqdm( results ) :
-        fn = res.create_protein_quant()
-        if fn is None: continue
-        fns.append( fn )
-    return fns
-
-
-def get_protein_groups_data(fns, columns, protein_names, protein_col='Majority protein IDs'):
-    ddf = dd.read_parquet(fns, engine="pyarrow")
-    ddf = ddf[ddf[protein_col].isin(protein_names)] 
-    ddf = ddf[['RawFile', protein_col]+columns]
-    return ddf.compute().reset_index(drop=True)
-
-
 class RawFileUploadAPI(APIView):
   parser_classes = (MultiPartParser, FormParser)
   def post(self, request, *args, **kwargs):
@@ -249,3 +236,22 @@ def get_pipeline(request):
 
 def get_instance_from_uuid(model, uuid):
     return model.objects.get(uuid=uuid)
+
+
+def get_protein_quant_fn(project_slug, pipeline_slug):
+    pipeline = MaxQuantPipeline.objects.get( project__slug=project_slug, slug=pipeline_slug )
+    results = MaxQuantResult.objects.filter( raw_file__pipeline = pipeline, 
+                                             raw_file__use_downstream=True)
+    fns = []
+    for res in tqdm( results ) :
+        fn = res.create_protein_quant()
+        if fn is None: continue
+        fns.append( fn )
+    return fns
+
+
+def get_protein_groups_data(fns, columns, protein_names, protein_col='Majority protein IDs'):
+    ddf = dd.read_parquet(fns, engine="pyarrow")
+    ddf = ddf[ddf[protein_col].isin(protein_names)] 
+    ddf = ddf[['RawFile', protein_col]+columns]
+    return ddf.compute().reset_index(drop=True)

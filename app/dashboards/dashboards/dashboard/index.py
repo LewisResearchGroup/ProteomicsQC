@@ -18,6 +18,7 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 #from flask_caching import Cache
 #from cache_memoize import cache_memoize
+from dash_tabulator import DashTabulator
 
 from lrg_omics.plotly import plotly_heatmap, plotly_bar, plotly_histogram, set_template
 from plotly.subplots import make_subplots
@@ -26,7 +27,12 @@ import plotly.graph_objects as go
 from scipy.cluster.hierarchy import linkage, dendrogram
 from scipy.spatial.distance import pdist, squareform
 
-
+try:
+    from .tools import list_to_dropdown_options
+    from . import tools as T
+except:
+    from tools import list_to_dropdown_options
+    import tools as T
 
 set_template()
 
@@ -102,6 +108,8 @@ layout = html.Div([
 
 app.layout = layout
 
+proteins.callbacks(app)
+
 @app.callback(
     Output('tabs-content', 'children'),
     [Input('tabs', 'value')])
@@ -113,17 +121,24 @@ def render_content(tab):
     if tab == 'explorer':
         return explorer.layout
 
+
 @app.callback(
     Output('project', 'options'),
     [Input('B_update','n_clicks')])
 def populate_projects(project):
     return get_projects()
 
+
 @app.callback(
     Output('pipeline', 'options'),
     [Input('project','value')])
 def populate_pipelines(project):
-    return get_pipelines(project)
+    _json = get_pipelines(project)
+    if len(_json) == 0:
+        return []
+    else:
+        output = [ {'label': i['name'], 'value': i['slug']} for i in _json]
+        return output
 
 
 @app.callback(
@@ -137,10 +152,8 @@ def refresh_protein_table(project, pipeline, tab):
     if (tab != 'proteins'):
         raise PreventUpdate
     data = get_protein_names(project=project, pipeline=pipeline)
-    print(type(data))
     df = pd.DataFrame(data)
-    print('Generated dataframe:', df)
-    return table_from_dataframe(df, id='protein-table', row_deletable=False)
+    return table_from_dataframe(df, id='protein-table', row_deletable=False, row_selectable='single')
 
 
 @app.callback(
@@ -165,70 +178,6 @@ def refresh_qc_table(n_clicks, tab, pipeline, project, optional_columns, data_ra
     return table_from_dataframe(df, id='qc-table', row_selectable=False)
 
 
-@app.callback(
-[Output('protein-figure','figure'),
- Output('protein-figure','config')],
-[Input('protein-table', 'data'),
- Input('protein-table', 'selected_rows'),
- Input('protein-plot-column', 'value')],
-[State('project', 'value'),
- State('pipeline', 'value')])
-def plot_protein_figure(data, ndxs, plot_column, project, pipeline):
-    '''Create the protein groups figure.'''
-    if (project is None) or (pipeline is None):
-        raise PreventUpdate
-    if (ndxs is None) or (ndxs == []):
-        raise PreventUpdate
-
-    if plot_column == 'Reporter intensity corrected (normalized)':
-        plot_column = 'Reporter intensity corrected'
-        normalized = True
-    else:
-        normalized = False
-
-    df = pd.DataFrame(data)
-    protein_names = list( df.iloc[ndxs, 0] )
-
-    data = get_protein_groups(project, pipeline, protein_names=protein_names, 
-            columns=[plot_column])
-
-    df = pd.read_json( data )
-
-    color = None
-
-    if plot_column == 'Reporter intensity corrected':
-        id_vars = ['RawFile', 'Majority protein IDs']
-        df = df.set_index(id_vars).filter(regex=plot_column)\
-               .reset_index().melt(id_vars=id_vars, var_name='TMT Channel', value_name=plot_column)
-        df['TMT Channel'] = df['TMT Channel'].apply(lambda x: f'{int(x.split()[3]):02.0f}')
-        if normalized: df[plot_column] =  df[plot_column] / df.groupby(['RawFile', 'Majority protein IDs']).transform('sum')[plot_column]
-        color = 'TMT Channel'
-        df = df.sort_values(['RawFile', 'TMT Channel'])
-    else:
-        df = df.sort_values('RawFile')
-
-    fig = px.bar(data_frame=df, x='RawFile', y=plot_column, facet_col='Majority protein IDs', facet_col_wrap=1, 
-                 color=color, color_discrete_sequence=px.colors.qualitative.Dark24,
-                 color_continuous_scale=px.colors.sequential.Rainbow)
-
-    n_rows = len(df['Majority protein IDs'].drop_duplicates())
-
-    height = 300*(1+n_rows)
-
-    fig.update_layout(
-            height=height,        
-            margin=dict( l=50, r=10, b=200, t=50, pad=0 ),
-            hovermode='closest')
-
-    fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
-    fig.update(layout_showlegend=True)
-    fig.update_xaxes(matches='x')
-
-    if normalized: fig.update_layout(yaxis=dict(range=[0,1]))
-
-    config = T.gen_figure_config(filename='protein-quant', format='svg')
-
-    return fig, config
 
 
 inputs = [Input('refresh-plots', 'n_clicks')]
