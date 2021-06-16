@@ -59,10 +59,7 @@ qc_columns_options.sort()
 figure_config = {"toImageButtonOptions": {"width": None, "height": None}}
 
 data_range_options = [
-    {'label': 'Last 30', 'value': 'last-30'},
-    {'label': 'Last 100', 'value': 'last-100'},
-    {'label': 'Last Week', 'value': 'week'},
-    {'label': 'Last Two Weeks', 'value': 'two-weeks'},
-    {'label': 'Last Month', 'value': 'month'},
-    {'label': 'Last Year', 'value': 'year'},
-    {'label': 'All Time', 'value': 'all-time'}]
+    {'label': 'Last 3', 'value': 3},
+    {'label': 'Last 30', 'value': 30},
+    {'label': 'Last 100', 'value': 100},
+    {'label': 'All', 'value': None}]

@@ -56,8 +56,7 @@ def get_pipelines(project):
     return requests.post(url, data=data, headers=headers).json()
 
 
-def get_protein_groups(project, pipeline, protein_names=None, columns=None, 
-        data_range=None):
+def get_protein_groups(project, pipeline, protein_names=None, columns=None, data_range=None):
     url = f'{URL}/api/mq/protein-groups'
     headers = {'Content-type': 'application/json'}
     data =  json.dumps( dict(project=project, 
@@ -71,19 +70,20 @@ def get_protein_groups(project, pipeline, protein_names=None, columns=None,
     return requests.post(url, data=data, headers=headers).json()
 
 
-def get_protein_names(project, pipeline, add_con=True, add_rev=True):
+def get_protein_names(project, pipeline, add_con=True, add_rev=True,  data_range=None):
     url = f'{URL}/api/mq/protein-names'
     headers = {'Content-type': 'application/json'}
     data =  json.dumps( dict(project=project, 
                              pipeline=pipeline,                             
                              add_con=add_con,
+                             data_range=data_range,
                              add_rev=add_rev)
             )
     _json = requests.post(url, data=data, headers=headers).json()
     return _json
 
 
-def get_qc_data(project, pipeline, columns, data_range):
+def get_qc_data(project, pipeline, columns, data_range=None):
     url = f'{URL}/api/mq/qc-data'
     headers = {'Content-type': 'application/json'}
     data =  json.dumps( dict(project=project, pipeline=pipeline, 

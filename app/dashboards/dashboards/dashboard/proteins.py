@@ -50,13 +50,12 @@ proteins_table = html.Div(id='proteins-table-container',
 
 plot_columns = ['Peptide counts (all)',
        'Peptide counts (razor+unique)', 'Peptide counts (unique)',
-       'Number of proteins', 'Sequence coverage [%]',
+       'Number of proteins', 'Sequence coverage [%]',   
        'Unique + razor sequence coverage [%]', 'Unique sequence coverage [%]',
        'Score', 'Reporter intensity corrected', 
        'Reporter intensity corrected (normalized)']
 
 layout = html.Div([
-
 
     dcc.Dropdown(id='proteins-options', multi=True, value=[], placeholder='Table options...',
                  style={'margin-top': '50px', 'margin-bottom': '50px'},
@@ -76,7 +75,6 @@ layout = html.Div([
         html.Div(style={'min-width': 400}),
         dcc.Graph(id="protein-figure", config=T.gen_figure_config(filename='protein-groups')),
     ]),
-    
 
 ])
 
@@ -112,9 +110,10 @@ def callbacks(app):
         State('proteins-table', 'multiRowsClicked'),
         State('protein-plot-column', 'value'),
         State('project', 'value'),
-        State('pipeline', 'value')
+        State('pipeline', 'value'),
+        State('data-range', 'value')
         )
-    def plot_protein_figure(n_clicks, data, ndxs, plot_column, project, pipeline):
+    def plot_protein_figure(n_clicks, data, ndxs, plot_column, project, pipeline, data_range):
         '''Create the protein groups figure.'''
         if (project is None) or (pipeline is None):
             raise PreventUpdate
@@ -131,7 +130,8 @@ def callbacks(app):
 
         data = T.get_protein_groups(project, pipeline, 
             protein_names=protein_names, 
-            columns=[plot_column])
+            columns=[plot_column],
+            data_range=data_range)
 
         df = pd.read_json( data )
 
