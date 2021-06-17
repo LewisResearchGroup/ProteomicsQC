@@ -185,12 +185,16 @@ def get_instance_from_uuid(model, uuid):
     return model.objects.get(uuid=uuid)
 
 
-def get_protein_quant_fn(project_slug, pipeline_slug, data_range):
+def get_protein_quant_fn(project_slug, pipeline_slug, data_range, only_use_downstream=True):
     pipeline = MaxQuantPipeline.objects.get( project__slug=project_slug, slug=pipeline_slug )
-    results = MaxQuantResult.objects.filter( raw_file__pipeline = pipeline, 
-                                             raw_file__use_downstream=True)
+    results = MaxQuantResult.objects.filter( raw_file__pipeline = pipeline)
+
+    if only_use_downstream: results = results.filter(raw_file__use_downstream=True)
+
     if data_range is not None:
-        results = results.order_by('raw_file__created')[len(results)-data_range:]
+        n_results = len(results)
+        if (n_results > data_range) and (n_results > 0):
+            results = results.order_by('raw_file__created')[n_results-data_range:]
 
     fns = []
     for res in tqdm( results ) :
@@ -217,8 +221,9 @@ def get_qc_data(project_slug, pipeline_slug, data_range=None):
     path = pipeline.path
 
     results = MaxQuantResult.objects.filter( raw_file__pipeline = pipeline )
+    n_results = len(results)
 
-    if data_range is not None:
+    if isinstance(data_range, int) and (n_results > data_range) and (n_results > 0):
         results = results.order_by('raw_file__created')[len(results)-data_range:]
 
     mqs = []
