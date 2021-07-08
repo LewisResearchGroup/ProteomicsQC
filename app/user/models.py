@@ -13,9 +13,10 @@ class User(AbstractUser):
     
     email = models.EmailField(_('email address'), unique=True)
 
-    uuid = models.CharField(max_length=36, default=uuid4)
+    uuid = models.CharField(max_length=36, default=uuid4, unique=True)
 
     USERNAME_FIELD = 'email'
+
     REQUIRED_FIELDS = []
 
     objects = CustomUserManager()

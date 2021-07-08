@@ -272,5 +272,6 @@ def get_qc_data(project_slug, pipeline_slug, data_range=None):
     df['DateAcquired'] = df['DateAcquired'].astype( np.int64, errors='ignore' )
 
     assert df.columns.value_counts().max()==1, df.columns.value_counts()
+    
     return df
 
