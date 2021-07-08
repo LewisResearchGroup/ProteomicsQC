@@ -92,12 +92,12 @@
               </ul>
             </li>
             
-            <li class="nav-item" data-level="2"><a href="#apimqpipelines" class="nav-link">/api/mq/pipelines</a>
+            <li class="nav-item" data-level="2"><a href="#apiuploadraw" class="nav-link">/api/upload/raw</a>
               <ul class="nav flex-column">
               </ul>
             </li>
             
-            <li class="nav-item" data-level="2"><a href="#apiuploadraw" class="nav-link">/api/upload/raw</a>
+            <li class="nav-item" data-level="2"><a href="#apimqpipelines" class="nav-link">/api/mq/pipelines</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -131,14 +131,10 @@
 <p>Example: </p>
 <pre><code>curl -X POST --data project=lsarp  https://proteomics.resistancedb.org/api/projects
 
+&gt;&gt;&gt;
 [{"pk": 1, "name": "LSARP", "description": "This project is very large and applied", "slug": "lsarp"}, 
  {"pk": 2, "name": "Saliva project", "description": "The project is about...", "slug": "saliva"}, 
  {"pk": 3, "name": "SARS-CoV-2 Detection", "description": "Detection of SARS-CoV-2 Proteins from Patient Samples.", "slug": "sars-cov-2-detection"}]
-</code></pre>
-<h2 id="apimqpipelines"><code>/api/mq/pipelines</code></h2>
-<p>Returns a json object with information about all MaxQuant pipelines in a certain project.</p>
-<p>Example:</p>
-<pre><code>curl -X POST --data project=lsarp  https://proteomics.resistancedb.org/api/mq/pipelines
 </code></pre>
 <h2 id="apiuploadraw"><code>/api/upload/raw</code></h2>
 <p>Submits a raw file via the API to a set up pipeline.</p>
@@ -146,11 +142,19 @@
 <p>To submit a raw file the <strong>UUID of the user and the target pipeline</strong> are required which can be found in the <strong>admin detail view</strong> of the respective user and pipeline:</p>
 <p><a href="https://proteomics.resistancedb.org/admin/user/user/1/change/">https://proteomics.resistancedb.org/admin/user/user/1/change/</a></p>
 <p><a href="https://proteomics.resistancedb.org/admin/maxquant/maxquantpipeline/1/change/">https://proteomics.resistancedb.org/admin/maxquant/maxquantpipeline/1/change/</a></p>
-<p>The curl command looks like:</p>
+<p>Example:</p>
 <pre><code>curl -v -i -F orig_file="@&lt;/your/file.raw&gt;" -F pipeline=3388219a-f9cd-4749-9f5e-d9da5bca9286 -F user=gd5d56ac-1rb9-4181-8fbd-b6579ccb8fc1 https://proteomics.resistancedb.org/api/upload/raw
 </code></pre>
 <p>Alternatively, the python script <code>lrg_upload_raw_file_to_qc_pipeline.py</code> that is part of the <a href="https://github.com/LSARP/lrg-omics">lrg_omics</a> packages can be used:</p>
 <pre><code>python lrg_upload_raw_file_to_qc_pipeline.py --raw your/file.raw --host https://example.com --user 3388219a-f9cd-4749-9f5e-d9da5bca9286 --pipeline gd5d56ac-1rb9-4181-8fbd-b6579ccb8fc1
+</code></pre>
+<h2 id="apimqpipelines"><code>/api/mq/pipelines</code></h2>
+<p>Returns a json object with information about all MaxQuant pipelines in a certain project.</p>
+<p>Example:</p>
+<pre><code>curl -X POST --data project=lsarp  https://proteomics.resistancedb.org/api/mq/pipelines
+
+&gt;&gt;&gt;
+[{"slug": "staphylococcus-aureus-tmt11", "name": "Staphylococcus aureus (TMT11)", "path_as_str": "/datalake/P/P1/P1MQ1"}]
 </code></pre>
 <h2 id="apimqqc-data"><code>/api/mq/qc-data</code></h2>
 <p>Example:</p>
