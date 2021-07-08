@@ -137,11 +137,17 @@
  {"pk": 3, "name": "SARS-CoV-2 Detection", "description": "Detection of SARS-CoV-2 Proteins from Patient Samples.", "slug": "sars-cov-2-detection"}]
 </code></pre>
 <h2 id="apiuploadraw"><code>/api/upload/raw</code></h2>
-<p>Submits a raw file via the API to a set up pipeline.</p>
-<p>Raw files can be submitted to an existing pipeline using the API.</p>
-<p>To submit a raw file the <strong>UUID of the user and the target pipeline</strong> are required which can be found in the <strong>admin detail view</strong> of the respective user and pipeline:</p>
+<p>Submits a raw file to an existing pipeline. Raw files can be submitted to an existing pipeline using the API. 
+To submit a raw file the <strong>UUID of the user and the target pipeline</strong> are required which can be found in 
+the <strong>admin detail view</strong> of the respective user and pipeline:</p>
+<ul>
+<li>
 <p><a href="https://proteomics.resistancedb.org/admin/user/user/1/change/">https://proteomics.resistancedb.org/admin/user/user/1/change/</a></p>
+</li>
+<li>
 <p><a href="https://proteomics.resistancedb.org/admin/maxquant/maxquantpipeline/1/change/">https://proteomics.resistancedb.org/admin/maxquant/maxquantpipeline/1/change/</a></p>
+</li>
+</ul>
 <p>Example:</p>
 <pre><code>curl -v -i -F orig_file="@&lt;/your/file.raw&gt;" -F pipeline=3388219a-f9cd-4749-9f5e-d9da5bca9286 -F user=gd5d56ac-1rb9-4181-8fbd-b6579ccb8fc1 https://proteomics.resistancedb.org/api/upload/raw
 </code></pre>
