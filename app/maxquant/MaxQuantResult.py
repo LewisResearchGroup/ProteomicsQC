@@ -117,7 +117,10 @@ class MaxQuantResult(models.Model):
     
     @property
     def maxquantcmd(self):
-        return 'maxquant'
+        if self.raw_file.pipeline.maxquant_executable is None or \
+           self.raw_file.pipeline.maxquant_executable == '':
+            return 'maxquant'
+        else: return f'mono {self.raw_file.pipeline.maxquant_executable}'
 
     @property 
     def run_dir_exists(self):

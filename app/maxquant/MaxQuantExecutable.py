@@ -30,7 +30,9 @@ class MaxQuantExecutable(models.Model):
             verbose_name_plural = _("MaxQuant Executables")
 
     filename = models.FileField(upload_to='software/MaxQuant',
-                                storage = COMPUTE)
+                                storage = COMPUTE,
+                                unique=True,
+                                help_text='Upload a zipped MaxQuant file (e.g. MaxQuant_1.6.10.43.zip)')
     
     created = models.DateField(default = timezone.now)
         

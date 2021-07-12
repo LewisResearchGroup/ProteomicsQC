@@ -6,7 +6,7 @@ from django.conf import settings
 
 class CustomUserAdmin(UserAdmin):
     list_display = ('email', 'is_staff', 'is_superuser')
-    readonly_fields = ('last_login', 'date_joined')
+    readonly_fields = ('last_login', 'date_joined', 'uuid')
     ordering = ('email',)
     fieldsets = (
         ('Fields', 

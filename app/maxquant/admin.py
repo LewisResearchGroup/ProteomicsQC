@@ -44,22 +44,31 @@ class RawFileAdmin(admin.ModelAdmin):
 
 
 class MaxQuantPipelineAdmin(admin.ModelAdmin):
-    readonly_fields = ('created', 'created_by', 'slug', 'uuid', 
-        'path', 'fasta_path', 'mqpar_path', 'download_fasta', 'download_mqpar')
 
-    ordering = ('-created',)
+    ordering = ('name',)
+
+    list_filter = ('project', 'created_by')
 
     list_display = ('name', 'project', 'created', 'created_by')
 
-    sortable_by = ('sortable_by', 'created', 'pipeline')
+    sortable_by = ('name', 'created', 'pipeline')
 
     fieldsets = (
         (None,       {'fields': ('project', 'name', 'created', 'created_by') }),
-        ('MaxQuant', {'fields': ('mqpar_file', 'download_mqpar', 'fasta_file', 'download_fasta') }),
+        ('MaxQuant', {'fields': ('maxquant_executable', 'mqpar_file', 'download_mqpar', 'fasta_file', 'download_fasta') }),
         ('RawTools', {'fields': ('rawtools_args',) }),
         ('Info',     {'fields': ('slug', 'uuid', 'path', 'fasta_path', 'mqpar_path') })
     )
 
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return ('created', 'created_by', 'slug', 'uuid', 'path', 
+                    'fasta_path', 'mqpar_path', 'download_fasta', 
+                    'download_mqpar', 'project')
+        else:
+            return ('created', 'created_by', 'slug', 'uuid', 'path', 
+                    'fasta_path', 'mqpar_path', 'download_fasta', 
+                    'download_mqpar')
 
 
 class MaxQuantResultAdmin(admin.ModelAdmin):
@@ -139,7 +148,17 @@ class MaxQuantResultAdmin(admin.ModelAdmin):
 
 
 
+class MaxQuantExecutableAdmin(admin.ModelAdmin):
+
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return ('created', 'filename')
+        else:
+            return ('created',)
+
+
 admin.site.register(MaxQuantPipeline, MaxQuantPipelineAdmin)
-admin.site.register(MaxQuantExecutable)
+admin.site.register(MaxQuantExecutable, MaxQuantExecutableAdmin)
 admin.site.register(RawFile, RawFileAdmin)
 admin.site.register(MaxQuantResult, MaxQuantResultAdmin)
