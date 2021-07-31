@@ -10,7 +10,7 @@ RUN apt update && apt install -y build-essential time
 
 RUN python --version
 
-RUN conda install -c conda-forge -c bioconda pip rawtools=2 maxquant mono=5
+RUN conda install -c conda-forge -c bioconda pip rawtools maxquant mono=5
 
 COPY requirements.txt requirements_app.txt
 
