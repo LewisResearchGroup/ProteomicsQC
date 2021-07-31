@@ -18,8 +18,10 @@ x_options = [dict(label=x, value=x) for x in ['Index', 'RawFile', 'DateAcquired'
 layout = html.Div([
 
     html.P(["Choose columns:", dcc.Dropdown(id='qc-table-columns', multi=True, 
-        options=list_to_dropdown_options(qc_columns_options), 
-        placeholder='Select data columns', value=qc_columns_default)]),
+                                            options=list_to_dropdown_options(qc_columns_options), 
+                                            placeholder='Select data columns', 
+                                            value=qc_columns_default,
+                                            )]),
     
     html.Button('Update Table Data', id='qc-update-table', className='btn'),
 

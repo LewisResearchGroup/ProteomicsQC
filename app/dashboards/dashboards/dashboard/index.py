@@ -262,7 +262,7 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
     fig = make_subplots(cols=1, rows=len(numeric_columns), 
                         subplot_titles=numeric_columns,
                         shared_xaxes=True,
-                        vertical_spacing=0.05,
+                        #vertical_spacing=0.05,
                         print_grid=True)
 
     for i, col in enumerate(numeric_columns):
