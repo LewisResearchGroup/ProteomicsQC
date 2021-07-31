@@ -1,8 +1,14 @@
-site_name: LRG Proteomics Pipelines
+site_name: Proteomics QC
 nav:
     - Home: index.md
     - Installation: installation.md
     - User Manual: manual.md
+    - How to access the admin panel?: how-to-access-the-admin-panel.md
+    - How to add a project?: how-to-add-a-project.md
+    - How to add a pipeline?: how-to-add-a-pipeline.md
     - Datalake: datalake.md
+    - RawTools: rawtools-issues.md
+    - MaxQuant: maxquant-issues.md
     - API: api.md
     - About: about.md
+theme: readthedocs
