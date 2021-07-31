@@ -9,7 +9,7 @@
   
   
   <link rel="shortcut icon" href="../img/favicon.ico">
-  <title>Make - Proteomics QC</title>
+  <title>How to add a pipeline? - Proteomics QC</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
 
   <link rel="stylesheet" href="../css/theme.css" />
@@ -18,8 +18,8 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Make";
-    var mkdocs_page_input_path = "make.md";
+    var mkdocs_page_name = "How to add a pipeline?";
+    var mkdocs_page_input_path = "how-to-add-a-pipeline.md";
     var mkdocs_page_url = null;
   </script>
   
@@ -67,8 +67,10 @@
                     <li class="toctree-l1"><a class="reference internal" href="../how-to-add-a-project/">How to add a project?</a>
                     </li>
                 </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../how-to-add-a-pipeline/">How to add a pipeline?</a>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">How to add a pipeline?</a>
+    <ul class="current">
+    </ul>
                     </li>
                 </ul>
                 <ul>
@@ -112,7 +114,7 @@
     
       
     
-    <li>Make</li>
+    <li>How to add a pipeline?</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -123,18 +125,37 @@
           <div role="main">
             <div class="section">
               
-                <p>The docker-compose setup spins up two docker containers. One for the 
-web-page and one for the the postgres database.</p>
-<p><code>make build</code> to build the containers</p>
-<p><code>make migrations</code> to create database migrations</p>
-<p><code>make migrate</code> to migrate the database</p>
-<p><code>make createsuperuser</code> to create credentials for a superuser</p>
-<p><code>make run</code> to run the website and postgres database. </p>
-<p><code>make init</code> initiate the database</p>
+                <h1 id="how-to-add-a-pipeline">How to add a pipeline?</h1>
+<p>To add a new pipeline the user has to login to the <a href="how-to-access-the-admin-panel.md]">admin panel</a> 
+and at least one project has to exist. Otherwise, contact your admin or read <a href="../how-to-add-a-project/">how to add a project</a>.</p>
+<p>Under site administration the click on <a href="https://proteomics.resistancedb.org/admin/maxquant/maxquantpipeline/">MaxQuant Pipelines</a>.</p>
+<p><img alt="" src="../img/admin-panel.png" /></p>
+<p>Click on the add sign behind <em>Maxquant pipelines</em> to get to the pipeline creation form:</p>
+<p><img alt="" src="../img/admin-add-pipeline.png" /></p>
+<p>Here, fill up the editable fields (name and a description).</p>
+<ol>
+<li>select the MaxQuant version. If no version is selected the default version will be used. If you want to try a different version read <a href="admin-add-maxquant.md">add MaxQuant version</a>.</li>
+<li>Add a <code>Fasta</code> file with amino-acid sequences of target proteins. </li>
+<li>Add a <code>mqpar.xml</code> (MaxQuant parameter file) generated with <em>MaxQuant</em>. The file should be generated with a single <code>.raw</code> file and the <em>MaxQuant</em> version should match the <a href="maxquant-issues.md">version used in the pipeline</a>.</li>
+<li>Provide command line parameters for <a href="https://github.com/kevinkovalchik/RawTools">RawTools</a>. Read <a href="../rawtools-issues/">Rawtools Help</a> for more information.</li>
+</ol>
+<blockquote>
+<p>Not all <em>MaxQuant</em> versions are compatible with <em>Proteomics QC</em>. We recommend using the <a href="maxquant-issues.md">default version</a> if possible.</p>
+</blockquote>
+<p>Finally, click on <code>SAVE</code>.</p>
               
             </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../datalake/" class="btn btn-neutral float-right" title="Datalake">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../how-to-add-a-project/" class="btn btn-neutral" title="How to add a project?"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
@@ -158,6 +179,10 @@ web-page and one for the the postgres database.</p>
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
+        <span><a href="../how-to-add-a-project/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../datalake/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

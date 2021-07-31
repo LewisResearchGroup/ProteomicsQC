@@ -9,7 +9,7 @@
   
   
   <link rel="shortcut icon" href="../img/favicon.ico">
-  <title>Make - Proteomics QC</title>
+  <title>How to add a project? - Proteomics QC</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
 
   <link rel="stylesheet" href="../css/theme.css" />
@@ -18,8 +18,8 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Make";
-    var mkdocs_page_input_path = "make.md";
+    var mkdocs_page_name = "How to add a project?";
+    var mkdocs_page_input_path = "how-to-add-a-project.md";
     var mkdocs_page_url = null;
   </script>
   
@@ -63,8 +63,10 @@
                     <li class="toctree-l1"><a class="reference internal" href="../how-to-access-the-admin-panel/">How to access the admin panel?</a>
                     </li>
                 </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../how-to-add-a-project/">How to add a project?</a>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">How to add a project?</a>
+    <ul class="current">
+    </ul>
                     </li>
                 </ul>
                 <ul>
@@ -112,7 +114,7 @@
     
       
     
-    <li>Make</li>
+    <li>How to add a project?</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -123,18 +125,31 @@
           <div role="main">
             <div class="section">
               
-                <p>The docker-compose setup spins up two docker containers. One for the 
-web-page and one for the the postgres database.</p>
-<p><code>make build</code> to build the containers</p>
-<p><code>make migrations</code> to create database migrations</p>
-<p><code>make migrate</code> to migrate the database</p>
-<p><code>make createsuperuser</code> to create credentials for a superuser</p>
-<p><code>make run</code> to run the website and postgres database. </p>
-<p><code>make init</code> initiate the database</p>
+                <h1 id="how-to-add-a-new-project">How to add a new project?</h1>
+<p>A project is a logical container for pipelines. Each project can contain multiple pipelines and all files 
+submitted to certain or added within a certain project will be stored in a dedicated project directory in
+the datalake. </p>
+<p>To set up a new pipeline the user has to login to the <a href="how-to-access-the-admin-panel.md]">admin panel</a>.</p>
+<p><img alt="" src="../img/admin-panel.png" /></p>
+<p>Click on the add sign behind <em>Project</em> to get to the project creation form:</p>
+<p><img alt="" src="../img/admin-add-project.png" /></p>
+<p>Here, fill up the editable fields (name and a description) and click on <code>SAVE</code>.</p>
+<p>You will be redirected to the <em>Projects Overview</em> and the new project appears on the top of the list:</p>
+<p><img alt="" src="../img/admin-projects-list-view.png" /></p>
+<p>Congratulations you added a new project.</p>
               
             </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../how-to-add-a-pipeline/" class="btn btn-neutral float-right" title="How to add a pipeline?">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../how-to-access-the-admin-panel/" class="btn btn-neutral" title="How to access the admin panel?"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
@@ -158,6 +173,10 @@ web-page and one for the the postgres database.</p>
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
+        <span><a href="../how-to-access-the-admin-panel/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../how-to-add-a-pipeline/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
