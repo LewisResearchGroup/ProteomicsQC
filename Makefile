@@ -33,6 +33,7 @@ reset_migrations:
 	sudo find . -path "*/migrations/*.py" -not -name "__init__.py" -delete
 
 init:
+	make build
 	make migrations
 	make migrations ARGS=user
 	make migrations ARGS=maxquant
