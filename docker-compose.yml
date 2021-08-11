@@ -25,6 +25,8 @@ services:
   
   db:
     image: postgres
+    env_file:
+      - ./.env    
     volumes:
       - ${DB}:/var/lib/postgresql/data
     environment:
