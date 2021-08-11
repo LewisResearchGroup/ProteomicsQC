@@ -59,16 +59,18 @@
     <li class="toctree-l2"><a class="reference internal" href="#2-download-the-repository">2) Download the repository</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#3-create-configuration-file">3) Create configuration file</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#edit-the-env-file">Edit the .env file</a>
+    </li>
+        </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#4-initiate-database">4) Initiate database</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#5">5)</a>
+    <li class="toctree-l2"><a class="reference internal" href="#5-create-an-admin-account">5) Create an admin account</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#6-run-the-server">6) Run the server</a>
     </li>
     </ul>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../manual/">User Manual</a>
                     </li>
                 </ul>
                 <ul>
@@ -144,17 +146,64 @@ if the postgres and redis servers are running already. </p>
 <p>For official Docker installation instructions please visit:</p>
 <p>https://docs.docker.com/engine/install/ubuntu/</p>
 <h2 id="2-download-the-repository">2) Download the repository</h2>
-<pre><code>git clone --recursive git@github.com:soerendip/django3-omics-pipelines.git
+<pre><code>git clone --recursive git@github.com:LSARP/ProteomicsQC.git ProteomicsQC
+cd ProteomicsQC
 </code></pre>
 <h2 id="3-create-configuration-file">3) Create configuration file</h2>
 <pre><code>./scripts/generate_config.sh  # generates a .env file for configuration
 </code></pre>
+<h3 id="edit-the-env-file">Edit the .env file</h3>
+<pre><code># OMICS PIPELINES CONFIG
+
+## HOMPAGE SETTINGS
+HOME_TITLE=Your Hompage Title
+HOSTNAME=example.com
+
+## STORAGE
+DB=./data/db/
+DATALAKE=./data/datalake
+COMPUTE=./data/compute
+MEDIA=./data/media
+STATIC=./data/static
+
+## EMAIL SETTINGS
+EMAIL_HOST=smtp.gmail.com
+EMAIL_USE_TLS=True
+EMAIL_USE_SSL=False
+EMAIL_PORT=587
+EMAIL_HOST_USER=example@example.com
+EMAIL_HOST_PASSWORD=a-strong-password
+DEFAULT_FROM_EMAIL=noreply@example.com
+
+## CELERY
+CONCURRENCY=8
+
+## SECURITY KEYS
+SECRET_KEY=...
+OIDC_RSA_PRIVATE_KEY=...
+
+</code></pre>
 <h2 id="4-initiate-database">4) Initiate database</h2>
 <pre><code>make init  # to start the server the first time
 </code></pre>
-<h2 id="5">5)</h2>
+<h2 id="5-create-an-admin-account">5) Create an admin account</h2>
+<pre><code>make createsuperuser
+</code></pre>
+<p>And follow the instructions to provide an email address and 
+password.</p>
+<h2 id="6-run-the-server">6) Run the server</h2>
 <pre><code>make run  # starts the production server on port 8000
 </code></pre>
+<p>You can now navigate to <a href="localhost:8000/admin">localhost:8000/admin</a> and login to the
+admin account with the credentials you provided in step 5.</p>
+<blockquote>
+<p>In order to run the server on a specific domain you have to register the domain
+and point it to the public IP address of your server. Furthermore, you have to 
+setup a remote proxy to redirect HTTP and HTTPS requests to port 8000. 
+For security reasons you should always use HTTPS. The server was tested using
+a remote proxy configured with NGINX and for encryption we used letsencrypt and 
+certbot.</p>
+</blockquote>
               
             </div>
           </div>
@@ -162,7 +211,7 @@ if the postgres and redis servers are running already. </p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../manual/" class="btn btn-neutral float-right" title="User Manual">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../how-to-access-the-admin-panel/" class="btn btn-neutral float-right" title="How to access the admin panel?">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
         <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
@@ -194,7 +243,7 @@ if the postgres and redis servers are running already. </p>
         <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../manual/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../how-to-access-the-admin-panel/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
