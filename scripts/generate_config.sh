@@ -13,6 +13,7 @@ DATALAKE=./data/datalake
 COMPUTE=./data/compute
 MEDIA=./data/media
 STATIC=./data/static
+DB=./data/db
 """ >> .env
 
 echo """## EMAIL SETTINGS
