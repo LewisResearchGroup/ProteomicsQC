@@ -38,7 +38,6 @@ init:
 	make migrations ARGS=user
 	make migrations ARGS=maxquant
 	make migrations ARGS=api
-	make migrations ARGS=rawtools
 	make migrations ARGS=project
 	make migrations ARGS=dashboards
 	make migrate
