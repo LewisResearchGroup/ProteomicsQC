@@ -41,7 +41,7 @@ class MaxQuantPipeline(MaxQuantParameter, FastaFile, RawToolsSetup):
 
     project = models.ForeignKey('project.Project', on_delete=models.PROTECT, null=True)
 
-    name = models.CharField(max_length=100, unique=True, null=False)
+    name = models.CharField(max_length=500, unique=True, null=False)
     
     run_automatically = models.BooleanField(default=False)
 
@@ -53,7 +53,7 @@ class MaxQuantPipeline(MaxQuantParameter, FastaFile, RawToolsSetup):
                   'To try a different version go to MaxQuant Executables. If this is changed, '\
                   'all MaxQuant jobs in this pipeline should be rerun.')
 
-    slug = models.SlugField(max_length=256, unique=False, default=uuid4)
+    slug = models.SlugField(max_length=500, unique=False, default=uuid4)
 
     uuid = models.CharField(max_length=36, default=uuid4, 
         help_text='UID to use the pipeline with the Python API (in the lrg-omics package)')
