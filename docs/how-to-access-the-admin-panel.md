@@ -1,16 +1,25 @@
 # How to access the admin panel?
 
-To set up a new pipeline the user has to login to the admin page.
+If you followed the steps in the [installation](installation.md) you
+have already created an admin account and started the ProteomicsQC server.
 
-    https://proteomics.resistancedb.org/admin/
+Use a web browser and navigate to [localhost:8000](localhost:8000) or
+your own custom domain. 
+
+> In this example we use [https://proteomics.resistancedb.org](https://proteomics.resistancedb.org)
+
+Now, you can navigate to the admin page using the `ADMIN` button.
 
 ![](img/admin-button.png)
 
-The user has to have an account and must have been granted access by an admin. 
+This will bring you to the login form [https://proteomics.resistancedb.org/admin/](https://proteomics.resistancedb.org/admin/).
 
 ![](img/login.png)
 
 After successfull login the following view opens.
 
 ![](img/admin-panel.png)
+
+This is the admin panel where users, projects, and pipelines can be managed.
+
 

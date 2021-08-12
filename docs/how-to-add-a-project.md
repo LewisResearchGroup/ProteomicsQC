@@ -12,7 +12,9 @@ Click on the add sign behind _Project_ to get to the project creation form:
 
 ![](img/admin-add-project.png)
 
-Here, fill up the editable fields (name and a description) and click on `SAVE`.
+Here, fill up the editable fields (name and a description). 
+In this example we call the new project `Demo`. 
+Then click on `SAVE` to create the new project.
 
 You will be redirected to the _Projects Overview_ and the new project appears on the top of the list:
 

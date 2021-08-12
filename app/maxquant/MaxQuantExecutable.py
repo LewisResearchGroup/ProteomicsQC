@@ -35,6 +35,8 @@ class MaxQuantExecutable(models.Model):
                                 help_text='Upload a zipped MaxQuant file (e.g. MaxQuant_1.6.10.43.zip)')
     
     created = models.DateField(default = timezone.now)
+    
+    description = models.TextField(max_length = 10000, default='')
         
     def __str__(self):
         return os.path.basename(str(self.filename).replace('.zip', ''))

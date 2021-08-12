@@ -54,7 +54,7 @@ class MaxQuantPipelineAdmin(admin.ModelAdmin):
     sortable_by = ('name', 'created', 'pipeline')
 
     fieldsets = (
-        (None,       {'fields': ('project', 'name', 'created', 'created_by') }),
+        (None,       {'fields': ('project', 'name', 'created', 'created_by', 'description') }),
         ('MaxQuant', {'fields': ('maxquant_executable', 'mqpar_file', 'download_mqpar', 'fasta_file', 'download_fasta') }),
         ('RawTools', {'fields': ('rawtools_args',) }),
         ('Info',     {'fields': ('slug', 'uuid', 'path', 'fasta_path', 'mqpar_path') })
@@ -150,6 +150,9 @@ class MaxQuantResultAdmin(admin.ModelAdmin):
 
 class MaxQuantExecutableAdmin(admin.ModelAdmin):
 
+    fieldsets = (
+        (None, {'fields': ('created', 'filename', 'description')}),
+    )
 
     def get_readonly_fields(self, request, obj=None):
         if obj:

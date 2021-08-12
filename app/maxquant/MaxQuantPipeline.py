@@ -58,6 +58,8 @@ class MaxQuantPipeline(MaxQuantParameter, FastaFile, RawToolsSetup):
     uuid = models.CharField(max_length=36, default=uuid4, 
         help_text='UID to use the pipeline with the Python API (in the lrg-omics package)')
 
+    description = models.TextField(max_length = 10000, default='')
+
     def __str__(self):
         return self.name
     
