@@ -82,26 +82,53 @@ class MaxQuantResultDetailView(LoginRequiredMixin, generic.DetailView):
         context = super().get_context_data(**kwargs)
         mq_run = context['object']
         path = mq_run.output_dir_maxquant
+        path_rt = mq_run.output_dir_rawtools
 
         context['name'] = context['object'].name
         context['project'] = mq_run.raw_file.pipeline.project
         context['pipeline'] = mq_run.raw_file.pipeline
-        context['raw_file'] = mq_run.raw_file
+        raw_fn = mq_run.raw_file
+        context['raw_file'] = raw_fn
 
         figures = []
+
+
+        fn = f'{path_rt}/{raw_fn}_Ms_TIC_chromatogram.txt'
+        if isfile(fn):
+            df = pd.read_csv(fn, sep='\t').rename(columns={'RetentionTime': 'Retention time'}).set_index('Retention time')
+            fig = lines_plot(df, cols=['Intensity'], title=f'Ms TIC chromatogram')
+            figures.append( plotly_fig_to_div(fig) )
+            fig = histograms(df, cols=['Intensity'], title=f'Ms TIC histogram')
+            figures.append( plotly_fig_to_div(fig) )
+
+
+        fn = f'{path_rt}/{raw_fn}_Ms2_TIC_chromatogram.txt'
+        if isfile(fn):
+            df = pd.read_csv(fn, sep='\t').rename(columns={'RetentionTime': 'Retention time'}).set_index('Retention time')
+            fig = lines_plot(df, cols=['Intensity'], title=f'Ms2 TIC chromatogram')
+            figures.append( plotly_fig_to_div(fig) )
+            fig = histograms(df, cols=['Intensity'], title=f'Ms2 TIC histogram')
+            figures.append( plotly_fig_to_div(fig) )
+
         fn = f'{path}/evidence.txt'
         if isfile(fn):
             msms = pd.read_csv(fn, sep='\t').set_index('Retention time').sort_index()
-            cols = ['Length', 'Oxidation (M)', 'Missed cleavages', 'MS/MS m/z', 
+            cols = ['Length', 
+            #'Oxidation (M)', 'Missed cleavages', 'MS/MS m/z', 
                     'Charge', 'm/z', 'Mass']
             for col in cols:
                 fig = lines_plot(msms, cols=[col], title=f'Evidence: {col}')
+                figures.append( plotly_fig_to_div(fig) )
+                fig = histograms(msms, cols=[col], title=f'Evidence: {col} (histogram)')
                 figures.append( plotly_fig_to_div(fig) )
 
         fn = f'{path}/msmsScans.txt'
         if isfile(fn):
             msms = pd.read_csv(fn, sep='\t').set_index('Retention time')
-            cols = ['Total ion current', 'm/z', 'Base peak intensity']
+            cols = [
+                #'Total ion current', 
+                #'m/z', 'Base peak intensity'
+                ]
             for col in cols:
                 fig = lines_plot(msms, cols=[col], title=f'MSMS: {col}')
                 figures.append( plotly_fig_to_div(fig) ) 
@@ -111,7 +138,9 @@ class MaxQuantResultDetailView(LoginRequiredMixin, generic.DetailView):
             peptides = pd.read_csv(fn, sep='\t')
             cols = ['Length', 'Mass']
             for col in cols:
-                fig = lines_plot(peptides, cols=[col], title=f'Peptide: {col}')
+                #fig = lines_plot(peptides, cols=[col], title=f'Peptide: {col}')
+                #figures.append( plotly_fig_to_div(fig) ) 
+                fig = histograms(peptides, cols=[col], title=f'Peptide: {col} (histogram)')
                 figures.append( plotly_fig_to_div(fig) ) 
 
         fn = f'{path}/proteinGroups.txt'
@@ -119,9 +148,11 @@ class MaxQuantResultDetailView(LoginRequiredMixin, generic.DetailView):
             proteins = pd.read_csv(fn, sep='\t')
             cols = ['Mol. weight [kDa]', 'Unique sequence coverage [%]']
             for col in cols:
-                fig = lines_plot(proteins, cols=[col], title=f'Protein: {col}')
+                #fig = lines_plot(proteins, cols=[col], title=f'Protein: {col}')
+                #figures.append( plotly_fig_to_div(fig) )
+                fig = histograms(proteins, cols=[col], title=f'Protein: {col} (histogram)')
                 figures.append( plotly_fig_to_div(fig) )
-
+                
         context['figures'] = figures
         context['home_title'] = settings.HOME_TITLE
         return context
