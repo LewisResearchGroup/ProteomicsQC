@@ -48,7 +48,7 @@ class MaxQuantPipeline(MaxQuantParameter, FastaFile, RawToolsSetup):
     regular_expressions_filter = models.CharField(max_length=256, default='.*')
 
     maxquant_executable = models.FilePathField(path=str(COMPUTE_ROOT), 
-        match=".*MaxQuantCmd.exe", recursive=True, null=True, blank=True,
+        match=".*MaxQuantCmd.exe", recursive=True, null=True, blank=True, max_length=2000,
         help_text='If this field is empty the default MaxQuant version (1.6.10.43) will be used. '\
                   'To try a different version go to MaxQuant Executables. If this is changed, '\
                   'all MaxQuant jobs in this pipeline should be rerun.')
@@ -58,7 +58,7 @@ class MaxQuantPipeline(MaxQuantParameter, FastaFile, RawToolsSetup):
     uuid = models.CharField(max_length=36, default=uuid4, 
         help_text='UID to use the pipeline with the Python API (in the lrg-omics package)')
 
-    description = models.TextField(max_length = 10000, default='')
+    description = models.TextField(max_length = 1000, default='')
 
     def __str__(self):
         return self.name

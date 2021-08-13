@@ -152,7 +152,7 @@ class MaxQuantResultDetailView(LoginRequiredMixin, generic.DetailView):
                 #figures.append( plotly_fig_to_div(fig) )
                 fig = histograms(proteins, cols=[col], title=f'Protein: {col} (histogram)')
                 figures.append( plotly_fig_to_div(fig) )
-                
+
         context['figures'] = figures
         context['home_title'] = settings.HOME_TITLE
         return context

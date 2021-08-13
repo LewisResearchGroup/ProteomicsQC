@@ -31,6 +31,7 @@ class MaxQuantExecutable(models.Model):
 
     filename = models.FileField(upload_to='software/MaxQuant',
                                 storage = COMPUTE,
+                                max_length=1000,
                                 unique=True,
                                 help_text='Upload a zipped MaxQuant file (e.g. MaxQuant_1.6.10.43.zip)')
     
@@ -58,14 +59,15 @@ def unzip_maxquant(sender, instance, created, *args, **kwargs):
     name = mq_bin.path
     tmp = mq_bin.path.with_suffix('')
 
-    assert name.is_file(), name
 
-    with zipfile.ZipFile(name, 'r') as zip_ref:
-        print('Extracting zip archive:', name, tmp)
-        zip_ref.extractall(tmp)
-
-    os.remove(name)
-    os.rename(tmp, name)
+    # If path is a file then unzip it.
+    # Skip when it is a directory.
+    if name.is_file():
+        with zipfile.ZipFile(name, 'r') as zip_ref:
+            print('Extracting zip archive:', name, tmp)
+            zip_ref.extractall(tmp)
+        os.remove(name)
+        os.rename(tmp, name)
 
 
 @receiver(models.signals.post_delete, sender=MaxQuantExecutable)
