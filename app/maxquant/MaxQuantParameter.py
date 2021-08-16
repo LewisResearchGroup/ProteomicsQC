@@ -30,7 +30,7 @@ class MaxQuantParameter(models.Model):
                 upload_to  = 'uploads', 
                 storage    = settings.COMPUTE, 
                 max_length = 1000,
-                help_text="mqpar.xml file to use with MaxQuant. If this is changed all MaxQuant jobs in this pipeline should be rerun. Note: The link above does not work.")
+                help_text  = "mqpar.xml file to use with MaxQuant. If this is changed all MaxQuant jobs in this pipeline should be rerun. Note: The link above does not work.")
         
     def __str__(self):
         #if self.mqpar_path is None:
