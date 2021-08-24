@@ -246,8 +246,8 @@ class MaxQuantResult(models.Model):
             # Remove duplicated columns
             # sometimes MaxQuant generates 
             # files with repeated column names
-            df = df.loc[:, ~df.columns.duplicated()]
             if df is None: return None
+            df = df.loc[:, ~df.columns.duplicated()]
             try:
                 df.to_parquet(abs_fn_par)
             except Exception as e:
