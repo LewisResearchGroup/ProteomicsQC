@@ -4,6 +4,8 @@ import hashlib
 import shutil
 import zipfile
 import pandas as pd
+import logging
+
 from functools import lru_cache
 
 from io import BytesIO
