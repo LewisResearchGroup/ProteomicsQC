@@ -102,12 +102,14 @@ class ProteinNamesAPI(generics.ListAPIView):
         fns = get_protein_quant_fn(project_slug, pipeline_slug, data_range=data_range)
 
         if len(fns) == 0: return JsonResponse({})
-        cols = ['Majority protein IDs', 'Score', 'Intensity']
+        cols = ['Majority protein IDs', 'Fasta headers', 'Score', 'Intensity']
         ddf = dd.read_parquet(fns, engine="pyarrow")[cols]
         if not add_con: ddf = ddf[~ddf['Majority protein IDs'].str.contains('CON__')]
         if not add_rev: ddf = ddf[~ddf['Majority protein IDs'].str.contains('REV__')]
         dff = ddf.groupby(['Majority protein IDs']).mean().sort_values('Score')
         res = dff.compute()
+
+        print('RESPONSE', res)
         response = {}
         response['protein_names'] = list( res.index  )
         for col in res.columns:

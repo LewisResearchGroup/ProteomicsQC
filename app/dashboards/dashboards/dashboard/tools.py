@@ -80,6 +80,7 @@ def get_protein_names(project, pipeline, add_con=True, add_rev=True,  data_range
                              add_rev=add_rev)
             )
     _json = requests.post(url, data=data, headers=headers).json()
+    #print('Get protein names', _json)
     return _json
 
 

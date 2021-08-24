@@ -243,7 +243,10 @@ class MaxQuantResult(models.Model):
             if not abs_fn_par.parent.is_dir():
                 os.makedirs( abs_fn_par.parent )
             df = self.get_data_from_file('proteinGroups.txt')
-            df = df.loc[:, ~df.index.duplicated()]
+            # Remove duplicated columns
+            # sometimes MaxQuant generates 
+            # files with repeated column names
+            df = df.loc[:, ~df.columns.duplicated()]
             if df is None: return None
             try:
                 df.to_parquet(abs_fn_par)

@@ -39,7 +39,7 @@ proteins_table = html.Div(id='proteins-table-container',
     style={'minHeight':  100, 'margin': '0%'},
     children=[
         DashTabulator(id='proteins-table',
-            columns=T.gen_tabulator_columns(col_names=['protein_names', 'Score', 'Intensity'], col_width='auto'), 
+            columns=T.gen_tabulator_columns(col_names=['protein_names', 'Fasta headers', 'Score', 'Intensity'], col_width='auto'), 
             options=tabulator_options,
             downloadButtonType=downloadButtonType,
             clearFilterButtonType=clearFilterButtonType
