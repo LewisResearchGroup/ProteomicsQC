@@ -246,7 +246,7 @@ class MaxQuantResult(models.Model):
             if df is None: return None
             try:
                 df.to_parquet(abs_fn_par)
-            except Error as e:
+            except Exception as e:
                 logging.error(f'Could not create parquet file for {abs_fn_txt}:\n {e}')
                 return None
         return abs_fn_par
