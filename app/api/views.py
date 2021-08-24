@@ -270,7 +270,9 @@ def get_qc_data(project_slug, pipeline_slug, data_range=None):
     df = pd.merge(df, flagged, left_on='RawFile', right_index=True)
     df = pd.merge(df, use_downstream, left_on='RawFile', right_index=True)
 
-    df['DateAcquired'] = df['DateAcquired'].view( np.int64, errors='ignore' )
+    # df['DateAcquired'] = df['DateAcquired'].astype( np.int64, errors='ignore' )
+    # df['DateAcquired'] = df['DateAcquired'].view( np.int64, errors='ignore' )
+    df['DateAcquired'] = df['DateAcquired'].view( np.int64 )
 
     assert df.columns.value_counts().max()==1, df.columns.value_counts()
     
