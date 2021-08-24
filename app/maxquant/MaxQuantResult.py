@@ -242,7 +242,11 @@ class MaxQuantResult(models.Model):
                 os.makedirs( abs_fn_par.parent )
             df = self.get_data_from_file('proteinGroups.txt')
             if df is None: return None
-            df.to_parquet(abs_fn_par)
+            try:
+                df.to_parquet(abs_fn_par)
+            except e:
+                logging.error(f'Could not create parquet file for {abs_fn_txt}:\n {e}')
+                return None
         return abs_fn_par
 
     @property
