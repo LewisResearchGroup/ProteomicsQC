@@ -89,6 +89,8 @@ class QcDataAPI(generics.ListAPIView):
 class ProteinNamesAPI(generics.ListAPIView):
     def post(self, request):
         data = request.data
+
+        logging.warning(f'ProteinNamesAPI: {data}')
         
         project_slug = data['project']
         pipeline_slug = data['pipeline']
@@ -96,8 +98,6 @@ class ProteinNamesAPI(generics.ListAPIView):
 
         add_con = data['add_con']
         add_rev = data['add_rev']
-
-        print(project_slug, pipeline_slug, add_con, add_rev, data_range)
 
         fns = get_protein_quant_fn(project_slug, pipeline_slug, data_range=data_range)
 
@@ -208,6 +208,7 @@ def get_protein_quant_fn(project_slug, pipeline_slug, data_range, only_use_downs
 
 
 def get_protein_groups_data(fns, columns, protein_names, protein_col='Majority protein IDs'):
+    print(f'get_protein_groups_data: \n{fns} \n{columns}\n {protein_names}')
     ddf = dd.read_parquet(fns, engine="pyarrow")
     ddf = ddf[ddf[protein_col].isin(protein_names)] 
     ddf = ddf[['RawFile', protein_col]+columns]
@@ -269,7 +270,7 @@ def get_qc_data(project_slug, pipeline_slug, data_range=None):
     df = pd.merge(df, flagged, left_on='RawFile', right_index=True)
     df = pd.merge(df, use_downstream, left_on='RawFile', right_index=True)
 
-    df['DateAcquired'] = df['DateAcquired'].astype( np.int64, errors='ignore' )
+    df['DateAcquired'] = df['DateAcquired'].view( np.int64, errors='ignore' )
 
     assert df.columns.value_counts().max()==1, df.columns.value_counts()
     
