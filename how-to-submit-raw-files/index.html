@@ -9,7 +9,7 @@
   
   
   <link rel="shortcut icon" href="../img/favicon.ico">
-  <title>Installation - Proteomics QC</title>
+  <title>Submit RAW files - Proteomics QC</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
 
   <link rel="stylesheet" href="../css/theme.css" />
@@ -18,8 +18,8 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Installation";
-    var mkdocs_page_input_path = "installation.md";
+    var mkdocs_page_name = "Submit RAW files";
+    var mkdocs_page_input_path = "how-to-submit-raw-files.md";
     var mkdocs_page_url = null;
   </script>
   
@@ -51,26 +51,8 @@
                     <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
                     </li>
                 </ul>
-                <ul class="current">
-                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Installation</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#1-docker-compose">1) Docker-compose</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2-download-the-repository">2) Download the repository</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#3-create-configuration-file">3) Create configuration file</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#edit-the-env-file">Edit the .env file</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#4-initiate-database">4) Initiate database</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#5-create-an-admin-account">5) Create an admin account</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#6-run-the-server">6) Run the server</a>
-    </li>
-    </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../installation/">Installation</a>
                     </li>
                 </ul>
                 <ul>
@@ -85,8 +67,16 @@
                     <li class="toctree-l1"><a class="reference internal" href="../how-to-add-a-pipeline/">Create a pipeline</a>
                     </li>
                 </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../how-to-submit-raw-files/">Submit RAW files</a>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Submit RAW files</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#1-web-frontend">1) Web frontend</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#2-admin-panel">2) Admin panel</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#3-using-the-api">3) Using the API</a>
+    </li>
+    </ul>
                     </li>
                 </ul>
                 <ul>
@@ -130,7 +120,7 @@
     
       
     
-    <li>Installation</li>
+    <li>Submit RAW files</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -141,73 +131,13 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="installation">Installation</h1>
-<h2 id="1-docker-compose">1) Docker-compose</h2>
-<p>The server can be started with <code>docker-compose</code>. Therefore,
-docker and docker-compose have to be installed on the host.
-The server can also be used without docker-compose, 
-if the postgres and redis servers are running already. </p>
-<p>For official Docker installation instructions please visit:</p>
-<p>https://docs.docker.com/engine/install/ubuntu/</p>
-<h2 id="2-download-the-repository">2) Download the repository</h2>
-<pre><code>git clone --recursive git@github.com:LSARP/ProteomicsQC.git ProteomicsQC
-cd ProteomicsQC
-</code></pre>
-<h2 id="3-create-configuration-file">3) Create configuration file</h2>
-<pre><code>./scripts/generate_config.sh  # generates a .env file for configuration
-</code></pre>
-<h3 id="edit-the-env-file">Edit the .env file</h3>
-<pre><code># OMICS PIPELINES CONFIG
-
-## HOMPAGE SETTINGS
-HOME_TITLE=Your Hompage Title
-HOSTNAME=example.com
-
-## STORAGE
-DB=./data/db/
-DATALAKE=./data/datalake
-COMPUTE=./data/compute
-MEDIA=./data/media
-STATIC=./data/static
-
-## EMAIL SETTINGS
-EMAIL_HOST=smtp.gmail.com
-EMAIL_USE_TLS=True
-EMAIL_USE_SSL=False
-EMAIL_PORT=587
-EMAIL_HOST_USER=example@example.com
-EMAIL_HOST_PASSWORD=a-strong-password
-DEFAULT_FROM_EMAIL=noreply@example.com
-
-## CELERY
-CONCURRENCY=8
-
-## SECURITY KEYS
-SECRET_KEY=...
-OIDC_RSA_PRIVATE_KEY=...
-
-</code></pre>
-<h2 id="4-initiate-database">4) Initiate database</h2>
-<pre><code>make init  # to start the server the first time
-</code></pre>
-<h2 id="5-create-an-admin-account">5) Create an admin account</h2>
-<pre><code>make createsuperuser
-</code></pre>
-<p>And follow the instructions to provide an email address and 
-password.</p>
-<h2 id="6-run-the-server">6) Run the server</h2>
-<pre><code>make run  # starts the production server on port 8000
-</code></pre>
-<p>You can now navigate to <a href="localhost:8000/admin">localhost:8000/admin</a> and login to the
-admin account with the credentials you provided in step 5.</p>
-<blockquote>
-<p>In order to run the server on a specific domain you have to register the domain
-and point it to the public IP address of your server. Furthermore, you have to 
-setup a remote proxy to redirect HTTP and HTTPS requests to port 8000. 
-For security reasons you should always use HTTPS. The server was tested using
-a remote proxy configured with NGINX and for encryption we used letsencrypt and 
-certbot.</p>
-</blockquote>
+                <h1 id="how-to-submit-raw-files-to-an-existing-pipeline">How to submit RAW files to an existing pipeline?</h1>
+<p>There are three ways to add new raw files to an existing pipeline. </p>
+<h2 id="1-web-frontend">1) Web frontend</h2>
+<p>The most straightforward way to submit RAW files to an existing pipeline 
+is the web frontend. </p>
+<h2 id="2-admin-panel">2) Admin panel</h2>
+<h2 id="3-using-the-api">3) Using the API</h2>
               
             </div>
           </div>
@@ -215,10 +145,10 @@ certbot.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../how-to-access-the-admin-panel/" class="btn btn-neutral float-right" title="Access the admin panel">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../datalake/" class="btn btn-neutral float-right" title="Datalake">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../how-to-add-a-pipeline/" class="btn btn-neutral" title="Create a pipeline"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -244,10 +174,10 @@ certbot.</p>
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../how-to-add-a-pipeline/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../how-to-access-the-admin-panel/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../datalake/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
