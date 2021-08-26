@@ -109,7 +109,6 @@ class ProteinNamesAPI(generics.ListAPIView):
         dff = ddf.groupby(['Majority protein IDs']).mean().sort_values('Score')
         res = dff.compute()
 
-        print('RESPONSE', res)
         response = {}
         response['protein_names'] = list( res.index  )
         for col in res.columns:

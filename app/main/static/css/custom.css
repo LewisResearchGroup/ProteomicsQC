@@ -12,6 +12,23 @@
 }
 
 
+#CookielawBanner { 
+    background-color: lightgray !important;
+    border: 2px solid red;
+    border-radius: 5px;
+}
+
+#LoginButton {
+    background-color: white;
+    color: black;
+}
+
+
+#LoginButton:hover {
+    background-color: blue;
+}
+
+
 
 body {
     background-color:white;
@@ -93,6 +110,7 @@ nav ul a {
 
 .btn:hover {
     background-color: blue;
+    color: white !important;
 }
 
 nav ul a:hover {
