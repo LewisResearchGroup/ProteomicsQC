@@ -19,15 +19,15 @@ def list_to_dropdown_options(values):
 def table_from_dataframe(df, id='table', row_deletable=True, row_selectable='multi'):
     return dt.DataTable(
         id=id,
-        columns=[{"name": i, "id": i, 'format': Format(precision=2)} for i in df.columns],
+        columns=[{'name': i, 'id': i, 'format': Format(precision=2)} for i in df.columns],
         data=df.iloc[::-1].to_dict('records'),
-        sort_action="native",
-        sort_mode="single",
+        sort_action='native',
+        sort_mode='single',
         row_selectable=row_selectable,
         row_deletable=row_deletable,
         selected_rows=[],
         filter_action='native',
-        page_action="native",
+        page_action='native',
         page_current=0,
         page_size=16,
         style_table={'overflowX': 'scroll'},
@@ -66,7 +66,6 @@ def get_protein_groups(project, pipeline, protein_names=None, columns=None, data
                              protein_names=protein_names,
                              columns=columns, 
                              data_range=data_range,
-
                              ) 
             )
     res = requests.post(url, data=data, headers=headers).json()
@@ -117,16 +116,16 @@ def gen_tabulator_columns(col_names=None, add_ms_file_col=False, add_color_col=F
     else: col_names = list(col_names)
 
     columns = [
-            { "formatter": "rowSelection", "titleFormatter":"rowSelection",           
+            { "formatter": "rowSelection", "titleFormatter": "rowSelection",           
               "titleFormatterParams": {
-                  "rowRange": "active" # only toggle the values of the active filtered rows
+                  "rowRange": "active"
               },
               "hozAlign":"center", "headerSort": False, "width":"1px", 'frozen': True}]
 
     for col in col_names:
         content = { 'title': col, 
                     'field': col, 
-                    "headerFilter":True, 
+                    'headerFilter': True, 
                     'width': col_width, 
                     'editor': editor 
                   }
