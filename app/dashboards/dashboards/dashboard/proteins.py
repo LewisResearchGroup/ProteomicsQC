@@ -153,11 +153,11 @@ def callbacks(app):
 
         n_rows = len(df['Majority protein IDs'].drop_duplicates())
 
-        height = 300*(1+n_rows)
+        height = 200*(1+n_rows)
 
         fig.update_layout(
                 height=height,        
-                margin=dict( l=50, r=10, b=200, t=50, pad=0 ),
+                margin=dict( l=50, r=10, b=0, t=40, pad=0 ),
                 hovermode='closest')
 
         fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
