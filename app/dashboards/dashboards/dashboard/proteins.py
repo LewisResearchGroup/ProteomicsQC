@@ -26,7 +26,7 @@ except:
 tabulator_options = {
            "groupBy": "Label", 
            "selectable": True,
-           "headerFilterLiveFilterDelay":3000,
+           "headerFilterLiveFilterDelay": 3000,
            "layout": "fitDataFill",
            "height": "500px",
            }
@@ -39,7 +39,7 @@ proteins_table = html.Div(id='proteins-table-container',
     style={'minHeight':  100, 'margin': '0%'},
     children=[
         DashTabulator(id='proteins-table',
-            columns=T.gen_tabulator_columns(col_names=['protein_names', 'Fasta headers', 'Score', 'Intensity'], col_width='auto'), 
+            columns=T.gen_tabulator_columns(col_names=['protein_names', 'Fasta headers', 'Score', 'Intensity'], col_width=300), 
             options=tabulator_options,
             downloadButtonType=downloadButtonType,
             clearFilterButtonType=clearFilterButtonType
@@ -115,10 +115,8 @@ def callbacks(app):
         )
     def plot_protein_figure(n_clicks, data, ndxs, plot_column, project, pipeline, data_range):
         '''Create the protein groups figure.'''
-        if (project is None) or (pipeline is None):
-            raise PreventUpdate
-        if (ndxs is None) or (ndxs == []):
-            raise PreventUpdate
+        if (project is None) or (pipeline is None): raise PreventUpdate
+        if (ndxs is None) or (ndxs == []): raise PreventUpdate
 
         if plot_column == 'Reporter intensity corrected (normalized)':
             plot_column = 'Reporter intensity corrected'

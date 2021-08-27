@@ -1,13 +1,15 @@
 import os
 import sys
 import json
+import logging
 import requests
 import pandas as pd
 import dash_table as dt
 from dash_table.Format import Format
 
 URL = os.getenv('OMICS_URL', 'http://localhost:8000')
-print(f'Dashboard API URL:{URL}', file=sys.stderr)
+
+logging.info(f'Dashboard API URL:{URL}', file=sys.stderr)
 
 
 def list_to_dropdown_options(values):

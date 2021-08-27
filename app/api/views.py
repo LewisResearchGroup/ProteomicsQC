@@ -4,14 +4,8 @@ import numpy as np
 import logging
 import json 
 
-### Dask setup
 import dask.dataframe as dd
 from dask.distributed import Client, LocalCluster
-
-#cluster = LocalCluster(n_workers=4, threads_per_worker=2)
-#client = Client()
-
-#print(cluster)
 
 from pathlib import Path as P
 
@@ -154,7 +148,7 @@ class ProteinGroupsAPI(generics.ListAPIView):
         df = get_protein_groups_data(fns, 
                 columns=columns, 
                 protein_names=protein_names)
-        
+
         return JsonResponse(df.to_json(), safe=False)
 
 
@@ -199,7 +193,6 @@ def get_protein_quant_fn(project_slug, pipeline_slug, data_range, only_use_downs
         n_results = len(results)
         if data_range is None: data_range = len(results)+1
 
-        print(n_results, data_range)
         if (n_results > data_range) and (n_results > 0):
             results = results.order_by('raw_file__created')[n_results-data_range:]
 
@@ -213,7 +206,6 @@ def get_protein_quant_fn(project_slug, pipeline_slug, data_range, only_use_downs
 
 
 def get_protein_groups_data(fns, columns, protein_names, protein_col='Majority protein IDs'):
-    print(f'get_protein_groups_data: \n{fns} \n{columns}\n {protein_names}')
     ddf = dd.read_parquet(fns, engine="pyarrow")
     ddf = ddf[ddf[protein_col].isin(protein_names)] 
     ddf = ddf[['RawFile', protein_col]+columns]
@@ -221,11 +213,8 @@ def get_protein_groups_data(fns, columns, protein_names, protein_col='Majority p
 
 
 def get_qc_data(project_slug, pipeline_slug, data_range=None):
-
     pipeline = MaxQuantPipeline.objects.get( slug=pipeline_slug )
-
     path = pipeline.path
-
     results = MaxQuantResult.objects.filter( raw_file__pipeline = pipeline )
     n_results = len(results)
 
@@ -275,8 +264,6 @@ def get_qc_data(project_slug, pipeline_slug, data_range=None):
     df = pd.merge(df, flagged, left_on='RawFile', right_index=True)
     df = pd.merge(df, use_downstream, left_on='RawFile', right_index=True)
 
-    # df['DateAcquired'] = df['DateAcquired'].astype( np.int64, errors='ignore' )
-    # df['DateAcquired'] = df['DateAcquired'].view( np.int64, errors='ignore' )
     df['DateAcquired'] = df['DateAcquired'].view( np.int64 )
 
     assert df.columns.value_counts().max()==1, df.columns.value_counts()

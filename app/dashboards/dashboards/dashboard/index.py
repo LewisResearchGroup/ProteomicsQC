@@ -149,7 +149,6 @@ def refresh_protein_table(project, pipeline, tab):
         raise PreventUpdate
     data = get_protein_names(project=project, pipeline=pipeline)
     df = pd.DataFrame(data)
-    print('#####', df)
     return table_from_dataframe(df, id='protein-table', row_deletable=False, row_selectable='single')
 
 
@@ -250,6 +249,7 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
     df = pd.DataFrame(data)
 
     assert pd.value_counts(df.columns).max() == 1, pd.value_counts(df.columns)
+
     df['DateAcquired'] = pd.to_datetime(df['DateAcquired'])
 
     if ndxs is not None: df = df.reindex(ndxs)
@@ -264,9 +264,8 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
 
     for i, col in enumerate(numeric_columns):
         trace = go.Bar(x=df[x], y=df[col], name=col, marker_color=df['Flagged'],
-                       text=None if x == 'RawFile' else df['RawFile']
-                       )
-        fig.add_trace(trace, row=1+i, col=1)        
+                       text=None if x == 'RawFile' else df['RawFile'])
+        fig.add_trace(trace, row=1+i, col=1)
 
     fig.update_layout(hovermode='closest')
 
@@ -285,8 +284,6 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
 
     marker_color = df['Use Downstream'].replace({True: 'rgb(158,202,225)', False: 'rgb(250,230,230)'})
     marker_line_color = df['Flagged'].replace({False: 'rgb(158,202,225)', True: 'rgb(200,0,0)'})
-
-    print(marker_color)
 
     fig.update_traces(marker_color=marker_color, 
                       marker_line_color=marker_line_color,
