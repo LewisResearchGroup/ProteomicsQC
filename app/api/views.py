@@ -106,13 +106,16 @@ class ProteinNamesAPI(generics.ListAPIView):
         ddf = dd.read_parquet(fns, engine="pyarrow")[cols]
         if not add_con: ddf = ddf[~ddf['Majority protein IDs'].str.contains('CON__')]
         if not add_rev: ddf = ddf[~ddf['Majority protein IDs'].str.contains('REV__')]
-        dff = ddf.groupby(['Majority protein IDs']).mean().sort_values('Score')
+        dff = ddf.groupby(['Majority protein IDs', 'Fasta headers'])\
+                 .mean().sort_values('Score').reset_index()\
+                 .rename(columns={'Majority protein IDs': 'protein_names'})
+
         res = dff.compute()
 
         response = {}
-        response['protein_names'] = list( res.index  )
         for col in res.columns:
             response[col] = res[col].to_list()
+
         return JsonResponse(response)
 
 
@@ -194,6 +197,9 @@ def get_protein_quant_fn(project_slug, pipeline_slug, data_range, only_use_downs
 
     if data_range is not None:
         n_results = len(results)
+        if data_range is None: data_range = len(results)+1
+
+        print(n_results, data_range)
         if (n_results > data_range) and (n_results > 0):
             results = results.order_by('raw_file__created')[n_results-data_range:]
 
@@ -202,9 +208,7 @@ def get_protein_quant_fn(project_slug, pipeline_slug, data_range, only_use_downs
         fn = res.create_protein_quant()
         if fn is None: continue
         fns.append( fn )
-
-    print(fn)
-
+    
     return fns
 
 

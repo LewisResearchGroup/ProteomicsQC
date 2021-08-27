@@ -16,8 +16,6 @@ import dash_table
 
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-#from flask_caching import Cache
-#from cache_memoize import cache_memoize
 from dash_tabulator import DashTabulator
 
 from lrg_omics.plotly import plotly_heatmap, plotly_bar, plotly_histogram, set_template
@@ -48,7 +46,6 @@ if __name__ == '__main__':
     from config import qc_columns_always, data_range_options
 
     app.config.suppress_callback_exceptions = True
-    #from style import graph_style
 else:
     from django_plotly_dash import DjangoDash
     from . import proteins, quality_control, explorer
@@ -59,7 +56,6 @@ else:
 
     from .config import qc_columns_always, data_range_options
 
-    #from .style import graph_style
     app = DjangoDash('dashboard', 
                      add_bootstrap_links=True,
                      suppress_callback_exceptions=True, 
@@ -86,7 +82,7 @@ layout = html.Div([
             value=None)
       ]),
       dbc.Col([
-           html.Div(dcc.Dropdown(id='data-range', options=data_range_options, value='last-30'), style={'display': 'block'}),
+           html.Div(dcc.Dropdown(id='data-range', options=data_range_options, value=30), style={'display': 'block'}),
       ])
     ], style={'width': 300, 'display': 'inline-block'}),
 
@@ -153,6 +149,7 @@ def refresh_protein_table(project, pipeline, tab):
         raise PreventUpdate
     data = get_protein_names(project=project, pipeline=pipeline)
     df = pd.DataFrame(data)
+    print('#####', df)
     return table_from_dataframe(df, id='protein-table', row_deletable=False, row_selectable='single')
 
 
