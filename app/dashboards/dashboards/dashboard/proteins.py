@@ -153,7 +153,7 @@ def callbacks(app):
 
         n_rows = len(df['Majority protein IDs'].drop_duplicates())
 
-        height = 200*(1+n_rows)
+        height = 200*(2+n_rows)
 
         fig.update_layout(
                 height=height,        
