@@ -41,16 +41,12 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 INSTALLED_APPS = [
-    #'jet.dashboard',
-    #'jet',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'oauth2_provider',
-    # 'sysmon',
     'cookielaw',
     'django_plotly_dash.apps.DjangoPlotlyDashConfig',
     'api',

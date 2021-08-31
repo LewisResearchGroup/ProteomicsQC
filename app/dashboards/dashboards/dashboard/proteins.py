@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 import dash_core_components as dcc
 import dash_html_components as html 
@@ -135,6 +136,9 @@ def callbacks(app):
 
         color = None
 
+        print(df.columns)
+
+
         if plot_column == 'Reporter intensity corrected':
             id_vars = ['RawFile', 'Majority protein IDs']
             df = df.set_index(id_vars).filter(regex=plot_column)\
@@ -147,22 +151,29 @@ def callbacks(app):
         else:
             df = df.sort_values('RawFile')
 
-        fig = px.bar(data_frame=df, x='RawFile', y=plot_column, facet_col='Majority protein IDs', facet_col_wrap=1, 
-                    color=color, color_discrete_sequence=px.colors.qualitative.Dark24,
-                    color_continuous_scale=px.colors.sequential.Rainbow)
-
         n_rows = len(df['Majority protein IDs'].drop_duplicates())
 
-        height = 200*(2+n_rows)
+        height = 200 * n_rows + (100 * n_rows^2)
+
+        if n_rows <= 1:
+            facet_row_spacing = 0.04
+        else:
+            facet_row_spacing = min(0.04, (1 / (n_rows - 1)) )
+
+        fig = px.bar(data_frame=df, x='RawFile', y=plot_column, facet_col='Majority protein IDs', facet_col_wrap=1, 
+                    color=color, color_discrete_sequence=px.colors.qualitative.Dark24,
+                    color_continuous_scale=px.colors.sequential.Rainbow,
+                    facet_row_spacing=facet_row_spacing, height=height)
 
         fig.update_layout(
-                height=height,        
-                margin=dict( l=50, r=10, b=0, t=40, pad=0 ),
-                hovermode='closest')
+                margin=dict( l=50, r=10, b=40, t=40, pad=0 ),
+                hovermode='closest',
+                )
 
         fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
 
         fig.update(layout_showlegend=True)
+
         fig.update_xaxes(matches='x')
 
         if normalized: fig.update_layout(yaxis=dict(range=[0,1]))

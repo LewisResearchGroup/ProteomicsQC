@@ -13,7 +13,6 @@ django-cookie-law
 django-cors-headers
 django-currentuser
 django-extensions
-django-3-jet
 django-oauth-toolkit
 django-plotly-dash
 djangorestframework 
