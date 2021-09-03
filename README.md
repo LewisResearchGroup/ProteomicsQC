@@ -1,4 +1,4 @@
-# Django based proteomics processing framework using MaxQuant and RawTools
+# ProteomicsQC
 
 A quality control (QC) pipeline server for quantitative proteomics and for automated processing as well as interactive visualisations of QC data.
 The server allows to setup multiple proteomics pipelines grouped by projects. 
