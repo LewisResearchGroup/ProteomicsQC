@@ -1,11 +1,11 @@
 # ProteomicsQC
 
-A quality control (QC) pipeline server for quantitative proteomics and for automated processing as well as interactive visualisations of QC data.
+A quality control (QC) pipeline server for quantitative proteomics, automated processing, and interactive visualisations of QC results.
 The server allows to setup multiple proteomics pipelines grouped by projects. 
-The user can drag and drop new RAW mass spectrometry files which are processed automatically with the configured setup. 
-Results are visualized in an interactive dashboard and accessible via a RESTful API for third party application.
-The server can be started with a single command (docker-compose)that starts multiple docker containers for database, webserver and job scheduling.
-Underlying software is MaxQuant and RawTools for proteomics, Django for the web-server and API and Plotly/Dash for the interactive dashboard.
+The user can drag and drop new RAW mass spectrometry files which are processed automatically. 
+Results are visualized in an interactive dashboard and accessible via a RESTful API for third party applications and extensions.
+The server can be started with a single command using `docker-compose`.
+Underlying software is _MaxQuant_ and _RawTools_ for proteomics, _Django_ for the web-server and API and _Plotly/Dash_ for the interactive dashboard.
 
 More information can be found in the [Documentation](https://soerendip.github.io/django3-omics-pipelines/).
 
