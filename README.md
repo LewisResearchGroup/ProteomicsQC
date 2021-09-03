@@ -1,6 +1,14 @@
-# Django based proteomics processing framework using MaxQuant and RawTools
+# ProteomicsQC
 
-A server that automates proteomics processing jobs.
+A quality control (QC) pipeline server for quantitative proteomics and for automated processing as well as interactive visualisations of QC data.
+The server allows to setup multiple proteomics pipelines grouped by projects. 
+The user can drag and drop new RAW mass spectrometry files which are processed automatically with the configured setup. 
+Results are visualized in an interactive dashboard and accessible via a RESTful API for third party application.
+The server can be started with a single command (docker-compose)that starts multiple docker containers for database, webserver and job scheduling.
+Underlying software is MaxQuant and RawTools for proteomics, Django for the web-server and API and Plotly/Dash for the interactive dashboard.
+
+
+## Installation
 
 This repository contains git submodules and should be cloned with:
 
@@ -14,10 +22,12 @@ This repository contains git submodules and should be cloned with:
 
 More information can be found in the [Documentation](https://soerendip.github.io/django3-omics-pipelines/).
 
-# Limitations
+
+## Limitations
 The pipeline is restricted to single file setup which might conflict with the setup of many laboratories which use workflows where individual runs are split into multiple files and all setups where multiple `.RAW` files have to be analyzed in tandem by MaxQuant. The pipeline processes each file separately and independently to ensure data reproducibility. This setup works very well for comparatively small  microbial samples (with file sizes of around 1-2 GB), but will be incompatible with mammalian samples, where output files have to be split into chunks in order to keep the file size reasonably small. This kind of setup is currently out of scope for the quality control pipeline. 
 
-# Overview
+
+## Features
 
 The server manages proteomics pipelines belonging to multiple projects. 
 
@@ -57,8 +67,10 @@ protein identification and quantification.
 ### Many customiable Quality Control metrics in one place
 ![](./docs/img/example-qc-barplot.png 'Many customiable Quality Control metrics in one place.')
 
+
 ### Scatterplot tool to explore relationships between variables
 ![](./docs/img/example-qc-scatterplot.png 'Scatterplot tool to explore relationships between variables.')
+
 
 ### Visualization of normalized reporter intensity (TMT11)
 ![](./docs/img/example-qc-normalied-tmt-intensity.png 'Visualization of normalized reporter intensity (TMT11).')
