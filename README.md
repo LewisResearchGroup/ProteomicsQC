@@ -1,9 +1,11 @@
 # Django based proteomics processing framework using MaxQuant and RawTools
 
-A Quality Control server for quantitative proteomics pipelines for automated processing and interactive visualisations of QC metrics.
-The server allows to setup multiple proteomics pipelines separated by project spaces. The user can drag and drop new RAW mass spectrometry files which are processed automatically with the configured setup. Results are visualized in an interactive dashboard and accessible via a RESTful API for third party application.
-The server can be started with a single command that runs multiple docker containers for database, webserver and data processing.
-Underlying software is MaxQuant and RawTools, Django and Plotly/Dash.
+A quality control (QC) pipeline server for quantitative proteomics and for automated processing as well as interactive visualisations of QC data.
+The server allows to setup multiple proteomics pipelines grouped by projects. 
+The user can drag and drop new RAW mass spectrometry files which are processed automatically with the configured setup. 
+Results are visualized in an interactive dashboard and accessible via a RESTful API for third party application.
+The server can be started with a single command (docker-compose)that starts multiple docker containers for database, webserver and job scheduling.
+Underlying software is MaxQuant and RawTools for proteomics, Django for the web-server and API and Plotly/Dash for the interactive dashboard.
 
 
 ## Installation
