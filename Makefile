@@ -53,3 +53,6 @@ update:
 down:
 	sudo docker-compose down
 	sudo docker-compose -f docker-compose-develop.yml down
+
+test: 
+	sudo docker-compose run web python manage.py test
