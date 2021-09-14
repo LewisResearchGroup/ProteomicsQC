@@ -12,5 +12,9 @@ nav:
     - MaxQuant: maxquant-issues.md
     - API: api.md
     - About: about.md
-    
+extra:
+  analytics:
+      provider: google
+      property: G-86PCMWDMXK    
 theme: readthedocs
+

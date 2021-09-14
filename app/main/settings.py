@@ -18,11 +18,15 @@ HOME_TITLE = os.getenv('HOME_TITLE', 'Django-3 Omics Pipelines')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (os.getenv('ENVIRONMENT') == 'develop')
-print('DEBUG:', DEBUG)
-print('ENVIRONMENT:', os.getenv('ENVIRONMENT') )
 
 HOSTNAME = os.getenv('HOSTNAME', 'localhost')
-ALLOWED_HOSTS = [ HOSTNAME, 'localhost', f'https://{HOSTNAME}']
+ALLOWED_HOSTS =  os.getenv('ALLOWED_HOSTS').split(',')
+ALLOWED_HOSTS.extend([ HOSTNAME, f'https://{HOSTNAME}'])
+
+print('DEBUG:', DEBUG)
+print('ENVIRONMENT:', os.getenv('ENVIRONMENT') )
+print('ALLOWED_HOSTS:', ALLOWED_HOSTS )
+
 
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
