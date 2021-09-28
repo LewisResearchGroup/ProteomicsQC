@@ -49,9 +49,11 @@ proteins_table = html.Div(id='proteins-table-container',
 
 
 
-plot_columns = ['Peptide counts (all)',
-       'Peptide counts (razor+unique)', 'Peptide counts (unique)',
-       'Number of proteins', 'Sequence coverage [%]',   
+plot_columns = [
+    # 'Peptide counts (all)',
+    # 'Peptide counts (razor+unique)', 
+    # 'Peptide counts (unique)',
+    # 'Number of proteins', 'Sequence coverage [%]',   
        'Unique + razor sequence coverage [%]', 'Unique sequence coverage [%]',
        'Score', 'Reporter intensity corrected', 
        'Reporter intensity corrected (normalized)']
@@ -67,7 +69,7 @@ layout = html.Div([
     dcc.Loading( proteins_table ),
 
     dcc.Dropdown(id='protein-plot-column', multi=False, options=list_to_dropdown_options(plot_columns), 
-                placeholder='Select data columns', value='Peptide counts (razor+unique)', 
+                placeholder='Select data columns', value='Reporter intensity corrected', 
                 style={'width': '100%', 'max-width': '100%', 'margin-top': '50px', 'margin-bottom': '50px'}),
 
     html.Button('Update figure', id='proteins-fig-update'), 
@@ -136,9 +138,6 @@ def callbacks(app):
 
         color = None
 
-        print(df.columns)
-
-
         if plot_column == 'Reporter intensity corrected':
             id_vars = ['RawFile', 'Majority protein IDs']
             df = df.set_index(id_vars).filter(regex=plot_column)\
@@ -159,22 +158,22 @@ def callbacks(app):
             facet_row_spacing = 0.04
         else:
             facet_row_spacing = min(0.04, (1 / (n_rows - 1)) )
+        
+        print(df.columns.to_list())
+
+        df.sort_values('RawFile', inline=True)
 
         fig = px.bar(data_frame=df, x='RawFile', y=plot_column, facet_col='Majority protein IDs', facet_col_wrap=1, 
                      color=color, color_discrete_sequence=px.colors.qualitative.Dark24,
                      color_continuous_scale=px.colors.sequential.Rainbow,
                      facet_row_spacing=facet_row_spacing, height=height)
 
-        fig.update_layout(
-                #margin=dict( l=50, r=10, b=40, t=40, pad=0 ),
-                hovermode='closest',
-                )
 
 
         fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
 
+        fig.update_layout(hovermode='closest')
         fig.update(layout_showlegend=True)
-
         fig.update_xaxes(matches='x')
         fig.update_xaxes(automargin=True)
         fig.update_yaxes(automargin=True)
