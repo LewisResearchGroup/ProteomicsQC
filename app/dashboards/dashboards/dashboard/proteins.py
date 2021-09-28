@@ -161,20 +161,23 @@ def callbacks(app):
             facet_row_spacing = min(0.04, (1 / (n_rows - 1)) )
 
         fig = px.bar(data_frame=df, x='RawFile', y=plot_column, facet_col='Majority protein IDs', facet_col_wrap=1, 
-                    color=color, color_discrete_sequence=px.colors.qualitative.Dark24,
-                    color_continuous_scale=px.colors.sequential.Rainbow,
-                    facet_row_spacing=facet_row_spacing, height=height)
+                     color=color, color_discrete_sequence=px.colors.qualitative.Dark24,
+                     color_continuous_scale=px.colors.sequential.Rainbow,
+                     facet_row_spacing=facet_row_spacing, height=height)
 
         fig.update_layout(
                 margin=dict( l=50, r=10, b=40, t=40, pad=0 ),
                 hovermode='closest',
                 )
 
+
         fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
 
         fig.update(layout_showlegend=True)
 
         fig.update_xaxes(matches='x')
+
+        fig.update_xaxes(automargin=True)
 
         if normalized: fig.update_layout(yaxis=dict(range=[0,1]))
 
