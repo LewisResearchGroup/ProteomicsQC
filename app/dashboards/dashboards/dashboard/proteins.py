@@ -178,6 +178,7 @@ def callbacks(app):
         fig.update_xaxes(matches='x')
 
         fig.update_xaxes(automargin=True)
+        fig.update_yaxes(automargin=True)
 
         if normalized: fig.update_layout(yaxis=dict(range=[0,1]))
 
