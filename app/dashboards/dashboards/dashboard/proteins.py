@@ -161,7 +161,7 @@ def callbacks(app):
         
         print(df.columns.to_list())
 
-        df.sort_values('RawFile', inline=True)
+        df.sort_values('RawFile', inplace=True)
 
         fig = px.bar(data_frame=df, x='RawFile', y=plot_column, facet_col='Majority protein IDs', facet_col_wrap=1, 
                      color=color, color_discrete_sequence=px.colors.qualitative.Dark24,
