@@ -159,14 +159,11 @@ def callbacks(app):
         else:
             facet_row_spacing = min(0.04, (1 / (n_rows - 1)) )
         
-        print(df.columns.to_list())
-
-        df.sort_values('RawFile', inplace=True)
-
         fig = px.bar(data_frame=df, x='RawFile', y=plot_column, facet_col='Majority protein IDs', facet_col_wrap=1, 
                      color=color, color_discrete_sequence=px.colors.qualitative.Dark24,
                      color_continuous_scale=px.colors.sequential.Rainbow,
-                     facet_row_spacing=facet_row_spacing, height=height)
+                     facet_row_spacing=facet_row_spacing, height=height,
+                     category_orders={"RawFile": df.RawFile})
 
 
 
