@@ -166,7 +166,7 @@ def callbacks(app):
                      facet_row_spacing=facet_row_spacing, height=height)
 
         fig.update_layout(
-                margin=dict( l=50, r=10, b=40, t=40, pad=0 ),
+                #margin=dict( l=50, r=10, b=40, t=40, pad=0 ),
                 hovermode='closest',
                 )
 
