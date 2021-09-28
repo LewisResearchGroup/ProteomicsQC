@@ -153,7 +153,7 @@ def callbacks(app):
 
         n_rows = len(df['Majority protein IDs'].drop_duplicates())
 
-        height = 200 * n_rows + (100 * n_rows^2)
+        height = 300 * n_rows + (100 * n_rows^2)
 
         if n_rows <= 1:
             facet_row_spacing = 0.04
@@ -176,7 +176,6 @@ def callbacks(app):
         fig.update(layout_showlegend=True)
 
         fig.update_xaxes(matches='x')
-
         fig.update_xaxes(automargin=True)
         fig.update_yaxes(automargin=True)
 
