@@ -1,5 +1,3 @@
-![](/docs/img/ProteomicsQC.png)
-
 <img src="/docs/img/ProteomicsQC.png" alt="diagram" style="width:200px;"/>
 
 
