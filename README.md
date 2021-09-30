@@ -1,3 +1,5 @@
+![](/docs/img/ProteomicsQC.png)
+
 # ProteomicsQC
 
 A quality control (QC) pipeline server for quantitative proteomics, automated processing, and interactive visualisations of QC results.
