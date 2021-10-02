@@ -13,7 +13,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY')
 HOME_TITLE = os.getenv('HOME_TITLE', 'Django-3 Omics Pipelines')
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -28,21 +28,45 @@ print('ENVIRONMENT:', os.getenv('ENVIRONMENT') )
 print('ALLOWED_HOSTS:', ALLOWED_HOSTS )
 
 
+# Security settings
+if DEBUG: SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+## X-Frame-Options
+# X_FRAME_OPTIONS = 'DENY'
+# django-plotly-dash needs: 
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+#X-Content-Type-Options
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+## Strict-Transport-Security
+SECURE_HSTS_SECONDS = 15768000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+## that requests over HTTP are redirected to HTTPS.
+SECURE_SSL_REDIRECT = not DEBUG 
+
+# for more security
+CSRF_COOKIE_SECURE = not DEBUG
+CSRF_USE_SESSIONS = True
+
+CSRF_COOKIE_HTTPONLY = True
 CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
-#CSRF_COOKIE_HTTPONLY = False
+SECURE_BROWSER_XSS_FILTER = True
 
-#SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SAMESITE = 'Strict'
 
-#CSRF_COOKIE_SECURE = True
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
-print('ALLOWED_HOSTS:', ALLOWED_HOSTS)
 
 # Application definition
+LOGIN_URL='/admin/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -73,9 +97,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_currentuser.middleware.ThreadLocalUserMiddleware',
 ]
-
-# django-plotly-dash
-X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 ROOT_URLCONF = 'main.urls'
 
@@ -154,6 +175,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = '/media/'
 STATIC_ROOT = '/static/'
 
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'main', "static"),
 ]
@@ -164,21 +186,11 @@ CELERY_RESULT_BACKEND = 'redis://redis:6379'
 
 
 AUTH_USER_MODEL='user.User'
-LOGIN_URL='/admin/login/'
 
 
-OAUTH2_PROVIDER = {
-    "OIDC_ENABLED": True,
-    "OIDC_RSA_PRIVATE_KEY": os.environ.get("OIDC_RSA_PRIVATE_KEY"),
-    "SCOPES": {
-        "openid": "OpenID Connect scope",
-    },
-}
-
-
+# Storage settings
 DATALAKE_ROOT = P('/datalake/')
 COMPUTE_ROOT = P('/compute/')
-
 
 class MediaFileSystemStorage(FileSystemStorage):
     def get_available_name(self, name, max_length=None):
@@ -195,6 +207,7 @@ DATALAKE = MediaFileSystemStorage(location=str(DATALAKE_ROOT))
 COMPUTE = MediaFileSystemStorage(location=str(COMPUTE_ROOT))
 
 
+# Cookielaw
 COOKIEBANNER = {
     "title": "Cookie settings",
     "header_text": "We are using cookies on this website. A few are essential, others are not.",
@@ -237,11 +250,8 @@ COOKIEBANNER = {
     ],
 }
 
-#REST_FRAMEWORK = {
-#    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
-#}
 
-
+# Email settings
 EMAIL_HOST = os.getenv('EMAIL_HOST', None)
 
 if EMAIL_HOST is not None:
