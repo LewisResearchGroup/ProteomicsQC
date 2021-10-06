@@ -145,10 +145,9 @@ class MaxQuantResult(models.Model):
             fasta_file = fasta_file, 
             run_dir = run_dir, 
             output_dir = output_dir,
+            add_uuid_to_rundir=True,
+            cleanup=True,
         )
-
-        print('MQ parameters:', params)
-
         return params
 
 
