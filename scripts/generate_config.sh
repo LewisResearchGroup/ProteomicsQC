@@ -6,6 +6,7 @@ echo """
 ## HOMPAGE SETTINGS
 HOME_TITLE='Proteomics Pipelines'
 HOSTNAME=localhost
+ALLOWED_HOSTS=localhost
 """ >> .env
 
 echo """## STORAGE
@@ -32,4 +33,3 @@ CONCURRENCY=8
 
 echo "## SECURITY KEYS" >> .env
 echo "SECRET_KEY=`openssl rand -hex 32`" >> .env
-echo "OIDC_RSA_PRIVATE_KEY=\"`openssl genrsa 4096`\"" >> .env
