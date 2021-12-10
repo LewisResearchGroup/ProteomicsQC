@@ -1,3 +1,5 @@
+[![Codacy Security Scan](https://github.com/sorenwacker/ProteomicsQC/actions/workflows/codacy-analysis.yml/badge.svg)](https://github.com/sorenwacker/ProteomicsQC/actions/workflows/codacy-analysis.yml)
+
 ![](docs/img/ProteomicsQC.png)
 
 # ProteomicsQC
