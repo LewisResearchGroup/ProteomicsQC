@@ -192,3 +192,50 @@ table tr th {
     width: 15px;
     height: 15px;
 }
+
+.pagination > li > a
+{
+    background-color: #488686;
+    color: white;
+}
+
+.pagination > li > a:focus,
+.pagination > li > a:hover,
+.pagination > li > span:focus,
+.pagination > li > span:hover
+{
+    color: white;
+    background-color: #488686;
+    border-color: #ddd;
+}
+
+.pagination > .active > a,
+.pagination > .active > span,
+.pagination > .active > a:hover,
+.pagination > .active > span:hover,
+.pagination > .active > a:focus,
+.pagination > .active > span:focus {
+  z-index: 3;
+  color: #fff;
+  cursor: default;
+  background-color: blue;
+  border-color: white;
+}
+
+.pagination > .active > a:hover
+{
+    background-color: #488686 !Important;
+    border: solid 1px #5A4181;
+}
+
+.pagination > .disabled > span,
+.pagination > .disabled > span:hover,
+.pagination > .disabled > span:focus,
+.pagination > .disabled > a,
+.pagination > .disabled > a:hover,
+.pagination > .disabled > a:focus {
+  color: white;
+  cursor: not-allowed;
+  background-color: blue;
+  border-color: #ddd;
+}

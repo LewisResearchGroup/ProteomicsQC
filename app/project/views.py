@@ -9,9 +9,9 @@ from maxquant.models import MaxQuantPipeline
 class ListView(LoginRequiredMixin, generic.ListView):
     model = Project 
     login_url = '/accounts/login/'
-
+    paginate_by = 8
     def get_queryset(self):
-        projects = Project.objects.all().order_by('created').reverse()
+        projects = Project.objects.all().order_by('name')#.reverse()
         return projects
 
     def get_context_data(self, **kwargs):
