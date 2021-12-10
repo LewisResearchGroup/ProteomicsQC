@@ -35,12 +35,19 @@ except:
 set_template()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app = dash.Dash(__name__)
     import proteins, quality_control, explorer
-    from tools import table_from_dataframe, get_projects, get_pipelines,\
-        get_protein_groups, get_qc_data, list_to_dropdown_options, get_protein_names
-    
+    from tools import (
+        table_from_dataframe,
+        get_projects,
+        get_pipelines,
+        get_protein_groups,
+        get_qc_data,
+        list_to_dropdown_options,
+        get_protein_names,
+    )
+
     import tools as T
 
     from config import qc_columns_always, data_range_options
@@ -49,293 +56,348 @@ if __name__ == '__main__':
 else:
     from django_plotly_dash import DjangoDash
     from . import proteins, quality_control, explorer
-    from .tools import table_from_dataframe, get_projects, get_pipelines,\
-        get_protein_groups, get_qc_data, list_to_dropdown_options, get_protein_names
+    from .tools import (
+        table_from_dataframe,
+        get_projects,
+        get_pipelines,
+        get_protein_groups,
+        get_qc_data,
+        list_to_dropdown_options,
+        get_protein_names,
+    )
 
     from . import tools as T
 
     from .config import qc_columns_always, data_range_options
 
-    app = DjangoDash('dashboard', 
-                     add_bootstrap_links=True,
-                     suppress_callback_exceptions=True, 
-                     external_stylesheets=[] )
+    app = DjangoDash(
+        "dashboard",
+        add_bootstrap_links=True,
+        suppress_callback_exceptions=True,
+        external_stylesheets=[],
+    )
 
 timeout = 360
 
 protein_table_default_cols = []
 
-layout = html.Div([
-    dcc.Loading(dcc.Store(id='store')),
-    html.H1('Dashboard'),
-    dbc.Row([
-      dbc.Col([
-        html.Button('Load projects and pipelines', id='B_update', className='btn'),
-        dcc.Dropdown(
-            id='project',
-            options=get_projects(),
-            value='lsarp')]),
-      dbc.Col([
-        dcc.Dropdown(
-            id='pipeline',
-            options=[],
-            value=None)
-      ]),
-      dbc.Col([
-           html.Div(dcc.Dropdown(id='data-range', options=data_range_options, value=30), style={'display': 'block'}),
-      ])
-    ], style={'width': 300, 'display': 'inline-block'}),
-
-    dcc.Markdown('---'),
-    
-    dbc.Row([
-      dbc.Col(html.Div([
-              dcc.Tabs(id="tabs", value='quality_control', children=[
-                      dcc.Tab(id='tab-qc', label='Quality Control', value='quality_control'),
-                      dcc.Tab(id='tab-explorer', label='Explorer', value='explorer'),
-                      dcc.Tab(label='Proteins', value='proteins'),
-                  ]),
-                dcc.Markdown('---'),
-                html.Div(id='tabs-content'),
-          ]))]),
-          
-    ], style={'max-width': '90%', 'display': 'block', 'margin': 'auto'}
+layout = html.Div(
+    [
+        dcc.Loading(dcc.Store(id="store")),
+        html.H1("Dashboard"),
+        dbc.Row(
+            [
+                dbc.Col(
+                    [
+                        html.Button(
+                            "Load projects and pipelines",
+                            id="B_update",
+                            className="btn",
+                        ),
+                        dcc.Dropdown(
+                            id="project", options=get_projects(), value="lsarp"
+                        ),
+                    ]
+                ),
+                dbc.Col([dcc.Dropdown(id="pipeline", options=[], value=None)]),
+                dbc.Col(
+                    [
+                        html.Div(
+                            dcc.Dropdown(
+                                id="data-range", options=data_range_options, value=30
+                            ),
+                            style={"display": "block"},
+                        ),
+                    ]
+                ),
+            ],
+            style={"width": 300, "display": "inline-block"},
+        ),
+        dcc.Markdown("---"),
+        dbc.Row(
+            [
+                dbc.Col(
+                    html.Div(
+                        [
+                            dcc.Tabs(
+                                id="tabs",
+                                value="quality_control",
+                                children=[
+                                    dcc.Tab(
+                                        id="tab-qc",
+                                        label="Quality Control",
+                                        value="quality_control",
+                                    ),
+                                    dcc.Tab(
+                                        id="tab-explorer",
+                                        label="Explorer",
+                                        value="explorer",
+                                    ),
+                                    dcc.Tab(label="Proteins", value="proteins"),
+                                ],
+                            ),
+                            dcc.Markdown("---"),
+                            html.Div(id="tabs-content"),
+                        ]
+                    )
+                )
+            ]
+        ),
+    ],
+    style={"max-width": "90%", "display": "block", "margin": "auto"},
 )
 
 app.layout = layout
 
 proteins.callbacks(app)
 
-@app.callback(
-    Output('tabs-content', 'children'),
-    [Input('tabs', 'value')])
+
+@app.callback(Output("tabs-content", "children"), [Input("tabs", "value")])
 def render_content(tab):
-    if tab == 'proteins':
+    if tab == "proteins":
         return proteins.layout
-    if tab == 'quality_control':
+    if tab == "quality_control":
         return quality_control.layout
-    if tab == 'explorer':
+    if tab == "explorer":
         return explorer.layout
 
 
-@app.callback(
-    Output('project', 'options'),
-    [Input('B_update','n_clicks')])
+@app.callback(Output("project", "options"), [Input("B_update", "n_clicks")])
 def populate_projects(project):
     return get_projects()
 
 
-@app.callback(
-    Output('pipeline', 'options'),
-    [Input('project','value')])
+@app.callback(Output("pipeline", "options"), [Input("project", "value")])
 def populate_pipelines(project):
     _json = get_pipelines(project)
     if len(_json) == 0:
         return []
     else:
-        output = [ {'label': i['name'], 'value': i['slug']} for i in _json]
+        output = [{"label": i["name"], "value": i["slug"]} for i in _json]
         return output
 
 
 @app.callback(
-Output('protein-table-div','children'),
-[Input('project', 'value'),
- Input('pipeline', 'value'),
- Input('tabs', 'value')])
+    Output("protein-table-div", "children"),
+    [Input("project", "value"), Input("pipeline", "value"), Input("tabs", "value")],
+)
 def refresh_protein_table(project, pipeline, tab):
     if (project is None) or (pipeline is None):
         raise PreventUpdate
-    if (tab != 'proteins'):
+    if tab != "proteins":
         raise PreventUpdate
     data = get_protein_names(project=project, pipeline=pipeline)
     df = pd.DataFrame(data)
-    return table_from_dataframe(df, id='protein-table', row_deletable=False, row_selectable='single')
+    return table_from_dataframe(
+        df, id="protein-table", row_deletable=False, row_selectable="single"
+    )
 
 
 @app.callback(
-Output('qc-table-div', 'children'),
-[Input('qc-update-table', 'n_clicks')],
-[State('tabs', 'value'),
- State('pipeline', 'value'),
- State('project', 'value'),
- State('qc-table-columns', 'value'),
- State('data-range', 'value')])
+    Output("qc-table-div", "children"),
+    [Input("qc-update-table", "n_clicks")],
+    [
+        State("tabs", "value"),
+        State("pipeline", "value"),
+        State("project", "value"),
+        State("qc-table-columns", "value"),
+        State("data-range", "value"),
+    ],
+)
 def refresh_qc_table(n_clicks, tab, pipeline, project, optional_columns, data_range):
     if (project is None) or (pipeline is None):
-        raise PreventUpdate    
-    if (tab != 'quality_control'):
         raise PreventUpdate
-    columns = qc_columns_always+optional_columns
-    data = get_qc_data(project=project, pipeline=pipeline, columns=columns, data_range=data_range)
-    df = pd.DataFrame( data )
-    if 'DateAcquired' in df.columns:
-        df['DateAcquired'] = pd.to_datetime( df['DateAcquired'] )
-        df = df.replace('not detected', np.NaN)[qc_columns_always+optional_columns]
-    return table_from_dataframe(df, id='qc-table', row_selectable=False)
+    if tab != "quality_control":
+        raise PreventUpdate
+    columns = qc_columns_always + optional_columns
+    data = get_qc_data(
+        project=project, pipeline=pipeline, columns=columns, data_range=data_range
+    )
+    df = pd.DataFrame(data)
+    if "DateAcquired" in df.columns:
+        df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
+        df = df.replace("not detected", np.NaN)[qc_columns_always + optional_columns]
+    return table_from_dataframe(df, id="qc-table", row_selectable=False)
 
 
-
-
-inputs = [Input('refresh-plots', 'n_clicks')]
-states = [State('qc-table', 'derived_virtual_selected_rows'),
-          State('qc-table', 'derived_virtual_indices'),
-          State('x','value'),
-          State('qc-table', 'data'),
-          State('qc-table-columns', 'value')]
+inputs = [Input("refresh-plots", "n_clicks")]
+states = [
+    State("qc-table", "derived_virtual_selected_rows"),
+    State("qc-table", "derived_virtual_indices"),
+    State("x", "value"),
+    State("qc-table", "data"),
+    State("qc-table-columns", "value"),
+]
 
 plot_map = [
-    {'title': 'PSMs [%]',
-     'plots': [
-        {'y': 'MS/MS Identified [%]', 
-         'label': 'n_psm'}]
+    {"title": "PSMs [%]", "plots": [{"y": "MS/MS Identified [%]", "label": "n_psm"}]},
+    {
+        "title": "Peptides / Protein Groups",
+        "plots": [
+            {"y": "N_peptides", "label": "n_peptides"},
+            {"y": "N_protein_groups", "label": "n_proteins"},
+        ],
     },
-    {'title': 'Peptides / Protein Groups',
-     'plots': [
-        {'y': 'N_peptides',
-         'label': 'n_peptides'},
-        {'y': 'N_protein_groups',
-         'label': 'n_proteins'}]
+    {
+        "title": "Oxidations [%]",
+        "plots": [{"y": "Oxidations [%]", "label": "Oxidations [%]"}],
     },
-    {'title': 'Oxidations [%]',
-     'plots': [{
-        'y': 'Oxidations [%]',
-        'label': 'Oxidations [%]'}]
+    {
+        "title": "Missed Cleavages [%]",
+        "plots": [
+            {"y": "N_missed_cleavages_eq_1 [%]", "label": "Missed Cleavages [%]"},
+        ],
     },
-    {'title': 'Missed Cleavages [%]',
-     'plots': [
-        {'y': 'N_missed_cleavages_eq_1 [%]',
-         'label': 'Missed Cleavages [%]'},]
+    {
+        "title": "Median fill times (ms)",
+        "plots": [
+            {"y": "MedianMs1FillTime(ms)", "label": "Median MS1 Fill Time"},
+            {"y": "MedianMs2FillTime(ms)", "label": "Median MS2 Fill Time"},
+        ],
     },
-    {'title': 'Median fill times (ms)',
-     'plots': [
-        {'y': 'MedianMs1FillTime(ms)',
-         'label': 'Median MS1 Fill Time'},
-        {'y': 'MedianMs2FillTime(ms)',
-         'label': 'Median MS2 Fill Time'}]
+    {
+        "title": "Total MS Scans",
+        "plots": [
+            {"y": "NumMs1Scans", "label": "# MS1 scans"},
+            {"y": "NumMs2Scans", "label": "# MS2 scans"},
+            {"y": "NumMs3Scans", "label": "# MS3 scans"},
+        ],
     },
-    {'title': 'Total MS Scans',
-     'plots': [
-        {'y': 'NumMs1Scans',
-         'label': '# MS1 scans'},
-        {'y': 'NumMs2Scans',
-         'label': '# MS2 scans'}, 
-        {'y': 'NumMs3Scans',
-         'label': '# MS3 scans'} ]
+    {
+        "title": "ESI Instability Flags",
+        "plots": [{"y": "NumEsiInstabilityFlags", "label": "ESI Instability"}],
     },
-    {'title': 'ESI Instability Flags',
-     'plots': [
-        {'y': 'NumEsiInstabilityFlags',
-         'label': 'ESI Instability'}]
-    }
 ]
 
 
-#@lru_cache(maxsize=32)
+# @lru_cache(maxsize=32)
 @app.callback(
-    Output('qc-figure', 'figure'),
-    Output('qc-figure', 'config'),
-    inputs,
-    states)
+    Output("qc-figure", "figure"), Output("qc-figure", "config"), inputs, states
+)
 def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
-    '''Creates the bar-plot figure'''
+    """Creates the bar-plot figure"""
     if (data is None) or (ndxs is None) or (len(ndxs) == 0):
         raise PreventUpdate
-    
-    if x is None:
-        x = 'RawFile'
 
-    titles = [el['title'] for el in plot_map]
-    
+    if x is None:
+        x = "RawFile"
+
+    titles = [el["title"] for el in plot_map]
+
     df = pd.DataFrame(data)
 
     assert pd.value_counts(df.columns).max() == 1, pd.value_counts(df.columns)
 
-    df['DateAcquired'] = pd.to_datetime(df['DateAcquired'])
+    df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
 
-    if ndxs is not None: df = df.reindex(ndxs)
-    
+    if ndxs is not None:
+        df = df.reindex(ndxs)
+
     numeric_columns = df[optional_columns].head(1)._get_numeric_data().columns
 
-    fig = make_subplots(cols=1, rows=len(numeric_columns), 
-                        subplot_titles=numeric_columns,
-                        shared_xaxes=True,
-                        #vertical_spacing=0.05,
-                        print_grid=True)
+    fig = make_subplots(
+        cols=1,
+        rows=len(numeric_columns),
+        subplot_titles=numeric_columns,
+        shared_xaxes=True,
+        # vertical_spacing=0.05,
+        print_grid=True,
+    )
 
     for i, col in enumerate(numeric_columns):
-        trace = go.Bar(x=df[x], y=df[col], name=col, marker_color=df['Flagged'],
-                       text=None if x == 'RawFile' else df['RawFile'])
-        fig.add_trace(trace, row=1+i, col=1)
+        trace = go.Bar(
+            x=df[x],
+            y=df[col],
+            name=col,
+            marker_color=df["Flagged"],
+            text=None if x == "RawFile" else df["RawFile"],
+        )
+        fig.add_trace(trace, row=1 + i, col=1)
 
-    fig.update_layout(hovermode='closest')
+    fig.update_layout(hovermode="closest")
 
     fig.update_layout(
-        height=200+250*(i+1),
+        height=200 + 250 * (i + 1),
         showlegend=False,
-        margin=dict(
-            l=50,
-            r=10,
-            b=200,
-            t=50,
-            pad=0
-        ),
-    )    
-    
+        margin=dict(l=50, r=10, b=200, t=50, pad=0),
+    )
 
-    marker_color = df['Use Downstream'].replace({True: 'rgb(158,202,225)', False: 'rgb(250,230,230)'})
-    marker_line_color = df['Flagged'].replace({False: 'rgb(158,202,225)', True: 'rgb(200,0,0)'})
+    marker_color = df["Use Downstream"].replace(
+        {True: "rgb(158,202,225)", False: "rgb(250,230,230)"}
+    )
+    marker_line_color = df["Flagged"].replace(
+        {False: "rgb(158,202,225)", True: "rgb(200,0,0)"}
+    )
 
-    fig.update_traces(marker_color=marker_color, 
-                      marker_line_color=marker_line_color,
-                      marker_line_width=1.5, opacity=0.6)
+    fig.update_traces(
+        marker_color=marker_color,
+        marker_line_color=marker_line_color,
+        marker_line_width=1.5,
+        opacity=0.6,
+    )
 
-    fig.update_xaxes(matches='x')
+    fig.update_xaxes(matches="x")
 
-    if x == 'RawFile':
+    if x == "RawFile":
         fig.update_layout(
-            xaxis5 = dict(
-                tickmode = 'array',
-                tickvals = tuple(range(len(df))),
-                ticktext = tuple(df[x])
+            xaxis5=dict(
+                tickmode="array", tickvals=tuple(range(len(df))), ticktext=tuple(df[x])
             )
         )
- 
-    config = T.gen_figure_config(filename='QC-barplot')
-    
+
+    config = T.gen_figure_config(filename="QC-barplot")
+
     return fig, config
 
 
 # EXPLORER Callbacks
 @app.callback(
-[Output('explorer-figure', 'figure'),
- Output('explorer-figure', 'config')],
-[Input('explorer-x', 'value'),
- Input('explorer-y', 'value'),
- Input('explorer-color', 'value'),
- Input('explorer-size', 'value'),
- Input('explorer-facet-row', 'value'),
- Input('explorer-facet-col', 'value')],
-[State('project', 'value'),
- State('pipeline', 'value'),
- State('data-range', 'value')]
+    [Output("explorer-figure", "figure"), Output("explorer-figure", "config")],
+    [
+        Input("explorer-x", "value"),
+        Input("explorer-y", "value"),
+        Input("explorer-color", "value"),
+        Input("explorer-size", "value"),
+        Input("explorer-facet-row", "value"),
+        Input("explorer-facet-col", "value"),
+    ],
+    [
+        State("project", "value"),
+        State("pipeline", "value"),
+        State("data-range", "value"),
+    ],
 )
-def explorer_plot(x, y, color, size, facet_row, facet_col, project, pipeline, data_range):
+def explorer_plot(
+    x, y, color, size, facet_row, facet_col, project, pipeline, data_range
+):
     if (project is None) or (pipeline is None):
         raise PreventUpdate
 
-    columns = [x, y, color, size, facet_row, facet_col, 'RawFile', 'Index', 'DateAcquired']
+    columns = [
+        x,
+        y,
+        color,
+        size,
+        facet_row,
+        facet_col,
+        "RawFile",
+        "Index",
+        "DateAcquired",
+    ]
 
     if y is None:
         raise PreventUpdate
 
     if None in columns:
         columns.remove(None)
-    
+
     columns = [c for c in columns if (c is not None)]
 
-    data = get_qc_data(project=project, pipeline=pipeline, columns=columns, data_range=data_range)
-    df = pd.DataFrame( data )
-    df['DateAcquired'] = pd.to_datetime( df['DateAcquired'] )
+    data = get_qc_data(
+        project=project, pipeline=pipeline, columns=columns, data_range=data_range
+    )
+    df = pd.DataFrame(data)
+    df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
 
     if facet_row is not None:
         n_rows = len(df[facet_row].value_counts())
@@ -345,33 +407,36 @@ def explorer_plot(x, y, color, size, facet_row, facet_col, project, pipeline, da
     facet_col_wrap = 3
     if facet_col is not None:
         n_cols = len(df[facet_col].value_counts())
-        n_rows = min(2, int(n_cols / facet_col_wrap)+2)
+        n_rows = min(2, int(n_cols / facet_col_wrap) + 2)
 
     if size is not None:
         # Plotly crashes if size column has NaNs
         df[size] = df[size].fillna(0)
 
-    fig = px.scatter(data_frame=df, x=x, y=y, color=color, size=size, facet_row=facet_row, 
-                     facet_col=facet_col, hover_data=['Index', 'RawFile'], facet_col_wrap=facet_col_wrap)
+    fig = px.scatter(
+        data_frame=df,
+        x=x,
+        y=y,
+        color=color,
+        size=size,
+        facet_row=facet_row,
+        facet_col=facet_col,
+        hover_data=["Index", "RawFile"],
+        facet_col_wrap=facet_col_wrap,
+    )
 
     fig.update_layout(
-            autosize=True,
-            height=300*n_rows+200,
-            showlegend=False,
-            margin=dict(
-                l=50,
-                r=10,
-                b=200,
-                t=50,
-                pad=0
-            ),
-            hovermode='closest',
-            )
+        autosize=True,
+        height=300 * n_rows + 200,
+        showlegend=False,
+        margin=dict(l=50, r=10, b=200, t=50, pad=0),
+        hovermode="closest",
+    )
 
-    config = T.gen_figure_config(filename='QC-scatter')
+    config = T.gen_figure_config(filename="QC-scatter")
 
     return fig, config
 
 
-if __name__ == '__main__':
-    app.run_server(debug = True)
+if __name__ == "__main__":
+    app.run_server(debug=True)

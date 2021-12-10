@@ -1,4 +1,3 @@
-
 import os
 import hashlib
 import shutil
@@ -11,7 +10,7 @@ from django_currentuser.db.models import CurrentUserField
 from django.template.defaultfilters import slugify
 from django.dispatch import receiver
 from django.utils import timezone
-from django.conf import settings 
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from uuid import uuid4
@@ -22,49 +21,48 @@ COMPUTE_ROOT = settings.COMPUTE_ROOT
 COMPUTE = settings.COMPUTE
 
 
-
 class MaxQuantExecutable(models.Model):
-
     class Meta:
-            verbose_name = _("MaxQuant Executable")
-            verbose_name_plural = _("MaxQuant Executables")
+        verbose_name = _("MaxQuant Executable")
+        verbose_name_plural = _("MaxQuant Executables")
 
-    filename = models.FileField(upload_to='software/MaxQuant',
-                                storage = COMPUTE,
-                                max_length=1000,
-                                unique=True,
-                                help_text='Upload a zipped MaxQuant file (e.g. MaxQuant_1.6.10.43.zip)')
-    
-    created = models.DateField(default = timezone.now)
-    
-    description = models.TextField(max_length = 10000, default='')
-        
+    filename = models.FileField(
+        upload_to="software/MaxQuant",
+        storage=COMPUTE,
+        max_length=1000,
+        unique=True,
+        help_text="Upload a zipped MaxQuant file (e.g. MaxQuant_1.6.10.43.zip)",
+    )
+
+    created = models.DateField(default=timezone.now)
+
+    description = models.TextField(max_length=10000, default="")
+
     def __str__(self):
-        return os.path.basename(str(self.filename).replace('.zip', ''))
-    
+        return os.path.basename(str(self.filename).replace(".zip", ""))
+
     @property
-    def path(self): 
+    def path(self):
         fn = str(self.filename)
-        return COMPUTE_ROOT / 'software' / 'MaxQuant' / P( fn ).name
-    
+        return COMPUTE_ROOT / "software" / "MaxQuant" / P(fn).name
+
     def save(self, *args, **kwargs):
-        print('Save MQ bin')
+        print("Save MQ bin")
         super(MaxQuantExecutable, self).save(*args, **kwargs)
-        
+
 
 @receiver(models.signals.post_save, sender=MaxQuantExecutable)
 def unzip_maxquant(sender, instance, created, *args, **kwargs):
-    'Unzip MaxQuant.zip'
+    "Unzip MaxQuant.zip"
     mq_bin = instance
     name = mq_bin.path
-    tmp = mq_bin.path.with_suffix('')
-
+    tmp = mq_bin.path.with_suffix("")
 
     # If path is a file then unzip it.
     # Skip when it is a directory.
     if name.is_file():
-        with zipfile.ZipFile(name, 'r') as zip_ref:
-            print('Extracting zip archive:', name, tmp)
+        with zipfile.ZipFile(name, "r") as zip_ref:
+            print("Extracting zip archive:", name, tmp)
             zip_ref.extractall(tmp)
         os.remove(name)
         os.rename(tmp, name)
