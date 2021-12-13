@@ -25,4 +25,6 @@ psycopg2-binary
 redis
 seaborn
 waitress
-
+ipywidgets>=7
+panel
+channels

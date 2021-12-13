@@ -162,3 +162,19 @@ data_range_options = [
     {"label": "Last 100", "value": 100},
     {"label": "All", "value": None},
 ]
+
+
+turquoise = 'rgb(64,224,208)'
+lightblue = 'rgb(123,180,230)'
+maroon = 'rgb(128,0,0)'
+midnight = 'rgb(0,51,102)'
+slategrey = 'rgb(112,128,144)'
+lightred = 'rgb(255,230,230)'
+
+colors = {
+    'use_downstream': lightblue,
+    'dont_use_downstream': lightred,
+    'flagged': 'maroon',
+    'not_flagged': midnight,
+    'selected': midnight,
+}

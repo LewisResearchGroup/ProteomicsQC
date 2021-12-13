@@ -117,21 +117,25 @@ def callbacks(app):
         Input("proteins-update", "n_clicks"),
         State("project", "value"),
         State("pipeline", "value"),
+        State("qc-table", "data"),
         State("tabs", "value"),
         State("proteins-options", "value"),
     )
-    def refresh_proteins_table(n_clicks, project, pipeline, tab, options):
+    def refresh_proteins_table(n_clicks, project, pipeline, data, tab, options):
         if (project is None) or (pipeline is None):
             raise PreventUpdate
         if tab != "proteins":
             raise PreventUpdate
-
+        
+        raw_files = list(pd.DataFrame(data).RawFile.values)
+        
         df = pd.DataFrame(
             T.get_protein_names(
                 project=project,
                 pipeline=pipeline,
                 add_con="add-con" in options,
                 add_rev="add-rev" in options,
+                raw_files=raw_files,
             )
         )
         return df.to_dict("records")
@@ -146,9 +150,10 @@ def callbacks(app):
         State("project", "value"),
         State("pipeline", "value"),
         State("data-range", "value"),
+        State("qc-table", "data")
     )
     def plot_protein_figure(
-        n_clicks, data, ndxs, plot_column, project, pipeline, data_range
+        n_clicks, data, ndxs, plot_column, project, pipeline, data_range, qc_data,
     ):
         """Create the protein groups figure."""
         if (project is None) or (pipeline is None):
@@ -164,12 +169,16 @@ def callbacks(app):
 
         protein_names = list(pd.DataFrame(ndxs)["protein_names"])
 
+        qc_data = pd.DataFrame(qc_data)
+        raw_files = list(qc_data.RawFile.values)
+
         data = T.get_protein_groups(
             project,
             pipeline,
             protein_names=protein_names,
             columns=[plot_column],
             data_range=data_range,
+            raw_files=raw_files
         )
 
         df = pd.read_json(data)
@@ -220,7 +229,7 @@ def callbacks(app):
             color_continuous_scale=px.colors.sequential.Rainbow,
             facet_row_spacing=facet_row_spacing,
             height=height,
-            category_orders={"RawFile": df.RawFile},
+            category_orders={"RawFile": raw_files},
         )
 
         fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
@@ -230,6 +239,7 @@ def callbacks(app):
         fig.update_xaxes(matches="x")
         fig.update_xaxes(automargin=True)
         fig.update_yaxes(automargin=True)
+        fig.update_yaxes(matches=None)
 
         if normalized:
             fig.update_layout(yaxis=dict(range=[0, 1]))

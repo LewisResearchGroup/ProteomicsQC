@@ -91,11 +91,15 @@ class ProteinNamesAPI(generics.ListAPIView):
         project_slug = data["project"]
         pipeline_slug = data["pipeline"]
         data_range = data["data_range"]
+        raw_files = data["raw_files"]
 
         add_con = data["add_con"]
         add_rev = data["add_rev"]
 
-        fns = get_protein_quant_fn(project_slug, pipeline_slug, data_range=data_range)
+        fns = get_protein_quant_fn(project_slug, pipeline_slug, data_range=data_range)  
+
+        if raw_files is not None:
+            fns = [fn for fn in fns if P(fn).stem in raw_files]
 
         if len(fns) == 0:
             return JsonResponse({})
@@ -131,6 +135,7 @@ class ProteinGroupsAPI(generics.ListAPIView):
         project_slug = data["project"]
         pipeline_slug = data["pipeline"]
         data_range = data["data_range"]
+        raw_files = data["raw_files"]
 
         if "columns" in data:
             columns = data["columns"]
@@ -146,6 +151,8 @@ class ProteinGroupsAPI(generics.ListAPIView):
             return HttpResponse("alive")
 
         fns = get_protein_quant_fn(project_slug, pipeline_slug, data_range=data_range)
+        if raw_files is not None:
+            fns = [fn for fn in fns if P(fn).stem in raw_files]
 
         if "Reporter intensity corrected" in columns:
             df = pd.read_parquet(fns[0])
@@ -199,7 +206,7 @@ def get_instance_from_uuid(model, uuid):
 
 
 def get_protein_quant_fn(
-    project_slug, pipeline_slug, data_range, only_use_downstream=True
+    project_slug, pipeline_slug, data_range, only_use_downstream=False, raw_files=None,
 ):
     pipeline = MaxQuantPipeline.objects.get(
         project__slug=project_slug, slug=pipeline_slug
@@ -228,12 +235,14 @@ def get_protein_quant_fn(
 
 
 def get_protein_groups_data(
-    fns, columns, protein_names, protein_col="Majority protein IDs"
+    fns, columns, protein_names, protein_col="Majority protein IDs",
 ):
     ddf = dd.read_parquet(fns, engine="pyarrow")
     ddf = ddf[ddf[protein_col].isin(protein_names)]
     ddf = ddf[["RawFile", protein_col] + columns]
-    return ddf.compute().reset_index(drop=True)
+    df = ddf.compute().reset_index(drop=True)
+    df['RawFile'] = df['RawFile'].apply(lambda x: P(x).stem)
+    return df
 
 
 def get_qc_data(project_slug, pipeline_slug, data_range=None):

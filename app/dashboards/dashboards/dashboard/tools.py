@@ -58,7 +58,7 @@ def get_pipelines(project):
 
 
 def get_protein_groups(
-    project, pipeline, protein_names=None, columns=None, data_range=None
+    project, pipeline, protein_names=None, columns=None, data_range=None, raw_files=None
 ):
     url = f"{URL}/api/mq/protein-groups"
     headers = {"Content-type": "application/json"}
@@ -69,13 +69,14 @@ def get_protein_groups(
             protein_names=protein_names,
             columns=columns,
             data_range=data_range,
+            raw_files=raw_files
         )
     )
     res = requests.post(url, data=data, headers=headers).json()
     return res
 
 
-def get_protein_names(project, pipeline, add_con=True, add_rev=True, data_range=None):
+def get_protein_names(project, pipeline, add_con=True, add_rev=True, data_range=None, raw_files=None):
     url = f"{URL}/api/mq/protein-names"
     headers = {"Content-type": "application/json"}
     data = json.dumps(
@@ -85,6 +86,7 @@ def get_protein_names(project, pipeline, add_con=True, add_rev=True, data_range=
             add_con=add_con,
             data_range=data_range,
             add_rev=add_rev,
+            raw_files=raw_files
         )
     )
     _json = requests.post(url, data=data, headers=headers).json()

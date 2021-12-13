@@ -2,6 +2,7 @@ import os
 import sys
 import pandas as pd
 import numpy as np
+from plotly.missing_ipywidgets import FigureWidget
 import requests
 
 import dash
@@ -9,7 +10,10 @@ import plotly
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
+
 import plotly.express as px
+import panel as pn
+pn.extension('plotly')
 
 import dash_table as dt
 import dash_table
@@ -48,14 +52,14 @@ if __name__ == "__main__":
         get_protein_names,
     )
 
+    import config as C
     import tools as T
-
-    from config import qc_columns_always, data_range_options
 
     app.config.suppress_callback_exceptions = True
 else:
     from django_plotly_dash import DjangoDash
     from . import proteins, quality_control, explorer
+
     from .tools import (
         table_from_dataframe,
         get_projects,
@@ -66,9 +70,8 @@ else:
         get_protein_names,
     )
 
+    from . import config as C
     from . import tools as T
-
-    from .config import qc_columns_always, data_range_options
 
     app = DjangoDash(
         "dashboard",
@@ -104,7 +107,7 @@ layout = html.Div(
                     [
                         html.Div(
                             dcc.Dropdown(
-                                id="data-range", options=data_range_options, value=30
+                                id="data-range", options=C.data_range_options, value=30
                             ),
                             style={"display": "block"},
                         ),
@@ -137,12 +140,41 @@ layout = html.Div(
                                 ],
                             ),
                             dcc.Markdown("---"),
+
+      html.P(
+            [
+                "Choose columns:",
+                dcc.Dropdown(
+                    id="qc-table-columns",
+                    multi=True,
+                    options=list_to_dropdown_options(C.qc_columns_options),
+                    placeholder="Select data columns",
+                    value=C.qc_columns_default,
+                ),
+            ]
+        ),
+        html.Button("Update Table Data", id="qc-update-table", className="btn"),
+        dcc.Loading(
+            [
+                html.Div(
+                    id="qc-table-div",
+                    children=[dt.DataTable(id="qc-table")],
+                    style={"margin-top": "1.5em", "minHeight": "400px"},
+                )
+            ]
+        ),
+        # hack to turn off browser autocomplete
+        html.Script(
+            children='document.getElementById("qc-table-columns").getAttribute("autocomplete") = "off";'
+        ),
+
                             html.Div(id="tabs-content"),
                         ]
                     )
                 )
             ]
         ),
+        html.Div(id='selection-output'),
     ],
     style={"max-width": "90%", "display": "block", "margin": "auto"},
 )
@@ -150,6 +182,7 @@ layout = html.Div(
 app.layout = layout
 
 proteins.callbacks(app)
+explorer.callbacks(app)
 
 
 @app.callback(Output("tabs-content", "children"), [Input("tabs", "value")])
@@ -178,51 +211,32 @@ def populate_pipelines(project):
 
 
 @app.callback(
-    Output("protein-table-div", "children"),
-    [Input("project", "value"), Input("pipeline", "value"), Input("tabs", "value")],
-)
-def refresh_protein_table(project, pipeline, tab):
-    if (project is None) or (pipeline is None):
-        raise PreventUpdate
-    if tab != "proteins":
-        raise PreventUpdate
-    data = get_protein_names(project=project, pipeline=pipeline)
-    df = pd.DataFrame(data)
-    return table_from_dataframe(
-        df, id="protein-table", row_deletable=False, row_selectable="single"
-    )
-
-
-@app.callback(
     Output("qc-table-div", "children"),
     [Input("qc-update-table", "n_clicks")],
     [
-        State("tabs", "value"),
         State("pipeline", "value"),
         State("project", "value"),
         State("qc-table-columns", "value"),
         State("data-range", "value"),
     ],
 )
-def refresh_qc_table(n_clicks, tab, pipeline, project, optional_columns, data_range):
+def refresh_qc_table(n_clicks, pipeline, project, optional_columns, data_range):
     if (project is None) or (pipeline is None):
         raise PreventUpdate
-    if tab != "quality_control":
-        raise PreventUpdate
-    columns = qc_columns_always + optional_columns
+    columns = C.qc_columns_always + optional_columns
     data = get_qc_data(
         project=project, pipeline=pipeline, columns=columns, data_range=data_range
     )
     df = pd.DataFrame(data)
     if "DateAcquired" in df.columns:
         df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
-        df = df.replace("not detected", np.NaN)[qc_columns_always + optional_columns]
-    return table_from_dataframe(df, id="qc-table", row_selectable=False)
+        df = df.replace("not detected", np.NaN)[C.qc_columns_always + optional_columns]
+    return table_from_dataframe(df, id="qc-table", row_selectable='multi')
 
 
 inputs = [Input("refresh-plots", "n_clicks")]
 states = [
-    State("qc-table", "derived_virtual_selected_rows"),
+    State("qc-table", "selected_rows"),
     State("qc-table", "derived_virtual_indices"),
     State("x", "value"),
     State("qc-table", "data"),
@@ -309,7 +323,6 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
             x=df[x],
             y=df[col],
             name=col,
-            marker_color=df["Flagged"],
             text=None if x == "RawFile" else df["RawFile"],
         )
         fig.add_trace(trace, row=1 + i, col=1)
@@ -323,17 +336,20 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
     )
 
     marker_color = df["Use Downstream"].replace(
-        {True: "rgb(158,202,225)", False: "rgb(250,230,230)"}
+        {True: C.colors['use_downstream'], False: C.colors['dont_use_downstream']}
     )
     marker_line_color = df["Flagged"].replace(
-        {False: "rgb(158,202,225)", True: "rgb(200,0,0)"}
+        {True: C.colors['flagged'], False: C.colors['not_flagged']}
     )
+
+    for ndx in selected:
+        marker_color[ndx] = C.colors['selected']
 
     fig.update_traces(
         marker_color=marker_color,
         marker_line_color=marker_line_color,
-        marker_line_width=1.5,
-        opacity=0.6,
+        marker_line_width=3,
+        opacity=1,
     )
 
     fig.update_xaxes(matches="x")
@@ -350,92 +366,59 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
     return fig, config
 
 
-# EXPLORER Callbacks
 @app.callback(
-    [Output("explorer-figure", "figure"), Output("explorer-figure", "config")],
-    [
-        Input("explorer-x", "value"),
-        Input("explorer-y", "value"),
-        Input("explorer-color", "value"),
-        Input("explorer-size", "value"),
-        Input("explorer-facet-row", "value"),
-        Input("explorer-facet-col", "value"),
-    ],
-    [
-        State("project", "value"),
-        State("pipeline", "value"),
-        State("data-range", "value"),
-    ],
-)
-def explorer_plot(
-    x, y, color, size, facet_row, facet_col, project, pipeline, data_range
-):
-    if (project is None) or (pipeline is None):
+    Output("qc-table", 'selected_rows'),
+    Input('qc-figure', 'selectedData'),
+    Input('qc-figure', 'clickData'),
+    Input('explorer-figure', 'selectedData'),
+    Input('explorer-figure', 'clickData'),    
+    Input("qc-update-table", "n_clicks"),
+    State("qc-table", 'selected_rows'),
+    State("qc-table", "derived_virtual_indices")
+    )
+def display_click_data(selectedData, clickData, explorerSelectedData, explorerClickData, table_refresh, selected_rows, virtual_ndxs):
+    if ((selectedData is None) and 
+        (clickData is None) and
+        (explorerSelectedData is None) and
+        (explorerClickData is None)): 
         raise PreventUpdate
 
-    columns = [
-        x,
-        y,
-        color,
-        size,
-        facet_row,
-        facet_col,
-        "RawFile",
-        "Index",
-        "DateAcquired",
-    ]
+    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+    
+    print('Selected rows:', selected_rows)
+    print('Virual indices:', virtual_ndxs)
+    print('Explorer click data:', explorerClickData)
+    print('Explorer select data:', explorerSelectedData)
 
-    if y is None:
-        raise PreventUpdate
+    if changed_id == 'qc-figure.selectedData':
+        points = selectedData['points']
+        ndxs = [virtual_ndxs[p['pointIndex']] for p in points]
+        selected_rows.extend(ndxs)
 
-    if None in columns:
-        columns.remove(None)
+    if changed_id == 'qc-figure.clickData':
+        ndx = clickData['points'][0]['pointIndex']
+        ndx = virtual_ndxs[ndx]
+        if ndx in selected_rows: 
+            selected_rows.remove(ndx)
+        else: 
+            selected_rows.append(ndx)
+    
+    if changed_id == 'explorer-figure.clickData':
+        ndx = explorerClickData['points'][0]['pointIndex']
+        ndx = virtual_ndxs[ndx]
+        if ndx in selected_rows: 
+            selected_rows.remove(ndx)
+        else: 
+            selected_rows.append(ndx)
 
-    columns = [c for c in columns if (c is not None)]
+    if changed_id == 'explorer-figure.selectedData':
+        points = explorerSelectedData['points']
+        ndxs = [virtual_ndxs[p['pointIndex']] for p in points]
+        selected_rows.extend(ndxs)
 
-    data = get_qc_data(
-        project=project, pipeline=pipeline, columns=columns, data_range=data_range
-    )
-    df = pd.DataFrame(data)
-    df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
+    selected_rows = list( dict.fromkeys(selected_rows) )
 
-    if facet_row is not None:
-        n_rows = len(df[facet_row].value_counts())
-    else:
-        n_rows = 2
-
-    facet_col_wrap = 3
-    if facet_col is not None:
-        n_cols = len(df[facet_col].value_counts())
-        n_rows = min(2, int(n_cols / facet_col_wrap) + 2)
-
-    if size is not None:
-        # Plotly crashes if size column has NaNs
-        df[size] = df[size].fillna(0)
-
-    fig = px.scatter(
-        data_frame=df,
-        x=x,
-        y=y,
-        color=color,
-        size=size,
-        facet_row=facet_row,
-        facet_col=facet_col,
-        hover_data=["Index", "RawFile"],
-        facet_col_wrap=facet_col_wrap,
-    )
-
-    fig.update_layout(
-        autosize=True,
-        height=300 * n_rows + 200,
-        showlegend=False,
-        margin=dict(l=50, r=10, b=200, t=50, pad=0),
-        hovermode="closest",
-    )
-
-    config = T.gen_figure_config(filename="QC-scatter")
-
-    return fig, config
+    return selected_rows
 
 
 if __name__ == "__main__":
