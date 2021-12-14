@@ -318,6 +318,7 @@ class CreateFlag(generics.ListAPIView):
         """Add flags to raw files."""
 
         data = request.data
+        print(data)
         project_slug = data["project"]
         pipeline_slug = data["pipeline"]
         raw_files = data["raw_files"]
