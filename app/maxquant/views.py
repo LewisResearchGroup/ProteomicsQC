@@ -33,7 +33,7 @@ from lrg_omics.plotly import (
 def maxquant_pipeline_view(request, project, pipeline):
     maxquant_runs = MaxQuantResult.objects.filter(raw_file__pipeline__slug=pipeline)
     page = request.GET.get("page", 1)
-    paginator = Paginator(maxquant_runs, 12)
+    paginator = Paginator(maxquant_runs, 100)
     try:
         maxquant_runs = paginator.page(page)
     except PageNotAnInteger:

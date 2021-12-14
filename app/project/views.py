@@ -10,7 +10,7 @@ from maxquant.models import MaxQuantPipeline
 class ListView(LoginRequiredMixin, generic.ListView):
     model = Project
     login_url = "/accounts/login/"
-    paginate_by = 100
+    paginate_by = 20
 
     def get_queryset(self):
         projects = Project.objects.all().order_by("name")  # .reverse()
