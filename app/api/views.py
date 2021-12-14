@@ -327,6 +327,7 @@ class CreateFlag(generics.ListAPIView):
 
         for result in results: 
             if result.name in raw_files:
+                logging.warning(f'Flag {result.raw_file.name} in {pipeline.name}' )
                 result.raw_file.flagged = True
                 result.raw_file.save()
 
@@ -347,6 +348,7 @@ class DeleteFlag(generics.ListAPIView):
 
         for result in results:
             if result.name in raw_files:
+                logging.warning(f'Unflag {result.raw_file.name} in {pipeline.name}' )
                 result.raw_file.flagged = False
                 result.raw_file.save()
 
