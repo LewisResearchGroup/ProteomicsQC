@@ -60,6 +60,7 @@ SECURE_BROWSER_XSS_FILTER = True
 SESSION_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_SAMESITE = "Strict"
 
+DATA_UPLOAD_MAX_MEMORY_SIZE = 20971520  # 20MB max upload
 
 # Application definition
 LOGIN_URL = "/admin/login/"

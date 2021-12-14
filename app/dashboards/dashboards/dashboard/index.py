@@ -108,7 +108,7 @@ layout = html.Div(
                     [
                         html.Div(
                             dcc.Dropdown(
-                                id="data-range", options=C.data_range_options, value=30
+                                id="data-range", options=C.data_range_options, value=300
                             ),
                             style={"display": "block"},
                         ),
