@@ -126,9 +126,9 @@ def callbacks(app):
             raise PreventUpdate
         if tab != "proteins":
             raise PreventUpdate
-        
+
         raw_files = list(pd.DataFrame(data).RawFile.values)
-        
+
         df = pd.DataFrame(
             T.get_protein_names(
                 project=project,
@@ -150,10 +150,17 @@ def callbacks(app):
         State("project", "value"),
         State("pipeline", "value"),
         State("data-range", "value"),
-        State("qc-table", "data")
+        State("qc-table", "data"),
     )
     def plot_protein_figure(
-        n_clicks, data, ndxs, plot_column, project, pipeline, data_range, qc_data,
+        n_clicks,
+        data,
+        ndxs,
+        plot_column,
+        project,
+        pipeline,
+        data_range,
+        qc_data,
     ):
         """Create the protein groups figure."""
         if (project is None) or (pipeline is None):
@@ -178,7 +185,7 @@ def callbacks(app):
             protein_names=protein_names,
             columns=[plot_column],
             data_range=data_range,
-            raw_files=raw_files
+            raw_files=raw_files,
         )
 
         df = pd.read_json(data)

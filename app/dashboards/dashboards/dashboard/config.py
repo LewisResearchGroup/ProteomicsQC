@@ -160,21 +160,25 @@ data_range_options = [
     {"label": "Last 3", "value": 3},
     {"label": "Last 30", "value": 30},
     {"label": "Last 100", "value": 100},
+    {"label": "Last 300", "value": 300},
+    {"label": "Last 1k", "value": 1000},
+    {"label": "Last 3k", "value": 3000},
+    {"label": "Last 10k", "value": 10000},
     {"label": "All", "value": None},
 ]
 
 
-turquoise = 'rgb(64,224,208)'
-lightblue = 'rgb(123,180,230)'
-maroon = 'rgb(128,0,0)'
-midnight = 'rgb(0,51,102)'
-slategrey = 'rgb(112,128,144)'
-lightred = 'rgb(255,230,230)'
+turquoise = "rgb(64,224,208)"
+lightblue = "rgb(123,180,230)"
+maroon = "rgb(128,0,0)"
+midnight = "rgb(0,51,102)"
+slategrey = "rgb(112,128,144)"
+lightred = "rgb(255,230,230)"
 
 colors = {
-    'use_downstream': lightblue,
-    'dont_use_downstream': lightred,
-    'flagged': 'maroon',
-    'not_flagged': midnight,
-    'selected': midnight,
+    "use_downstream": lightblue,
+    "dont_use_downstream": lightred,
+    "flagged": "maroon",
+    "not_flagged": midnight,
+    "selected": midnight,
 }

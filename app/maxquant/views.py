@@ -32,14 +32,14 @@ from lrg_omics.plotly import (
 # Create your views here.
 def maxquant_pipeline_view(request, project, pipeline):
     maxquant_runs = MaxQuantResult.objects.filter(raw_file__pipeline__slug=pipeline)
-    page = request.GET.get('page', 1)
+    page = request.GET.get("page", 1)
     paginator = Paginator(maxquant_runs, 12)
     try:
         maxquant_runs = paginator.page(page)
     except PageNotAnInteger:
         maxquant_runs = paginator.page(1)
     except EmptyPage:
-        maxquant_runs = paginator.page(paginator.num_pages)    
+        maxquant_runs = paginator.page(paginator.num_pages)
     project = Project.objects.get(slug=project)
     pipeline = MaxQuantPipeline.objects.get(project=project, slug=pipeline)
     context = dict(maxquant_runs=maxquant_runs, project=project, pipeline=pipeline)

@@ -22,7 +22,6 @@ x_options = [
 
 layout = html.Div(
     [
-  
         html.Div(
             [html.P(["x-Axis:", dcc.Dropdown(id="x", options=x_options)])],
             style={"width": "100%", "margin": "auto"},
@@ -37,8 +36,9 @@ layout = html.Div(
                     [
                         dcc.Graph(id="qc-figure", style={"max-width": "100%"}),
                         dcc.Graph(
-                                    id="explorer-figure", style={"max-width": "100%", "visibility":"hidden"}
-                                )
+                            id="explorer-figure",
+                            style={"max-width": "100%", "visibility": "hidden"},
+                        ),
                     ],
                     style={"textAlign": "center"},
                 )

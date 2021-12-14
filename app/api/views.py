@@ -5,7 +5,8 @@ import logging
 import json
 
 import dask.dataframe as dd
-from dask.distributed import Client, LocalCluster
+
+# from dask.distributed import Client, LocalCluster
 
 from pathlib import Path as P
 
@@ -96,7 +97,7 @@ class ProteinNamesAPI(generics.ListAPIView):
         add_con = data["add_con"]
         add_rev = data["add_rev"]
 
-        fns = get_protein_quant_fn(project_slug, pipeline_slug, data_range=data_range)  
+        fns = get_protein_quant_fn(project_slug, pipeline_slug, data_range=data_range)
 
         if raw_files is not None:
             fns = [fn for fn in fns if P(fn).stem in raw_files]
@@ -206,7 +207,11 @@ def get_instance_from_uuid(model, uuid):
 
 
 def get_protein_quant_fn(
-    project_slug, pipeline_slug, data_range, only_use_downstream=False, raw_files=None,
+    project_slug,
+    pipeline_slug,
+    data_range,
+    only_use_downstream=False,
+    raw_files=None,
 ):
     pipeline = MaxQuantPipeline.objects.get(
         project__slug=project_slug, slug=pipeline_slug
@@ -235,13 +240,16 @@ def get_protein_quant_fn(
 
 
 def get_protein_groups_data(
-    fns, columns, protein_names, protein_col="Majority protein IDs",
+    fns,
+    columns,
+    protein_names,
+    protein_col="Majority protein IDs",
 ):
     ddf = dd.read_parquet(fns, engine="pyarrow")
     ddf = ddf[ddf[protein_col].isin(protein_names)]
     ddf = ddf[["RawFile", protein_col] + columns]
     df = ddf.compute().reset_index(drop=True)
-    df['RawFile'] = df['RawFile'].apply(lambda x: P(x).stem)
+    df["RawFile"] = df["RawFile"].apply(lambda x: P(x).stem)
     return df
 
 

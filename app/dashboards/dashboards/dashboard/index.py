@@ -13,7 +13,8 @@ import dash_bootstrap_components as dbc
 
 import plotly.express as px
 import panel as pn
-pn.extension('plotly')
+
+pn.extension("plotly")
 
 import dash_table as dt
 import dash_table
@@ -140,41 +141,48 @@ layout = html.Div(
                                 ],
                             ),
                             dcc.Markdown("---"),
-
-      html.P(
-            [
-                "Choose columns:",
-                dcc.Dropdown(
-                    id="qc-table-columns",
-                    multi=True,
-                    options=list_to_dropdown_options(C.qc_columns_options),
-                    placeholder="Select data columns",
-                    value=C.qc_columns_default,
-                ),
-            ]
-        ),
-        html.Button("Update Table Data", id="qc-update-table", className="btn"),
-        dcc.Loading(
-            [
-                html.Div(
-                    id="qc-table-div",
-                    children=[dt.DataTable(id="qc-table")],
-                    style={"margin-top": "1.5em", "minHeight": "400px"},
-                )
-            ]
-        ),
-        # hack to turn off browser autocomplete
-        html.Script(
-            children='document.getElementById("qc-table-columns").getAttribute("autocomplete") = "off";'
-        ),
-
+                            html.P(
+                                [
+                                    "Choose columns:",
+                                    dcc.Dropdown(
+                                        id="qc-table-columns",
+                                        multi=True,
+                                        options=list_to_dropdown_options(
+                                            C.qc_columns_options
+                                        ),
+                                        placeholder="Select data columns",
+                                        value=C.qc_columns_default,
+                                    ),
+                                ]
+                            ),
+                            html.Button(
+                                "Update Table Data",
+                                id="qc-update-table",
+                                className="btn",
+                            ),
+                            dcc.Loading(
+                                [
+                                    html.Div(
+                                        id="qc-table-div",
+                                        children=[dt.DataTable(id="qc-table")],
+                                        style={
+                                            "margin-top": "1.5em",
+                                            "minHeight": "400px",
+                                        },
+                                    )
+                                ]
+                            ),
+                            # hack to turn off browser autocomplete
+                            html.Script(
+                                children='document.getElementById("qc-table-columns").getAttribute("autocomplete") = "off";'
+                            ),
                             html.Div(id="tabs-content"),
                         ]
                     )
                 )
             ]
         ),
-        html.Div(id='selection-output'),
+        html.Div(id="selection-output"),
     ],
     style={"max-width": "90%", "display": "block", "margin": "auto"},
 )
@@ -227,11 +235,21 @@ def refresh_qc_table(n_clicks, pipeline, project, optional_columns, data_range):
     data = get_qc_data(
         project=project, pipeline=pipeline, columns=columns, data_range=data_range
     )
+
     df = pd.DataFrame(data)
+
+    if False:
+        # Some code for testing purposes
+        # blows up the dataframe for
+        # testing performance and visualizations
+        df = pd.concat([df] * 1000)
+        df["RawFile"] = [fn + f".{i}" for i, fn in enumerate(df.RawFile)]
+        df["Index"] = range(len(df))
+
     if "DateAcquired" in df.columns:
         df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
         df = df.replace("not detected", np.NaN)[C.qc_columns_always + optional_columns]
-    return table_from_dataframe(df, id="qc-table", row_selectable='multi')
+    return table_from_dataframe(df, id="qc-table", row_selectable="multi")
 
 
 inputs = [Input("refresh-plots", "n_clicks")]
@@ -336,20 +354,20 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
     )
 
     marker_color = df["Use Downstream"].replace(
-        {True: C.colors['use_downstream'], False: C.colors['dont_use_downstream']}
+        {True: C.colors["use_downstream"], False: C.colors["dont_use_downstream"]}
     )
     marker_line_color = df["Flagged"].replace(
-        {True: C.colors['flagged'], False: C.colors['not_flagged']}
+        {True: C.colors["flagged"], False: C.colors["not_flagged"]}
     )
 
     for ndx in selected:
-        marker_color[ndx] = C.colors['selected']
+        marker_color[ndx] = C.colors["selected"]
 
     fig.update_traces(
         marker_color=marker_color,
         marker_line_color=marker_line_color,
-        marker_line_width=3,
-        opacity=1,
+        marker_line_width=1,
+        opacity=0.8,
     )
 
     fig.update_xaxes(matches="x")
@@ -367,56 +385,61 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
 
 
 @app.callback(
-    Output("qc-table", 'selected_rows'),
-    Input('qc-figure', 'selectedData'),
-    Input('qc-figure', 'clickData'),
-    Input('explorer-figure', 'selectedData'),
-    Input('explorer-figure', 'clickData'),    
+    Output("qc-table", "selected_rows"),
+    Input("qc-figure", "selectedData"),
+    Input("qc-figure", "clickData"),
+    Input("explorer-figure", "selectedData"),
+    Input("explorer-figure", "clickData"),
     Input("qc-update-table", "n_clicks"),
-    State("qc-table", 'selected_rows'),
-    State("qc-table", "derived_virtual_indices")
-    )
-def display_click_data(selectedData, clickData, explorerSelectedData, explorerClickData, table_refresh, selected_rows, virtual_ndxs):
-    if ((selectedData is None) and 
-        (clickData is None) and
-        (explorerSelectedData is None) and
-        (explorerClickData is None)): 
+    State("qc-table", "selected_rows"),
+    State("qc-table", "derived_virtual_indices"),
+)
+def display_click_data(
+    selectedData,
+    clickData,
+    explorerSelectedData,
+    explorerClickData,
+    table_refresh,
+    selected_rows,
+    virtual_ndxs,
+):
+    if (
+        (selectedData is None)
+        and (clickData is None)
+        and (explorerSelectedData is None)
+        and (explorerClickData is None)
+    ):
         raise PreventUpdate
 
-    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
-    
-    print('Selected rows:', selected_rows)
-    print('Virual indices:', virtual_ndxs)
-    print('Explorer click data:', explorerClickData)
-    print('Explorer select data:', explorerSelectedData)
+    changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
 
-    if changed_id == 'qc-figure.selectedData':
-        points = selectedData['points']
-        ndxs = [virtual_ndxs[p['pointIndex']] for p in points]
+    if changed_id == "qc-figure.selectedData":
+        points = selectedData["points"]
+        ndxs = [virtual_ndxs[p["pointIndex"]] for p in points]
         selected_rows.extend(ndxs)
 
-    if changed_id == 'qc-figure.clickData':
-        ndx = clickData['points'][0]['pointIndex']
+    if changed_id == "qc-figure.clickData":
+        ndx = clickData["points"][0]["pointIndex"]
         ndx = virtual_ndxs[ndx]
-        if ndx in selected_rows: 
+        if ndx in selected_rows:
             selected_rows.remove(ndx)
-        else: 
-            selected_rows.append(ndx)
-    
-    if changed_id == 'explorer-figure.clickData':
-        ndx = explorerClickData['points'][0]['pointIndex']
-        ndx = virtual_ndxs[ndx]
-        if ndx in selected_rows: 
-            selected_rows.remove(ndx)
-        else: 
+        else:
             selected_rows.append(ndx)
 
-    if changed_id == 'explorer-figure.selectedData':
-        points = explorerSelectedData['points']
-        ndxs = [virtual_ndxs[p['pointIndex']] for p in points]
+    if changed_id == "explorer-figure.clickData":
+        ndx = explorerClickData["points"][0]["pointIndex"]
+        ndx = virtual_ndxs[ndx]
+        if ndx in selected_rows:
+            selected_rows.remove(ndx)
+        else:
+            selected_rows.append(ndx)
+
+    if changed_id == "explorer-figure.selectedData":
+        points = explorerSelectedData["points"]
+        ndxs = [virtual_ndxs[p["pointIndex"]] for p in points]
         selected_rows.extend(ndxs)
 
-    selected_rows = list( dict.fromkeys(selected_rows) )
+    selected_rows = list(dict.fromkeys(selected_rows))
 
     return selected_rows
 
