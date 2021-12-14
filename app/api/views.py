@@ -323,17 +323,18 @@ class CreateFlag(generics.ListAPIView):
         pipeline_slug = data["pipeline"]
         raw_files = data["raw_files"]
 
-
         pipeline = MaxQuantPipeline.objects.get(project__slug=project_slug, slug=pipeline_slug)
         results = MaxQuantResult.objects.filter(raw_file__pipeline=pipeline)
 
         print(pipeline.name)
+        print(raw_files)
         for result in results:
             print(result.raw_file.name) 
             if result.raw_file.name in raw_files:
                 logging.warning(f'Flag {result.raw_file.name} in {pipeline.name}' )
                 result.raw_file.flagged = True
                 result.raw_file.save()
+            else: print('False')
 
         return JsonResponse({})
 
