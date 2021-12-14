@@ -311,3 +311,43 @@ def get_qc_data(project_slug, pipeline_slug, data_range=None):
     assert df.columns.value_counts().max() == 1, df.columns.value_counts()
 
     return df
+
+
+class CreateFlag(generics.ListAPIView):
+    def post(self, request):
+        """Add flags to raw files."""
+
+        data = request.data
+        project_slug = data["project"]
+        pipeline_slug = data["pipeline"]
+        raw_files = data["raw_files"]
+
+        pipeline = MaxQuantPipeline.objects.get(project__slug=project_slug, slug=pipeline_slug)
+        results = MaxQuantResult.objects.filter(raw_file__pipeline=pipeline)
+
+        for result in results: 
+            if result.name in raw_files:
+                result.raw_file.flagged = True
+                result.raw_file.save()
+
+        return JsonResponse({})
+
+
+class DeleteFlag(generics.ListAPIView):
+    def post(self, request):
+        """Remove flags from raw files."""
+
+        data = request.data
+        project_slug = data["project"]
+        pipeline_slug = data["pipeline"]
+        raw_files = data["raw_files"]
+
+        pipeline = MaxQuantPipeline.objects.get(project__slug=project_slug, slug=pipeline_slug)
+        results = MaxQuantResult.objects.filter(raw_file__pipeline=pipeline)
+
+        for result in results:
+            if result.name in raw_files:
+                result.raw_file.flagged = False
+                result.raw_file.save()
+
+        return JsonResponse({})
