@@ -156,7 +156,7 @@ layout = html.Div(
                                 ]
                             ),
                             html.Button(
-                                "Update Table Data",
+                                "Load Data",
                                 id="qc-update-table",
                                 className="btn",
                             ),
