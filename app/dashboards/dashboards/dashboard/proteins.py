@@ -151,6 +151,7 @@ def callbacks(app):
         State("pipeline", "value"),
         State("data-range", "value"),
         State("qc-table", "data"),
+        State("qc-table", "derived_virtual_indices")        
     )
     def plot_protein_figure(
         n_clicks,
@@ -161,6 +162,7 @@ def callbacks(app):
         pipeline,
         data_range,
         qc_data,
+        derived_virtual_indices
     ):
         """Create the protein groups figure."""
         if (project is None) or (pipeline is None):
@@ -177,6 +179,10 @@ def callbacks(app):
         protein_names = list(pd.DataFrame(ndxs)["protein_names"])
 
         qc_data = pd.DataFrame(qc_data)
+
+        if derived_virtual_indices is not None:
+            qc_data = qc_data.reindex(derived_virtual_indices)
+
         raw_files = list(qc_data.RawFile.values)
 
         data = T.get_protein_groups(
