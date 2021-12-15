@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import plotly.express as px
 import dash_core_components as dcc
 import dash_html_components as html
@@ -103,6 +104,37 @@ layout = html.Div(
                 ),
             ]
         ),
+        
+        dbc.Row(
+            [
+
+                dbc.Col(
+                    [
+                        html.H3("Scatter Matrix"),
+
+                        html.Button(
+                                    "Refresh Scatter Matrix",
+                                    id="explorer-btn-scatter-matrix",
+                                    className="btn",
+                                    style={"margin-bottom": 5},
+                        ),
+
+                        dcc.Dropdown(id='explorer-scatter-matrix-options',
+                            multi=True,
+                            options=[],
+                            value=[]
+                        ),
+
+                        dcc.Loading(
+                            dcc.Graph(
+                                id="explorer-scatter-matrix",
+                                style={"max-width": "100%"},
+                            ),
+                        ),
+                    ]
+                ),
+            ]
+        ),
     ]
 )
 
@@ -188,8 +220,6 @@ def callbacks(app):
             hovermode="closest",
         )
 
-        config = T.gen_figure_config(filename="QC-scatter")
-
         marker_color = df["Use Downstream"].replace(
             {True: C.colors["use_downstream"], False: C.colors["dont_use_downstream"]}
         )
@@ -215,6 +245,8 @@ def callbacks(app):
 
         if size is None:
             fig.update_traces(marker_size=20)
+        
+        config = T.gen_figure_config(filename="PQC-explorer")
 
         return fig, config
 
@@ -231,3 +263,45 @@ def callbacks(app):
         cols = pd.DataFrame(data).columns
         options = T.list_to_dropdown_options(cols)
         return [options] * 6
+
+    @app.callback(
+        Output('explorer-scatter-matrix', 'figure'),
+        Output('explorer-scatter-matrix', 'config'),
+        Input('explorer-btn-scatter-matrix', 'n_clicks'),
+        State("qc-table", "data"),
+        State("explorer-scatter-matrix-options", "value")
+    )
+    def plot_scatter_matrix(n_clicks, data, columns):
+        if n_clicks is None: raise PreventUpdate
+        df = pd.DataFrame(data)
+        df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
+        numeric_columns = df.select_dtypes(include=np.number).columns
+        n_dimensions = len(numeric_columns)
+        fig = px.scatter_matrix(df, dimensions=columns)
+
+        fig.update_layout(
+            autosize=True,
+            height=1000,
+            showlegend=False,
+            margin=dict(l=50, r=10, b=200, t=50, pad=0),
+            hovermode="closest",
+        )
+        
+        config = T.gen_figure_config(filename="PQC-scatter-matrix")
+
+        return fig, config
+
+    @app.callback(
+        Output('explorer-scatter-matrix-options', 'options'),
+        Input('tabs', 'value'),
+        Input('qc-table', 'data'),
+    )
+    def populate_chk_scatter_matrix(tab, data):
+        if tab != 'explorer': 
+            print(tab)
+            raise PreventUpdate
+        df = pd.DataFrame(data)
+        df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
+        numeric_columns = df.select_dtypes(include=np.number).columns
+        options = T.list_to_dropdown_options(numeric_columns)
+        return options

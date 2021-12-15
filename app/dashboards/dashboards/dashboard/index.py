@@ -345,9 +345,9 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
         )
         fig.add_trace(trace, row=1 + i, col=1)
 
-    fig.update_layout(hovermode="closest")
-
     fig.update_layout(
+        hovermode="closest",
+        hoverlabel_namelength=-1,
         height=200 + 250 * (i + 1),
         showlegend=False,
         margin=dict(l=50, r=10, b=200, t=50, pad=0),

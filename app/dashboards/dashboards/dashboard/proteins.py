@@ -257,6 +257,6 @@ def callbacks(app):
         if normalized:
             fig.update_layout(yaxis=dict(range=[0, 1]))
 
-        config = T.gen_figure_config(filename="protein-quant", format="svg")
+        config = T.gen_figure_config(filename="PQC-protein-quant")
 
         return fig, config

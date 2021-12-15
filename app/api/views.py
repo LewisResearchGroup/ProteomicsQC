@@ -318,7 +318,7 @@ class CreateFlag(generics.ListAPIView):
         """Add flags to raw files."""
 
         data = request.data
-        print(data)
+        user = get_user(request)
         project_slug = data["project"]
         pipeline_slug = data["pipeline"]
         raw_files = data["raw_files"]
@@ -326,15 +326,11 @@ class CreateFlag(generics.ListAPIView):
         pipeline = MaxQuantPipeline.objects.get(project__slug=project_slug, slug=pipeline_slug)
         results = MaxQuantResult.objects.filter(raw_file__pipeline=pipeline)
 
-        print(pipeline.name)
-        print(raw_files)
         for result in results:
-            print(result.raw_file.name) 
             if result.raw_file.name in raw_files:
                 logging.warning(f'Flag {result.raw_file.name} in {pipeline.name}' )
                 result.raw_file.flagged = True
                 result.raw_file.save()
-            else: print('False')
 
         return JsonResponse({})
 
@@ -344,6 +340,7 @@ class DeleteFlag(generics.ListAPIView):
         """Remove flags from raw files."""
 
         data = request.data
+        user = get_user(request)
         project_slug = data["project"]
         pipeline_slug = data["pipeline"]
         raw_files = data["raw_files"]
