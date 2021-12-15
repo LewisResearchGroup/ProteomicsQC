@@ -390,6 +390,8 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
     Input("qc-figure", "clickData"),
     Input("explorer-figure", "selectedData"),
     Input("explorer-figure", "clickData"),
+    Input("explorer-scatter-matrix", "selectedData"),
+    Input("explorer-scatter-matrix", "clickData"),    
     Input("qc-update-table", "n_clicks"),
     State("qc-table", "selected_rows"),
     State("qc-table", "derived_virtual_indices"),
@@ -399,6 +401,8 @@ def display_click_data(
     clickData,
     explorerSelectedData,
     explorerClickData,
+    explorerScatterMatrixSelectedData,
+    explorerScatterMatrixClickData,
     table_refresh,
     selected_rows,
     virtual_ndxs,
@@ -408,6 +412,8 @@ def display_click_data(
         and (clickData is None)
         and (explorerSelectedData is None)
         and (explorerClickData is None)
+        and (explorerScatterMatrixSelectedData is None)
+        and (explorerScatterMatrixClickData is None)        
     ):
         raise PreventUpdate
 
@@ -439,6 +445,19 @@ def display_click_data(
         ndxs = [virtual_ndxs[p["pointIndex"]] for p in points]
         selected_rows.extend(ndxs)
 
+    if changed_id == "explorer-scatter-matrix.clickData":
+        ndx = explorerScatterMatrixClickData["points"][0]["pointIndex"]
+        ndx = virtual_ndxs[ndx]
+        if ndx in selected_rows:
+            selected_rows.remove(ndx)
+        else:
+            selected_rows.append(ndx)
+
+    if changed_id == "explorer-scatter-matrix.selectedData":
+        points = explorerScatterMatrixSelectedData["points"]
+        ndxs = [virtual_ndxs[p["pointIndex"]] for p in points]
+        selected_rows.extend(ndxs)
+        
     selected_rows = list(dict.fromkeys(selected_rows))
 
     return selected_rows
