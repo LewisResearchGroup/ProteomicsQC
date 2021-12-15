@@ -488,13 +488,9 @@ def display_click_data(
 )
 def restrict_to_selection(n_clicks, data, selected):
     if n_clicks is None: raise PreventUpdate
-    print(data)
     df = pd.DataFrame(data)
     df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
-    print(df)
-    print(selected)
     df = df.reindex(selected)
-    print(df)
     return df.to_dict('records')
 
 
