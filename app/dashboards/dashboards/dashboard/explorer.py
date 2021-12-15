@@ -236,7 +236,7 @@ def callbacks(app):
         fig.update_traces(
             marker_symbol=marker_symbol,
             marker_line_color=marker_line_color,
-            marker_line_width=1,
+            marker_line_width=2,
             opacity=0.8,
         )
 
@@ -288,7 +288,7 @@ def callbacks(app):
 
         fig.update_layout(
             autosize=True,
-            height=1000,
+            height=1500,
             showlegend=False,
             margin=dict(l=50, r=10, b=200, t=50, pad=0),
             hovermode="closest",
