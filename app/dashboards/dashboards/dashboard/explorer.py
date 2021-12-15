@@ -269,14 +269,18 @@ def callbacks(app):
         Output('explorer-scatter-matrix', 'config'),
         Input('explorer-btn-scatter-matrix', 'n_clicks'),
         State("qc-table", "data"),
-        State("explorer-scatter-matrix-options", "value")
+        State("explorer-scatter-matrix-options", "value"),
+        State("qc-table", "selected_rows"),
+        State("qc-table", "derived_virtual_indices"),
+
     )
-    def plot_scatter_matrix(n_clicks, data, columns):
+    def plot_scatter_matrix(n_clicks, data, columns, selected, ndxs):
         if n_clicks is None: raise PreventUpdate
         df = pd.DataFrame(data)
         df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
         numeric_columns = df.select_dtypes(include=np.number).columns
         n_dimensions = len(numeric_columns)
+        
         fig = px.scatter_matrix(df, dimensions=columns)
 
         fig.update_layout(
@@ -289,7 +293,33 @@ def callbacks(app):
         
         config = T.gen_figure_config(filename="PQC-scatter-matrix")
 
+        marker_color = df["Use Downstream"].replace(
+            {True: C.colors["use_downstream"], False: C.colors["dont_use_downstream"]}
+        )
+
+        marker_line_color = df["Flagged"].replace(
+            {True: C.colors["flagged"], False: C.colors["not_flagged"]}
+        )
+
+        marker_symbol = [0] * len(df)
+
+        for i, ndx in enumerate(ndxs):
+            if ndx in selected:
+                marker_color[i] = C.colors["selected"]
+                marker_symbol[i] = 1
+
+        fig.update_traces(
+            marker_symbol=marker_symbol,
+            marker_line_color=marker_line_color,
+            marker_line_width=2,
+            opacity=0.8,
+        )
+
+        fig.update_traces(marker_color=marker_color)
+        fig.update_traces(marker_size=20)
+
         return fig, config
+
 
     @app.callback(
         Output('explorer-scatter-matrix-options', 'options'),
