@@ -421,8 +421,6 @@ def display_click_data(
 ):
     changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
 
-    print('UPDATE SELECTION:', changed_id)
-
     if changed_id == "qc-clear-selection.n_clicks": return []
 
     if (
