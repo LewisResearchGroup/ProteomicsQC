@@ -160,6 +160,16 @@ layout = html.Div(
                                 id="qc-update-table",
                                 className="btn",
                             ),
+                            html.Button(
+                                "Clear Selection",
+                                id="qc-clear-selection",
+                                className="btn",
+                            ),
+                            html.Button(
+                                "Remove unselected",
+                                id="qc-remove-unselected",
+                                className="btn",
+                            ),                            
                             dcc.Loading(
                                 [
                                     html.Div(
@@ -386,6 +396,7 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
 
 @app.callback(
     Output("qc-table", "selected_rows"),
+    Input("qc-clear-selection", "n_clicks"),
     Input("qc-figure", "selectedData"),
     Input("qc-figure", "clickData"),
     Input("explorer-figure", "selectedData"),
@@ -397,6 +408,7 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
     State("qc-table", "derived_virtual_indices"),
 )
 def display_click_data(
+    clear,
     selectedData,
     clickData,
     explorerSelectedData,
@@ -407,6 +419,12 @@ def display_click_data(
     selected_rows,
     virtual_ndxs,
 ):
+    changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
+
+    print('UPDATE SELECTION:', changed_id)
+
+    if changed_id == "qc-clear-selection.n_clicks": return []
+
     if (
         (selectedData is None)
         and (clickData is None)
@@ -417,7 +435,6 @@ def display_click_data(
     ):
         raise PreventUpdate
 
-    changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
 
     if changed_id == "qc-figure.selectedData":
         points = selectedData["points"]
@@ -461,6 +478,24 @@ def display_click_data(
     selected_rows = list(dict.fromkeys(selected_rows))
 
     return selected_rows
+
+@app.callback(
+    Output("qc-table", "data"),
+    Input("qc-remove-unselected", "n_clicks"),
+    State("qc-table", "data"),
+    State("qc-table", "selected_rows"),
+
+)
+def restrict_to_selection(n_clicks, data, selected):
+    if n_clicks is None: raise PreventUpdate
+    print(data)
+    df = pd.DataFrame(data)
+    df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
+    print(df)
+    print(selected)
+    df = df.reindex(selected)
+    print(df)
+    return df.to_dict('records')
 
 
 if __name__ == "__main__":

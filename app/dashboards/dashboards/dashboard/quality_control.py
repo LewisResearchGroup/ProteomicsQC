@@ -35,14 +35,13 @@ layout = html.Div(
                 html.Div(
                     [
                         dcc.Graph(id="qc-figure", style={"max-width": "100%"}),
-                        dcc.Graph(
-                            id="explorer-figure",
-                            style={"max-width": "100%", "visibility": "hidden"},
-                        ),
                     ],
                     style={"textAlign": "center"},
                 )
             ]
         ),
+    # placeholders for callbacks
+    dcc.Graph(id="explorer-figure", style={"visibility": "hidden"}),
+    dcc.Graph(id="explorer-scatter-matrix", style={"visibility": "hidden"}),
     ]
 )
