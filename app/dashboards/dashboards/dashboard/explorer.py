@@ -281,6 +281,9 @@ def callbacks(app):
         numeric_columns = df.select_dtypes(include=np.number).columns
         n_dimensions = len(numeric_columns)
         
+        if ndxs is not None:
+            df = df.reindex(ndxs)        
+        
         fig = px.scatter_matrix(df, dimensions=columns)
 
         fig.update_layout(
