@@ -284,7 +284,7 @@ def callbacks(app):
 
         fig.update_layout(
             autosize=True,
-            height=1500,
+            height=1200,
             showlegend=False,
             margin=dict(l=50, r=10, b=200, t=50, pad=0),
             hovermode="closest",
