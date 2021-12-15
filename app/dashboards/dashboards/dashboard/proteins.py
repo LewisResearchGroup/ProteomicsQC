@@ -151,7 +151,7 @@ def callbacks(app):
         State("pipeline", "value"),
         State("data-range", "value"),
         State("qc-table", "data"),
-        State("qc-table", "derived_virtual_indices")        
+        State("qc-table", "derived_virtual_indices"),
     )
     def plot_protein_figure(
         n_clicks,
@@ -162,7 +162,7 @@ def callbacks(app):
         pipeline,
         data_range,
         qc_data,
-        derived_virtual_indices
+        derived_virtual_indices,
     ):
         """Create the protein groups figure."""
         if (project is None) or (pipeline is None):

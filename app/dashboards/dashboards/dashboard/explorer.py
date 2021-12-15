@@ -104,27 +104,23 @@ layout = html.Div(
                 ),
             ]
         ),
-        
         dbc.Row(
             [
-
                 dbc.Col(
                     [
                         html.H3("Scatter Matrix"),
-
                         html.Button(
-                                    "Refresh Scatter Matrix",
-                                    id="explorer-btn-scatter-matrix",
-                                    className="btn",
-                                    style={"margin-bottom": 5},
+                            "Refresh Scatter Matrix",
+                            id="explorer-btn-scatter-matrix",
+                            className="btn",
+                            style={"margin-bottom": 5},
                         ),
-
-                        dcc.Dropdown(id='explorer-scatter-matrix-options',
+                        dcc.Dropdown(
+                            id="explorer-scatter-matrix-options",
                             multi=True,
                             options=[],
-                            value=[]
+                            value=[],
                         ),
-
                         dcc.Loading(
                             dcc.Graph(
                                 id="explorer-scatter-matrix",
@@ -245,7 +241,7 @@ def callbacks(app):
 
         if size is None:
             fig.update_traces(marker_size=20)
-        
+
         config = T.gen_figure_config(filename="PQC-explorer")
 
         return fig, config
@@ -265,25 +261,25 @@ def callbacks(app):
         return [options] * 6
 
     @app.callback(
-        Output('explorer-scatter-matrix', 'figure'),
-        Output('explorer-scatter-matrix', 'config'),
-        Input('explorer-btn-scatter-matrix', 'n_clicks'),
+        Output("explorer-scatter-matrix", "figure"),
+        Output("explorer-scatter-matrix", "config"),
+        Input("explorer-btn-scatter-matrix", "n_clicks"),
         State("qc-table", "data"),
         State("explorer-scatter-matrix-options", "value"),
         State("qc-table", "selected_rows"),
         State("qc-table", "derived_virtual_indices"),
-
     )
     def plot_scatter_matrix(n_clicks, data, columns, selected, ndxs):
-        if n_clicks is None: raise PreventUpdate
+        if n_clicks is None:
+            raise PreventUpdate
         df = pd.DataFrame(data)
         df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
         numeric_columns = df.select_dtypes(include=np.number).columns
         n_dimensions = len(numeric_columns)
-        
+
         if ndxs is not None:
-            df = df.reindex(ndxs)        
-        
+            df = df.reindex(ndxs)
+
         fig = px.scatter_matrix(df, dimensions=columns)
 
         fig.update_layout(
@@ -293,7 +289,7 @@ def callbacks(app):
             margin=dict(l=50, r=10, b=200, t=50, pad=0),
             hovermode="closest",
         )
-        
+
         config = T.gen_figure_config(filename="PQC-scatter-matrix")
 
         marker_color = df["Use Downstream"].replace(
@@ -323,14 +319,13 @@ def callbacks(app):
 
         return fig, config
 
-
     @app.callback(
-        Output('explorer-scatter-matrix-options', 'options'),
-        Input('tabs', 'value'),
-        Input('qc-table', 'data'),
+        Output("explorer-scatter-matrix-options", "options"),
+        Input("tabs", "value"),
+        Input("qc-table", "data"),
     )
     def populate_chk_scatter_matrix(tab, data):
-        if tab != 'explorer': 
+        if tab != "explorer":
             print(tab)
             raise PreventUpdate
         df = pd.DataFrame(data)

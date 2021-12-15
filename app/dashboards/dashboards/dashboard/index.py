@@ -169,7 +169,7 @@ layout = html.Div(
                                 "Remove unselected",
                                 id="qc-remove-unselected",
                                 className="btn",
-                            ),                            
+                            ),
                             dcc.Loading(
                                 [
                                     html.Div(
@@ -403,7 +403,7 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
     Input("explorer-figure", "selectedData"),
     Input("explorer-figure", "clickData"),
     Input("explorer-scatter-matrix", "selectedData"),
-    Input("explorer-scatter-matrix", "clickData"),    
+    Input("explorer-scatter-matrix", "clickData"),
     Input("qc-update-table", "n_clicks"),
     State("qc-table", "selected_rows"),
     State("qc-table", "derived_virtual_indices"),
@@ -421,10 +421,16 @@ def display_click_data(
     selected_rows,
     virtual_ndxs,
 ):
+
+    # Workaround a bug, this callback is triggered without trigger
+    if len(dash.callback_context.triggered) == 0:
+        raise PreventUpdate
     changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
 
-    if changed_id == "qc-clear-selection.n_clicks": return []
-    if changed_id == "qc-remove-unselected.n_clicks": return []
+    if changed_id == "qc-clear-selection.n_clicks":
+        return []
+    if changed_id == "qc-remove-unselected.n_clicks":
+        return []
 
     if (
         (selectedData is None)
@@ -432,10 +438,9 @@ def display_click_data(
         and (explorerSelectedData is None)
         and (explorerClickData is None)
         and (explorerScatterMatrixSelectedData is None)
-        and (explorerScatterMatrixClickData is None)        
+        and (explorerScatterMatrixClickData is None)
     ):
         raise PreventUpdate
-
 
     if changed_id == "qc-figure.selectedData":
         points = selectedData["points"]
@@ -475,24 +480,30 @@ def display_click_data(
         points = explorerScatterMatrixSelectedData["points"]
         ndxs = [virtual_ndxs[p["pointIndex"]] for p in points]
         selected_rows.extend(ndxs)
-        
+
     selected_rows = list(dict.fromkeys(selected_rows))
 
     return selected_rows
+
 
 @app.callback(
     Output("qc-table", "data"),
     Input("qc-remove-unselected", "n_clicks"),
     State("qc-table", "data"),
     State("qc-table", "selected_rows"),
-
 )
 def restrict_to_selection(n_clicks, data, selected):
-    if n_clicks is None: raise PreventUpdate
+    if n_clicks is None:
+        raise PreventUpdate
+
+    # Workaround a bug, this callback is triggered without trigger
+    if len(dash.callback_context.triggered) == 0:
+        raise PreventUpdate
+
     df = pd.DataFrame(data)
     df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
     df = df.reindex(selected)
-    return df.to_dict('records')
+    return df.to_dict("records")
 
 
 if __name__ == "__main__":

@@ -40,8 +40,8 @@ layout = html.Div(
                 )
             ]
         ),
-    # placeholders for callbacks
-    dcc.Graph(id="explorer-figure", style={"visibility": "hidden"}),
-    dcc.Graph(id="explorer-scatter-matrix", style={"visibility": "hidden"}),
+        # placeholders for callbacks
+        dcc.Graph(id="explorer-figure", style={"visibility": "hidden"}),
+        dcc.Graph(id="explorer-scatter-matrix", style={"visibility": "hidden"}),
     ]
 )
