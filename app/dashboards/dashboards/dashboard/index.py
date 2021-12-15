@@ -397,6 +397,7 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
 @app.callback(
     Output("qc-table", "selected_rows"),
     Input("qc-clear-selection", "n_clicks"),
+    Input("qc-remove-unselected", "n_clicks"),
     Input("qc-figure", "selectedData"),
     Input("qc-figure", "clickData"),
     Input("explorer-figure", "selectedData"),
@@ -409,6 +410,7 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
 )
 def display_click_data(
     clear,
+    remove_unselected,
     selectedData,
     clickData,
     explorerSelectedData,
@@ -422,6 +424,7 @@ def display_click_data(
     changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
 
     if changed_id == "qc-clear-selection.n_clicks": return []
+    if changed_id == "qc-remove-unselected.n_clicks": return []
 
     if (
         (selectedData is None)
