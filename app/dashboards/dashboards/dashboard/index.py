@@ -42,7 +42,7 @@ set_template()
 
 if __name__ == "__main__":
     app = dash.Dash(__name__)
-    import proteins, quality_control, explorer
+    import proteins, quality_control, explorer, anomaly
     from tools import (
         table_from_dataframe,
         get_projects,
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     app.config.suppress_callback_exceptions = True
 else:
     from django_plotly_dash import DjangoDash
-    from . import proteins, quality_control, explorer
+    from . import proteins, quality_control, explorer, anomaly
 
     from .tools import (
         table_from_dataframe,
@@ -133,6 +133,11 @@ layout = html.Div(
                                         value="quality_control",
                                     ),
                                     dcc.Tab(
+                                        id="tab-anomaly",
+                                        label="Anomaly detection",
+                                        value="anomaly",
+                                    ),
+                                    dcc.Tab(
                                         id="tab-explorer",
                                         label="Explorer",
                                         value="explorer",
@@ -201,6 +206,7 @@ app.layout = layout
 
 proteins.callbacks(app)
 explorer.callbacks(app)
+anomaly.callbacks(app)
 
 
 @app.callback(Output("tabs-content", "children"), [Input("tabs", "value")])
@@ -211,6 +217,8 @@ def render_content(tab):
         return quality_control.layout
     if tab == "explorer":
         return explorer.layout
+    if tab == "anomaly":
+        return anomaly.layout
 
 
 @app.callback(Output("project", "options"), [Input("B_update", "n_clicks")])
