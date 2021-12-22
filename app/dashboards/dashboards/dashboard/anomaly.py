@@ -1,3 +1,4 @@
+from dash.html.Pre import Pre
 import pandas as pd
 import numpy as np
 
@@ -29,7 +30,7 @@ except:
 layout = html.Div(
     [
         html.H1("Anomaly detection"),
-        html.Button("Run isolation forest", id="anomaly-btn"),
+        html.Button("Run isolation forest", id="anomaly-btn", className="btn"),
         dcc.Loading(
             [dcc.Graph(id="anomaly-figure")],
         )
@@ -46,8 +47,7 @@ def callbacks(app):
         State("pipeline", "value"),
     )
     def run_anomaly_detection(n_clicks, data, project, pipeline):
-
-        print('Anomaly detection', project, pipeline)
+        if n_clicks is None: raise PreventUpdate
 
         pqc = ProteomicsQC(
             host='http://localhost:8000',
