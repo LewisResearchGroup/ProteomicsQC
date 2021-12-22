@@ -30,7 +30,9 @@ layout = html.Div(
     [
         html.H1("Anomaly detection"),
         html.Button("Run isolation forest", id="anomaly-btn"),
-        dcc.Graph(id="anomaly-figure"),
+        dcc.Loading(
+            [dcc.Graph(id="anomaly-figure")],
+        )
     ]
 )
 
@@ -75,6 +77,8 @@ def callbacks(app):
 
         sa = T.ShapAnalysis(_model, _data)
 
-        fig = T.px_heatmap(sa.df_shap, layout_kws=dict(title='Anomaly feature importance', height=1000))
+        fig = T.px_heatmap(sa.df_shap, 
+                           layout_kws=dict(title='Anomaly feature importance', 
+                                           height=1000))
 
         return fig
