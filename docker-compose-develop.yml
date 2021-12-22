@@ -63,4 +63,3 @@ services:
       - web
     container_name: celery_worker
 
-  
