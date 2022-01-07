@@ -35,11 +35,11 @@ The pipeline is restricted to single file setup which might conflict with the se
 
 ## Features
 
-The server manages proteomics pipelines belonging to multiple projects. 
+The server manages proteomics pipelines belonging to multiple projects. The server is mostly implemented in Python and is composed of several components such as a PostgreSQL database, a queuing system (Celery, Redis), a dashboard (Plotly-Dash) and an API (Django REST-Framwork).
 
 ![](./docs/img/workflow.png 'The workflow managed by the proteomics pipeline server.')
 
-The server manages:
+Feature list:
 
 1. Different project spaces    
 2. Setup of different pipelines (using MaxQuant and RawTools)
@@ -53,7 +53,6 @@ The server manages:
 
 ## The GUI
 The server has a simple static http frontend and admin view, generated with Django; and a dynamic and interactive dashboard implemented with Plotly-Dash.
-
 
 ![](./docs/img/example-admin-view.png 'Overview over all jobs on the server.')
 > The admin view provides and overview over all proteomics runs with list and detail views.
