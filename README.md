@@ -30,7 +30,7 @@ This repository contains git submodules and should be cloned with:
 
 
 ## Limitations
-The pipeline is restricted to single file setup which might conflict with the setup of many laboratories which use workflows where individual runs are split into multiple files and all setups where multiple `.RAW` files have to be analyzed in tandem by MaxQuant. The pipeline processes each file separately and independently to ensure data reproducibility. This setup works very well for comparatively small  microbial samples (with file sizes of around 1-2 GB), but will be incompatible with mammalian samples, where output files have to be split into chunks in order to keep the file size reasonably small. This kind of setup is currently out of scope for the quality control pipeline. 
+The pipeline is restricted to single file setup which might conflict with the setup of some laboratories that store single sample results in multiple files. The pipeline processes each file separately and independently.
 
 
 ## Features
@@ -45,13 +45,18 @@ The server manages:
 2. Setup of different pipelines (using MaxQuant and RawTools)
 3. Upload and processing .RAW files with a job queueing system
 4. Data management of input and output files
-5. User rights
-6. Data API for upload and download of results
+5. User rights management
+6. Data API for programmatic file submission and download of results
 7. Dashboard for Quality Control
+8. Anomaly detection with Isolation Forest and explainable AI using SHAP
 
-The admin view provides and overview over all proteomics runs with list and detail views.
+
+## The GUI
+The server has a simple static http frontend and admin view, generated with Django; and a dynamic and interactive dashboard implemented with Plotly-Dash.
+
 
 ![](./docs/img/example-admin-view.png 'Overview over all jobs on the server.')
+> The admin view provides and overview over all proteomics runs with list and detail views.
 
 
 ## Technology stack
