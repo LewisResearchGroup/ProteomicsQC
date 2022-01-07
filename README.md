@@ -24,7 +24,10 @@ This repository contains git submodules and should be cloned with:
 
     make init  # to start the server the first time
 
-    make run  # starts the production server on port 8000
+    make devel  # starts a development server on port 8000
+    
+    make serve  # starts the production server on port 8000
+
 
 ## Limitations
 The pipeline is restricted to single file setup which might conflict with the setup of many laboratories which use workflows where individual runs are split into multiple files and all setups where multiple `.RAW` files have to be analyzed in tandem by MaxQuant. The pipeline processes each file separately and independently to ensure data reproducibility. This setup works very well for comparatively small  microbial samples (with file sizes of around 1-2 GB), but will be incompatible with mammalian samples, where output files have to be split into chunks in order to keep the file size reasonably small. This kind of setup is currently out of scope for the quality control pipeline. 
