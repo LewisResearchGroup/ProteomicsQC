@@ -2,7 +2,7 @@
 
 ![](docs/img/ProteomicsQC.png)
 
-# ProteomicsQC
+# **ProteomicsQC**: Quality Control for Large-Scale Quantitative Proteomics with http-based API 
 
 A quality control (QC) pipeline server for quantitative proteomics, automated processing, and interactive visualisations of QC results.
 The server allows to setup multiple proteomics pipelines grouped by projects. 
