@@ -33,13 +33,14 @@ This repository contains git submodules and should be cloned with:
 The pipeline is restricted to single file setup which might conflict with the setup of some laboratories that store single sample results in multiple files. The pipeline processes each file separately and independently.
 
 
-## Features
+## Overview
 
 The server manages proteomics pipelines belonging to multiple projects. The server is mostly implemented in Python and is composed of several components such as a PostgreSQL database, a queuing system (Celery, Redis), a dashboard (Plotly-Dash) and an API (Django REST-Framwork).
 
 ![](./docs/img/workflow.png 'The workflow managed by the proteomics pipeline server.')
 
-Feature list:
+
+## Features
 
 1. Different project spaces    
 2. Setup of different pipelines (using MaxQuant and RawTools)
@@ -72,9 +73,9 @@ A dashboard based on Plotly/Dash is used to present quality control metrics as w
 protein identification and quantification.
 
 
-## Dashboard features
+## Dashboard examples
 
-### Many customiable Quality Control metrics in one place
+### Timelines of ~60 quality control metrics in one place
 ![](./docs/img/example-qc-barplot.png 'Many customiable Quality Control metrics in one place.')
 
 
