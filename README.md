@@ -79,8 +79,12 @@ protein identification and quantification.
 ![](./docs/img/example-qc-barplot.png 'Many customiable Quality Control metrics in one place.')
 
 
+### Explainable AI explation for anomaly
+![](./docs/img/example-anomaly-scores.png 'Many customiable Quality Control metrics in one place.')
+
+
 ### Scatterplot tool to explore relationships between variables
-![](./docs/img/example-qc-scatterplot.png 'Scatterplot tool to explore relationships between variables.')
+![](./docs/img/example-qc-scatter-plot.png 'Scatterplot tool to explore relationships between variables.')
 
 
 ### Visualization of normalized reporter intensity (TMT11)
