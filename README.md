@@ -77,15 +77,17 @@ protein identification and quantification.
 
 ### Timelines of ~60 quality control metrics in one place
 ![](./docs/img/example-qc-barplot.png 'Many customiable Quality Control metrics in one place.')
-
+All quality control metrics can be visualized simultaneously in customized order. Flagged samples are displayed in red.
 
 ### Explainable AI explation for anomaly
 ![](./docs/img/example-anomaly-scores.png 'Many customiable Quality Control metrics in one place.')
-
+Anomaly detection with Isolation forest explained with SHapley Additive exPlanations (SHAP).
 
 ### Scatterplot tool to explore relationships between variables
 ![](./docs/img/example-qc-scatter-plot.png 'Scatterplot tool to explore relationships between variables.')
-
+Intactive tool to explore feature interactions and to create selections. 
 
 ### Visualization of normalized reporter intensity (TMT11)
 ![](./docs/img/example-qc-normalied-tmt-intensity.png 'Visualization of normalized reporter intensity (TMT11).')
+All reporter intensities in one plot to detect batch effects for individual proteins. 
+
