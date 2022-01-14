@@ -7,7 +7,7 @@ import shap
 import pandas as pd
 import dash_table as dt
 import plotly.express as px
-import plotly.graph_objects as go 
+import plotly.graph_objects as go
 from dash_table.Format import Format
 
 URL = os.getenv("OMICS_URL", "http://localhost:8000")
@@ -168,8 +168,7 @@ def log2p1(x):
         return x
 
 
-class ShapAnalysis():
-    
+class ShapAnalysis:
     def __init__(self, model, df):
         explainer = shap.TreeExplainer(model)
         shap_values = explainer(df)
@@ -177,29 +176,27 @@ class ShapAnalysis():
         self._instance_names = df.index.to_list()
         self._feature_names = df.columns.to_list()
         self.df_shap = pd.DataFrame(
-            shap_values.values, 
-            columns=df.columns, 
-            index=df.index
+            shap_values.values, columns=df.columns, index=df.index
         )
-        
+
     def waterfall(self, i, **kwargs):
         shap_values = self._shap_values
         self._base_values = shap_values[i][0].base_values
         self._values = shap_values[i].values
         shap_object = shap.Explanation(
-                base_values = self._base_values, 
-                values = self._values,
-                feature_names = self._feature_names,
-                #instance_names = self._instance_names,
-                data = shap_values[i].data,
+            base_values=self._base_values,
+            values=self._values,
+            feature_names=self._feature_names,
+            # instance_names = self._instance_names,
+            data=shap_values[i].data,
         )
         shap.plots.waterfall(shap_object, **kwargs)
-        
+
     def summary(self, **kwargs):
         shap.summary_plot(self._shap_values, **kwargs)
-        
+
     def bar(self, **kwargs):
-        shap.plots.bar(self._shap_values, **kwargs)    
+        shap.plots.bar(self._shap_values, **kwargs)
         for ax in plt.gcf().axes:
             for ch in ax.get_children():
                 try:
@@ -207,17 +204,14 @@ class ShapAnalysis():
                 except:
                     break
 
-def px_heatmap(df, colorscale='jet_r', layout_kws=None):
-    fig = go.Figure(data=go.Heatmap(
-            z=df.values,
-            y=df.index,
-            x=df.columns,
-            colorscale=colorscale
-            )
+
+def px_heatmap(df, colorscale="jet_r", layout_kws=None):
+    fig = go.Figure(
+        data=go.Heatmap(z=df.values, y=df.index, x=df.columns, colorscale=colorscale)
     )
     fig.update_layout(**layout_kws)
     fig.update_yaxes(automargin=True)
-    fig.update_xaxes(automargin=True)    
+    fig.update_xaxes(automargin=True)
     return fig
 
 

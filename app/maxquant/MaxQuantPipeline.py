@@ -137,7 +137,8 @@ class MaxQuantPipeline(MaxQuantParameter, FastaFile, RawToolsSetup):
 
     @property
     def has_maxquant_config(self):
-        if self.fasta_file.name and self.mqpar_file.name: return True
+        if self.fasta_file.name and self.mqpar_file.name:
+            return True
         return False
 
 
@@ -151,7 +152,7 @@ def create_maxquant_path(sender, instance, created, *args, **kwargs):
         os.makedirs(mq_pipe.result_path)
         os.makedirs(mq_pipe.input_path)
         os.makedirs(mq_pipe.output_path)
-    
+
     # Move files only if files provided
     if mq_pipe.has_maxquant_config:
         mq_pipe.move_fasta_to_config()
