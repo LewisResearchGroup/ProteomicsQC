@@ -28,6 +28,8 @@ class MaxQuantParameter(models.Model):
         upload_to="uploads",
         storage=settings.COMPUTE,
         max_length=1000,
+        blank=True,
+        null=True,
         help_text="mqpar.xml file to use with MaxQuant. If this is changed all MaxQuant jobs in this pipeline should be rerun. Note: The link above does not work.",
     )
 

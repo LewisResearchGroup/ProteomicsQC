@@ -152,9 +152,10 @@ class MaxQuantResult(models.Model):
         return params
 
     def run_maxquant(self, rerun=False):
-        raw_file = str(self.raw_fn)
-        params = self.maxquant_parameters()
-        run_maxquant.delay(raw_file, params, rerun=rerun)
+        if self.pipeline.has_maxquant_config:
+            raw_file = str(self.raw_fn)
+            params = self.maxquant_parameters()
+            run_maxquant.delay(raw_file, params, rerun=rerun)
 
     @property
     def maxquant_execution_time(self):

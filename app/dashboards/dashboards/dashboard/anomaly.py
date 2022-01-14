@@ -33,7 +33,8 @@ layout = html.Div(
         html.Button("Run isolation forest", id="anomaly-btn", className="btn"),
         dcc.Loading(
             [dcc.Graph(id="anomaly-figure")],
-        )
+        ),
+        dcc.Markdown('Anormal feature values have lower z-values.')
     ]
 )
 

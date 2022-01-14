@@ -1,12 +1,13 @@
 celery
 colorlover
-dash_bootstrap_components 
+dash_bootstrap_components
 dash-table-experiments
 dash-tabulator
-dask[distributed]
+dask
+#dask[distributed]
 django
-django_admin_index 
-django_plotly_dash 
+django_admin_index
+django_plotly_dash
 django-bootstrap4
 django-cache-memoize
 django-cookie-law
@@ -15,7 +16,7 @@ django-currentuser
 django-extensions
 django-oauth-toolkit
 django-plotly-dash
-djangorestframework 
+djangorestframework
 dpd-static-support
 fastparquet
 matplotlib
@@ -30,3 +31,4 @@ panel
 channels
 shap
 pycaret
+django-light
