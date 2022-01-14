@@ -2,7 +2,7 @@
 
 ![](docs/img/ProteomicsQC.png)
 
-# ProteomicsQC
+# **ProteomicsQC**: Quality Control Server for Large-Scale Quantitative Proteomics with http-based API
 
 A quality control (QC) pipeline server for quantitative proteomics, automated processing, and interactive visualisations of QC results.
 The server allows to setup multiple proteomics pipelines grouped by projects. 
@@ -24,56 +24,56 @@ This repository contains git submodules and should be cloned with:
 
     make init  # to start the server the first time
 
-    make run  # starts the production server on port 8000
+    make devel  # starts a development server on port 8000
+    
+    make serve  # starts the production server on port 8000
+
 
 ## Limitations
-The pipeline is restricted to single file setup which might conflict with the setup of many laboratories which use workflows where individual runs are split into multiple files and all setups where multiple `.RAW` files have to be analyzed in tandem by MaxQuant. The pipeline processes each file separately and independently to ensure data reproducibility. This setup works very well for comparatively small  microbial samples (with file sizes of around 1-2 GB), but will be incompatible with mammalian samples, where output files have to be split into chunks in order to keep the file size reasonably small. This kind of setup is currently out of scope for the quality control pipeline. 
+The pipeline is restricted to single file setup which might conflict with the setup of some laboratories that store single sample results in multiple files. The pipeline processes each file separately and independently.
 
 
-## Features
+## Overview
 
-The server manages proteomics pipelines belonging to multiple projects. 
+The server manages proteomics pipelines belonging to multiple projects. The server is mostly implemented in Python and is composed of several components such as a PostgreSQL database, a queuing system (Celery, Redis), a dashboard (Plotly-Dash) and an API (Django REST-Framwork).
 
 ![](./docs/img/workflow.png 'The workflow managed by the proteomics pipeline server.')
 
-The server manages:
+
+## Features
 
 1. Different project spaces    
 2. Setup of different pipelines (using MaxQuant and RawTools)
 3. Upload and processing .RAW files with a job queueing system
 4. Data management of input and output files
-5. User rights
-6. Data API for upload and download of results
+5. User rights management
+6. Data API for programmatic file submission and download of results
 7. Dashboard for Quality Control
+8. Anomaly detection with Isolation Forest and explainable AI using SHAP
 
-The admin view provides and overview over all proteomics runs with list and detail views.
+
+## The GUI
+The server has a simple static http frontend and admin view, generated with Django; and a dynamic and interactive dashboard implemented with Plotly-Dash.
 
 ![](./docs/img/example-admin-view.png 'Overview over all jobs on the server.')
+> The admin view provides and overview over all proteomics runs with list and detail views.
 
 
-## Technology stack
+## Dashboard examples
 
-The server uses `docker-compose` to spin off multiple containers and is ready to be scaled up.
-The web server and the celery workers use a shared file system with a defined folder structure as
-the datalake, where all input and output files are collected. In addition to the standard output files a
-clean version of the data is stored in parquet format for fast read and parallel processing of the 
-generated results.
-
-![](./docs/img/technology-stack.png 'The technology stack used by the proteomics pipeline server.')
-
-A dashboard based on Plotly/Dash is used to present quality control metrics as well as insights into
-protein identification and quantification.
-
-
-## Dashboard features
-
-### Many customiable Quality Control metrics in one place
+### Timelines of ~60 quality control metrics in one place
 ![](./docs/img/example-qc-barplot.png 'Many customiable Quality Control metrics in one place.')
+All quality control metrics can be visualized simultaneously in customized order. Flagged samples are displayed in red.
 
+### Explainable AI explation for anomaly
+![](./docs/img/example-anomaly-scores.png 'Many customiable Quality Control metrics in one place.')
+Anomaly detection with Isolation forest explained with SHapley Additive exPlanations (SHAP).
 
 ### Scatterplot tool to explore relationships between variables
-![](./docs/img/example-qc-scatterplot.png 'Scatterplot tool to explore relationships between variables.')
-
+![](./docs/img/example-qc-scatter-plot.png 'Scatterplot tool to explore relationships between variables.')
+Intactive tool to explore feature interactions and to create selections. 
 
 ### Visualization of normalized reporter intensity (TMT11)
 ![](./docs/img/example-qc-normalied-tmt-intensity.png 'Visualization of normalized reporter intensity (TMT11).')
+All reporter intensities in one plot to detect batch effects for individual proteins. 
+
