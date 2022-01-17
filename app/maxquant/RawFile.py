@@ -140,7 +140,8 @@ def move_rawfile_to_input_dir(sender, instance, created, *args, **kwargs):
     if created:
         raw_file.move_to_input_dir()
 
-    if raw_file.pipeline.has_maxquant_config():
+    # Create MaxQuant runs only if not present yet
+    if raw_file.pipeline.has_maxquant_config:
         if len(MaxQuantResult.objects.filter(raw_file=raw_file)) == 0:
             MaxQuantResult.objects.create(raw_file=raw_file)
 

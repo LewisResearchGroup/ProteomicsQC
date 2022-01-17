@@ -1,4 +1,4 @@
-from dash.html.Pre import Pre
+# from dash.html.Pre import Pre
 import pandas as pd
 import numpy as np
 
@@ -15,15 +15,11 @@ from plotly import express as px
 
 from dash_tabulator import DashTabulator
 
-from pycaret.anomaly import setup, create_model, save_model, load_model
-
 from lrg_omics.proteomics import ProteomicsQC
 
 try:
-    from .tools import list_to_dropdown_options
     from . import tools as T
 except:
-    from tools import list_to_dropdown_options
     import tools as T
 
 
@@ -59,43 +55,18 @@ def callbacks(app):
 
         qc_data = pqc.get_qc_data(data_range=None).set_index("RawFile")
 
-        log_cols = [
-            "Ms1MedianSummedIntensity",
-            "Ms2MedianSummedIntensity",
-            "MedianPrecursorIntensity",
-        ]
-
-        for c in log_cols:
-            qc_data[c] = qc_data[c].apply(T.log2p1)
-
-        df_train = (
-            qc_data[qc_data["Use Downstream"]]
-            .select_dtypes(include=np.number)
-            .drop("Index", axis=1)
-            .fillna(0)
-        )
-        df_test = qc_data[~qc_data["Use Downstream"]].fillna(0)[df_train.columns]
-        df_all = qc_data.fillna(0)[df_train.columns]
-
-        _ = setup(
-            df_train,
-            silent=True,
-            ignore_low_variance=True,
-            remove_perfect_collinearity=True,
-        )
-
-        model_name = "iforest"
-        model = create_model(model_name)
-
-        save_model(model, "model")
-        saved_model = load_model("model")
-        _data = saved_model[:-1].transform(df_all)
-        _model = saved_model.named_steps["trained_model"]
-
-        sa = T.ShapAnalysis(_model, _data)
+        predictions, df_shap = T.detect_anomalies(qc_data)
 
         fig = T.px_heatmap(
-            sa.df_shap, layout_kws=dict(title="Anomaly feature importance", height=1000)
+            df_shap.T,
+            layout_kws=dict(
+                title="Anomaly feature score (shapley values)", height=1200
+            ),
         )
+
+        files_to_flag = predictions[predictions.Anomaly==1].index.to_list()
+        files_to_unflag = predictions[predictions.Anomaly==0].index.to_list()
+        pqc.flag(files_to_flag)
+        pqc.unflag(files_to_unflag)
 
         return fig

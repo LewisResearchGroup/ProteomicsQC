@@ -6,9 +6,21 @@ import requests
 import shap
 import pandas as pd
 import dash_table as dt
+from dash_table import DataTable
+from dash_table.Format import Format
 import plotly.express as px
 import plotly.graph_objects as go
-from dash_table.Format import Format
+from matplotlib import pyplot as pl
+
+
+from pycaret.anomaly import (
+    setup,
+    create_model,
+    save_model,
+    load_model,
+    get_config,
+    predict_model,
+)
 
 URL = os.getenv("OMICS_URL", "http://localhost:8000")
 
@@ -197,7 +209,7 @@ class ShapAnalysis:
 
     def bar(self, **kwargs):
         shap.plots.bar(self._shap_values, **kwargs)
-        for ax in plt.gcf().axes:
+        for ax in pl.gcf().axes:
             for ch in ax.get_children():
                 try:
                     ch.set_color("0.3")
@@ -375,3 +387,116 @@ def plotly_heatmap(
         fig.show(config={"displaylogo": False})
     else:
         return fig
+
+
+def detect_anomalies(qc_data):
+    selected_cols = [
+        "TotalAnalysisTime(min)",
+        "TotalScans",
+        "NumMs1Scans",
+        "NumMs2Scans",
+        "NumMs3Scans",
+        "Ms1ScanRate(/s)",
+        "Ms2ScanRate(/s)",
+        "Ms3ScanRate(/s)",
+        "MeanDutyCycle(s)",
+        "MeanMs2TriggerRate(/Ms1Scan)",
+        "Ms1MedianSummedIntensity",
+        "Ms2MedianSummedIntensity",
+        "MedianPrecursorIntensity",
+        "MedianMs1IsolationInterence",
+        "MedianMs2PeakFractionConsumingTop80PercentTotalIntensity",
+        "NumEsiInstabilityFlags",
+        "MedianMs1FillTime(ms)",
+        "MedianMs2FillTime(ms)",
+        "MedianMs3FillTime(ms)",
+        "MedianPeakWidthAt10%H(s)",
+        "MedianPeakWidthAt50%H(s)",
+        "MedianAsymmetryAt10%H",
+        "MedianAsymmetryAt50%H",
+        "MeanCyclesPerAveragePeak",
+        "PeakCapacity",
+        "TimeBeforeFirstExceedanceOf10%MaxIntensity",
+        "TimeAfterLastExceedanceOf10%MaxIntensity",
+        "FractionOfRunAbove10%MaxIntensity",
+        "MS",
+        "MS/MS",
+        "MS3",
+        "MS/MS Submitted",
+        "MS/MS Identified",
+        "MS/MS Identified [%]",
+        "Peptide Sequences Identified",
+        "Av. Absolute Mass Deviation [mDa]",
+        "Mass Standard Deviation [mDa]",
+        "N_protein_groups",
+        "N_protein_true_hits",
+        "N_protein_potential_contaminants",
+        "N_protein_reverse_seq",
+        "Protein_mean_seq_cov [%]",
+        "TMT1_missing_values",
+        "TMT2_missing_values",
+        "TMT3_missing_values",
+        "TMT4_missing_values",
+        "TMT5_missing_values",
+        "TMT6_missing_values",
+        "TMT7_missing_values",
+        "TMT8_missing_values",
+        "TMT9_missing_values",
+        "TMT10_missing_values",
+        "TMT11_missing_values",
+        "N_peptides",
+        "N_peptides_potential_contaminants",
+        "N_peptides_reverse",
+        "Oxidations [%]",
+        "N_missed_cleavages_total",
+        "N_missed_cleavages_eq_0 [%]",
+        "N_missed_cleavages_eq_1 [%]",
+        "N_missed_cleavages_eq_2 [%]",
+        "N_missed_cleavages_gt_3 [%]",
+        "N_peptides_last_amino_acid_K [%]",
+        "N_peptides_last_amino_acid_R [%]",
+        "N_peptides_last_amino_acid_other [%]",
+        "Mean_parent_int_frac",
+        "Uncalibrated - Calibrated m/z [ppm] (ave)",
+        "Uncalibrated - Calibrated m/z [ppm] (sd)",
+        "Uncalibrated - Calibrated m/z [Da] (ave)",
+        "Uncalibrated - Calibrated m/z [Da] (sd)",
+        "Peak Width(ave)",
+        "Peak Width (std)",
+        "Missed Cleavages [%]",
+    ]
+    log_cols = [
+        "Ms1MedianSummedIntensity",
+        "Ms2MedianSummedIntensity",
+        "MedianPrecursorIntensity",
+    ]
+
+    for c in log_cols:
+        qc_data[c] = qc_data[c].apply(log2p1)
+
+    df_train = qc_data[qc_data["Use Downstream"]][selected_cols].fillna(0)
+    df_test = qc_data[~qc_data["Use Downstream"]][selected_cols].fillna(0)
+    df_all = qc_data[selected_cols].fillna(0)
+
+    _ = setup(
+        df_train,
+        silent=True,
+        ignore_low_variance=False,
+        remove_perfect_collinearity=False,
+        numeric_features=selected_cols,
+    )
+
+    model_name = "iforest"
+    model = create_model(model_name)
+
+    pipeline = get_config("prep_pipe")
+    data = pipeline.transform(df_all)
+
+    # pycaret changes column names
+    # change it to original names
+    data.columns = selected_cols
+    
+    sa = ShapAnalysis(model, data)
+    shapley_values = sa.df_shap.reindex(selected_cols, axis=1).sort_index()
+    prediction = predict_model(model, df_all)[['Anomaly', 'Anomaly_Score']]
+    return prediction, shapley_values

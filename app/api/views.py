@@ -319,7 +319,8 @@ class CreateFlag(generics.ListAPIView):
 
         data = request.data
 
-        user = get_user(request)
+        #user = get_user(request)
+        
         project_slug = data["project"]
         pipeline_slug = data["pipeline"]
         raw_files = request.POST.getlist("raw_files")
@@ -342,7 +343,8 @@ class DeleteFlag(generics.ListAPIView):
         """Remove flags from raw files."""
         data = request.data
 
-        user = get_user(request)
+        #user = get_user(request)
+        
         project_slug = data["project"]
         pipeline_slug = data["pipeline"]
         raw_files = request.POST.getlist("raw_files")
