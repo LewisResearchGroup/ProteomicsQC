@@ -2,6 +2,8 @@ import os
 import sys
 import pandas as pd
 import numpy as np
+from pathlib import Path as P
+
 from plotly.missing_ipywidgets import FigureWidget
 import requests
 
@@ -24,6 +26,8 @@ from dash.exceptions import PreventUpdate
 from dash_tabulator import DashTabulator
 
 from lrg_omics.plotly import plotly_heatmap, plotly_bar, plotly_histogram, set_template
+from lrg_omics.proteomics import ProteomicsQC
+
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
@@ -175,6 +179,17 @@ layout = html.Div(
                                 id="qc-remove-unselected",
                                 className="btn",
                             ),
+                            html.Button(
+                                "Accept",
+                                id="accept",
+                                className="btn",
+                            ),
+                            html.Button(
+                                "Reject",
+                                id="reject",
+                                className="btn",
+                            ),
+                            html.Div(id="accept-reject-output", style={'visibility': 'visible', 'width': '300px', 'float': 'right'}),
                             dcc.Loading(
                                 [
                                     html.Div(
@@ -198,6 +213,7 @@ layout = html.Div(
             ]
         ),
         html.Div(id="selection-output"),
+        html.Div(id="selected-raw-files", style={'visibility': 'hidden'}),
     ],
     style={"max-width": "90%", "display": "block", "margin": "auto"},
 )
@@ -238,13 +254,11 @@ def populate_pipelines(project):
 
 @app.callback(
     Output("qc-table-div", "children"),
-    [Input("qc-update-table", "n_clicks")],
-    [
-        State("pipeline", "value"),
-        State("project", "value"),
-        State("qc-table-columns", "value"),
-        State("data-range", "value"),
-    ],
+    Input("qc-update-table", "n_clicks"),
+    State("pipeline", "value"),
+    State("project", "value"),
+    State("qc-table-columns", "value"),
+    State("data-range", "value"),
 )
 def refresh_qc_table(n_clicks, pipeline, project, optional_columns, data_range):
 
@@ -365,7 +379,7 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
     )
 
     marker_color = df["Use Downstream"].replace(
-        {True: C.colors["use_downstream"], False: C.colors["dont_use_downstream"]}
+        {True: C.colors["accepted"], False: C.colors["rejected"]}
     )
     marker_line_color = df["Flagged"].replace(
         {True: C.colors["flagged"], False: C.colors["not_flagged"]}
@@ -426,6 +440,7 @@ def display_click_data(
     # Workaround a bug, this callback is triggered without trigger
     if len(dash.callback_context.triggered) == 0:
         raise PreventUpdate
+
     changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
 
     if changed_id == "qc-clear-selection.n_clicks":
@@ -506,6 +521,56 @@ def restrict_to_selection(n_clicks, data, selected):
     df = df.reindex(selected)
     return df.to_dict("records")
 
+
+@app.callback(
+    Output('selected-raw-files', 'children'),
+    Input("qc-table", "selected_rows"),
+)
+def update_selected_raw_files(selected_rows):
+    return selected_rows
+
+
+@app.callback(
+    Output('accept-reject-output', 'children'),
+    Input("accept", "n_clicks"),
+    Input("reject", "n_clicks"),
+    State('selected-raw-files', 'children'),
+    State('qc-table', 'data'),
+    State("project", "value"),
+    State("pipeline", "value"),
+)
+def update_selected_raw_files(accept, reject, selection, data, project, pipeline, **kwargs):
+    if ((accept is None) and (reject is None)) or (not selection):
+        raise PreventUpdate
+
+    uid = kwargs['user'].uuid
+
+    changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
+    if changed_id == "accept.n_clicks":
+        action = 'accept'
+    if changed_id == "reject.n_clicks":
+        action = 'reject'
+    
+    data = pd.DataFrame(data)
+
+    data = data.iloc[selection]
+
+    raw_files = data.RawFile.values
+
+    raw_files = [P(i).with_suffix('.raw') for i in raw_files]
+
+    pqc = ProteomicsQC(
+        host="http://localhost:8000",
+        project_slug=project,
+        pipeline_slug=pipeline,
+        uid=uid
+    )
+
+    response = pqc.rawfile(raw_files, action)
+    
+    if response['status'] == 'success':
+        return dbc.Alert('Success', color='success')
+    return  dbc.Alert(response['status'], color='danger')
 
 if __name__ == "__main__":
     app.run_server(debug=True)

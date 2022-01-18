@@ -69,6 +69,6 @@ def callbacks(app):
 
         files_to_flag = predictions[predictions.Anomaly==1].index.to_list()
         files_to_unflag = predictions[predictions.Anomaly==0].index.to_list()
-        pqc.change_rawfile(files_to_flag, 'flag')
-        pqc.change_rawfile(files_to_unflag, 'unflag')
+        pqc.rawfile(files_to_flag, 'flag')
+        pqc.rawfile(files_to_unflag, 'unflag')
         return fig

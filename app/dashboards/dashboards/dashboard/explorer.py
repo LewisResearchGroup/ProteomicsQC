@@ -217,7 +217,7 @@ def callbacks(app):
         )
 
         marker_color = df["Use Downstream"].replace(
-            {True: C.colors["use_downstream"], False: C.colors["dont_use_downstream"]}
+            {True: C.colors["accepted"], False: C.colors["rejected"]}
         )
         marker_line_color = df["Flagged"].replace(
             {True: C.colors["flagged"], False: C.colors["not_flagged"]}

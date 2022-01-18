@@ -176,9 +176,9 @@ slategrey = "rgb(112,128,144)"
 lightred = "rgb(255,230,230)"
 
 colors = {
-    "use_downstream": lightblue,
-    "dont_use_downstream": lightred,
+    "accepted": lightblue,
+    "rejected": lightred,
     "flagged": "maroon",
     "not_flagged": midnight,
-    "selected": midnight,
+    "selected": 'purple',
 }

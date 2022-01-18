@@ -382,13 +382,12 @@ class RawFile(generics.ListAPIView):
         
         project_slug = data["project"]
         pipeline_slug = data["pipeline"]
-
         action = data["action"]
 
         project = Project.objects.get(slug=project_slug)
         if not user in project.users.all():
             logging.warning(f'User {user.email} does not belong to project {project.name}')
-            return JsonResponse({})
+            return JsonResponse({'status': 'Missing permissions'})
 
         raw_files = request.POST.getlist("raw_files")
 
@@ -406,4 +405,4 @@ class RawFile(generics.ListAPIView):
                 if action == 'reject': result.raw_file.use_downstream = False
                 result.raw_file.save()
                 
-        return JsonResponse({})
+        return JsonResponse({'status': 'success'})
