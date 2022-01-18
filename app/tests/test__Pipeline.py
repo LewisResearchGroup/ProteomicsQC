@@ -34,15 +34,18 @@ class PipelineTestCaseWithFiles(TestCase):
         contents_mqpar = fn_mqpar.read_bytes()
         contents_fasta = fn_fasta.read_bytes()
 
-        Pipeline.objects.create(
+        self.pipeline = Pipeline.objects.create(
             name="pipe",
             project=project,
             fasta_file=SimpleUploadedFile("my_fasta.fasta", contents_fasta),
             mqpar_file=SimpleUploadedFile("my_mqpar.xml", contents_mqpar),
         )
 
-        self.project = Project.objects.get(name="project")
-        self.pipeline = pipeline = Pipeline.objects.get(name="pipe", project=project.pk)
-
     def test__pipeline_mqpar_file_exists(self):
         assert self.pipeline.mqpar_path.is_file()
+
+    def test__pipeline_fasta_file_exists(self):
+        assert self.pipeline.fasta_path.is_file()
+
+    def test__pipeline_has_maxquant_config(self):
+        assert self.pipeline.has_maxquant_config
