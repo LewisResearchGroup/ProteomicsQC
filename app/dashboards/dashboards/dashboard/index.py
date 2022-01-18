@@ -256,15 +256,7 @@ def refresh_qc_table(n_clicks, pipeline, project, optional_columns, data_range):
     )
 
     df = pd.DataFrame(data)
-
-    if False:
-        # Some code for testing purposes
-        # blows up the dataframe for
-        # testing performance and visualizations
-        df = pd.concat([df] * 1000)
-        df["RawFile"] = [fn + f".{i}" for i, fn in enumerate(df.RawFile)]
-        df["Index"] = range(len(df))
-
+    
     if "DateAcquired" in df.columns:
         df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
         df = df.replace("not detected", np.NaN)[C.qc_columns_always + optional_columns]
