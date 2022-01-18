@@ -9,6 +9,7 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.dispatch import receiver
 from django.conf import settings
+from django.urls import reverse, reverse_lazy
 
 from django_currentuser.db.models import CurrentUserField
 
@@ -32,8 +33,9 @@ class Project(models.Model):
         self.slug = slugify(self.name)
         return super().save(*args, **kwargs)
 
-    def get_absolute_url(self):
-        return reverse("project_detail", kwargs={"slug": self.slug})
+    @property
+    def url(self):
+        return reverse_lazy("project:detail", kwargs={"slug": self.slug})
 
     @property
     def id(self):

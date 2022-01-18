@@ -497,6 +497,7 @@ def detect_anomalies(qc_data):
     data.columns = selected_cols
     
     sa = ShapAnalysis(model, data)
-    shapley_values = sa.df_shap.reindex(selected_cols, axis=1).sort_index()
+    shapley_values = sa.df_shap.reindex(selected_cols, axis=1)
     prediction = predict_model(model, df_all)[['Anomaly', 'Anomaly_Score']]
+    
     return prediction, shapley_values
