@@ -7,27 +7,35 @@ from django.conf import settings
 
 
 class CustomUserAdmin(UserAdmin):
-    list_display = ("email", "is_staff", "is_superuser")
-    readonly_fields = ("last_login", "date_joined", "uuid")
-    ordering = ("email",)
+    list_display = ('email', 'is_staff', 'is_superuser')
+    readonly_fields = ('last_login', 'date_joined', 'uuid')
+    ordering = ('email',)
+    search_fields = ('first_name', 'last_name', 'email')  # 🖘 no username
     fieldsets = (
         (
-            "Fields",
+            'Fields',
             {
-                "fields": (
-                    "email",
-                    "uuid",
-                    "date_joined",
-                    "last_login",
-                    "is_active",
-                    "is_staff",
-                    "is_superuser",
-                    "groups",
-                    "user_permissions",
-                    "password",
+                'fields': (
+                    'email',
+                    'uuid',
+                    'date_joined',
+                    'last_login',
+                    'is_active',
+                    'is_staff',
+                    'is_superuser',
+                    'groups',
+                    'user_permissions',
+                    'password',
                 )
             },
         ),
+    )
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('email', 'password1', 'password2'),
+            #              🖞 without username
+        }),
     )
 
 

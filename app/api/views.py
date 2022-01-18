@@ -325,6 +325,11 @@ class CreateFlag(generics.ListAPIView):
         pipeline_slug = data["pipeline"]
         raw_files = request.POST.getlist("raw_files")
 
+        project = Project.objects.get(slug=project_slug)
+        if not user in project.users.all():
+            logging.warning(f'User {user.email} does not belong to project {project.name}')
+            return JsonResponse({})
+
         pipeline = MaxQuantPipeline.objects.get(
             project__slug=project_slug, slug=pipeline_slug
         )
@@ -348,6 +353,11 @@ class DeleteFlag(generics.ListAPIView):
         project_slug = data["project"]
         pipeline_slug = data["pipeline"]
         raw_files = request.POST.getlist("raw_files")
+
+        project = Project.objects.get(slug=project_slug)
+        if not user in project.users.all():
+            logging.warning(f'User {user.email} does not belong to project {project.name}')
+            return JsonResponse({})
 
         pipeline = MaxQuantPipeline.objects.get(
             project__slug=project_slug, slug=pipeline_slug
