@@ -246,11 +246,7 @@ def populate_pipelines(project):
         State("data-range", "value"),
     ],
 )
-def refresh_qc_table(n_clicks, pipeline, project, optional_columns, data_range, **kwargs):
-    print('KWARGS:', kwargs) 
-    user = kwargs['user']
-    print('USER:', user)
-    print(user.uuid)
+def refresh_qc_table(n_clicks, pipeline, project, optional_columns, data_range):
 
     if (project is None) or (pipeline is None):
         raise PreventUpdate
