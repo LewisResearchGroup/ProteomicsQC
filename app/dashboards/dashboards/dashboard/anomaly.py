@@ -43,14 +43,17 @@ def callbacks(app):
         State("project", "value"),
         State("pipeline", "value"),
     )
-    def run_anomaly_detection(n_clicks, data, project, pipeline):
+    def run_anomaly_detection(n_clicks, data, project, pipeline, **kwargs):
         if n_clicks is None:
             raise PreventUpdate
+
+        uid = kwargs['user'].uuid
 
         pqc = ProteomicsQC(
             host="http://localhost:8000",
             project_slug=project,
             pipeline_slug=pipeline,
+            uid=uid
         )
 
         qc_data = pqc.get_qc_data(data_range=None).set_index("RawFile")

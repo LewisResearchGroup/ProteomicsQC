@@ -198,7 +198,7 @@ def get_user(request):
 
 
 def get_pipeline(request):
-    uuid = request.data["pipeline"]
+    uuid = request.data["pid"]
     return get_instance_from_uuid(MaxQuantPipeline, uuid)
 
 
@@ -319,7 +319,7 @@ class CreateFlag(generics.ListAPIView):
 
         data = request.data
 
-        #user = get_user(request)
+        user = get_user(request)
         
         project_slug = data["project"]
         pipeline_slug = data["pipeline"]
@@ -343,7 +343,7 @@ class DeleteFlag(generics.ListAPIView):
         """Remove flags from raw files."""
         data = request.data
 
-        #user = get_user(request)
+        user = get_user(request)
         
         project_slug = data["project"]
         pipeline_slug = data["pipeline"]

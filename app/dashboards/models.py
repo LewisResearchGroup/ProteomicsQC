@@ -41,13 +41,16 @@ class DashApp(models.Model):
         """
         Return the current internal state of the model instance
         """
+        pass
 
     def update_current_state(self, wid, key, value):
         """
         Update the current internal state, ignorning non-tracked objects
         """
+        pass
 
     def populate_values(self):
         """
         Add values from the underlying dash layout configuration
         """
+        pass
