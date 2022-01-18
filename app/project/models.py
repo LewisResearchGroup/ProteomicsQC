@@ -13,6 +13,7 @@ from django.urls import reverse, reverse_lazy
 
 from django_currentuser.db.models import CurrentUserField
 
+from user.models import User
 
 DATALAKE_ROOT = settings.DATALAKE_ROOT
 
@@ -24,7 +25,8 @@ class Project(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     description = models.TextField(max_length=10000, default="")
     slug = models.SlugField(max_length=256, unique=True)
-    created_by = CurrentUserField()
+    created_by = CurrentUserField(related_name='creator')
+    users = models.ManyToManyField(User, related_name='users')
 
     def __str__(self):
         return self.name
