@@ -94,10 +94,10 @@ class RawFile(models.Model):
 
     @property
     def rawtools_status(self):
-        path = dirname(self.abs_path)
-        if isfile("QcDataTable.csv"):
+        path = self.path.parent
+        if (path/"QcDataTable.csv").is_file():
             return "Done"
-        elif isfile(join(path, "rawtools.txt")):
+        elif (path/"rawtools.txt").is_file():
             return "Running"
         return "New file"
 

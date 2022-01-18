@@ -194,7 +194,6 @@ class MaxQuantResult(models.Model):
 
     def get_data_from_file(self, fn="proteinGroups.txt"):
         abs_fn = self.output_dir_maxquant / fn
-        print(abs_fn, abs_fn.is_file())
         if abs_fn.is_file():
             df = MaxquantReader().read(abs_fn)
             if df is None:
@@ -298,7 +297,6 @@ class MaxQuantResult(models.Model):
     @property
     def maxquant_errors(self):
         fn = self.output_dir / "maxquant" / "maxquant.err"
-        print(fn)
         if not fn.is_file():
             return "No file"
         else:
@@ -309,7 +307,6 @@ class MaxQuantResult(models.Model):
     @property
     def rawtools_qc_errors(self):
         fn = self.output_dir / "rawtools_qc" / "rawtools_qc.err"
-        print(fn)
         if not fn.is_file():
             return "No file"
         else:
@@ -320,7 +317,6 @@ class MaxQuantResult(models.Model):
     @property
     def rawtools_metrics_errors(self):
         fn = self.output_dir / "rawtools" / "rawtools_metrics.err"
-        print(fn)
         if not fn.is_file():
             return "No file"
         else:
@@ -339,7 +335,6 @@ class MaxQuantResult(models.Model):
 
 @receiver(models.signals.post_save, sender=MaxQuantResult)
 def run_maxquant_after_save(sender, instance, created, *args, **kwargs):
-    print("Saved MaxQuantResult")
     if created:
         instance.run()
 
