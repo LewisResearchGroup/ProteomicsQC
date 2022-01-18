@@ -26,7 +26,7 @@ class Project(models.Model):
     description = models.TextField(max_length=10000, default="")
     slug = models.SlugField(max_length=256, unique=True)
     created_by = CurrentUserField(related_name='creator')
-    users = models.ManyToManyField(User, related_name='users', blank=True, null=True)
+    users = models.ManyToManyField(User, related_name='users', blank=True)
 
     def __str__(self):
         return self.name
