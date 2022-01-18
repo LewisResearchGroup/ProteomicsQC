@@ -193,7 +193,7 @@ class RawFileUploadAPI(APIView):
 
 
 def get_user(request):
-    uuid = request.data["user"]
+    uuid = request.data["uid"]
     return get_instance_from_uuid(User, uuid)
 
 
@@ -369,4 +369,41 @@ class DeleteFlag(generics.ListAPIView):
                 result.raw_file.flagged = False
                 result.raw_file.save()
 
+        return JsonResponse({})
+
+
+class RawFile(generics.ListAPIView):
+    def post(self, request):
+        """Add flags to raw files."""
+
+        data = request.data
+
+        user = get_user(request)
+        
+        project_slug = data["project"]
+        pipeline_slug = data["pipeline"]
+
+        action = data["action"]
+
+        project = Project.objects.get(slug=project_slug)
+        if not user in project.users.all():
+            logging.warning(f'User {user.email} does not belong to project {project.name}')
+            return JsonResponse({})
+
+        raw_files = request.POST.getlist("raw_files")
+
+        pipeline = MaxQuantPipeline.objects.get(
+            project__slug=project_slug, slug=pipeline_slug
+        )
+
+        results = MaxQuantResult.objects.filter(raw_file__pipeline=pipeline)
+        for result in results:
+            if result.raw_file.name in raw_files:
+                logging.warning(f'{result.raw_file.name}: {action}')
+                if action == 'flagg': result.raw_file.flagged = True
+                if action == 'unflag': result.raw_file.flagged = False
+                if action == 'accept': result.raw_file.use_downstream = True
+                if action == 'reject': result.raw_file.use_downstream = False
+                result.raw_file.save()
+                
         return JsonResponse({})

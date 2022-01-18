@@ -11,4 +11,5 @@ urlpatterns = [
     path("upload/raw", views.RawFileUploadAPI.as_view(), name="upload-raw"),
     path("flag/create", views.CreateFlag.as_view(), name="create-flag"),
     path("flag/delete", views.DeleteFlag.as_view(), name="delete-flag"),
+    path("rawfile", views.RawFile.as_view(), name='modify-raw-file')
 ]
