@@ -37,7 +37,7 @@ layout = html.Div(
 
 def callbacks(app):
     @app.callback(
-        Output("anomaly-figure", "figure"),
+        Output("shapley-values", "children"),
         Input("anomaly-btn", "n_clicks"),
         State("qc-table", "data"),
         State("project", "value"),
@@ -60,13 +60,6 @@ def callbacks(app):
 
         predictions, df_shap = T.detect_anomalies(qc_data, fraction=0.49, n_estimators=1000)
 
-        fig = T.px_heatmap(
-            df_shap.T,
-            layout_kws=dict(
-                title="Anomaly feature score (shapley values)", height=1200
-            ),
-        )
-
         # Update flags        
         currently_unflagged = list(qc_data[~qc_data.Flagged].reset_index().RawFile)
         currently_flagged = list(qc_data[qc_data.Flagged].reset_index().RawFile)
@@ -77,4 +70,26 @@ def callbacks(app):
         pqc.rawfile(files_to_flag, 'flag')
         pqc.rawfile(files_to_unflag, 'unflag')
 
-        return fig
+        return df_shap.to_json()
+
+
+    @app.callback(
+        Output("anomaly-figure", "figure"),
+        Output("anomaly-figure", "config"),
+        Input('shapley-values', 'children')
+    )
+    def plot_shapley(df_shap):
+
+        df_shap = pd.read_json(df_shap)
+
+        print(df_shap)
+
+        fig = T.px_heatmap(
+            df_shap.T,
+            layout_kws=dict(
+                title="Anomaly feature score (shapley values)", height=1200
+            ),
+        )
+
+        config = T.gen_figure_config(filename="Anomaly-Detection-Shapley-values")
+        return fig, config

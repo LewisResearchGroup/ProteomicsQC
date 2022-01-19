@@ -1,7 +1,9 @@
 import os
+from select import select
 import sys
 import json
 import logging
+from xml.etree.ElementPath import _SelectorContext
 import requests
 import shap
 import pandas as pd
@@ -500,4 +502,6 @@ def detect_anomalies(qc_data, **model_kws):
     shapley_values = sa.df_shap.reindex(selected_cols, axis=1)
     prediction = predict_model(model, df_all)[['Anomaly', 'Anomaly_Score']]
     
+    for c in selected_cols: print(c)
+
     return prediction, shapley_values

@@ -180,12 +180,12 @@ layout = html.Div(
                                 className="btn",
                             ),
                             html.Button(
-                                "Accept",
+                                "Use downstream",
                                 id="accept",
                                 className="btn",
                             ),
                             html.Button(
-                                "Reject",
+                                "Prevent downstream",
                                 id="reject",
                                 className="btn",
                             ),
@@ -214,6 +214,7 @@ layout = html.Div(
         ),
         html.Div(id="selection-output"),
         html.Div(id="selected-raw-files", style={'visibility': 'hidden'}),
+        html.Div(id='shapley-values', style={'visibility': 'hidden'})
     ],
     style={"max-width": "90%", "display": "block", "margin": "auto"},
 )
@@ -423,7 +424,7 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
     State("qc-table", "selected_rows"),
     State("qc-table", "derived_virtual_indices"),
 )
-def display_click_data(
+def update_table_selection(
     clear,
     remove_unselected,
     selectedData,
