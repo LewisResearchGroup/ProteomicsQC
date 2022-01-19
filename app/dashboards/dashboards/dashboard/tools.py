@@ -389,7 +389,7 @@ def plotly_heatmap(
         return fig
 
 
-def detect_anomalies(qc_data):
+def detect_anomalies(qc_data, **model_kws):
     selected_cols = [
         "TotalAnalysisTime(min)",
         "TotalScans",
@@ -487,7 +487,7 @@ def detect_anomalies(qc_data):
     )
 
     model_name = "iforest"
-    model = create_model(model_name)
+    model = create_model(model_name, **model_kws)
 
     pipeline = get_config("prep_pipe")
     data = pipeline.transform(df_all)
