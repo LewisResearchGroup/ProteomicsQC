@@ -58,7 +58,7 @@ def callbacks(app):
 
         qc_data = pqc.get_qc_data(data_range=None).set_index("RawFile")
 
-        predictions, df_shap = T.detect_anomalies(qc_data, contamination=0.01, n_estimators=1000)
+        predictions, df_shap = T.detect_anomalies(qc_data, fraction=0.49, n_estimators=1000)
 
         fig = T.px_heatmap(
             df_shap.T,
