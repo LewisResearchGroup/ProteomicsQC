@@ -67,8 +67,14 @@ def callbacks(app):
             ),
         )
 
+        # Update flags        
+        currently_unflagged = list(qc_data[~qc_data.Flagged].reset_index().RawFile)
+        currently_flagged = list(qc_data[qc_data.Flagged].reset_index().RawFile)
         files_to_flag = predictions[predictions.Anomaly==1].index.to_list()
         files_to_unflag = predictions[predictions.Anomaly==0].index.to_list()
+        files_to_flag = [i for i in files_to_flag if i in currently_unflagged]
+        files_to_unflag = [i for i in files_to_unflag if i in currently_flagged]
         pqc.rawfile(files_to_flag, 'flag')
         pqc.rawfile(files_to_unflag, 'unflag')
+
         return fig
