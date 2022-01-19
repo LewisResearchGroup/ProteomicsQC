@@ -399,10 +399,10 @@ class RawFile(generics.ListAPIView):
         for result in results:
             if result.raw_file.name in raw_files:
                 logging.warning(f'{result.raw_file.name}: {action}')
-                if action == 'flagg': result.raw_file.flagged = True
-                if action == 'unflag': result.raw_file.flagged = False
-                if action == 'accept': result.raw_file.use_downstream = True
-                if action == 'reject': result.raw_file.use_downstream = False
+                if action == 'flag': result.raw_file.flagged = True
+                elif action == 'unflag': result.raw_file.flagged = False
+                elif action == 'accept': result.raw_file.use_downstream = True
+                elif action == 'reject': result.raw_file.use_downstream = False
                 result.raw_file.save()
                 
         return JsonResponse({'status': 'success'})
