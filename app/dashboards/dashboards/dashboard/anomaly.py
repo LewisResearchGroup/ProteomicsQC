@@ -39,11 +39,10 @@ def callbacks(app):
     @app.callback(
         Output("shapley-values", "children"),
         Input("anomaly-btn", "n_clicks"),
-        State("qc-table", "data"),
         State("project", "value"),
         State("pipeline", "value"),
     )
-    def run_anomaly_detection(n_clicks, data, project, pipeline, **kwargs):
+    def run_anomaly_detection(n_clicks, project, pipeline, **kwargs):
         if n_clicks is None:
             raise PreventUpdate
 
@@ -76,14 +75,19 @@ def callbacks(app):
     @app.callback(
         Output("anomaly-figure", "figure"),
         Output("anomaly-figure", "config"),
-        Input('shapley-values', 'children')
+        Input('shapley-values', 'children'),
+        Input("qc-table", "data"),
+        Input("qc-table", "derived_virtual_indices"),
     )
-    def plot_shapley(df_shap):
+    def plot_shapley(shapley_values, qc_data, ndxs):
 
-        df_shap = pd.read_json(df_shap)
+        df_shap = pd.read_json(shapley_values)
+        qc_data = pd.DataFrame(qc_data).iloc[ndxs]
 
-        print(df_shap)
+        fns = qc_data['RawFile']
 
+        df_shap = df_shap.loc[fns]
+        
         fig = T.px_heatmap(
             df_shap.T,
             layout_kws=dict(
@@ -92,4 +96,5 @@ def callbacks(app):
         )
 
         config = T.gen_figure_config(filename="Anomaly-Detection-Shapley-values")
+
         return fig, config
