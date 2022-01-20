@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('maxquant', '0006_maxquantpipeline_description'),
+        ("maxquant", "0006_maxquantpipeline_description"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='maxquantpipeline',
-            name='name',
+            model_name="maxquantpipeline",
+            name="name",
             field=models.CharField(max_length=500, unique=True),
         ),
     ]

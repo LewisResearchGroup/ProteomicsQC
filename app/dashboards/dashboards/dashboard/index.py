@@ -189,7 +189,14 @@ layout = html.Div(
                                 id="reject",
                                 className="btn",
                             ),
-                            html.Div(id="accept-reject-output", style={'visibility': 'visible', 'width': '300px', 'float': 'right'}),
+                            html.Div(
+                                id="accept-reject-output",
+                                style={
+                                    "visibility": "visible",
+                                    "width": "300px",
+                                    "float": "right",
+                                },
+                            ),
                             dcc.Loading(
                                 [
                                     html.Div(
@@ -213,8 +220,8 @@ layout = html.Div(
             ]
         ),
         html.Div(id="selection-output"),
-        html.Div(id="selected-raw-files", style={'visibility': 'hidden'}),
-        html.Div(id='shapley-values', style={'visibility': 'hidden'})
+        html.Div(id="selected-raw-files", style={"visibility": "hidden"}),
+        html.Div(id="shapley-values", style={"visibility": "hidden"}),
     ],
     style={"max-width": "90%", "display": "block", "margin": "auto"},
 )
@@ -271,7 +278,7 @@ def refresh_qc_table(n_clicks, pipeline, project, optional_columns, data_range):
     )
 
     df = pd.DataFrame(data)
-    
+
     if "DateAcquired" in df.columns:
         df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
         df = df.replace("not detected", np.NaN)[C.qc_columns_always + optional_columns]
@@ -524,7 +531,7 @@ def restrict_to_selection(n_clicks, data, selected):
 
 
 @app.callback(
-    Output('selected-raw-files', 'children'),
+    Output("selected-raw-files", "children"),
     Input("qc-table", "selected_rows"),
 )
 def update_selected_raw_files(selected_rows):
@@ -532,46 +539,49 @@ def update_selected_raw_files(selected_rows):
 
 
 @app.callback(
-    Output('accept-reject-output', 'children'),
+    Output("accept-reject-output", "children"),
     Input("accept", "n_clicks"),
     Input("reject", "n_clicks"),
-    State('selected-raw-files', 'children'),
-    State('qc-table', 'data'),
+    State("selected-raw-files", "children"),
+    State("qc-table", "data"),
     State("project", "value"),
     State("pipeline", "value"),
 )
-def update_selected_raw_files(accept, reject, selection, data, project, pipeline, **kwargs):
+def update_selected_raw_files(
+    accept, reject, selection, data, project, pipeline, **kwargs
+):
     if ((accept is None) and (reject is None)) or (not selection):
         raise PreventUpdate
 
-    uid = kwargs['user'].uuid
+    uid = kwargs["user"].uuid
 
     changed_id = [p["prop_id"] for p in dash.callback_context.triggered][0]
     if changed_id == "accept.n_clicks":
-        action = 'accept'
+        action = "accept"
     if changed_id == "reject.n_clicks":
-        action = 'reject'
-    
+        action = "reject"
+
     data = pd.DataFrame(data)
 
     data = data.iloc[selection]
 
     raw_files = data.RawFile.values
 
-    raw_files = [P(i).with_suffix('.raw') for i in raw_files]
+    raw_files = [P(i).with_suffix(".raw") for i in raw_files]
 
     pqc = ProteomicsQC(
         host="http://localhost:8000",
         project_slug=project,
         pipeline_slug=pipeline,
-        uid=uid
+        uid=uid,
     )
 
     response = pqc.rawfile(raw_files, action)
-    
-    if response['status'] == 'success':
-        return dbc.Alert('Success', color='success')
-    return  dbc.Alert(response['status'], color='danger')
+
+    if response["status"] == "success":
+        return dbc.Alert("Success", color="success")
+    return dbc.Alert(response["status"], color="danger")
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)

@@ -46,57 +46,53 @@ def callbacks(app):
         if n_clicks is None:
             raise PreventUpdate
 
-        uid = kwargs['user'].uuid
+        uid = kwargs["user"].uuid
 
         pqc = ProteomicsQC(
             host="http://localhost:8000",
             project_slug=project,
             pipeline_slug=pipeline,
-            uid=uid
+            uid=uid,
         )
 
         qc_data = pqc.get_qc_data(data_range=None).set_index("RawFile")
 
-        predictions, df_shap = T.detect_anomalies(qc_data, fraction=0.49, n_estimators=1000)
+        predictions, df_shap = T.detect_anomalies(
+            qc_data, fraction=0.49, n_estimators=1000
+        )
 
-        # Update flags        
+        # Update flags
         currently_unflagged = list(qc_data[~qc_data.Flagged].reset_index().RawFile)
         currently_flagged = list(qc_data[qc_data.Flagged].reset_index().RawFile)
-        files_to_flag = predictions[predictions.Anomaly==1].index.to_list()
-        files_to_unflag = predictions[predictions.Anomaly==0].index.to_list()
+        files_to_flag = predictions[predictions.Anomaly == 1].index.to_list()
+        files_to_unflag = predictions[predictions.Anomaly == 0].index.to_list()
         files_to_flag = [i for i in files_to_flag if i in currently_unflagged]
         files_to_unflag = [i for i in files_to_unflag if i in currently_flagged]
-        pqc.rawfile(files_to_flag, 'flag')
-        pqc.rawfile(files_to_unflag, 'unflag')
+        pqc.rawfile(files_to_flag, "flag")
+        pqc.rawfile(files_to_unflag, "unflag")
 
         return df_shap.to_json()
-
 
     @app.callback(
         Output("anomaly-figure", "figure"),
         Output("anomaly-figure", "config"),
-        Input('shapley-values', 'children'),
+        Input("shapley-values", "children"),
         Input("qc-table", "data"),
         Input("qc-table", "derived_virtual_indices"),
-        Input("tabs", "value")
+        Input("tabs", "value"),
     )
     def plot_shapley(shapley_values, qc_data, ndxs, tab):
-        if tab != 'anomaly': raise PreventUpdate
-
+        if tab != "anomaly":
+            raise PreventUpdate
         df_shap = pd.read_json(shapley_values)
         qc_data = pd.DataFrame(qc_data).iloc[ndxs]
-
-        fns = qc_data['RawFile']
-
+        fns = qc_data["RawFile"]
         df_shap = df_shap.loc[fns]
-        
         fig = T.px_heatmap(
             df_shap.T,
             layout_kws=dict(
                 title="Anomaly feature score (shapley values)", height=1200
             ),
         )
-
         config = T.gen_figure_config(filename="Anomaly-Detection-Shapley-values")
-
         return fig, config

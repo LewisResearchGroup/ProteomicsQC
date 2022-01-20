@@ -97,13 +97,11 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_currentuser.middleware.ThreadLocalUserMiddleware",
-    'django_plotly_dash.middleware.ExternalRedirectionMiddleware',
+    "django_plotly_dash.middleware.ExternalRedirectionMiddleware",
 ]
 
 
-PLOTLY_COMPONENTS = [
-    'dpd_static_support'
-]
+PLOTLY_COMPONENTS = ["dpd_static_support"]
 
 ROOT_URLCONF = "main.urls"
 

@@ -25,8 +25,8 @@ class Project(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     description = models.TextField(max_length=10000, default="")
     slug = models.SlugField(max_length=256, unique=True)
-    created_by = CurrentUserField(related_name='creator')
-    users = models.ManyToManyField(User, related_name='users', blank=True)
+    created_by = CurrentUserField(related_name="creator")
+    users = models.ManyToManyField(User, related_name="users", blank=True)
 
     def __str__(self):
         return self.name

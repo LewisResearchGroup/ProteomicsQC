@@ -7,13 +7,19 @@ import main.settings
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('maxquant', '0008_alter_maxquantpipeline_slug'),
+        ("maxquant", "0008_alter_maxquantpipeline_slug"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='maxquantexecutable',
-            name='filename',
-            field=models.FileField(help_text='Upload a zipped MaxQuant file (e.g. MaxQuant_1.6.10.43.zip)', max_length=1000, storage=main.settings.MediaFileSystemStorage(location='/compute'), unique=True, upload_to='software/MaxQuant'),
+            model_name="maxquantexecutable",
+            name="filename",
+            field=models.FileField(
+                help_text="Upload a zipped MaxQuant file (e.g. MaxQuant_1.6.10.43.zip)",
+                max_length=1000,
+                storage=main.settings.MediaFileSystemStorage(location="/compute"),
+                unique=True,
+                upload_to="software/MaxQuant",
+            ),
         ),
     ]

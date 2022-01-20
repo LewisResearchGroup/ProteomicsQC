@@ -6,6 +6,7 @@ from pathlib import Path as P
 from django.core.files.uploadedfile import SimpleUploadedFile
 from glob import glob
 
+
 class PipelineTestCase(TestCase):
     def setUp(self):
         Project.objects.create(name="test-pipeline", description="a test project")

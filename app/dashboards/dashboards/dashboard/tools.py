@@ -497,11 +497,12 @@ def detect_anomalies(qc_data, **model_kws):
     # pycaret changes column names
     # change it to original names
     data.columns = selected_cols
-    
+
     sa = ShapAnalysis(model, data)
     shapley_values = sa.df_shap.reindex(selected_cols, axis=1)
-    prediction = predict_model(model, df_all)[['Anomaly', 'Anomaly_Score']]
-    
-    for c in selected_cols: print(c)
+    prediction = predict_model(model, df_all)[["Anomaly", "Anomaly_Score"]]
+
+    for c in selected_cols:
+        print(c)
 
     return prediction, shapley_values

@@ -24,10 +24,9 @@ class RawFileTestCase(TestCase):
         cls.celery_worker = start_worker(app)
         cls.celery_worker.__enter__()
 
-
     def setUp(self):
-        if not hasattr(self, 'pipeline'):
-            print('Setup')
+        if not hasattr(self, "pipeline"):
+            print("Setup")
             self.project = Project.objects.create(
                 name="project", description="A test project"
             )
@@ -43,22 +42,21 @@ class RawFileTestCase(TestCase):
                 project=self.project,
                 fasta_file=SimpleUploadedFile("my_fasta.fasta", contents_fasta),
                 mqpar_file=SimpleUploadedFile("my_mqpar.xml", contents_mqpar),
-                rawtools_args='-p -q -x -u -l -m -r TMT11 -chro 12TB',
+                rawtools_args="-p -q -x -u -l -m -r TMT11 -chro 12TB",
             )
 
             self.raw_file = RawFile.objects.create(
                 pipeline=self.pipeline, orig_file=SimpleUploadedFile("fake.raw", b"...")
             )
 
-
     def test__raw_file_exists(self):
         assert self.raw_file.path.is_file(), self.raw_file.path
 
     def test__rawfile_output_dir_created(self):
         path = self.raw_file.output_dir
-        files = glob(f'{self.raw_file.pipeline.path}/**/*', recursive=True)
+        files = glob(f"{self.raw_file.pipeline.path}/**/*", recursive=True)
         files.sort()
-        assert path.is_dir(), f'{path} NOT IN:\n\t'+'\n\t'.join(files)
+        assert path.is_dir(), f"{path} NOT IN:\n\t" + "\n\t".join(files)
 
     def test__maxquant_results_created(self):
         result = Result.objects.get(raw_file=self.raw_file)

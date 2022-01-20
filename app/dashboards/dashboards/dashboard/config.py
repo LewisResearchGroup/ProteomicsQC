@@ -180,5 +180,5 @@ colors = {
     "rejected": lightred,
     "flagged": "maroon",
     "not_flagged": midnight,
-    "selected": 'purple',
+    "selected": "purple",
 }

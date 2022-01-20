@@ -13,43 +13,68 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('project', '0001_initial'),
-        ('maxquant', '0001_initial'),
+        ("project", "0001_initial"),
+        ("maxquant", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='rawfile',
-            name='created_by',
-            field=django_currentuser.db.models.fields.CurrentUserField(default=django_currentuser.middleware.get_current_authenticated_user, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="rawfile",
+            name="created_by",
+            field=django_currentuser.db.models.fields.CurrentUserField(
+                default=django_currentuser.middleware.get_current_authenticated_user,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='maxquantresult',
-            name='created_by',
-            field=django_currentuser.db.models.fields.CurrentUserField(default=django_currentuser.middleware.get_current_authenticated_user, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="maxquantresult",
+            name="created_by",
+            field=django_currentuser.db.models.fields.CurrentUserField(
+                default=django_currentuser.middleware.get_current_authenticated_user,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='maxquantresult',
-            name='raw_file',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='maxquant.rawfile'),
+            model_name="maxquantresult",
+            name="raw_file",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE, to="maxquant.rawfile"
+            ),
         ),
         migrations.AddField(
-            model_name='rawfile',
-            name='pipeline',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='maxquant.maxquantpipeline'),
+            model_name="rawfile",
+            name="pipeline",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="maxquant.maxquantpipeline",
+            ),
         ),
         migrations.AddField(
-            model_name='maxquantpipeline',
-            name='created_by',
-            field=django_currentuser.db.models.fields.CurrentUserField(default=django_currentuser.middleware.get_current_authenticated_user, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="maxquantpipeline",
+            name="created_by",
+            field=django_currentuser.db.models.fields.CurrentUserField(
+                default=django_currentuser.middleware.get_current_authenticated_user,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='maxquantpipeline',
-            name='project',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='project.project'),
+            model_name="maxquantpipeline",
+            name="project",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="project.project",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='rawfile',
-            unique_together={('orig_file', 'pipeline')},
+            name="rawfile",
+            unique_together={("orig_file", "pipeline")},
         ),
     ]

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('maxquant', '0004_auto_20210712_1646'),
+        ("maxquant", "0004_auto_20210712_1646"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='maxquantexecutable',
-            name='description',
-            field=models.TextField(default='', max_length=10000),
+            model_name="maxquantexecutable",
+            name="description",
+            field=models.TextField(default="", max_length=10000),
         ),
     ]

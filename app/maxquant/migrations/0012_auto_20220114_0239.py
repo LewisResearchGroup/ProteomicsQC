@@ -7,18 +7,32 @@ import main.settings
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('maxquant', '0011_alter_maxquantpipeline_maxquant_executable'),
+        ("maxquant", "0011_alter_maxquantpipeline_maxquant_executable"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='fastafile',
-            name='fasta_file',
-            field=models.FileField(blank=True, help_text='Fasta file to use with MaxQuant. If this is changed all MaxQuant jobs in this pipeline should be rerun. Note: The link above does not work.', max_length=1000, null=True, storage=main.settings.MediaFileSystemStorage(location='/compute'), upload_to='uploads'),
+            model_name="fastafile",
+            name="fasta_file",
+            field=models.FileField(
+                blank=True,
+                help_text="Fasta file to use with MaxQuant. If this is changed all MaxQuant jobs in this pipeline should be rerun. Note: The link above does not work.",
+                max_length=1000,
+                null=True,
+                storage=main.settings.MediaFileSystemStorage(location="/compute"),
+                upload_to="uploads",
+            ),
         ),
         migrations.AlterField(
-            model_name='maxquantparameter',
-            name='mqpar_file',
-            field=models.FileField(blank=True, help_text='mqpar.xml file to use with MaxQuant. If this is changed all MaxQuant jobs in this pipeline should be rerun. Note: The link above does not work.', max_length=1000, null=True, storage=main.settings.MediaFileSystemStorage(location='/compute'), upload_to='uploads'),
+            model_name="maxquantparameter",
+            name="mqpar_file",
+            field=models.FileField(
+                blank=True,
+                help_text="mqpar.xml file to use with MaxQuant. If this is changed all MaxQuant jobs in this pipeline should be rerun. Note: The link above does not work.",
+                max_length=1000,
+                null=True,
+                storage=main.settings.MediaFileSystemStorage(location="/compute"),
+                upload_to="uploads",
+            ),
         ),
     ]

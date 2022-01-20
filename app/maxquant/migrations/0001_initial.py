@@ -11,82 +11,212 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='BasicUpload',
+            name="BasicUpload",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(blank=True, max_length=255)),
-                ('orig_file', models.FileField(storage=main.settings.MediaFileSystemStorage(location='/datalake'), upload_to='upload/')),
-                ('uploaded_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(blank=True, max_length=255)),
+                (
+                    "orig_file",
+                    models.FileField(
+                        storage=main.settings.MediaFileSystemStorage(
+                            location="/datalake"
+                        ),
+                        upload_to="upload/",
+                    ),
+                ),
+                ("uploaded_at", models.DateTimeField(auto_now_add=True)),
             ],
         ),
         migrations.CreateModel(
-            name='FastaFile',
+            name="FastaFile",
             fields=[
-                ('fasta_file_id', models.AutoField(primary_key=True, serialize=False)),
-                ('fasta_file', models.FileField(max_length=3000, storage=main.settings.MediaFileSystemStorage(location='/compute'), upload_to='uploads')),
+                ("fasta_file_id", models.AutoField(primary_key=True, serialize=False)),
+                (
+                    "fasta_file",
+                    models.FileField(
+                        max_length=3000,
+                        storage=main.settings.MediaFileSystemStorage(
+                            location="/compute"
+                        ),
+                        upload_to="uploads",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='MaxQuantExecutable',
+            name="MaxQuantExecutable",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('filename', models.FileField(storage=main.settings.MediaFileSystemStorage(location='/compute'), upload_to='software/MaxQuant')),
-                ('created', models.DateField(default=django.utils.timezone.now)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "filename",
+                    models.FileField(
+                        storage=main.settings.MediaFileSystemStorage(
+                            location="/compute"
+                        ),
+                        upload_to="software/MaxQuant",
+                    ),
+                ),
+                ("created", models.DateField(default=django.utils.timezone.now)),
             ],
         ),
         migrations.CreateModel(
-            name='MaxQuantParameter',
+            name="MaxQuantParameter",
             fields=[
-                ('mqpar_id', models.AutoField(primary_key=True, serialize=False)),
-                ('mqpar_file', models.FileField(max_length=3000, storage=main.settings.MediaFileSystemStorage(location='/compute'), upload_to='uploads')),
+                ("mqpar_id", models.AutoField(primary_key=True, serialize=False)),
+                (
+                    "mqpar_file",
+                    models.FileField(
+                        max_length=3000,
+                        storage=main.settings.MediaFileSystemStorage(
+                            location="/compute"
+                        ),
+                        upload_to="uploads",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='MaxQuantResult',
+            name="MaxQuantResult",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(default=django.utils.timezone.now)),
             ],
         ),
         migrations.CreateModel(
-            name='RawFile',
+            name="RawFile",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateField(default=django.utils.timezone.now)),
-                ('md5sum', models.CharField(default=django.utils.timezone.now, max_length=36)),
-                ('orig_file', models.FileField(max_length=1000, storage=main.settings.MediaFileSystemStorage(location='/datalake'), upload_to='upload')),
-                ('slug', models.SlugField(blank=True, max_length=250, null=True)),
-                ('flagged', models.BooleanField(default=False)),
-                ('use_downstream', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateField(default=django.utils.timezone.now)),
+                (
+                    "md5sum",
+                    models.CharField(default=django.utils.timezone.now, max_length=36),
+                ),
+                (
+                    "orig_file",
+                    models.FileField(
+                        max_length=1000,
+                        storage=main.settings.MediaFileSystemStorage(
+                            location="/datalake"
+                        ),
+                        upload_to="upload",
+                    ),
+                ),
+                ("slug", models.SlugField(blank=True, max_length=250, null=True)),
+                ("flagged", models.BooleanField(default=False)),
+                ("use_downstream", models.BooleanField(default=True)),
             ],
         ),
         migrations.CreateModel(
-            name='RawToolsSetup',
+            name="RawToolsSetup",
             fields=[
-                ('rawtools_setup_id', models.AutoField(primary_key=True, serialize=False)),
-                ('rawtools_args', models.CharField(default='-p -q -x -u -l -m -r TMT11 -chro 12TB', max_length=256, null=True)),
+                (
+                    "rawtools_setup_id",
+                    models.AutoField(primary_key=True, serialize=False),
+                ),
+                (
+                    "rawtools_args",
+                    models.CharField(
+                        default="-p -q -x -u -l -m -r TMT11 -chro 12TB",
+                        max_length=256,
+                        null=True,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='MaxQuantPipeline',
+            name="MaxQuantPipeline",
             fields=[
-                ('rawtoolssetup_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, to='maxquant.rawtoolssetup')),
-                ('fastafile_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, to='maxquant.fastafile')),
-                ('maxquantparameter_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, to='maxquant.maxquantparameter')),
-                ('maxquant_pipepline_id', models.AutoField(primary_key=True, serialize=False)),
-                ('created', models.DateField(default=django.utils.timezone.now)),
-                ('name', models.CharField(max_length=100, unique=True)),
-                ('run_automatically', models.BooleanField(default=False)),
-                ('regular_expressions_filter', models.CharField(default='.*', max_length=256)),
-                ('maxquant_executable', models.FilePathField(blank=True, match='.*MaxQuantCmd.exe', null=True, path='/compute', recursive=True)),
-                ('slug', models.SlugField(default=uuid.uuid4, max_length=256)),
-                ('uuid', models.CharField(default=uuid.uuid4, max_length=36)),
+                (
+                    "rawtoolssetup_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        to="maxquant.rawtoolssetup",
+                    ),
+                ),
+                (
+                    "fastafile_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        to="maxquant.fastafile",
+                    ),
+                ),
+                (
+                    "maxquantparameter_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        to="maxquant.maxquantparameter",
+                    ),
+                ),
+                (
+                    "maxquant_pipepline_id",
+                    models.AutoField(primary_key=True, serialize=False),
+                ),
+                ("created", models.DateField(default=django.utils.timezone.now)),
+                ("name", models.CharField(max_length=100, unique=True)),
+                ("run_automatically", models.BooleanField(default=False)),
+                (
+                    "regular_expressions_filter",
+                    models.CharField(default=".*", max_length=256),
+                ),
+                (
+                    "maxquant_executable",
+                    models.FilePathField(
+                        blank=True,
+                        match=".*MaxQuantCmd.exe",
+                        null=True,
+                        path="/compute",
+                        recursive=True,
+                    ),
+                ),
+                ("slug", models.SlugField(default=uuid.uuid4, max_length=256)),
+                ("uuid", models.CharField(default=uuid.uuid4, max_length=36)),
             ],
-            bases=('maxquant.maxquantparameter', 'maxquant.fastafile', 'maxquant.rawtoolssetup'),
+            bases=(
+                "maxquant.maxquantparameter",
+                "maxquant.fastafile",
+                "maxquant.rawtoolssetup",
+            ),
         ),
     ]

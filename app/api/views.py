@@ -320,14 +320,16 @@ class CreateFlag(generics.ListAPIView):
         data = request.data
 
         user = get_user(request)
-        
+
         project_slug = data["project"]
         pipeline_slug = data["pipeline"]
         raw_files = request.POST.getlist("raw_files")
 
         project = Project.objects.get(slug=project_slug)
         if not user in project.users.all():
-            logging.warning(f'User {user.email} does not belong to project {project.name}')
+            logging.warning(
+                f"User {user.email} does not belong to project {project.name}"
+            )
             return JsonResponse({})
 
         pipeline = MaxQuantPipeline.objects.get(
@@ -349,14 +351,16 @@ class DeleteFlag(generics.ListAPIView):
         data = request.data
 
         user = get_user(request)
-        
+
         project_slug = data["project"]
         pipeline_slug = data["pipeline"]
         raw_files = request.POST.getlist("raw_files")
 
         project = Project.objects.get(slug=project_slug)
         if not user in project.users.all():
-            logging.warning(f'User {user.email} does not belong to project {project.name}')
+            logging.warning(
+                f"User {user.email} does not belong to project {project.name}"
+            )
             return JsonResponse({})
 
         pipeline = MaxQuantPipeline.objects.get(
@@ -379,15 +383,17 @@ class RawFile(generics.ListAPIView):
         data = request.data
 
         user = get_user(request)
-        
+
         project_slug = data["project"]
         pipeline_slug = data["pipeline"]
         action = data["action"]
 
         project = Project.objects.get(slug=project_slug)
         if not user in project.users.all():
-            logging.warning(f'User {user.email} does not belong to project {project.name}')
-            return JsonResponse({'status': 'Missing permissions'})
+            logging.warning(
+                f"User {user.email} does not belong to project {project.name}"
+            )
+            return JsonResponse({"status": "Missing permissions"})
 
         raw_files = request.POST.getlist("raw_files")
 
@@ -398,11 +404,15 @@ class RawFile(generics.ListAPIView):
         results = MaxQuantResult.objects.filter(raw_file__pipeline=pipeline)
         for result in results:
             if result.raw_file.name in raw_files:
-                logging.warning(f'{result.raw_file.name}: {action}')
-                if action == 'flag': result.raw_file.flagged = True
-                elif action == 'unflag': result.raw_file.flagged = False
-                elif action == 'accept': result.raw_file.use_downstream = True
-                elif action == 'reject': result.raw_file.use_downstream = False
+                logging.warning(f"{result.raw_file.name}: {action}")
+                if action == "flag":
+                    result.raw_file.flagged = True
+                elif action == "unflag":
+                    result.raw_file.flagged = False
+                elif action == "accept":
+                    result.raw_file.use_downstream = True
+                elif action == "reject":
+                    result.raw_file.use_downstream = False
                 result.raw_file.save()
-                
-        return JsonResponse({'status': 'success'})
+
+        return JsonResponse({"status": "success"})
