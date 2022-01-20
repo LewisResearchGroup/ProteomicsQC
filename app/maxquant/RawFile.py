@@ -46,7 +46,7 @@ class RawFile(models.Model):
 
     flagged = models.BooleanField(default=False)
 
-    use_downstream = models.BooleanField(default=True)
+    use_downstream = models.BooleanField(default=None, null=True, blank=True)
 
     class Meta:
         unique_together = ("orig_file", "pipeline")

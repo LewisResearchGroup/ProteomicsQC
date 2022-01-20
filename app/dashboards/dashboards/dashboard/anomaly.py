@@ -23,10 +23,15 @@ except:
     import tools as T
 
 
+checklist_options = [
+    {'label': 'Hide rejected samples', 'value': 'hide_rejected'}
+]
+
 layout = html.Div(
     [
         html.H1("Anomaly detection"),
         html.Button("Run isolation forest", id="anomaly-btn", className="btn"),
+        dcc.Checklist(id='anomaly-checkbox', options=checklist_options, value=['hide_rejected'], style=dict(padding='15px')),
         dcc.Loading(
             [dcc.Graph(id="anomaly-figure")],
         ),
