@@ -468,6 +468,8 @@ def detect_anomalies(qc_data, **model_kws):
     "Mean_parent_int_frac",
     ]
 
+    selected_cols.reverse()
+    
     log_cols = [
         "Ms1MedianSummedIntensity",
         "Ms2MedianSummedIntensity",
