@@ -78,8 +78,10 @@ def callbacks(app):
         Input('shapley-values', 'children'),
         Input("qc-table", "data"),
         Input("qc-table", "derived_virtual_indices"),
+        Input("tabs", "value")
     )
-    def plot_shapley(shapley_values, qc_data, ndxs):
+    def plot_shapley(shapley_values, qc_data, ndxs, tab):
+        if tab != 'anomaly': raise PreventUpdate
 
         df_shap = pd.read_json(shapley_values)
         qc_data = pd.DataFrame(qc_data).iloc[ndxs]
