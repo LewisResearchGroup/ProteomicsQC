@@ -34,10 +34,13 @@ import plotly.graph_objects as go
 from scipy.cluster.hierarchy import linkage, dendrogram
 from scipy.spatial.distance import pdist, squareform
 
+import logging
+
 try:
     from .tools import list_to_dropdown_options
     from . import tools as T
-except:
+except Exception as e:
+    logging.warngin(e)
     from tools import list_to_dropdown_options
     import tools as T
 
