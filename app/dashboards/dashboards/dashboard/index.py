@@ -224,7 +224,7 @@ layout = html.Div(
         ),
         html.Div(id="selection-output"),
         html.Div(id="selected-raw-files", style={"visibility": "hidden"}),
-        html.Div(id="shapley-values", style={"visibility": "hidden"}),
+        dcc.Loading(html.Div(id="shapley-values", style={"visibility": "hidden"})),
     ],
     style={"max-width": "90%", "display": "block", "margin": "auto"},
 )
