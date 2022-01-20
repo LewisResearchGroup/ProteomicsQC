@@ -266,7 +266,7 @@ def populate_pipelines(project):
 @app.callback(
     Output("qc-table-div", "children"),
     Input("qc-update-table", "n_clicks"),
-    State("pipeline", "value"),
+    Input("pipeline", "value"),
     State("project", "value"),
     State("qc-table-columns", "value"),
     State("data-range", "value"),

@@ -24,7 +24,7 @@ except:
 
 
 checklist_options = [
-    {'label': 'Hide rejected samples', 'value': 'hide_rejected'}
+    {'label': 'Hide rejected samples', 'value': 'hide_rejected'},
 ]
 
 layout = html.Div(
@@ -81,8 +81,8 @@ def callbacks(app):
         Output("anomaly-figure", "figure"),
         Output("anomaly-figure", "config"),
         Input("shapley-values", "children"),
-        Input("anomaly-checklist", "value"),
         Input("qc-table", "data"),
+        Input("anomaly-checklist", "value"),
         Input("qc-table", "derived_virtual_indices"),
         Input("tabs", "value"),
     )
@@ -90,8 +90,11 @@ def callbacks(app):
         if tab != "anomaly": raise PreventUpdate
             
         df_shap = pd.read_json(shapley_values)
-        qc_data = pd.DataFrame(qc_data).iloc[ndxs]
 
+
+        qc_data = pd.DataFrame(qc_data)
+        qc_data = qc_data.iloc[ndxs]
+        
         if 'hide_rejected' in options: qc_data = qc_data[qc_data['Use Downstream'] != False]
 
         fns = qc_data["RawFile"]
