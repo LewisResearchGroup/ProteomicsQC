@@ -390,7 +390,7 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
     )
 
     marker_color = df["Use Downstream"].replace(
-        {True: C.colors["accepted"], False: C.colors["rejected"]}
+        {True: C.colors["accepted"], False: C.colors["rejected"], None: C.colors["unassigned"]}
     )
     marker_line_color = df["Flagged"].replace(
         {True: C.colors["flagged"], False: C.colors["not_flagged"]}

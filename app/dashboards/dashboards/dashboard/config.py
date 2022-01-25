@@ -178,6 +178,7 @@ lightred = "rgb(255,230,230)"
 colors = {
     "accepted": lightblue,
     "rejected": lightred,
+    "unassigned": "white",
     "flagged": "maroon",
     "not_flagged": midnight,
     "selected": "purple",
