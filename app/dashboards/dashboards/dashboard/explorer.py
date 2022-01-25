@@ -214,10 +214,11 @@ def callbacks(app):
             showlegend=False,
             margin=dict(l=50, r=10, b=200, t=50, pad=0),
             hovermode="closest",
+            font=C.figure_font
         )
 
         marker_color = df["Use Downstream"].replace(
-            {True: C.colors["accepted"], False: C.colors["rejected"]}
+            {True: C.colors["accepted"], False: C.colors["rejected"], None: C.colors["unassigned"]}
         )
         marker_line_color = df["Flagged"].replace(
             {True: C.colors["flagged"], False: C.colors["not_flagged"]}
@@ -288,12 +289,13 @@ def callbacks(app):
             showlegend=False,
             margin=dict(l=50, r=10, b=200, t=50, pad=0),
             hovermode="closest",
+            font=C.figure_font,
         )
 
         config = T.gen_figure_config(filename="PQC-scatter-matrix")
 
         marker_color = df["Use Downstream"].replace(
-            {True: C.colors["use_downstream"], False: C.colors["dont_use_downstream"]}
+            {True: C.colors["accepted"], False: C.colors["rejected"], None: C.colors["unassigned"]}
         )
 
         marker_line_color = df["Flagged"].replace(
@@ -314,8 +316,7 @@ def callbacks(app):
             opacity=0.8,
         )
 
-        fig.update_traces(marker_color=marker_color)
-        fig.update_traces(marker_size=20)
+        fig.update_traces(marker_color=marker_color, marker_size=20)
 
         return fig, config
 

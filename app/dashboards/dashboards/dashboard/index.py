@@ -387,6 +387,11 @@ def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
         height=200 + 250 * (i + 1),
         showlegend=False,
         margin=dict(l=50, r=10, b=200, t=50, pad=0),
+        font=dict(
+            #family="Courier New, monospace",
+            size=12,
+            color="black"
+        )
     )
 
     marker_color = df["Use Downstream"].replace(

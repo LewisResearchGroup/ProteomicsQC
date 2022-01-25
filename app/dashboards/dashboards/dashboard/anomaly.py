@@ -1,4 +1,4 @@
-# from dash.html.Pre import Pre
+import logging
 import pandas as pd
 import numpy as np
 
@@ -19,8 +19,11 @@ from lrg_omics.proteomics import ProteomicsQC
 
 try:
     from . import tools as T
-except:
+    from . import config as C
+except Exception as e:
+    logging.warning(e)
     import tools as T
+    import config as C
 
 
 checklist_options = [
@@ -106,5 +109,7 @@ def callbacks(app):
                 title="Anomaly feature score (shapley values)", height=1200
             ),
         )
+        fig.update_layout(font=C.figure_font)
+
         config = T.gen_figure_config(filename="Anomaly-Detection-Shapley-values")
         return fig, config

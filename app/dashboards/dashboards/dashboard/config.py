@@ -180,6 +180,12 @@ colors = {
     "rejected": lightred,
     "unassigned": "white",
     "flagged": "maroon",
-    "not_flagged": midnight,
+    "not_flagged": "black",
     "selected": "purple",
 }
+
+figure_font = dict(
+            #family="Courier New, monospace",
+            size=12,
+            color="black"
+        )
