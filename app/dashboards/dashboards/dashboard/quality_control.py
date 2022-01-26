@@ -112,7 +112,7 @@ def callbacks(app):
             hoverlabel_namelength=-1,
             height=200 + 250 * (i + 1),
             showlegend=False,
-            margin=dict(l=None, r=None, b=200, t=None, pad=0),
+            margin=dict(l=None, r=None, b=500, t=None, pad=0),
             font=C.figure_font,
             #xaxis={'automargin': True},
             yaxis={'automargin': True},
