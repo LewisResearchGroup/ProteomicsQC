@@ -19,7 +19,6 @@ import panel as pn
 pn.extension("plotly")
 
 import dash_table as dt
-import dash_table
 
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -28,7 +27,6 @@ from dash_tabulator import DashTabulator
 from lrg_omics.plotly import plotly_heatmap, plotly_bar, plotly_histogram, set_template
 from lrg_omics.proteomics import ProteomicsQC
 
-from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
 from scipy.cluster.hierarchy import linkage, dendrogram
@@ -50,16 +48,6 @@ set_template()
 if __name__ == "__main__":
     app = dash.Dash(__name__)
     import proteins, quality_control, explorer, anomaly
-    from tools import (
-        table_from_dataframe,
-        get_projects,
-        get_pipelines,
-        get_protein_groups,
-        get_qc_data,
-        list_to_dropdown_options,
-        get_protein_names,
-    )
-
     import config as C
     import tools as T
 
@@ -67,17 +55,6 @@ if __name__ == "__main__":
 else:
     from django_plotly_dash import DjangoDash
     from . import proteins, quality_control, explorer, anomaly
-
-    from .tools import (
-        table_from_dataframe,
-        get_projects,
-        get_pipelines,
-        get_protein_groups,
-        get_qc_data,
-        list_to_dropdown_options,
-        get_protein_names,
-    )
-
     from . import config as C
     from . import tools as T
 
@@ -106,7 +83,7 @@ layout = html.Div(
                             className="btn",
                         ),
                         dcc.Dropdown(
-                            id="project", options=get_projects(), value="lsarp"
+                            id="project", options=T.get_projects(), value="lsarp"
                         ),
                     ]
                 ),
@@ -234,6 +211,7 @@ app.layout = layout
 proteins.callbacks(app)
 explorer.callbacks(app)
 anomaly.callbacks(app)
+quality_control.callbacks(app)
 
 
 @app.callback(Output("tabs-content", "children"), [Input("tabs", "value")])
@@ -250,12 +228,12 @@ def render_content(tab):
 
 @app.callback(Output("project", "options"), [Input("B_update", "n_clicks")])
 def populate_projects(project):
-    return get_projects()
+    return T.get_projects()
 
 
 @app.callback(Output("pipeline", "options"), [Input("project", "value")])
 def populate_pipelines(project):
-    _json = get_pipelines(project)
+    _json = T.get_pipelines(project)
     if len(_json) == 0:
         return []
     else:
@@ -276,7 +254,7 @@ def refresh_qc_table(n_clicks, pipeline, project, optional_columns, data_range):
     if (project is None) or (pipeline is None):
         raise PreventUpdate
     columns = C.qc_columns_always + optional_columns
-    data = get_qc_data(
+    data = T.get_qc_data(
         project=project, pipeline=pipeline, columns=columns, data_range=data_range
     )
 
@@ -285,144 +263,7 @@ def refresh_qc_table(n_clicks, pipeline, project, optional_columns, data_range):
     if "DateAcquired" in df.columns:
         df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
         df = df.replace("not detected", np.NaN)[C.qc_columns_always + optional_columns]
-    return table_from_dataframe(df, id="qc-table", row_selectable="multi")
-
-
-inputs = [Input("refresh-plots", "n_clicks")]
-states = [
-    State("qc-table", "selected_rows"),
-    State("qc-table", "derived_virtual_indices"),
-    State("x", "value"),
-    State("qc-table", "data"),
-    State("qc-table-columns", "value"),
-]
-
-plot_map = [
-    {"title": "PSMs [%]", "plots": [{"y": "MS/MS Identified [%]", "label": "n_psm"}]},
-    {
-        "title": "Peptides / Protein Groups",
-        "plots": [
-            {"y": "N_peptides", "label": "n_peptides"},
-            {"y": "N_protein_groups", "label": "n_proteins"},
-        ],
-    },
-    {
-        "title": "Oxidations [%]",
-        "plots": [{"y": "Oxidations [%]", "label": "Oxidations [%]"}],
-    },
-    {
-        "title": "Missed Cleavages [%]",
-        "plots": [
-            {"y": "N_missed_cleavages_eq_1 [%]", "label": "Missed Cleavages [%]"},
-        ],
-    },
-    {
-        "title": "Median fill times (ms)",
-        "plots": [
-            {"y": "MedianMs1FillTime(ms)", "label": "Median MS1 Fill Time"},
-            {"y": "MedianMs2FillTime(ms)", "label": "Median MS2 Fill Time"},
-        ],
-    },
-    {
-        "title": "Total MS Scans",
-        "plots": [
-            {"y": "NumMs1Scans", "label": "# MS1 scans"},
-            {"y": "NumMs2Scans", "label": "# MS2 scans"},
-            {"y": "NumMs3Scans", "label": "# MS3 scans"},
-        ],
-    },
-    {
-        "title": "ESI Instability Flags",
-        "plots": [{"y": "NumEsiInstabilityFlags", "label": "ESI Instability"}],
-    },
-]
-
-
-# @lru_cache(maxsize=32)
-@app.callback(
-    Output("qc-figure", "figure"), Output("qc-figure", "config"), inputs, states
-)
-def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
-    """Creates the bar-plot figure"""
-    if (data is None) or (ndxs is None) or (len(ndxs) == 0):
-        raise PreventUpdate
-
-    if x is None:
-        x = "RawFile"
-
-    titles = [el["title"] for el in plot_map]
-
-    df = pd.DataFrame(data)
-
-    assert pd.value_counts(df.columns).max() == 1, pd.value_counts(df.columns)
-
-    df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
-
-    if ndxs is not None:
-        df = df.reindex(ndxs)
-
-    numeric_columns = df[optional_columns].head(1)._get_numeric_data().columns
-
-    fig = make_subplots(
-        cols=1,
-        rows=len(numeric_columns),
-        subplot_titles=numeric_columns,
-        shared_xaxes=True,
-        # vertical_spacing=0.05,
-        print_grid=True,
-    )
-
-    for i, col in enumerate(numeric_columns):
-        trace = go.Bar(
-            x=df[x],
-            y=df[col],
-            name=col,
-            text=None if x == "RawFile" else df["RawFile"],
-        )
-        fig.add_trace(trace, row=1 + i, col=1)
-
-    fig.update_layout(
-        hovermode="closest",
-        hoverlabel_namelength=-1,
-        height=200 + 250 * (i + 1),
-        showlegend=False,
-        margin=dict(l=50, r=10, b=200, t=50, pad=0),
-        font=dict(
-            #family="Courier New, monospace",
-            size=12,
-            color="black"
-        )
-    )
-
-    marker_color = df["Use Downstream"].replace(
-        {True: C.colors["accepted"], False: C.colors["rejected"], None: C.colors["unassigned"]}
-    )
-    marker_line_color = df["Flagged"].replace(
-        {True: C.colors["flagged"], False: C.colors["not_flagged"]}
-    )
-
-    for ndx in selected:
-        marker_color[ndx] = C.colors["selected"]
-
-    fig.update_traces(
-        marker_color=marker_color,
-        marker_line_color=marker_line_color,
-        marker_line_width=1,
-        opacity=0.8,
-    )
-
-    fig.update_xaxes(matches="x")
-
-    if x == "RawFile":
-        fig.update_layout(
-            xaxis5=dict(
-                tickmode="array", tickvals=tuple(range(len(df))), ticktext=tuple(df[x])
-            )
-        )
-
-    config = T.gen_figure_config(filename="QC-barplot")
-
-    return fig, config
+    return T.table_from_dataframe(df, id="qc-table", row_selectable="multi")
 
 
 @app.callback(
@@ -542,7 +383,7 @@ def restrict_to_selection(n_clicks, data, selected):
     Output("selected-raw-files", "children"),
     Input("qc-table", "selected_rows"),
 )
-def update_selected_raw_files(selected_rows):
+def update_selected_raw_files_1(selected_rows):
     return selected_rows
 
 

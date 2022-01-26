@@ -186,6 +186,6 @@ colors = {
 
 figure_font = dict(
             #family="Courier New, monospace",
-            size=12,
+            size=15,
             color="black"
         )

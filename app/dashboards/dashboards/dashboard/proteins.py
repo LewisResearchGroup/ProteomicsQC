@@ -1,3 +1,4 @@
+import logging
 import pandas as pd
 import numpy as np
 
@@ -17,9 +18,11 @@ from dash_tabulator import DashTabulator
 try:
     from .tools import list_to_dropdown_options
     from . import tools as T
+    from . import config as C
 except:
     from tools import list_to_dropdown_options
     import tools as T
+    from . import config as C
 
 
 tabulator_options = {

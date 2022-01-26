@@ -212,9 +212,11 @@ def callbacks(app):
             autosize=True,
             height=300 * n_rows + 200,
             showlegend=False,
-            margin=dict(l=50, r=10, b=200, t=50, pad=0),
+            #margin=dict(l=50, r=10, b=200, t=50, pad=0),
             hovermode="closest",
-            font=C.figure_font
+            font=C.figure_font,
+            xaxis={'automargin': True},
+            yaxis={'automargin': True},
         )
 
         marker_color = df["Use Downstream"].replace(
