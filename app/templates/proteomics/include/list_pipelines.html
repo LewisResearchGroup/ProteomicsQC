@@ -1,20 +1,10 @@
   
-{% if maxquant_pipelines %}
-<p>MaxQuant pipelines in this project.</p>
-<table style="width:100%" class='block'>
-    <tr>
-        <th>
-            Name
-        </th>  
-    </tr>
+<div class='block'>
+  {% if maxquant_pipelines %}
     {% for pipeline in maxquant_pipelines %}
-        </tr>
-            <th>
-                <a href="{{ pipeline.url }}"><button class='btn full_width'>{{ pipeline.name }}</button></a>
-            </th>
-        </tr>
+        <a href="{{ pipeline.url }}"><button class='btn full_width'>{{ pipeline.name }}</button></a>
     {% endfor %}
-</table>
-{% else %}
-<p>There are no MaxQuant pipelines in the project.</p>
-{% endif %}  
+  {% else %}
+    <p class='warning'>No pipeline found for this project.</p>
+  {% endif %}
+</div>

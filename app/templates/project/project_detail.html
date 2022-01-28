@@ -9,10 +9,10 @@
   </div>
 
   <div class='block'>
-    <a href="{% url 'project:list' %}"><button class='btn' title='Back to projects overview.'>..</button></a>
+    <a href="{% url 'project:list' %}"><button class='btn' title='Back to projects overview.'><i class="fas fa-arrow-left"></i></button></a>
   </div>
   <div class='block'>
-    <h3>Pipelines</h3>
+    <h3>Pipelines in this project</h3>
     {% include 'proteomics/include/list_pipelines.html' with project=object.slug %}
   </div>
   

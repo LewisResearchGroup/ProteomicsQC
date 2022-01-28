@@ -1,3 +1,12 @@
+@import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
+
+
+body {
+    font-family: 'Dongle', sans-serif;
+    background: #fafafa;
+}
+
+
 #title{
     color:rgb(240, 240, 240);
     font-size: 30;
@@ -16,25 +25,14 @@
     background-color: lightgray !important;
     border: 2px solid red;
     border-radius: 5px;
-}
-
-#LoginButton {
-    background-color: white;
-    color: black;
+    max-width: 100%;
+    margin: auto;
 }
 
 
 #LoginButton:hover {
     background-color: blue;
 }
-
-
-
-body {
-    background-color:white;
-}
-
-
 
 hr {
     margin-top: 20px;
@@ -43,45 +41,6 @@ hr {
 
 .nobull {
     list-style-type: none !important;
-   }
-
-nav {
-    background-color: inherit;
-    height: inherit;
-}
-
-navbar {
-    background-color: black;
-    float: right;
-}
-
-.nav-wrapper {
-    height: inherit;
-}
-
-nav ul {
-    text-align: center;
-    margin: auto;
-    #display: inline-block;    
-}
-
-nav ul li {
-    margin: 1px;
-    padding: 1px;
-}
-
-.side-nav ul {
-    padding-top: 20px;
-}
-
-.side-nav li>a {
-    float: center;
-    text-align: center;
-    padding: 0px;
-}
-
-nav ul a {
-    padding: 0px;
 }
 
 .no-shadows {
@@ -94,10 +53,18 @@ nav ul a {
 
 .btn{
     width: 220px;
-    padding: 0px;
-    margin: 0px;
-    margin-top: 5px;
+    min-height: 40px;
+    margin: 5px 5px 5px 5px;
     background-color: darkcyan;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    padding: 5px;
+}
+
+#logout {
+    background:darkred;
+    float: right;
 }
 
 .right{
@@ -105,7 +72,8 @@ nav ul a {
 }
 
 .full_width {
-    width: 100% !important;
+    width: 100%;
+    margin: 5px;
 }
 
 .btn:hover {
@@ -181,6 +149,7 @@ table tr th {
     position: relative;
 }
 
+
 #CookielawBanner #CookielawCross {
     background: url('../img/close.png') no-repeat 0 0;
     cursor: pointer;
@@ -217,7 +186,7 @@ table tr th {
   z-index: 3;
   color: #fff;
   cursor: default;
-  background-color: blue;
+  background-color: white;
   border-color: white;
 }
 
@@ -235,6 +204,84 @@ table tr th {
 .pagination > .disabled > a:focus {
   color: white;
   cursor: not-allowed;
-  background-color: blue;
+  background-color: white;
   border-color: #ddd;
+}
+
+ul {
+    list-style-type: none !important;
+}
+
+ul ul a {
+    font-size: 0.9em !important;
+    padding-left: 30px !important;
+    background: #6d7fcc;
+}
+
+
+@media (max-width: 1000px) {
+    #logout {
+        float: None;
+    }
+}
+
+@media (max-width: 500px) {
+    .btn {
+        width: 100%;
+    }
+}
+
+
+a[data-toggle="collapse"] {
+    position: relative;
+}
+
+.dropdown-toggle::after {
+    display: block;
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+}
+
+#sidebar {
+    min-width: 250px;
+    max-width: 250px;
+    min-height: 100vh;
+}
+
+.wrapper {
+    display: flex;
+    align-items: stretch;
+}
+
+#sidebar.active {
+    margin-left: -250px;
+}
+
+.warning {
+    color: white;
+    margin: auto;
+    background: darkred;
+    text-align: center;
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+
+a:hover {
+    text-decoration: None;
+}
+
+#username {
+    font-weight: bold;
+    padding: 5px;
+}
+
+.flex-wrapper {
+    display: flex;
+    min-height: 90vh;
+    flex-direction: column;
+    justify-content: space-between;
 }

@@ -11,7 +11,7 @@
 <div class='block'>
   <ul>
     <li>
-      <a href="{% url 'maxquant:detail' project=project.slug pipeline=pipeline.slug %}"><button class="btn" title='Back to the project overview.'>..</button></a>
+      <a href="{% url 'maxquant:detail' project=project.slug pipeline=pipeline.slug %}"><button class="btn" title='Back to the project overview.'><i class="fas fa-arrow-left"></i></button></a>
     </li>
   </ul>
 </div>
@@ -53,7 +53,7 @@
        data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}", "pipeline": "{{ pipeline.pk }}"  }'>
 
 
-{# 3. TABLE TO DISPLAY THE UPLOADED PHOTOS #}
+{# 3. TABLE TO DISPLAY THE UPLOADED FILES #}
 <table id="gallery" class="table table-bordered">
   <thead>
     <tr>

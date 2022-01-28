@@ -1,9 +1,30 @@
-<ul>
-    <li><a href="{% url 'project:list' %}"><button class="btn" title='List of all projects.'>Projects</button></a></li>
-    <li><a href="{% url 'dash:primary_dashboard' %}"><button class="btn" title='Interactive dashboard for quality control and quick analysis.'>Dashboard</button></a></li>
-    <!--
-    <li><a href="{\% url 'search_rawfile' %}"><button class="btn" title='Search for RAW files in all projects.'>Search RAW</button></a></li>
-    <li><a href="{\% url 'search_maxquant' %}"><button class="btn" title='Search MaxQuant runs in all projects and/or pipelines.'>Search MaxQuant</button></a></li>
-    -->
-    <li><a href="{% url 'admin:index' %}"><button class="btn" title='Manage projects/pipelines/users etc.'>Admin</button></a></li>
-</ul>
+<nav>
+  {% if user.is_authenticated %}
+    <a href="{% url 'project:list' %}">
+      <button class="btn" title='List of all projects.'>
+        <i class="fas fa-project-diagram"></i> 
+        Projects
+      </button>
+    </a>
+    <a href="{% url 'dash:primary_dashboard' %}">
+      <button class="btn" title='Interactive dashboard for quality control and quick analysis.'>
+        <i class="fas fa-chart-bar"></i> 
+        Dashboard
+      </button>
+    </a>
+    <a href="{% url 'admin:index' %}">
+      <button class="btn" title='Manage projects/pipelines/users etc.'>
+        <i class="fas fa-user-cog"></i> 
+        Admin
+      </button>
+    </a>
+    <a href="{% url 'logout'%}?next=/">
+      <button class="btn" title='Logout' id='logout'>
+        <i class="fas fa-sign-out-alt"></i> 
+        Logout
+      </button>
+    </a>
+  {% elif request.get_full_path|slice:":16" != "/accounts/login/" %}
+    <a href="{% url 'login'%}"><button class='btn' id='LoginButton'>Login</button></a>  
+  {% endif %}
+</nav>

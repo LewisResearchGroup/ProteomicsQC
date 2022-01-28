@@ -2,22 +2,14 @@
 
 {% block content %}
   <h1 class='project'>Projects</h1>
-
-  {% if project_list %}
-  <table style="width:100%" class='block'>
-    <tr>
-      <th>Project Name</th>
-    </tr>
-    {% for project in project_list %}
-      <tr>
-        <th>
-          <a href="{% url 'project:detail' slug=project.slug %}"><button class='btn full_width'>{{ project.name }}</button></a>
-        </th>
-      </li>
-    {% endfor %}
-     </table>
-  {% else %}
-    <p>There were no project created yet.</p>
-  {% endif %}       
+  <div class='block'>
+    {% if project_list %}
+      {% for project in project_list %}
+        <a href="{% url 'project:detail' slug=project.slug %}"><button class='btn full_width'>{{ project.name }}</button></a> 
+      {% endfor %}
+    {% else %}
+      <p>There were no project created yet.</p>
+    {% endif %}
+  </div>
 {% endblock %}
 
