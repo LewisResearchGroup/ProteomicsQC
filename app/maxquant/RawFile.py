@@ -15,7 +15,7 @@ from django.shortcuts import render, reverse
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import mark_safe
 
-from .MaxQuantResult import MaxQuantResult
+from .Result import Result
 from uuid import uuid4
 
 
@@ -33,7 +33,7 @@ class RawFile(models.Model):
     created = models.DateField(default=timezone.now)
 
     pipeline = models.ForeignKey(
-        "MaxQuantPipeline", on_delete=models.CASCADE, null=False, default=1
+        "Pipeline", on_delete=models.CASCADE, null=False, default=1
     )
 
     md5sum = models.CharField(max_length=36, default=timezone.now, unique=False)
@@ -143,7 +143,7 @@ def move_rawfile_to_input_dir(sender, instance, created, *args, **kwargs):
     # Create MaxQuant runs only if not present yet
     if raw_file.pipeline.has_maxquant_config:
         if len(MaxQuantResult.objects.filter(raw_file=raw_file)) == 0:
-            MaxQuantResult.objects.create(raw_file=raw_file)
+            Result.objects.create(raw_file=raw_file)
 
 
 @receiver(models.signals.post_delete, sender=RawFile)

@@ -96,7 +96,7 @@ layout = html.Div(
                                 ),
                                 dcc.Graph(
                                     id="qc-figure",
-                                    style={"max-width": "100%", "visibility": "hidden"},
+                                    style={"visibility": "hidden"},
                                 ),
                             ]
                         ),
@@ -127,6 +127,8 @@ layout = html.Div(
                                 style={"max-width": "100%"},
                             ),
                         ),
+                        # placeholder
+                        dcc.Graph(id="qc-figure", style={"visibility": "hidden"}),
                     ]
                 ),
             ]

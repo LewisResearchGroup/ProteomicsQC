@@ -56,19 +56,15 @@ layout = html.Div(
 
 def callbacks(app):
 
-
-    inputs = [Input("refresh-plots", "n_clicks")]
-    states = [
+    @app.callback(
+        Output("qc-figure", "figure"), 
+        Output("qc-figure", "config"), 
+        Input("refresh-plots", "n_clicks"), 
         State("qc-table", "selected_rows"),
         State("qc-table", "derived_virtual_indices"),
         State("x", "value"),
         State("qc-table", "data"),
-        State("qc-table-columns", "value"),
-    ]
-
-
-    @app.callback(
-        Output("qc-figure", "figure"), Output("qc-figure", "config"), inputs, states
+        State("qc-table-columns", "value")
     )
     def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
         """Creates the bar-plot figure"""

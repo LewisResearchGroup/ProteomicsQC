@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import RawFile, MaxQuantResult, MaxQuantPipeline
+from .models import RawFile, Result, Pipeline
 
 
 class RawFileSerializer(serializers.ModelSerializer):
@@ -8,9 +8,9 @@ class RawFileSerializer(serializers.ModelSerializer):
         fields = ("orig_file", "pipeline", "created_by")
 
 
-class MaxQuantPipelineSerializer(serializers.ModelSerializer):
+class PipelineSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MaxQuantPipeline
+        model = Pipeline
         fields = ("slug", "name", "path_as_str")
         name = serializers.SerializerMethodField()
 
@@ -20,7 +20,7 @@ class MaxQuantPipelineSerializer(serializers.ModelSerializer):
 
 class MaxQuantPathSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MaxQuantResult
+        model = Result
         fields = "path"
         depth = 1
 

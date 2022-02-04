@@ -1,11 +1,11 @@
 from django.contrib import admin
 from .models import (
-    MaxQuantPipeline,
+    Pipeline,
     FastaFile,
     MaxQuantExecutable,
     MaxQuantParameter,
     RawFile,
-    MaxQuantResult,
+    Result,
     RawToolsSetup,
 )
 
@@ -57,7 +57,7 @@ class RawFileAdmin(admin.ModelAdmin):
             raw_file.save()
 
 
-class MaxQuantPipelineAdmin(admin.ModelAdmin):
+class PipelineAdmin(admin.ModelAdmin):
 
     ordering = ("name",)
 
@@ -113,7 +113,7 @@ class MaxQuantPipelineAdmin(admin.ModelAdmin):
             )
 
 
-class MaxQuantResultAdmin(admin.ModelAdmin):
+class ResultAdmin(admin.ModelAdmin):
     readonly_fields = (
         "raw_file",
         "created",
@@ -258,7 +258,7 @@ class MaxQuantExecutableAdmin(admin.ModelAdmin):
             return ("created",)
 
 
-admin.site.register(MaxQuantPipeline, MaxQuantPipelineAdmin)
+admin.site.register(Pipeline, PipelineAdmin)
 admin.site.register(MaxQuantExecutable, MaxQuantExecutableAdmin)
 admin.site.register(RawFile, RawFileAdmin)
-admin.site.register(MaxQuantResult, MaxQuantResultAdmin)
+admin.site.register(Result, ResultAdmin)

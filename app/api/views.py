@@ -24,8 +24,8 @@ from django.conf import settings
 
 timeout = 360
 
-from maxquant.models import MaxQuantPipeline, MaxQuantResult
-from maxquant.serializers import MaxQuantPipelineSerializer, RawFileSerializer
+from maxquant.models import Pipeline, Result
+from maxquant.serializers import PipelineSerializer, RawFileSerializer
 from project.models import Project
 from project.serializers import ProjectsNamesSerializer
 from user.models import User
@@ -45,14 +45,14 @@ class ProjectNames(generics.ListAPIView):
         return JsonResponse(data, status=201, safe=False)
 
 
-class MaxQuantPipelineNames(generics.ListAPIView):
+class PipelineNames(generics.ListAPIView):
     def post(self, request, format=None):
 
         data = request.data
         project = data["project"]
 
-        queryset = MaxQuantPipeline.objects.filter(project__slug=project)
-        serializer = MaxQuantPipelineSerializer(queryset, many=True)
+        queryset = Pipeline.objects.filter(project__slug=project)
+        serializer = PipelineSerializer(queryset, many=True)
         data = serializer.data
         return JsonResponse(data, status=201, safe=False)
 
@@ -199,7 +199,7 @@ def get_user(request):
 
 def get_pipeline(request):
     uuid = request.data["pid"]
-    return get_instance_from_uuid(MaxQuantPipeline, uuid)
+    return get_instance_from_uuid(Pipeline, uuid)
 
 
 def get_instance_from_uuid(model, uuid):
@@ -213,10 +213,10 @@ def get_protein_quant_fn(
     only_use_downstream=False,
     raw_files=None,
 ):
-    pipeline = MaxQuantPipeline.objects.get(
+    pipeline = Pipeline.objects.get(
         project__slug=project_slug, slug=pipeline_slug
     )
-    results = MaxQuantResult.objects.filter(raw_file__pipeline=pipeline)
+    results = Result.objects.filter(raw_file__pipeline=pipeline)
 
     if only_use_downstream:
         results = results.filter(raw_file__use_downstream=True)
@@ -254,9 +254,9 @@ def get_protein_groups_data(
 
 
 def get_qc_data(project_slug, pipeline_slug, data_range=None):
-    pipeline = MaxQuantPipeline.objects.get(slug=pipeline_slug)
+    pipeline = Pipeline.objects.get(slug=pipeline_slug)
     path = pipeline.path
-    results = MaxQuantResult.objects.filter(raw_file__pipeline=pipeline)
+    results = Result.objects.filter(raw_file__pipeline=pipeline)
     n_results = len(results)
 
     if isinstance(data_range, int) and (n_results > data_range) and (n_results > 0):
@@ -332,10 +332,10 @@ class CreateFlag(generics.ListAPIView):
             )
             return JsonResponse({})
 
-        pipeline = MaxQuantPipeline.objects.get(
+        pipeline = Pipeline.objects.get(
             project__slug=project_slug, slug=pipeline_slug
         )
-        results = MaxQuantResult.objects.filter(raw_file__pipeline=pipeline)
+        results = Result.objects.filter(raw_file__pipeline=pipeline)
         for result in results:
             if result.raw_file.name in raw_files:
                 logging.warning(f"Flag {result.raw_file.name} in {pipeline.name}")
@@ -363,10 +363,10 @@ class DeleteFlag(generics.ListAPIView):
             )
             return JsonResponse({})
 
-        pipeline = MaxQuantPipeline.objects.get(
+        pipeline = Pipeline.objects.get(
             project__slug=project_slug, slug=pipeline_slug
         )
-        results = MaxQuantResult.objects.filter(raw_file__pipeline=pipeline)
+        results = Result.objects.filter(raw_file__pipeline=pipeline)
         for result in results:
             if result.raw_file.name in raw_files:
                 logging.warning(f"Un-flag {result.raw_file.name} in {pipeline.name}")
@@ -397,11 +397,11 @@ class RawFile(generics.ListAPIView):
 
         raw_files = request.POST.getlist("raw_files")
 
-        pipeline = MaxQuantPipeline.objects.get(
+        pipeline = Pipeline.objects.get(
             project__slug=project_slug, slug=pipeline_slug
         )
 
-        results = MaxQuantResult.objects.filter(raw_file__pipeline=pipeline)
+        results = Result.objects.filter(raw_file__pipeline=pipeline)
         for result in results:
             if result.raw_file.name in raw_files:
                 logging.warning(f"{result.raw_file.name}: {action}")

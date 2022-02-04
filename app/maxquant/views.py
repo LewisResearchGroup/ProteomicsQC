@@ -14,7 +14,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
 
 from .forms import BasicUploadForm
-from .models import RawFile, MaxQuantResult, MaxQuantPipeline
+from .models import RawFile, Result, Pipeline
 from project.models import Project
 
 from lrg_omics.tools import today
@@ -31,7 +31,7 @@ from lrg_omics.plotly import (
 
 # Create your views here.
 def maxquant_pipeline_view(request, project, pipeline):
-    maxquant_runs = MaxQuantResult.objects.filter(raw_file__pipeline__slug=pipeline)
+    maxquant_runs = Result.objects.filter(raw_file__pipeline__slug=pipeline)
     page = request.GET.get("page", 1)
     paginator = Paginator(maxquant_runs, 100)
     try:
@@ -41,7 +41,7 @@ def maxquant_pipeline_view(request, project, pipeline):
     except EmptyPage:
         maxquant_runs = paginator.page(paginator.num_pages)
     project = Project.objects.get(slug=project)
-    pipeline = MaxQuantPipeline.objects.get(project=project, slug=pipeline)
+    pipeline = Pipeline.objects.get(project=project, slug=pipeline)
     context = dict(maxquant_runs=maxquant_runs, project=project, pipeline=pipeline)
     context["home_title"] = settings.HOME_TITLE
     return render(request, "proteomics/pipeline_detail.html", context)
@@ -51,13 +51,13 @@ def pipeline_download_file(request, pk):
 
     pipeline_pk = pk
 
-    maxquant_runs = MaxQuantResult.objects.filter(
+    maxquant_runs = Result.objects.filter(
         raw_file__pipeline__pk=pipeline_pk, raw_file__use_downstream=True
     )
 
     fn = request.GET.get("file")
 
-    pipeline = MaxQuantPipeline.objects.get(pk=pipeline_pk)
+    pipeline = Pipeline.objects.get(pk=pipeline_pk)
     project = pipeline.project
     project_name = project.name
     pipeline_name = pipeline.name
@@ -90,8 +90,8 @@ def pipeline_download_file(request, pk):
     return response
 
 
-class MaxQuantResultDetailView(LoginRequiredMixin, generic.DetailView):
-    model = MaxQuantResult
+class ResultDetailView(LoginRequiredMixin, generic.DetailView):
+    model = Result
     template_name = "proteomics/maxquant_detail.html"
 
     def get_context_data(self, **kwargs):
@@ -189,7 +189,7 @@ class MaxQuantResultDetailView(LoginRequiredMixin, generic.DetailView):
 
 
 def maxquant_download(request, pk):
-    mq_run = MaxQuantResult.objects.get(pk=pk)
+    mq_run = Result.objects.get(pk=pk)
     response = HttpResponse(mq_run.download, content_type="application/zip")
     fn = f"{mq_run.name}.zip"
     response["Content-Disposition"] = 'attachment; filename="{}"'.format(fn)
@@ -198,7 +198,7 @@ def maxquant_download(request, pk):
 
 class UploadRaw(LoginRequiredMixin, View):
     def get(self, request, pk=None):
-        pipeline = MaxQuantPipeline.objects.get(pk=pk)
+        pipeline = Pipeline.objects.get(pk=pk)
         project = pipeline.project
         context = {
             "project": project,
@@ -216,7 +216,7 @@ class UploadRaw(LoginRequiredMixin, View):
 
         logging.warning(f"Upload to: {project_id} / {pipeline_id}")
 
-        pipeline = MaxQuantPipeline.objects.get(pk=pipeline_id)
+        pipeline = Pipeline.objects.get(pk=pipeline_id)
         project = pipeline.project
 
         logging.warning(f"Upload to: {project.name} / {pipeline.name}")
