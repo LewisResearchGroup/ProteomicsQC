@@ -2,6 +2,9 @@ version: "3.3"
    
 services:
   web:
+    container_name: web
+    restart: always
+    user: ${UID}
     build: .
     env_file:
       - ./.env
@@ -22,9 +25,10 @@ services:
       - redis
     links:
       - redis:redis
-    #restart: always
   
   db:
+    container_name: db
+    restart: always
     image: postgres:13.4
     volumes:
       - ${DB}:/var/lib/postgresql/data
@@ -34,13 +38,16 @@ services:
       - POSTGRES_PASSWORD=postgres
 
   redis:
+    container_name: redis
     restart: always
     image: redis:alpine
     ports:
       - "6379:6379"
 
   celery:
-    #restart: always
+    container_name: celery
+    restart: always
+    user: ${UID}
     build:
       context: .
       dockerfile: Dockerfile
@@ -61,5 +68,4 @@ services:
       - db
       - redis
       - web
-    container_name: celery_worker
 

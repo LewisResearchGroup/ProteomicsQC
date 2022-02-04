@@ -1,7 +1,7 @@
 from django.test import TestCase
 from project.models import Project
-from maxquant.models import MaxQuantPipeline as Pipeline
-from maxquant.models import MaxQuantResult as Result
+from maxquant.models import Pipeline
+from maxquant.models import Result
 
 from maxquant.models import RawFile
 

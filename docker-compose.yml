@@ -2,16 +2,18 @@ version: "3.3"
    
 services:
   web:
-    build: 
-      context: .
-      dockerfile: dockerfiles/Dockerfile
+    container_name: web
+    restart: always
+    user: ${UID}
+    build: .
     env_file:
       - ./.env
-    environment: 
-      - ENVIRONMENT=production
+    environment:
+      - ENVIRONMENT=develop
     command: python server.py
     volumes:
       - ./app/:/app/
+      - ./lib/lrg_omics/:/lrg-omics/
       - ${DATALAKE}:/datalake/
       - ${MEDIA}:/appmedia/
       - ${STATIC}:/static/
@@ -23,12 +25,11 @@ services:
       - redis
     links:
       - redis:redis
-    restart: always
   
   db:
+    container_name: db
+    restart: always
     image: postgres:13.4
-    env_file:
-      - ./.env    
     volumes:
       - ${DB}:/var/lib/postgresql/data
     environment:
@@ -37,23 +38,25 @@ services:
       - POSTGRES_PASSWORD=postgres
 
   redis:
+    container_name: redis
     restart: always
     image: redis:alpine
     ports:
-      - "6379:6379"   
+      - "6379:6379"
 
   celery:
+    container_name: celery
     restart: always
+    user: ${UID}
     build:
       context: .
-      dockerfile: dockerfiles/Dockerfile
+      dockerfile: Dockerfile
     command: bash -c "celery -A main worker -l info --concurrency ${CONCURRENCY}"
     env_file:
-      - ./.env
-    environment: 
-      - ENVIRONMENT=production      
+      - ./.env    
     volumes:
       - ./app/:/app/
+      - ./lib/lrg_omics/:/lrg-omics/
       - ${DATALAKE}:/datalake/      
       - ${COMPUTE}:/compute/
     environment:
@@ -65,5 +68,4 @@ services:
       - db
       - redis
       - web
-    container_name: celery_worker
 
