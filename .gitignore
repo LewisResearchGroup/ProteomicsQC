@@ -1,0 +1,17 @@
+.localhistory
+.ipynb_checkpoints
+.*.ipynb
+.pytest_cache
+*egg-info*
+__pycache__
+.*
+devel
+output
+build
+dist
+site
+htmlcov
+Untitled*.ipynb
+nohup.out
+data
+
