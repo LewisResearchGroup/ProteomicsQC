@@ -41,10 +41,10 @@ def get_time_of_file_modification(fn):
     return mtime.utcnow()
 
 
-class MaxQuantResult(models.Model):
+class Result(models.Model):
     class Meta:
-        verbose_name = _("MaxQuant Result")
-        verbose_name_plural = _("MaxQuant Results")
+        verbose_name = _("Result")
+        verbose_name_plural = _("Results")
 
     created_by = CurrentUserField()
 
@@ -337,13 +337,13 @@ class MaxQuantResult(models.Model):
         return mark_safe(f"<a href='{self.href}'>Browse</a>")
 
 
-@receiver(models.signals.post_save, sender=MaxQuantResult)
+@receiver(models.signals.post_save, sender=  Result)
 def run_maxquant_after_save(sender, instance, created, *args, **kwargs):
     if created:
         instance.run()
 
 
-@receiver(models.signals.post_delete, sender=MaxQuantResult)
+@receiver(models.signals.post_delete, sender=  Result)
 def remove_maxquant_folders_after_delete(sender, instance, *args, **kwargs):
     result = instance
     if result.output_dir_exists:
