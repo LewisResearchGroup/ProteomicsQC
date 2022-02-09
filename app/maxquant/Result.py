@@ -12,7 +12,6 @@ from pathlib import Path as P
 from uuid import uuid4
 from glob import glob
 
-
 from django.db import models
 from django_currentuser.db.models import CurrentUserField
 from django.template.defaultfilters import slugify
@@ -22,7 +21,6 @@ from django.conf import settings
 from django.shortcuts import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import mark_safe
-
 
 from lrg_omics.proteomics.tools import load_rawtools_data_from, load_maxquant_data_from
 from lrg_omics.proteomics.maxquant.MaxquantReader import MaxquantReader
