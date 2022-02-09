@@ -5,7 +5,9 @@ services:
     container_name: web
     restart: always
     user: ${UID}
-    build: .
+    build: 
+      context: .
+      dockerfile: dockerfiles/Dockerfile
     env_file:
       - ./.env
     environment:
@@ -50,7 +52,7 @@ services:
     user: ${UID}
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: dockerfiles/Dockerfile
     command: bash -c "celery -A main worker -l info --concurrency ${CONCURRENCY}"
     env_file:
       - ./.env    
