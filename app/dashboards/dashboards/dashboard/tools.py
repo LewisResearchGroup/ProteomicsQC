@@ -68,7 +68,7 @@ def get_projects():
 
 
 def get_pipelines(project):
-    url = f"{URL}/api/mq/pipelines"
+    url = f"{URL}/api/pipelines"
     headers = {"Content-type": "application/json"}
     data = json.dumps(dict(project=project))
     return requests.post(url, data=data, headers=headers).json()
@@ -77,7 +77,7 @@ def get_pipelines(project):
 def get_protein_groups(
     project, pipeline, protein_names=None, columns=None, data_range=None, raw_files=None
 ):
-    url = f"{URL}/api/mq/protein-groups"
+    url = f"{URL}/api/protein-groups"
     headers = {"Content-type": "application/json"}
     data = json.dumps(
         dict(
@@ -96,7 +96,7 @@ def get_protein_groups(
 def get_protein_names(
     project, pipeline, add_con=True, add_rev=True, data_range=None, raw_files=None
 ):
-    url = f"{URL}/api/mq/protein-names"
+    url = f"{URL}/api/protein-names"
     headers = {"Content-type": "application/json"}
     data = json.dumps(
         dict(
@@ -113,7 +113,7 @@ def get_protein_names(
 
 
 def get_qc_data(project, pipeline, columns, data_range=None):
-    url = f"{URL}/api/mq/qc-data"
+    url = f"{URL}/api/qc-data"
     headers = {"Content-type": "application/json"}
     data = json.dumps(
         dict(project=project, pipeline=pipeline, columns=columns, data_range=data_range)
