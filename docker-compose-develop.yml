@@ -29,7 +29,7 @@ services:
       - redis:redis
   
   db:
-    container_name: db
+    container_name: db_pqc
     restart: always
     image: postgres:13.4
     volumes:

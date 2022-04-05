@@ -12,17 +12,11 @@ RUN python --version
 
 RUN conda install -c conda-forge -c bioconda pip rawtools maxquant=1.6.10.43 mono=5 mamba
 
-COPY ./lib/lrg_omics/requirements.txt requirements_lrg_omics.txt
+COPY requirements.txt requirements.txt
 
-RUN pip install -r requirements_lrg_omics.txt
-
-COPY requirements.txt requirements_app.txt
-
-RUN pip install -r requirements_app.txt
+RUN pip install -r requirements.txt
 
 COPY ./lib/lrg_omics /lrg-omics
-
-RUN mamba update --all
 
 RUN cd /lrg-omics && pip install -e .
 
