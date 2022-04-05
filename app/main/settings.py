@@ -117,6 +117,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "main.context_processors.variables",
             ],
         },
     },
@@ -273,3 +274,5 @@ if EMAIL_HOST is not None:
     print(
         f"EMAIL SETTINGS: {EMAIL_HOST}, {EMAIL_HOST_USER}, {EMAIL_PORT}, {DEFAULT_FROM_EMAIL}"
     )
+
+GANALYTICS = os.getenv('GANALYTICS')
