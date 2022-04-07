@@ -2,7 +2,7 @@
 <div class='block'>
   {% if maxquant_pipelines %}
     {% for pipeline in maxquant_pipelines %}
-        <a href="{{ pipeline.url }}"><button class='btn full_width'>{{ pipeline.name }}</button></a>
+        <a href="{{ pipeline.url }}"><button class='btn full_width'>{{pipeline.id}}: {{ pipeline.name }}</button></a>
     {% endfor %}
   {% else %}
     <p class='warning'>No pipeline found for this project.</p>

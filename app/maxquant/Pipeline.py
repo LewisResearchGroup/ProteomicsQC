@@ -31,7 +31,7 @@ class   Pipeline(MaxQuantParameter, FastaFile, RawToolsSetup):
         verbose_name = _("Pipeline")
         verbose_name_plural = _("Pipelines")
 
-    maxquant_pipepline_id = models.AutoField(primary_key=True)
+    maxquant_pipeplineid = models.AutoField(primary_key=True)
 
     created_by = CurrentUserField()
 
@@ -86,14 +86,14 @@ class   Pipeline(MaxQuantParameter, FastaFile, RawToolsSetup):
 
     @property
     def path(self):
-        return self.project.path / self._id
+        return self.project.path / self.id
 
     @property
     def path_as_str(self):
         return str(self.path)
 
     @property
-    def _id(self):
+    def id(self):
         return f"{self.project.id}MQ{self.pk}"
 
     @property

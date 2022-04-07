@@ -62,14 +62,11 @@ def pipeline_download_file(request, pk):
     project_name = project.name
     pipeline_name = pipeline.name
 
-    print(f"Get {fn} from {project_name}/{pipeline_name}")
-
     stream = BytesIO()
     dfs = []
 
     for mq_run in maxquant_runs:
         df = mq_run.get_data_from_file(fn)
-        print(df)
         if df is None:
             continue
         dfs.append(df)
@@ -84,7 +81,6 @@ def pipeline_download_file(request, pk):
     response = HttpResponse(stream, content_type="text/csv")
 
     fn = f"{today()}_{project}_{pipeline}__{fn.replace('.txt', '')}.csv"
-    print(fn)
     response["Content-Disposition"] = 'attachment; filename="{}"'.format(fn)
 
     return response

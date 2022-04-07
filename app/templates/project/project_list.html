@@ -5,7 +5,7 @@
   <div class='block'>
     {% if project_list %}
       {% for project in project_list %}
-        <a href="{% url 'project:detail' slug=project.slug %}"><button class='btn full_width'>{{ project.name }}</button></a> 
+        <a href="{% url 'project:detail' slug=project.slug %}"><button class='btn full_width'> P{{ project.pk}}: {{ project.name }}</button></a> 
       {% endfor %}
     {% else %}
       <p>There were no project created yet.</p>
