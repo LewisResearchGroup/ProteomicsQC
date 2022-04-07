@@ -37,8 +37,6 @@ qc_columns_default = [
     "TimeBeforeFirstExceedanceOf10%MaxIntensity",
     "TimeAfterLastExceedanceOf10%MaxIntensity",
     "FractionOfRunAbove10%MaxIntensity",
-    "N_protein_potential_contaminants",
-    "N_protein_reverse_seq",
     "Protein_mean_seq_cov [%]",
     "TMT1_missing_values",
     "TMT2_missing_value",
