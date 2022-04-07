@@ -67,11 +67,11 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#5-create-an-admin-account">5) Create an admin account</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#6-setup-remote-proxy-eg-nginx">6) Setup remote proxy (e.g. NGINX)</a>
-    </li>
     <li class="toctree-l2"><a class="reference internal" href="#7-run-the-server-in-production">7) Run the server in production</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#8-run-a-development-server-optional">8) Run a development server (Optional)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#public-server">Public server</a>
     </li>
     </ul>
                     </li>
@@ -165,7 +165,7 @@ cd ProteomicsQC
 
 ## HOMPAGE SETTINGS
 HOME_TITLE=Your Hompage Title
-HOSTNAME=example.com
+HOSTNAME=localhost:8080
 
 ## STORAGE
 DB=./data/db/
@@ -198,25 +198,16 @@ SECRET_KEY=...
 </code></pre>
 <p>And follow the instructions to provide an email address and 
 password.</p>
-<h2 id="6-setup-remote-proxy-eg-nginx">6) Setup remote proxy (e.g. NGINX)</h2>
-<pre><code>pass
-</code></pre>
 <h2 id="7-run-the-server-in-production">7) Run the server in production</h2>
 <pre><code>make serve  # starts the production server on port 8000
 </code></pre>
+<p>You can now navigate to <a href="localhost:8080/admin">localhost:8080/admin</a> and login to the
+admin account with the credentials you provided in step 5.</p>
 <h2 id="8-run-a-development-server-optional">8) Run a development server (Optional)</h2>
 <pre><code>make devel
 </code></pre>
-<p>You can now navigate to <a href="localhost:8000/admin">localhost:8000/admin</a> and login to the
-admin account with the credentials you provided in step 5.</p>
-<blockquote>
-<p>In order to run the server on a specific domain you have to register the domain
-and point it to the public IP address of your server. Furthermore, you have to 
-setup a remote proxy to redirect HTTP and HTTPS requests to port 8000. 
-For security reasons you should always use HTTPS. The server was tested using
-a remote proxy configured with NGINX and for encryption we used letsencrypt and 
-certbot.</p>
-</blockquote>
+<p>The development server will run on <a href="localhost:8000">localhost:8000</a>.</p>
+<h2 id="public-server">Public server</h2>
               
             </div>
           </div>
