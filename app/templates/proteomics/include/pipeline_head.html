@@ -1,5 +1,5 @@
 <div class='block'>
-  <h1 class='pipeline'>{{ project.name }} - {{ pipeline.name }}</h1>
+  <h1 class='pipeline'>{{ project.name }} - {{ pipeline.name }} ({{pipeline.id}})</h1>
   <p>{{ pipeline.description }}</p>
   <a href="{% url 'project:detail' project.slug %}">
     <button class='btn' title='Back to underlying project.'>
@@ -12,6 +12,7 @@
       Upload RAW
     </button>
   </a>
+  <a href="{{ pipeline.path }}"><button class='btn'>Browse</button></a>
 </div>
 
 

@@ -3,17 +3,19 @@
 {% block content %}
 
   <div class='block'>
-    <h1 class='pipeline'>{{ project.name }} - {{ pipeline.name }}</h1>
+    <h1 class='pipeline'>{{ project.name }} - {{ pipeline.name }} ({{ pipeline.id}})</h1>
     <h2>{{ raw_file.name }}</h2>
     <a href="{% url 'maxquant:detail' project=project.slug pipeline=pipeline.slug %}"><button class="btn" title='Back to pipeline overview.'><i class="fas fa-arrow-left"></i></button></a>
     <a href="{% url 'maxquant:download_run' object.pk %}" download><button class='btn' title='Download all MaxQuant files for this particular run (~70MB).'>Download</button></a>
+    <a href="{{ object.path }}"><button class='btn'>Browse</button></a>
+
   </div>
 
   <br> 
 
   <h2>{{ object.raw_file }}</h2>
 
-  <p>MaxQuant data specific to {{object.raw_file}} processed with the pipeline {{ object.project.name }} - {{ pipeline.name }}.</p>
+  <p>MaxQuant output from {{object.raw_file}} in pipeline {{ pipeline.project.name }} - {{ pipeline.name }}.</p>
 
   <hr />
 
