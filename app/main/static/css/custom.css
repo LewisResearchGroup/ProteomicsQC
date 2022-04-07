@@ -136,6 +136,16 @@ tr th .btn {
     font-weight: bold;
 }
 
+table {
+    width: 100%;
+}
+
+th, td {
+    padding: auto;
+  }
+
+table thead th { border-bottom: 1px solid #000; }
+
 table tr th {
     vertical-align: middle;
 }

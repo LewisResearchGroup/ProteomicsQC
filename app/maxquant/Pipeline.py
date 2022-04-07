@@ -19,14 +19,14 @@ from uuid import uuid4
 from .rawtools import RawToolsSetup
 from .MaxQuantParameter import MaxQuantParameter
 from .FastaFile import FastaFile
-
+from .RawFile import RawFile
 
 DATALAKE_ROOT = settings.DATALAKE_ROOT
 COMPUTE_ROOT = settings.COMPUTE_ROOT
 COMPUTE = settings.COMPUTE
 
 
-class   Pipeline(MaxQuantParameter, FastaFile, RawToolsSetup):
+class Pipeline(MaxQuantParameter, FastaFile, RawToolsSetup):
     class Meta:
         verbose_name = _("Pipeline")
         verbose_name_plural = _("Pipelines")
@@ -140,6 +140,11 @@ class   Pipeline(MaxQuantParameter, FastaFile, RawToolsSetup):
         if self.fasta_file.name and self.mqpar_file.name:
             return True
         return False
+    
+    @property
+    def n_files(self):
+        files = RawFile.objects.filter(pipeline__uuid=self.uuid)
+        return len(files)
 
 
 @receiver(models.signals.post_save, sender=  Pipeline)

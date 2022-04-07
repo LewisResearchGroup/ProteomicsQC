@@ -3,8 +3,6 @@
 {% block content %}
   <div class='block'>
     <h1 class='project'>{{ object.name }}  ({{object.slug}})</h1>
-
-    <h3>Project Description</h3>
     <p>{{ object.description }}</p>
   </div>
 
@@ -12,8 +10,8 @@
     <a href="{% url 'project:list' %}"><button class='btn' title='Back to projects overview.'><i class="fas fa-arrow-left"></i></button></a>
   </div>
   <div class='block'>
-    <h3>Pipelines in this project</h3>
+    <h3>Pipelines</h3>
     {% include 'proteomics/include/list_pipelines.html' with project=object.slug %}
   </div>
-  
+
 {% endblock %}

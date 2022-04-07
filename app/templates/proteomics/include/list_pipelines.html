@@ -1,9 +1,32 @@
   
 <div class='block'>
   {% if maxquant_pipelines %}
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th># Raw Files</th>
+        <th>Link</th>
+      </tr>
+   </thead>
     {% for pipeline in maxquant_pipelines %}
-        <a href="{{ pipeline.url }}"><button class='btn full_width'>{{pipeline.id}}: {{ pipeline.name }}</button></a>
+    <tr>
+      <th>
+        {{ pipeline.id }}
+      </th>
+      <th>
+        {{ pipeline.name }}</a>           
+      </th>
+      <th>
+        {{ pipeline.n_files }}</a>           
+      </th>
+      <th>
+        <a href="{{ pipeline.url }}"><button class='btn full_width'>Open</button></a>   
+      </th>
+    </tr>
     {% endfor %}
+  </table>
   {% else %}
     <p class='warning'>No pipeline found for this project.</p>
   {% endif %}

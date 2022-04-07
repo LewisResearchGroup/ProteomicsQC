@@ -4,9 +4,29 @@
   <h1 class='project'>Projects</h1>
   <div class='block'>
     {% if project_list %}
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Link</th>
+          </tr>
+       </thead>
       {% for project in project_list %}
-        <a href="{% url 'project:detail' slug=project.slug %}"><button class='btn full_width'> P{{ project.pk}}: {{ project.name }}</button></a> 
+      <tr>
+        <th>
+          {{ project.id }}
+        </th>
+        <th>
+          {{ project.name }}</a>           
+        </th>
+
+        <th>
+          <a href="{% url 'project:detail' slug=project.slug %}"><button class='btn full_width'> Open</button></a>   
+        </th>
+      </tr>
       {% endfor %}
+    </table>
     {% else %}
       <p>There were no project created yet.</p>
     {% endif %}
