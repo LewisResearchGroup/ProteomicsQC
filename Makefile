@@ -59,3 +59,8 @@ test:
 
 get-test-data:
 	gdown --folder https://drive.google.com/drive/folders/1kdQUXbr6DTBNLFBXLYrR_RLoXDFwCh_N?usp=sharing --output app/tests/data/D01
+
+documentation:
+	mkdocs gh-deploy
+
+	

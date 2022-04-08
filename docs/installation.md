@@ -27,7 +27,7 @@ https://docs.docker.com/engine/install/ubuntu/
 
 ## HOMPAGE SETTINGS
 HOME_TITLE=Your Hompage Title
-HOSTNAME=example.com
+HOSTNAME=localhost:8080
 
 ## STORAGE
 DB=./data/db/
@@ -46,11 +46,10 @@ EMAIL_HOST_PASSWORD=a-strong-password
 DEFAULT_FROM_EMAIL=noreply@example.com
 
 ## CELERY
-CONCURRENCY=8
+CONCURRENCY=8  # Change this to control how many CPU's can be used for jobs
 
 ## SECURITY KEYS
 SECRET_KEY=...
-OIDC_RSA_PRIVATE_KEY=...
 
 ```
 
@@ -65,16 +64,20 @@ OIDC_RSA_PRIVATE_KEY=...
 And follow the instructions to provide an email address and 
 password.
 
-## 6) Run the server
 
-    make run  # starts the production server on port 8000
+## 7) Run the server in production
 
-You can now navigate to [localhost:8000/admin](localhost:8000/admin) and login to the
+    make serve  # starts the production server on port 8000
+
+You can now navigate to [localhost:8080/admin](localhost:8080/admin) and login to the
 admin account with the credentials you provided in step 5.
 
-> In order to run the server on a specific domain you have to register the domain
-> and point it to the public IP address of your server. Furthermore, you have to 
-> setup a remote proxy to redirect HTTP and HTTPS requests to port 8000. 
-> For security reasons you should always use HTTPS. The server was tested using
-> a remote proxy configured with NGINX and for encryption we used letsencrypt and 
-> certbot.
+
+## 8) Run a development server (Optional)
+
+    make devel
+
+The development server will run on [localhost:8000](localhost:8000).
+
+
+## Public server

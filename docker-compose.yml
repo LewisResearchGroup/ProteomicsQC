@@ -2,7 +2,7 @@ version: "3.3"
    
 services:
   web:
-    container_name: web
+    container_name: web_proteomics_qc_production
     restart: always
     user: ${UID}
     build: 
@@ -21,7 +21,7 @@ services:
       - ${STATIC}:/static/
       - ${COMPUTE}:/compute/
     ports:
-      - "8000:8000"
+      - "8080:8080"
     depends_on:
       - db
       - redis
@@ -29,7 +29,7 @@ services:
       - redis:redis
   
   db:
-    container_name: db
+    container_name: db_proteomics_qc_production
     restart: always
     image: postgres:13.4
     volumes:
