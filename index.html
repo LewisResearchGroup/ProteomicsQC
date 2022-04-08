@@ -45,8 +45,8 @@
   
 
 
-  <script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","G-86PCMWDMXK"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&gtag("event","search",{search_term:this.value})}),"undefined"!=typeof location$&&location$.subscribe(function(e){gtag("config","G-86PCMWDMXK",{page_path:e.pathname})})})</script>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-86PCMWDMXK"></script>
+  <script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","G-NT5SSDZD3Q"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&gtag("event","search",{search_term:this.value})}),"undefined"!=typeof location$&&location$.subscribe(function(e){gtag("config","G-NT5SSDZD3Q",{page_path:e.pathname})})})</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NT5SSDZD3Q"></script>
 
 
     
@@ -197,40 +197,9 @@
         
       
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          Home
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
       <a href="." class="md-nav__link md-nav__link--active">
         Home
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#maxquant-parameter-file-mqparxml" class="md-nav__link">
-    MaxQuant Parameter file (mqpar.xml)
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -260,7 +229,7 @@
   
     <li class="md-nav__item">
       <a href="public-server/" class="md-nav__link">
-        Setup a public server
+        Setup an online server
       </a>
     </li>
   
@@ -275,7 +244,7 @@
   
     <li class="md-nav__item">
       <a href="how-to-access-the-admin-panel/" class="md-nav__link">
-        The admin panel
+        Admin panel
       </a>
     </li>
   
@@ -421,21 +390,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#maxquant-parameter-file-mqparxml" class="md-nav__link">
-    MaxQuant Parameter file (mqpar.xml)
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -449,24 +403,14 @@
 
 
 <h1 id="proteomics-qc">Proteomics QC</h1>
-<p>A web-server to setup processing pipelines proteomics .RAW files.</p>
-<ol>
-<li>Create a project</li>
-<li>Create a pipeline by providing a fasta file and a MaxQuant parameter template (mqpar.xml)</li>
-<li>Submit .RAW files to the pipeline</li>
-<li>Download results</li>
-<li>Explore data with the integrated dashboard</li>
-</ol>
-<p>The server organizes files into projects. Therefore, at least one project hast to be created.
-Then a pipeline can be created. Herefore, a MaxQuant parameter file (mqpar.xml) and a fasta file have to 
-be provided. </p>
-<h2 id="maxquant-parameter-file-mqparxml">MaxQuant Parameter file (<code>mqpar.xml</code>)</h2>
-<p>The <code>mqpar.xml</code> has to be created as a blueprint for the pipeline jobs for example using 
-the MaxQuant GUI. The pipeline is currently restricted to process a single .RAW per job, 
-therefore the <code>mqpar.xml</code> file <strong>has to be created with a single .RAW file</strong>. 
-The MaxQuant version supported is <code>MaxQuant 1.6.10</code> due to limited compatability 
-between <code>.NET</code> versions used by MaxQuant and current <code>mono</code> versions. <code>mono</code> is a 
-reimplementation for <code>.NET</code> that runs on Linux platforms.ll</p>
+<p><img src="img/ProteomicsQC.png" alt="drawing" width="300" style="float: right; margin: 25px 0px 100px 5px"/></p>
+<p>ProteomicsQC is a Quality Control server for quantiative proteomics with a special emphasis on simplicity and accessibility in a distributed computational environment.</p>
+<p>Scientists can login, submit files, and explore the results remotely. The software features automatic sample processing for multiple projects by simple drag and drop of proteomics RAW files into a web frontend, an interactive dashboard that integrates machine learning powered explainable anomaly detection, and an API for automated/programmatic access and extensibility.  </p>
+<ul>
+<li>You can find the software repository on <a href="https://github.com/sorenwacker/ProteomicsQC">Github</a>.</li>
+<li>And a running version on <a href="https://proteomics.resistancedb.org">ResistanceDB</a>.</li>
+</ul>
+<p>Image elements were taken from <a href="https://flaticon.com">Flaticon.com</a>.</p>
 
               
             </article>
