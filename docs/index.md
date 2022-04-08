@@ -1,21 +1,12 @@
 # Proteomics QC
 
-A web-server to setup processing pipelines proteomics .RAW files.
+<img src="img/ProteomicsQC.png" alt="drawing" width="300" style="float: right; margin: 25px 0px 100px 5px"/>
 
-1. Create a project
-2. Create a pipeline by providing a fasta file and a MaxQuant parameter template (mqpar.xml)
-3. Submit .RAW files to the pipeline
-4. Download results
-5. Explore data with the integrated dashboard
+ProteomicsQC is a Quality Control server for quantiative proteomics with a special emphasis on simplicity and accessibility in a distributed computational environment.
 
-The server organizes files into projects. Therefore, at least one project hast to be created.
-Then a pipeline can be created. Herefore, a MaxQuant parameter file (mqpar.xml) and a fasta file have to 
-be provided. 
+Scientists can login, submit files, and explore the results remotely. The software features automatic sample processing for multiple projects by simple drag and drop of proteomics RAW files into a web frontend, an interactive dashboard that integrates machine learning powered explainable anomaly detection, and an API for automated/programmatic access and extensibility.  
 
-## MaxQuant Parameter file (`mqpar.xml`)
-The `mqpar.xml` has to be created as a blueprint for the pipeline jobs for example using 
-the MaxQuant GUI. The pipeline is currently restricted to process a single .RAW per job, 
-therefore the `mqpar.xml` file __has to be created with a single .RAW file__. 
-The MaxQuant version supported is `MaxQuant 1.6.10` due to limited compatability 
-between `.NET` versions used by MaxQuant and current `mono` versions. `mono` is a 
-reimplementation for `.NET` that runs on Linux platforms.ll
+- You can find the software repository on [Github](https://github.com/sorenwacker/ProteomicsQC).
+- And a running version on [ResistanceDB](https://proteomics.resistancedb.org).
+
+Image elements were taken from [Flaticon.com](https://flaticon.com).

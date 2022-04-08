@@ -40,14 +40,14 @@ services:
       - POSTGRES_PASSWORD=postgres
 
   redis:
-    container_name: redis
+    container_name: redis_proteomics_qc_production
     restart: always
     image: redis:alpine
     ports:
       - "6379:6379"
 
   celery:
-    container_name: celery
+    container_name: celery_proteomics_qc_production
     restart: always
     user: ${UID}
     build:

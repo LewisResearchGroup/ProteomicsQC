@@ -67,6 +67,7 @@ password.
 
 ## 7) Run the server in production
 
+    make collectstatic  # The static url has to be setup with a remote proxy.
     make serve  # starts the production server on port 8000
 
 You can now navigate to [localhost:8080/admin](localhost:8080/admin) and login to the
@@ -78,6 +79,3 @@ admin account with the credentials you provided in step 5.
     make devel
 
 The development server will run on [localhost:8000](localhost:8000).
-
-
-## Public server

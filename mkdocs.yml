@@ -2,9 +2,9 @@ site_name: Proteomics QC
 nav:
     - Home: index.md
     - Installation: installation.md
-    - Setup a public server: public-server.md
+    - Setup an online server: public-server.md
     #- User Manual: manual.md
-    - Access the admin panel: how-to-access-the-admin-panel.md
+    - Admin panel: how-to-access-the-admin-panel.md
     - Create a project: how-to-add-a-project.md
     - Create a pipeline: how-to-add-a-pipeline.md
     - Submit RAW files: how-to-submit-raw-files.md
@@ -16,7 +16,7 @@ nav:
 extra:
   analytics:
       provider: google
-      property: G-86PCMWDMXK    
+      property: G-NT5SSDZD3Q   
 theme:
   name: material
 
