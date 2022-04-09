@@ -62,7 +62,7 @@ def callbacks(app):
         uid = kwargs["user"].uuid
 
         pqc = ProteomicsQC(
-            host="http://localhost:8000",
+            host=os.getenv('OMICS_URL', None),
             project_slug=project,
             pipeline_slug=pipeline,
             uid=uid,
