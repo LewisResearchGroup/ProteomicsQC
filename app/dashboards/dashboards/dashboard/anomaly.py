@@ -1,3 +1,4 @@
+import os
 import logging
 import pandas as pd
 import numpy as np
@@ -62,7 +63,7 @@ def callbacks(app):
         uid = kwargs["user"].uuid
 
         pqc = ProteomicsQC(
-            host=os.getenv('OMICS_URL', None),
+            host=os.getenv('OMICS_URL', 'http://localhost:8000'),
             project_slug=project,
             pipeline_slug=pipeline,
             uid=uid,
