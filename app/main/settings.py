@@ -278,4 +278,4 @@ if EMAIL_HOST is not None:
 
 GANALYTICS = os.getenv("GANALYTICS")
 
-PAGINATE = 10
+PAGINATE = 30

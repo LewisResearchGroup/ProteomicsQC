@@ -196,6 +196,10 @@ table tr th {
     height: 15px;
 }
 
+.pagination {
+    max-width: 100%;
+}
+
 .pagination li {
     margin: 0px;
     padding: 0px 10px 0px 10px ;
