@@ -75,6 +75,10 @@ def callbacks(app):
             qc_data, fraction=0.05, n_estimators=1000
         )
 
+        print('run_anomaly_detection')
+        print(qc_data)
+        print(df_shap)
+
         # Update flags
         currently_unflagged = list(qc_data[~qc_data.Flagged].reset_index().RawFile)
         currently_flagged = list(qc_data[qc_data.Flagged].reset_index().RawFile)
@@ -84,6 +88,7 @@ def callbacks(app):
         files_to_unflag = [i for i in files_to_unflag if i in currently_flagged]
         pqc.rawfile(files_to_flag, "flag")
         pqc.rawfile(files_to_unflag, "unflag")
+
 
         return df_shap.to_json()
 
