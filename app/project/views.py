@@ -66,7 +66,7 @@ def project_detail_view(request, slug):
             request.method = "POST"
         else:
             form = SearchPipeline(request.POST)
-            maxquant_runs = Pipeline.objects.filter(project__slug=slug)
+            maxquant_pipelines = Pipeline.objects.filter(project__slug=slug)
 
     if request.method == "POST":
         request.session["search-pipelines"] = request.POST
