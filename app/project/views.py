@@ -28,7 +28,7 @@ class ProjectListView(LoginRequiredMixin, FormMixin, ListView):
         return context
 
     def get_queryset(self, *args, **kwargs):
-        return []
+        return Project.objects.all()
 
     def post(self, request, *args, **kwargs):
         self.object_list = self.get_queryset(*args, **kwargs)
