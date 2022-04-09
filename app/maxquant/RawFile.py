@@ -21,7 +21,6 @@ from .Result import Result
 from .validators import validate_file_is_rawfile
 
 
-
 DATALAKE_ROOT = settings.DATALAKE_ROOT
 DATALAKE = settings.DATALAKE
 COMPUTE_ROOT = settings.COMPUTE_ROOT
@@ -41,11 +40,14 @@ class RawFile(models.Model):
 
     md5sum = models.CharField(max_length=36, default=timezone.now, unique=False)
 
-    valid_extensions = ['.raw', '.RAW']
+    valid_extensions = [".raw", ".RAW"]
 
     orig_file = models.FileField(
-        upload_to="upload", storage=DATALAKE, max_length=1000, unique=False,
-        validators=[validate_file_is_rawfile]
+        upload_to="upload",
+        storage=DATALAKE,
+        max_length=1000,
+        unique=False,
+        validators=[validate_file_is_rawfile],
     )
 
     slug = models.SlugField(max_length=250, null=True, blank=True)

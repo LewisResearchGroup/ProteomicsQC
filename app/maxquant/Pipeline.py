@@ -140,14 +140,14 @@ class Pipeline(MaxQuantParameter, FastaFile, RawToolsSetup):
         if self.fasta_file.name and self.mqpar_file.name:
             return True
         return False
-    
+
     @property
     def n_files(self):
         files = RawFile.objects.filter(pipeline__uuid=self.uuid)
         return len(files)
 
 
-@receiver(models.signals.post_save, sender=  Pipeline)
+@receiver(models.signals.post_save, sender=Pipeline)
 def create_maxquant_path(sender, instance, created, *args, **kwargs):
     mq_pipe = instance
 
@@ -164,7 +164,7 @@ def create_maxquant_path(sender, instance, created, *args, **kwargs):
         mq_pipe.move_mqpar_to_config()
 
 
-@receiver(models.signals.post_delete, sender=  Pipeline)
+@receiver(models.signals.post_delete, sender=Pipeline)
 def delete_maxquant_path(sender, instance, *args, **kwargs):
     mq_pipe = instance
     if mq_pipe.path.is_dir():

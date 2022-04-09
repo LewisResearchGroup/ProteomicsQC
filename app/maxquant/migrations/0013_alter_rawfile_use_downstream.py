@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('maxquant', '0012_auto_20220114_0239'),
+        ("maxquant", "0012_auto_20220114_0239"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='rawfile',
-            name='use_downstream',
+            model_name="rawfile",
+            name="use_downstream",
             field=models.BooleanField(blank=True, default=None, null=True),
         ),
     ]

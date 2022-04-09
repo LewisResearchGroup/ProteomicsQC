@@ -193,12 +193,14 @@ layout = html.Div(
                             html.Script(
                                 children='document.getElementById("qc-table-columns").getAttribute("autocomplete") = "off";'
                             ),
-                            html.Div(id="tabs-content", 
-                                     children=[
-                                         dcc.Graph(id="qc-figure", style={}),
-                                         dcc.Graph(id="explorer-figure", style={}),
-                                         dcc.Graph(id="explorer-scatter-matrix", style={}),
-                                         ]),
+                            html.Div(
+                                id="tabs-content",
+                                children=[
+                                    dcc.Graph(id="qc-figure", style={}),
+                                    dcc.Graph(id="explorer-figure", style={}),
+                                    dcc.Graph(id="explorer-scatter-matrix", style={}),
+                                ],
+                            ),
                         ]
                     )
                 )

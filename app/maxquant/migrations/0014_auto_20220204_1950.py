@@ -7,26 +7,26 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('project', '0005_alter_project_users'),
+        ("project", "0005_alter_project_users"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('maxquant', '0013_alter_rawfile_use_downstream'),
+        ("maxquant", "0013_alter_rawfile_use_downstream"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='MaxQuantPipeline',
-            new_name='Pipeline',
+            old_name="MaxQuantPipeline",
+            new_name="Pipeline",
         ),
         migrations.RenameModel(
-            old_name='MaxQuantResult',
-            new_name='Result',
+            old_name="MaxQuantResult",
+            new_name="Result",
         ),
         migrations.AlterModelOptions(
-            name='pipeline',
-            options={'verbose_name': 'Pipeline', 'verbose_name_plural': 'Pipelines'},
+            name="pipeline",
+            options={"verbose_name": "Pipeline", "verbose_name_plural": "Pipelines"},
         ),
         migrations.AlterModelOptions(
-            name='result',
-            options={'verbose_name': 'Result', 'verbose_name_plural': 'Results'},
+            name="result",
+            options={"verbose_name": "Result", "verbose_name_plural": "Results"},
         ),
     ]

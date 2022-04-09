@@ -213,9 +213,7 @@ def get_protein_quant_fn(
     only_use_downstream=False,
     raw_files=None,
 ):
-    pipeline = Pipeline.objects.get(
-        project__slug=project_slug, slug=pipeline_slug
-    )
+    pipeline = Pipeline.objects.get(project__slug=project_slug, slug=pipeline_slug)
     results = Result.objects.filter(raw_file__pipeline=pipeline)
 
     if only_use_downstream:
@@ -332,9 +330,7 @@ class CreateFlag(generics.ListAPIView):
             )
             return JsonResponse({})
 
-        pipeline = Pipeline.objects.get(
-            project__slug=project_slug, slug=pipeline_slug
-        )
+        pipeline = Pipeline.objects.get(project__slug=project_slug, slug=pipeline_slug)
         results = Result.objects.filter(raw_file__pipeline=pipeline)
         for result in results:
             if result.raw_file.name in raw_files:
@@ -363,9 +359,7 @@ class DeleteFlag(generics.ListAPIView):
             )
             return JsonResponse({})
 
-        pipeline = Pipeline.objects.get(
-            project__slug=project_slug, slug=pipeline_slug
-        )
+        pipeline = Pipeline.objects.get(project__slug=project_slug, slug=pipeline_slug)
         results = Result.objects.filter(raw_file__pipeline=pipeline)
         for result in results:
             if result.raw_file.name in raw_files:
@@ -397,9 +391,7 @@ class RawFile(generics.ListAPIView):
 
         raw_files = request.POST.getlist("raw_files")
 
-        pipeline = Pipeline.objects.get(
-            project__slug=project_slug, slug=pipeline_slug
-        )
+        pipeline = Pipeline.objects.get(project__slug=project_slug, slug=pipeline_slug)
 
         results = Result.objects.filter(raw_file__pipeline=pipeline)
         for result in results:

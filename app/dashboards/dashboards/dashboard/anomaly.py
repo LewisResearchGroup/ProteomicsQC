@@ -27,14 +27,19 @@ except Exception as e:
 
 
 checklist_options = [
-    {'label': 'Hide rejected samples', 'value': 'hide_rejected'},
+    {"label": "Hide rejected samples", "value": "hide_rejected"},
 ]
 
 layout = html.Div(
     [
         html.H1("Anomaly detection"),
         html.Button("Run isolation forest", id="anomaly-btn", className="btn"),
-        dcc.Checklist(id='anomaly-checklist', options=checklist_options, value=['hide_rejected'], style=dict(padding='15px')),
+        dcc.Checklist(
+            id="anomaly-checklist",
+            options=checklist_options,
+            value=["hide_rejected"],
+            style=dict(padding="15px"),
+        ),
         dcc.Loading(
             [dcc.Graph(id="anomaly-figure")],
         ),
@@ -51,7 +56,8 @@ def callbacks(app):
         State("pipeline", "value"),
     )
     def run_anomaly_detection(n_clicks, project, pipeline, **kwargs):
-        if n_clicks is None: raise PreventUpdate
+        if n_clicks is None:
+            raise PreventUpdate
 
         uid = kwargs["user"].uuid
 
@@ -90,15 +96,16 @@ def callbacks(app):
         Input("tabs", "value"),
     )
     def plot_shapley(shapley_values, qc_data, options, ndxs, tab):
-        if tab != "anomaly": raise PreventUpdate
-            
-        df_shap = pd.read_json(shapley_values)
+        if tab != "anomaly":
+            raise PreventUpdate
 
+        df_shap = pd.read_json(shapley_values)
 
         qc_data = pd.DataFrame(qc_data)
         qc_data = qc_data.iloc[ndxs]
-        
-        if 'hide_rejected' in options: qc_data = qc_data[qc_data['Use Downstream'] != False]
+
+        if "hide_rejected" in options:
+            qc_data = qc_data[qc_data["Use Downstream"] != False]
 
         fns = qc_data["RawFile"]
         df_shap = df_shap.loc[fns]

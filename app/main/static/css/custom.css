@@ -4,6 +4,7 @@
 body {
     font-family: 'Dongle', sans-serif;
     background: #fafafa;
+    margin-bottom: 10%;
 }
 
 
@@ -100,6 +101,30 @@ iframe {
     background-color: #27A69A !important;
 }
 
+input[type=text] {
+    width:100%;
+    font-size: large;
+}
+
+tr th label {
+    font-size: large;
+}
+
+
+input[type=submit] {
+    width: 220px;
+    min-height: 40px;
+    margin: 5px 5px 5px 5px;
+    background-color: darkcyan;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+}
+
+
 tr th .btn {
     height: 30px;
     font-weight: normal;
@@ -171,52 +196,26 @@ table tr th {
     height: 15px;
 }
 
-.pagination > li > a
-{
-    background-color: #488686;
+.pagination li {
+    margin: 0px;
+    padding: 0px 10px 0px 10px ;
+    font-size: large;
+    background-color: lightgrey;
+    color: black;
+    border: 0.5px solid darkgrey;
+} 
+
+
+.pagination li a {
+    color: black;
+} 
+
+
+.pagination .active {
     color: white;
-}
+    background-color: darkcyan;
+} 
 
-.pagination > li > a:focus,
-.pagination > li > a:hover,
-.pagination > li > span:focus,
-.pagination > li > span:hover
-{
-    color: white;
-    background-color: #488686;
-    border-color: #ddd;
-}
-
-.pagination > .active > a,
-.pagination > .active > span,
-.pagination > .active > a:hover,
-.pagination > .active > span:hover,
-.pagination > .active > a:focus,
-.pagination > .active > span:focus {
-  z-index: 3;
-  color: #fff;
-  cursor: default;
-  background-color: white;
-  border-color: white;
-}
-
-.pagination > .active > a:hover
-{
-    background-color: #488686 !Important;
-    border: solid 1px #5A4181;
-}
-
-.pagination > .disabled > span,
-.pagination > .disabled > span:hover,
-.pagination > .disabled > span:focus,
-.pagination > .disabled > a,
-.pagination > .disabled > a:hover,
-.pagination > .disabled > a:focus {
-  color: white;
-  cursor: not-allowed;
-  background-color: white;
-  border-color: #ddd;
-}
 
 ul {
     list-style-type: none !important;
@@ -226,6 +225,11 @@ ul ul a {
     font-size: 0.9em !important;
     padding-left: 30px !important;
     background: #6d7fcc;
+}
+
+ul .disabled {
+    background: lightgrey;
+    color: darkgrey;
 }
 
 

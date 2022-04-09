@@ -13,7 +13,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from django.conf import settings
 
-from .forms import BasicUploadForm
+from .forms import BasicUploadForm, SearchResult
 from .models import RawFile, Result, Pipeline
 from project.models import Project
 
@@ -29,21 +29,44 @@ from lrg_omics.plotly import (
     plotly_histogram,
 )
 
+
 # Create your views here.
 def maxquant_pipeline_view(request, project, pipeline):
-    maxquant_runs = Result.objects.filter(raw_file__pipeline__slug=pipeline)
+
+    # Pattern to store form data in session
+    # to make pagination work with search form
+    if not request.method == "POST":
+        if "search-files" in request.session:
+            request.POST = request.session["search-files"]
+            request.method = "POST"
+        else:
+            form = SearchResult(request.POST)
+            maxquant_runs = Result.objects.all()
+
+    if request.method == "POST":
+        request.session["search-files"] = request.POST
+        form = SearchResult(request.POST)
+        if form.is_valid():
+            maxquant_runs = Result.objects.filter(
+                raw_file__pipeline__slug=pipeline,
+                raw_file__orig_file__iregex=form.cleaned_data["raw_file"],
+            )
+
     page = request.GET.get("page", 1)
-    paginator = Paginator(maxquant_runs, 100)
+    paginator = Paginator(maxquant_runs, settings.PAGINATE)
+    
     try:
         maxquant_runs = paginator.page(page)
     except PageNotAnInteger:
         maxquant_runs = paginator.page(1)
     except EmptyPage:
         maxquant_runs = paginator.page(paginator.num_pages)
+
     project = Project.objects.get(slug=project)
     pipeline = Pipeline.objects.get(project=project, slug=pipeline)
     context = dict(maxquant_runs=maxquant_runs, project=project, pipeline=pipeline)
     context["home_title"] = settings.HOME_TITLE
+    context["form"] = form
     return render(request, "proteomics/pipeline_detail.html", context)
 
 

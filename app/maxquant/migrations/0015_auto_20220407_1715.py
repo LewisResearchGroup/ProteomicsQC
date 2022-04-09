@@ -8,18 +8,23 @@ import maxquant.validators
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('maxquant', '0014_auto_20220204_1950'),
+        ("maxquant", "0014_auto_20220204_1950"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='pipeline',
-            old_name='maxquant_pipepline_id',
-            new_name='maxquant_pipeplineid',
+            model_name="pipeline",
+            old_name="maxquant_pipepline_id",
+            new_name="maxquant_pipeplineid",
         ),
         migrations.AlterField(
-            model_name='rawfile',
-            name='orig_file',
-            field=models.FileField(max_length=1000, storage=main.settings.MediaFileSystemStorage(location='/datalake'), upload_to='upload', validators=[maxquant.validators.validate_file_is_rawfile]),
+            model_name="rawfile",
+            name="orig_file",
+            field=models.FileField(
+                max_length=1000,
+                storage=main.settings.MediaFileSystemStorage(location="/datalake"),
+                upload_to="upload",
+                validators=[maxquant.validators.validate_file_is_rawfile],
+            ),
         ),
     ]

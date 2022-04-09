@@ -7,4 +7,3 @@ from django.conf import settings as conf_settings
 def dashboard(request):
     context = {"home_title": conf_settings.HOME_TITLE}
     return render(request, "dashboard/dashboard.html", context)
-

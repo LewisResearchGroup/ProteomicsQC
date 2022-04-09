@@ -17,7 +17,7 @@ from maxquant import tasks
 from main.celery import app
 
 
-URL = 'http://localhost:8000'
+URL = "http://localhost:8000"
 
 
 class RawFileTestCase(TestCase):
@@ -51,7 +51,7 @@ class RawFileTestCase(TestCase):
             self.raw_file = RawFile.objects.create(
                 pipeline=self.pipeline, orig_file=SimpleUploadedFile("fake.raw", b"...")
             )
-        
+
     def test__projects(self):
         url = f"{URL}/api/projects"
         _json = requests.post(url).json()

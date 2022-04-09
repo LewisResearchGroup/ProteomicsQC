@@ -54,17 +54,17 @@ layout = html.Div(
     ]
 )
 
-def callbacks(app):
 
+def callbacks(app):
     @app.callback(
-        Output("qc-figure", "figure"), 
-        Output("qc-figure", "config"), 
-        Input("refresh-plots", "n_clicks"), 
+        Output("qc-figure", "figure"),
+        Output("qc-figure", "config"),
+        Input("refresh-plots", "n_clicks"),
         State("qc-table", "selected_rows"),
         State("qc-table", "derived_virtual_indices"),
         State("x", "value"),
         State("qc-table", "data"),
-        State("qc-table-columns", "value")
+        State("qc-table-columns", "value"),
     )
     def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
         """Creates the bar-plot figure"""
@@ -110,12 +110,16 @@ def callbacks(app):
             showlegend=False,
             margin=dict(l=None, r=None, b=500, t=None, pad=0),
             font=C.figure_font,
-            #xaxis={'automargin': True},
-            yaxis={'automargin': True},
+            # xaxis={'automargin': True},
+            yaxis={"automargin": True},
         )
 
         marker_color = df["Use Downstream"].replace(
-            {True: C.colors["accepted"], False: C.colors["rejected"], None: C.colors["unassigned"]}
+            {
+                True: C.colors["accepted"],
+                False: C.colors["rejected"],
+                None: C.colors["unassigned"],
+            }
         )
         marker_line_color = df["Flagged"].replace(
             {True: C.colors["flagged"], False: C.colors["not_flagged"]}
@@ -136,7 +140,9 @@ def callbacks(app):
         if x == "RawFile":
             fig.update_layout(
                 xaxis5=dict(
-                    tickmode="array", tickvals=tuple(range(len(df))), ticktext=tuple(df[x])
+                    tickmode="array",
+                    tickvals=tuple(range(len(df))),
+                    ticktext=tuple(df[x]),
                 )
             )
 

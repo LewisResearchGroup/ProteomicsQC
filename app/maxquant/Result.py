@@ -335,13 +335,13 @@ class Result(models.Model):
         return mark_safe(f"<a href='{self.href}'>Browse</a>")
 
 
-@receiver(models.signals.post_save, sender=  Result)
+@receiver(models.signals.post_save, sender=Result)
 def run_maxquant_after_save(sender, instance, created, *args, **kwargs):
     if created:
         instance.run()
 
 
-@receiver(models.signals.post_delete, sender=  Result)
+@receiver(models.signals.post_delete, sender=Result)
 def remove_maxquant_folders_after_delete(sender, instance, *args, **kwargs):
     result = instance
     if result.output_dir_exists:
