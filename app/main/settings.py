@@ -84,6 +84,7 @@ INSTALLED_APPS = [
     "maxquant",
     "dashboards",
     "dpd_static_support",
+    "django_extensions"
 ]
 
 # ========================================================================

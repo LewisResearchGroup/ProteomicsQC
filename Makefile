@@ -63,4 +63,5 @@ get-test-data:
 documentation:
 	mkdocs gh-deploy
 
-	
+schema:
+	sudo docker-compose -f docker-compose-develop.yml run web python manage.py graph_models --arrow-shape normal -o schema.png -a
