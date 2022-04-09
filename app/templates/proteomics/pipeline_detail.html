@@ -17,25 +17,27 @@
       {% include 'proteomics/include/list_mq_runs.html' with maxquant_runs=maxquant_runs %}
     </div>
 
-    {% if maxquant_runs.has_other_pages %}
-      <ul class="pagination">
-        {% if maxquant_runs.has_previous %}
-        <li><a href="?page={{ maxquant_runs.previous_page_number }}">&laquo;</a></li>
-        {% else %}
-        <li class="disabled"><span>&laquo;</span></li>
-        {% endif %}
-        {% for i in maxquant_runs.paginator.page_range %}
-        {% if maxquant_runs.number == i %}
-            <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
-        {% else %}
-            <li><a href="?page={{ i }}">{{ i }}</a></li>
-        {% endif %}
-        {% endfor %}
-        {% if maxquant_runs.has_next %}
-        <li><a href="?page={{ maxquant_runs.next_page_number }}">&raquo;</a></li>
-        {% else %}
-        <li class="disabled"><span>&raquo;</span></li>
-        {% endif %}
-      </ul>
-    {% endif %}
+    <div class="block">
+      {% if maxquant_runs.has_other_pages %}
+        <ul class="pagination">
+          {% if maxquant_runs.has_previous %}
+          <li><a href="?page={{ maxquant_runs.previous_page_number }}">&laquo;</a></li>
+          {% else %}
+          <li class="disabled"><span>&laquo;</span></li>
+          {% endif %}
+          {% for i in maxquant_runs.paginator.page_range %}
+          {% if maxquant_runs.number == i %}
+              <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+          {% else %}
+              <li><a href="?page={{ i }}">{{ i }}</a></li>
+          {% endif %}
+          {% endfor %}
+          {% if maxquant_runs.has_next %}
+          <li><a href="?page={{ maxquant_runs.next_page_number }}">&raquo;</a></li>
+          {% else %}
+          <li class="disabled"><span>&raquo;</span></li>
+          {% endif %}
+        </ul>
+      {% endif %}
+    </div>
 {% endblock %}
