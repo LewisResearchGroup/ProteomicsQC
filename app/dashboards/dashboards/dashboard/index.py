@@ -426,7 +426,7 @@ def update_selected_raw_files(
     raw_files = [P(i).with_suffix(".raw") for i in raw_files]
 
     pqc = ProteomicsQC(
-        host="http://localhost:8000",
+        host=os.getenv("OMICS_URL", "http://localhost:8000"),
         project_slug=project,
         pipeline_slug=pipeline,
         uid=uid,
