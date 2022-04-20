@@ -61,7 +61,7 @@ def project_detail_view(request, slug):
     # Pattern to store form data in session
     # to make pagination work with search form
     if not request.method == "POST":
-        if "search-files" in request.session:
+        if "search-pipelines" in request.session:
             request.POST = request.session["search-pipelines"]
             request.method = "POST"
         else:

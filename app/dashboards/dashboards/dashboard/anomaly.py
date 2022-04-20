@@ -105,13 +105,9 @@ def callbacks(app):
         if tab != "anomaly":
             raise PreventUpdate
 
-
         df_shap = pd.read_json(shapley_values)
         qc_data = pd.DataFrame(qc_data)
         qc_data = qc_data.iloc[ndxs]
-
-        print(df_shap)
-        print(qc_data)
 
         if "hide_rejected" in options:
             qc_data = qc_data[qc_data["Use Downstream"] != False]
