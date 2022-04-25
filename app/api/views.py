@@ -105,6 +105,8 @@ class ProteinNamesAPI(generics.ListAPIView):
             data["remove_reversed_sequences"],
         )
 
+        print('V:', data)
+
         fns = get_protein_quant_fn(project_slug, pipeline_slug, data_range=data_range)
 
         if raw_files is not None:
@@ -112,6 +114,7 @@ class ProteinNamesAPI(generics.ListAPIView):
 
         if len(fns) == 0:
             return JsonResponse({})
+
         cols = ["Majority protein IDs", "Fasta headers", "Score", "Intensity"]
         ddf = dd.read_parquet(fns, engine="pyarrow")[cols]
         if remove_contaminants:

@@ -113,6 +113,7 @@ def get_protein_names(
             raw_files=raw_files,
         )
     )
+    print('T:', data)
     _json = requests.post(url, data=data, headers=headers).json()
     return _json
 

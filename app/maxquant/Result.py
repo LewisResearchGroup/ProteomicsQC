@@ -197,7 +197,7 @@ class Result(models.Model):
     def get_data_from_file(self, fn="proteinGroups.txt"):
         abs_fn = self.output_dir_maxquant / fn
         if abs_fn.is_file():
-            df = MaxquantReader().read(abs_fn)
+            df = MaxquantReader(remove_contaminants=False, remove_reverse=False).read(abs_fn)
             if df is None:
                 return None
             df["RawFile"] = str(self.raw_file.name)
