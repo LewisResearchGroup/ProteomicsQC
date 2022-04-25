@@ -95,7 +95,7 @@ class Pipeline(MaxQuantParameter, FastaFile, RawToolsSetup):
     @property
     def id(self):
         return f"{self.project.id}MQ{self.pk}"
-    
+
     @property
     def config_path(self):
         return self.path / "config"

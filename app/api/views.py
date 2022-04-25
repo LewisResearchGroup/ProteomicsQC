@@ -89,13 +89,23 @@ class ProteinNamesAPI(generics.ListAPIView):
 
         logging.warning(f"ProteinNamesAPI: {data}")
 
-        project_slug = data["project"]
-        pipeline_slug = data["pipeline"]
-        data_range = data["data_range"]
-        raw_files = data["raw_files"]
+        (
+            project_slug,
+            pipeline_slug,
+            data_range,
+            raw_files,
+            remove_contaminants,
+            remove_reversed_sequences,
+        ) = (
+            data["project"],
+            data["pipeline"],
+            data["data_range"],
+            data["raw_files"],
+            data["remove_contaminants"],
+            data["remove_reversed_sequences"],
+        )
 
-        add_con = data["add_con"]
-        add_rev = data["add_rev"]
+        print(data)
 
         fns = get_protein_quant_fn(project_slug, pipeline_slug, data_range=data_range)
 
@@ -106,10 +116,10 @@ class ProteinNamesAPI(generics.ListAPIView):
             return JsonResponse({})
         cols = ["Majority protein IDs", "Fasta headers", "Score", "Intensity"]
         ddf = dd.read_parquet(fns, engine="pyarrow")[cols]
-        if not add_con:
-            ddf = ddf[~ddf["Majority protein IDs"].str.contains("CON__")]
-        if not add_rev:
-            ddf = ddf[~ddf["Majority protein IDs"].str.contains("REV__")]
+        if remove_contaminants:
+            ddf = remove(ddf, "contaminants")
+        if remove_reversed_sequences:
+            ddf = remove(ddf, "reversed_sequences")
         dff = (
             ddf.groupby(["Majority protein IDs", "Fasta headers"])
             .mean()
@@ -125,6 +135,17 @@ class ProteinNamesAPI(generics.ListAPIView):
             response[col] = res[col].to_list()
 
         return JsonResponse(response)
+
+
+def remove(df, what="contaminants"):
+    if what == "contaminants":
+        pattern = "CON__"
+    elif what == "reversed_sequences":
+        pattern = "REV__"
+    else:
+        logging.error(f"No pattern defined for {what}")
+    df_reduced = df[~df["Majority protein IDs"].str.contains(pattern)]
+    return df_reduced
 
 
 class ProteinGroupsAPI(generics.ListAPIView):

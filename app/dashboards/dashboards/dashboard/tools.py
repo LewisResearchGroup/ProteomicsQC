@@ -94,7 +94,12 @@ def get_protein_groups(
 
 
 def get_protein_names(
-    project, pipeline, add_con=True, add_rev=True, data_range=None, raw_files=None
+    project,
+    pipeline,
+    remove_contaminants=True,
+    remove_reversed_sequences=True,
+    data_range=None,
+    raw_files=None,
 ):
     url = f"{URL}/api/protein-names"
     headers = {"Content-type": "application/json"}
@@ -102,12 +107,13 @@ def get_protein_names(
         dict(
             project=project,
             pipeline=pipeline,
-            add_con=add_con,
+            remove_contaminants=remove_contaminants,
+            remove_reversed_sequences=remove_reversed_sequences,
             data_range=data_range,
-            add_rev=add_rev,
             raw_files=raw_files,
         )
     )
+    print(data)
     _json = requests.post(url, data=data, headers=headers).json()
     return _json
 

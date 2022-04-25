@@ -54,7 +54,7 @@ def maxquant_pipeline_view(request, project, pipeline):
 
     page = request.GET.get("page", 1)
     paginator = Paginator(maxquant_runs, settings.PAGINATE)
-    
+
     try:
         maxquant_runs = paginator.page(page)
     except PageNotAnInteger:

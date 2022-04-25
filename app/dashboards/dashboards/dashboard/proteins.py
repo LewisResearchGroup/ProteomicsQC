@@ -74,18 +74,24 @@ plot_columns = [
 
 layout = html.Div(
     [
+
         dcc.Dropdown(
             id="proteins-options",
-            multi=True,
-            value=[],
-            placeholder="Table options...",
-            style={"margin-top": "50px", "margin-bottom": "50px"},
+            placeholder="Options",
             options=[
-                {"value": "add-con", "label": "Include contaminants"},
-                {"value": "add-rev", "label": "Include reversed sequences"},
+                {"value": "remove_contaminants", "label": "Remove contaminants"},
+                {
+                    "value": "remove_reversed_sequences",
+                    "label": "Remove reversed sequences",
+                },
             ],
+            value=['remove_contaminants', 'remove_reversed_sequences'],
+            multi=True,
+            style={"margin-top": "50px", "margin-bottom": "50px"},
         ),
+
         html.Button("Update table", id="proteins-update"),
+
         dcc.Loading(proteins_table),
         dcc.Dropdown(
             id="protein-plot-column",
@@ -136,8 +142,8 @@ def callbacks(app):
             T.get_protein_names(
                 project=project,
                 pipeline=pipeline,
-                add_con="add-con" in options,
-                add_rev="add-rev" in options,
+                remove_contaminants="remove_contaminants" in options,
+                remove_reversed_sequences="remove_reversed_sequences" in options,
                 raw_files=raw_files,
             )
         )

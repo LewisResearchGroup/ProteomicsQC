@@ -33,9 +33,9 @@ class ProjectListView(LoginRequiredMixin, FormMixin, ListView):
     def post(self, request, *args, **kwargs):
         self.object_list = self.get_queryset(*args, **kwargs)
         form = SearchProject(request.POST)
-        request.session['search-projects'] = request.POST
+        request.session["search-projects"] = request.POST
         if form.is_valid():
-            projects = Project.objects.filter(name__iregex=form.cleaned_data['regex'])
+            projects = Project.objects.filter(name__iregex=form.cleaned_data["regex"])
         self.object_list = projects
         context = self.get_context_data(object_list=projects, form=form)
         return self.render_to_response(context)
@@ -51,9 +51,8 @@ class ProjectListView(LoginRequiredMixin, FormMixin, ListView):
         try:
             return super(ProjectListView, self).paginate_queryset(queryset, page_size)
         except Http404:
-            self.kwargs['page'] = 1  # return page 1 instead
+            self.kwargs["page"] = 1  # return page 1 instead
             return super(ProjectListView, self).paginate_queryset(queryset, page_size)
-
 
 
 def project_detail_view(request, slug):
@@ -79,7 +78,7 @@ def project_detail_view(request, slug):
 
     page = request.GET.get("page", 1)
     paginator = Paginator(maxquant_pipelines, settings.PAGINATE)
-    
+
     try:
         maxquant_pipelines = paginator.page(page)
     except PageNotAnInteger:
