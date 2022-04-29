@@ -13,7 +13,7 @@ from dash_table.Format import Format
 import plotly.express as px
 import plotly.graph_objects as go
 from matplotlib import pyplot as pl
-
+from numpy import NaN
 
 from pycaret.anomaly import (
     setup,
@@ -515,3 +515,27 @@ def detect_anomalies(qc_data, **model_kws):
         print(c)
 
     return prediction, shapley_values
+
+
+def get_color_of_state(use_downstream, flagged, selected):
+    colors = {
+        (NaN, False, False): 'white',
+        (NaN, False, False): 'white',
+        (NaN, True,  False): 'white',
+        (NaN, True,  False): 'white',
+        (NaN, False, True):  'magenta',
+        (NaN, False, True):  'magenta',
+        (NaN, True,  True):  'magenta',
+        (NaN, True,  True):  'magenta',   
+
+        (True,  False, False): 'blue',
+        (False, False, False): 'lightblue',
+        (True,  True,  False): 'red',
+        (False, True,  False): 'tomato',
+        (True,  False, True):  'magenta',
+        (False, False, True):  'magenta',
+        (True,  True,  True):  'magenta',
+        (False, True,  True):  'magenta',        
+    }
+    color = colors[(use_downstream, flagged, selected)]
+    return color

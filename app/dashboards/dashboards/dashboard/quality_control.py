@@ -76,6 +76,9 @@ def callbacks(app):
 
         df = pd.DataFrame(data)
 
+        df['Selected'] = False
+        df.loc[selected, 'Selected'] = True
+
         assert pd.value_counts(df.columns).max() == 1, pd.value_counts(df.columns)
 
         df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
@@ -99,6 +102,7 @@ def callbacks(app):
                 x=df[x],
                 y=df[col],
                 name=col,
+                hovertext=df.RawFile + '<br>' + df.DateAcquired.astype(str),
                 text=None if x == "RawFile" else df["RawFile"],
             )
             fig.add_trace(trace, row=1 + i, col=1)
@@ -110,23 +114,11 @@ def callbacks(app):
             showlegend=False,
             margin=dict(l=None, r=None, b=500, t=None, pad=0),
             font=C.figure_font,
-            # xaxis={'automargin': True},
             yaxis={"automargin": True},
         )
 
-        marker_color = df["Use Downstream"].replace(
-            {
-                True: C.colors["accepted"],
-                False: C.colors["rejected"],
-                None: C.colors["unassigned"],
-            }
-        )
-        marker_line_color = df["Flagged"].replace(
-            {True: C.colors["flagged"], False: C.colors["not_flagged"]}
-        )
-
-        for ndx in selected:
-            marker_color[ndx] = C.colors["selected"]
+        marker_color = df[["Use Downstream", "Flagged", "Selected"]].apply(lambda row: T.get_color_of_state(*row), axis=1)
+        marker_line_color = ['red' if e is True else 'lightblue' for e in df['Flagged'] ]
 
         fig.update_traces(
             marker_color=marker_color,

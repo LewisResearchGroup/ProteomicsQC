@@ -180,7 +180,9 @@ def callbacks(app):
 
         df = pd.DataFrame(data)
         df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
-
+        df['Selected'] = False
+        df.loc[selected, 'Selected'] = True
+        
         if ndxs is not None:
             df = df.reindex(ndxs)
 
@@ -221,16 +223,9 @@ def callbacks(app):
             yaxis={"automargin": True},
         )
 
-        marker_color = df["Use Downstream"].replace(
-            {
-                True: C.colors["accepted"],
-                False: C.colors["rejected"],
-                None: C.colors["unassigned"],
-            }
-        )
-        marker_line_color = df["Flagged"].replace(
-            {True: C.colors["flagged"], False: C.colors["not_flagged"]}
-        )
+        marker_color = df[["Use Downstream", "Flagged", "Selected"]].apply(lambda row: T.get_color_of_state(*row), axis=1)
+        marker_line_color = ['red' if e is True else 'lightblue' for e in df['Flagged'] ]
+
         marker_symbol = [0] * len(df)
 
         for i, ndx in enumerate(ndxs):
