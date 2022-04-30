@@ -552,7 +552,7 @@ def get_marker_line_color(use_downstream, flagged, selected):
         (NaN, True,  True):  'black',
         (NaN, True,  True):  'black',   
 
-        (True,  False, False): 'darkskyblue',
+        (True,  False, False): 'deepskyblue',
         (False, False, False): 'lightblue',
         (True,  True,  False): 'red',
         (False, True,  False): 'pink',
