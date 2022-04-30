@@ -117,8 +117,8 @@ def callbacks(app):
             yaxis={"automargin": True},
         )
 
-        marker_color = df[["Use Downstream", "Flagged", "Selected"]].apply(lambda row: T.get_color_of_state(*row), axis=1)
-        marker_line_color = ['red' if e is True else 'lightblue' for e in df['Flagged'] ]
+        marker_color = df[["Use Downstream", "Flagged", "Selected"]].apply(lambda row: T.get_marker_color(*row), axis=1)
+        marker_line_color = df[["Use Downstream", "Flagged", "Selected"]].apply(lambda row: T.get_marker_line_color(*row), axis=1)
 
         fig.update_traces(
             marker_color=marker_color,

@@ -517,25 +517,49 @@ def detect_anomalies(qc_data, **model_kws):
     return prediction, shapley_values
 
 
-def get_color_of_state(use_downstream, flagged, selected):
+def get_marker_color(use_downstream, flagged, selected):
     colors = {
         (NaN, False, False): 'white',
         (NaN, False, False): 'white',
         (NaN, True,  False): 'white',
         (NaN, True,  False): 'white',
-        (NaN, False, True):  'magenta',
-        (NaN, False, True):  'magenta',
-        (NaN, True,  True):  'magenta',
-        (NaN, True,  True):  'magenta',   
+        (NaN, False, True):  'black',
+        (NaN, False, True):  'black',
+        (NaN, True,  True):  'black',
+        (NaN, True,  True):  'black',   
 
         (True,  False, False): 'blue',
         (False, False, False): 'lightblue',
         (True,  True,  False): 'red',
-        (False, True,  False): 'tomato',
-        (True,  False, True):  'magenta',
-        (False, False, True):  'magenta',
-        (True,  True,  True):  'magenta',
-        (False, True,  True):  'magenta',        
+        (False, True,  False): 'pink',
+        (True,  False, True):  'black',
+        (False, False, True):  'black',
+        (True,  True,  True):  'black',
+        (False, True,  True):  'black',        
+    }
+    color = colors[(use_downstream, flagged, selected)]
+    return color
+    
+
+def get_marker_line_color(use_downstream, flagged, selected):
+    colors = {
+        (NaN, False, False): 'lightblue',
+        (NaN, False, False): 'lightblue',
+        (NaN, True,  False): 'red',
+        (NaN, True,  False): 'red',
+        (NaN, False, True):  'black',
+        (NaN, False, True):  'black',
+        (NaN, True,  True):  'black',
+        (NaN, True,  True):  'black',   
+
+        (True,  False, False): 'blue',
+        (False, False, False): 'lightblue',
+        (True,  True,  False): 'red',
+        (False, True,  False): 'pink',
+        (True,  False, True):  'black',
+        (False, False, True):  'black',
+        (True,  True,  True):  'black',
+        (False, True,  True):  'black',        
     }
     color = colors[(use_downstream, flagged, selected)]
     return color
