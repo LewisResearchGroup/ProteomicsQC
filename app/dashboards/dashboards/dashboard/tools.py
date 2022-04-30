@@ -532,10 +532,10 @@ def get_marker_color(use_downstream, flagged, selected):
         (False, False, False): 'lightblue',
         (True,  True,  False): 'red',
         (False, True,  False): 'pink',
-        (True,  False, True):  'black',
-        (False, False, True):  'black',
-        (True,  True,  True):  'black',
-        (False, True,  True):  'black',        
+        (True,  False, True):  'magenta',
+        (False, False, True):  'magenta',
+        (True,  True,  True):  'cyan',
+        (False, True,  True):  'cyan',        
     }
     color = colors[(use_downstream, flagged, selected)]
     return color
@@ -552,7 +552,7 @@ def get_marker_line_color(use_downstream, flagged, selected):
         (NaN, True,  True):  'black',
         (NaN, True,  True):  'black',   
 
-        (True,  False, False): 'blue',
+        (True,  False, False): 'darkskyblue',
         (False, False, False): 'lightblue',
         (True,  True,  False): 'red',
         (False, True,  False): 'pink',
