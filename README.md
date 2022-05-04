@@ -1,4 +1,4 @@
-[![Codacy Security Scan](https://github.com/sorenwacker/ProteomicsQC/actions/workflows/codacy-analysis.yml/badge.svg)](https://github.com/sorenwacker/ProteomicsQC/actions/workflows/codacy-analysis.yml)
+[![Codacy Security Scan](https://github.com/LewisResearchGroup/ProteomicsQC/actions/workflows/codacy-analysis.yml/badge.svg)](https://github.com/LewisResearchGroup/ProteomicsQC/actions/workflows/codacy-analysis.yml)
 
 ![](docs/img/ProteomicsQC.png)
 
@@ -11,14 +11,14 @@ Results are visualized in an interactive dashboard and accessible via a RESTful 
 The server can be started with a single command using `docker-compose`.
 Underlying software is _MaxQuant_ and _RawTools_ for proteomics, _Django_ for the web-server and API and _Plotly/Dash_ for the interactive dashboard.
 
-More information can be found in the [Documentation](https://sorenwacker.github.io/ProteomicsQC/).
+More information can be found in the [Documentation](https://LewisResearchGroup.github.io/ProteomicsQC/).
 
 
 ## Installation
 
 This repository contains git submodules and should be cloned with:
 
-    git clone --recursive git@github.com:sorenwacker/ProteomicsQC.git
+    git clone --recursive git@github.com:LewisResearchGroup/ProteomicsQC.git
 
     ./scripts/generate_config.sh  # generates a .env file for configuration
 
