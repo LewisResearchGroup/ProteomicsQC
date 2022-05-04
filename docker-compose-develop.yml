@@ -3,7 +3,7 @@ version: "3.3"
 services:
   web:
     container_name: web
-    restart: always
+    #restart: no
     user: ${UID}
     build:
       context: .
@@ -15,7 +15,7 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./app/:/app/
-      - ./lib/lrg_omics/:/lrg-omics/
+      - ./lib/lrg-omics/:/lrg-omics/
       - ${DATALAKE}:/datalake/
       - ${MEDIA}:/appmedia/
       - ${STATIC}:/static/
@@ -30,7 +30,7 @@ services:
   
   db:
     container_name: db_pqc
-    restart: always
+    #restart: never
     image: postgres:13.4
     volumes:
       - ${DB}:/var/lib/postgresql/data
@@ -41,14 +41,14 @@ services:
 
   redis:
     container_name: redis
-    restart: always
+    #restart: no
     image: redis:alpine
     ports:
       - "6379:6379"
 
   celery:
     container_name: celery
-    restart: always
+    #restart: no
     user: ${UID}
     build:
       context: .
@@ -58,7 +58,7 @@ services:
       - ./.env    
     volumes:
       - ./app/:/app/
-      - ./lib/lrg_omics/:/lrg-omics/
+      - ./lib/lrg-omics/:/lrg-omics/
       - ${DATALAKE}:/datalake/      
       - ${COMPUTE}:/compute/
     environment:

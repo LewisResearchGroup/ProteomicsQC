@@ -15,7 +15,7 @@ services:
     command: python server.py
     volumes:
       - ./app/:/app/
-      - ./lib/lrg_omics/:/lrg-omics/
+      - ./lib/lrg-omics/:/lrg-omics/
       - ${DATALAKE}:/datalake/
       - ${MEDIA}:/appmedia/
       - ${STATIC}:/static/
@@ -58,7 +58,7 @@ services:
       - ./.env    
     volumes:
       - ./app/:/app/
-      - ./lib/lrg_omics/:/lrg-omics/
+      - ./lib/lrg-omics/:/lrg-omics/
       - ${DATALAKE}:/datalake/      
       - ${COMPUTE}:/compute/
     environment:
