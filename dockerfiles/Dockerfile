@@ -16,7 +16,7 @@ COPY requirements.txt requirements.txt
 
 RUN pip install -r requirements.txt
 
-COPY ./lib/lrg_omics /lrg-omics
+COPY ./lib/lrg-omics /lrg-omics
 
 RUN cd /lrg-omics && pip install -e .
 
