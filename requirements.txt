@@ -227,7 +227,7 @@ typing_extensions==4.1.1
 umap-learn==0.5.2
 vine==5.0.0
 visions==0.7.4
-waitress==2.1.1
+waitress==2.1.2
 wasabi==0.9.1
 wcwidth==0.2.5
 webencodings==0.5.1
