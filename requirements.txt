@@ -175,7 +175,7 @@ pycosat==0.6.3
 pyct==0.4.8
 pydantic==1.9.0
 Pygments==2.11.2
-PyJWT==2.3.0
+PyJWT==2.4.0
 pyLDAvis==3.2.2
 pynndescent==0.5.6
 pyod==0.9.9
