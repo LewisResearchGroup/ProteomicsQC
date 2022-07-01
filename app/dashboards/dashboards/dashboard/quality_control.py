@@ -118,7 +118,7 @@ def callbacks(app):
         )
 
         marker_color = df[["Use Downstream", "Flagged", "Selected"]].apply(lambda row: T.get_marker_color(*row), axis=1)
-        marker_line_color = df[["Use Downstream", "Flagged", "Selected"]].apply(lambda row: T.get_marker_line_color(*row), axis=1)
+        marker_line_color = df[["Use Downstream", "Flagged", "Selected"]].fillna('unknown').apply(lambda row: T.get_marker_line_color(*row), axis=1)
 
         fig.update_traces(
             marker_color=marker_color,

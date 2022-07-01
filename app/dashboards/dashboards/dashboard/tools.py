@@ -519,14 +519,10 @@ def detect_anomalies(qc_data, **model_kws):
 
 def get_marker_color(use_downstream, flagged, selected):
     colors = {
-        (NaN, False, False): 'white',
-        (NaN, False, False): 'white',
-        (NaN, True,  False): 'white',
-        (NaN, True,  False): 'white',
-        (NaN, False, True):  'black',
-        (NaN, False, True):  'black',
-        (NaN, True,  True):  'black',
-        (NaN, True,  True):  'black',   
+        ('unknown', False, False): 'white',
+        ('unknown', True,  False): 'white',
+        ('unknown', False, True):  'black',
+        ('unknown', True,  True):  'black',
 
         (True,  False, False): 'blue',
         (False, False, False): 'deepskyblue',
@@ -537,20 +533,18 @@ def get_marker_color(use_downstream, flagged, selected):
         (True,  True,  True):  'cyan',
         (False, True,  True):  'cyan',        
     }
-    color = colors[(use_downstream, flagged, selected)]
+    key = (use_downstream if isinstance(use_downstream, bool) else 'unknown', flagged, selected)
+    print(key, type(use_downstream), type(flagged), type(selected))
+    color = colors[key]
     return color
     
 
 def get_marker_line_color(use_downstream, flagged, selected):
     colors = {
-        (NaN, False, False): 'lightblue',
-        (NaN, False, False): 'lightblue',
-        (NaN, True,  False): 'red',
-        (NaN, True,  False): 'red',
-        (NaN, False, True):  'black',
-        (NaN, False, True):  'black',
-        (NaN, True,  True):  'black',
-        (NaN, True,  True):  'black',
+        ('unknown', False, False): 'lightblue',
+        ('unknown', True,  False): 'red',
+        ('unknown', False, True):  'black',
+        ('unknown', True,  True):  'black',
 
         (True,  False, False): 'deepskyblue',
         (False, False, False): 'lightblue',
@@ -561,5 +555,5 @@ def get_marker_line_color(use_downstream, flagged, selected):
         (True,  True,  True):  'cyan',
         (False, True,  True):  'cyan',        
     }
-    color = colors[(use_downstream, flagged, selected)]
+    color = colors[(use_downstream if isinstance(use_downstream, bool) else 'unknown', flagged, selected)]
     return color
