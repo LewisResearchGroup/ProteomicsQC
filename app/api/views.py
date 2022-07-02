@@ -296,11 +296,11 @@ def get_qc_data(project_slug, pipeline_slug, data_range=None):
         try:
             rts.append(result.rawtools_qc_data())
         except Exception as e:
-            logging.warning(f'{e}: {result.raw_file.name}')
+            logging.warning(f'{e}: {result.raw_file.name} rawtools_qc_data')
         try:
             mqs.append(result.maxquant_qc_data())
         except Exception as e:
-            logging.warning(e)
+            logging.warning(f'{e}: {result.raw_file.name} maxquant_qc_data')
 
     rt = pd.concat(rts)
     mq = pd.concat(mqs)
