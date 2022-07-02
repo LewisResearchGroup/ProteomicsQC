@@ -307,8 +307,11 @@ def get_qc_data(project_slug, pipeline_slug, data_range=None):
 
     del rts, mqs
 
-    rt["Index"] = rt["DateAcquired"].rank()
-
+    try:
+        rt["Index"] = rt["DateAcquired"].rank()
+    except KeyError:
+        logging.error(f'{e}: {rt}')
+        
     if (rt is None) and (mq is not None):
         return mq
     elif (rt is not None) and (mq is None):
