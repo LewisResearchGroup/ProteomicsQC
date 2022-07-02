@@ -309,7 +309,7 @@ def get_qc_data(project_slug, pipeline_slug, data_range=None):
 
     try:
         rt["Index"] = rt["DateAcquired"].rank()
-    except KeyError:
+    except KeyError as e:
         logging.error(f'{e}: {rt}')
 
     if (rt is None) and (mq is not None):
