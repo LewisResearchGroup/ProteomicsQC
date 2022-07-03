@@ -31,7 +31,7 @@ x_options = [
 layout = html.Div(
     [
         html.Div(
-            [html.P(["x-Axis:", dcc.Dropdown(id="x", options=x_options)])],
+            [html.P(["x-Axis:", dcc.Dropdown(id="x", options=x_options, value='Index')])],
             style={"width": "100%", "margin": "auto"},
         ),
         html.Div(

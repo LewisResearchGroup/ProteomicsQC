@@ -31,10 +31,27 @@ checklist_options = [
     {"label": "Hide rejected samples", "value": "hide_rejected"},
 ]
 
+
+algorithm_options = [
+    #{'label': 'Angle-base Outlier Detection', 'value': 'abod'},
+    #{'label': 'Clustering-Based Local Outlier', 'value': 'cluster'},
+    #{'label': 'Connectivity-Based Outlier Factor', 'value': 'cof'},
+    #{'label': 'Histogram-based Outlier Detection', 'value': 'histogram'},
+    #{'label': 'k-Nearest Neighbors Detector', 'value': 'knn'},
+    #{'label': 'Local Outlier Factor', 'value': 'lof'},
+    #{'label': 'One-class SVM detector', 'value': 'svm'},
+    #{'label': 'Principal Component Analysis', 'value': 'pca'},
+    #{'label': 'Minimum Covariance Determinant', 'value': 'mcd'},
+    #{'label': 'Subspace Outlier Detection', 'value': 'sod'},
+    #{'label': 'Stochastic Outlier Selection', 'value': 'sos'},
+    {'label': 'Isolation Forest', 'value': 'iforest'}
+]
+
 layout = html.Div(
     [
         html.H1("Anomaly detection"),
-        html.Button("Run isolation forest", id="anomaly-btn", className="btn"),
+        dcc.Dropdown(id='anomaly-algorithm', options=algorithm_options, value='iforest'),
+        html.Button("Predict Anomalies", id="anomaly-btn", className="btn"),
         dcc.Checklist(
             id="anomaly-checklist",
             options=checklist_options,
@@ -53,10 +70,11 @@ def callbacks(app):
     @app.callback(
         Output("shapley-values", "children"),
         Input("anomaly-btn", "n_clicks"),
+        State("anomaly-algorithm", 'value'),
         State("project", "value"),
         State("pipeline", "value"),
     )
-    def run_anomaly_detection(n_clicks, project, pipeline, **kwargs):
+    def run_anomaly_detection(n_clicks, algorithm, project, pipeline, **kwargs):
         if n_clicks is None:
             raise PreventUpdate
 
@@ -71,13 +89,14 @@ def callbacks(app):
 
         qc_data = pqc.get_qc_data(data_range=None).set_index("RawFile")
 
+        print(f"Run anomaly detection ({algorithm}).")
+
         predictions, df_shap = T.detect_anomalies(
-            qc_data, fraction=0.05, n_estimators=1000
+            qc_data, algorithm=algorithm, fraction=0.05, n_estimators=200,
         )
 
-        print("run_anomaly_detection")
-        print(qc_data)
-        print(df_shap)
+        print('Predictions:', predictions)
+        print('Shapley values:', df_shap)
 
         # Update flags
         currently_unflagged = list(qc_data[~qc_data.Flagged].reset_index().RawFile)
@@ -101,7 +120,7 @@ def callbacks(app):
         Input("tabs", "value"),
     )
     def plot_shapley(shapley_values, qc_data, options, ndxs, tab):
-        if tab != "anomaly":
+        if tab != "anomaly" or shapley_values is None:
             raise PreventUpdate
 
         df_shap = pd.read_json(shapley_values)

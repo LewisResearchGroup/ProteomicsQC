@@ -190,7 +190,9 @@ def log2p1(x):
 
 class ShapAnalysis:
     def __init__(self, model, df):
-        explainer = shap.TreeExplainer(model)
+        #explainer = shap.TreeExplainer(model)
+        explainer = shap.Explainer(model)
+        
         shap_values = explainer(df)
         self._shap_values = shap_values
         self._instance_names = df.index.to_list()
@@ -397,7 +399,7 @@ def plotly_heatmap(
         return fig
 
 
-def detect_anomalies(qc_data, **model_kws):
+def detect_anomalies(qc_data, algorithm=None, **model_kws):
     selected_cols = [
         "N_protein_groups",
         "N_protein_true_hits",
@@ -502,8 +504,8 @@ def detect_anomalies(qc_data, **model_kws):
         numeric_features=selected_cols,
     )
 
-    model_name = "iforest"
-    model = create_model(model_name, **model_kws)
+    logging.info(f'Create anomaly model: {algorithm}')
+    model = create_model(algorithm, **model_kws)
 
     pipeline = get_config("prep_pipe")
     data = pipeline.transform(df_all)
