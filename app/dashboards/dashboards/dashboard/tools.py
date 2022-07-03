@@ -534,7 +534,6 @@ def get_marker_color(use_downstream, flagged, selected):
         (False, True,  True):  'cyan',        
     }
     key = (use_downstream if isinstance(use_downstream, bool) else 'unknown', flagged, selected)
-    print(key, type(use_downstream), type(flagged), type(selected))
     color = colors[key]
     return color
     
