@@ -477,7 +477,7 @@ def detect_anomalies(qc_data, **model_kws):
     selected_cols.reverse()
 
     for col in selected_cols:
-        if not col in qc_data.columns;
+        if not col in qc_data.columns:
             selected_cols.remove(col)
             logging.warning(f'Column not found in QC data: {col}')
 
