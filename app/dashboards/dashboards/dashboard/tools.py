@@ -476,6 +476,11 @@ def detect_anomalies(qc_data, **model_kws):
 
     selected_cols.reverse()
 
+    for col in selected_cols:
+        if not col in qc_data.columns;
+            selected_cols.remove(col)
+            logging.warning(f'Column not found in QC data: {col}')
+
     log_cols = [
         "Ms1MedianSummedIntensity",
         "Ms2MedianSummedIntensity",
@@ -484,7 +489,7 @@ def detect_anomalies(qc_data, **model_kws):
 
     for c in log_cols:
         qc_data[c] = qc_data[c].apply(log2p1)
-
+    
     df_train = qc_data[qc_data["Use Downstream"] == True][selected_cols].fillna(0)
     df_test = qc_data[qc_data["Use Downstream"] != True][selected_cols].fillna(0)
     df_all = qc_data[selected_cols].fillna(0)
