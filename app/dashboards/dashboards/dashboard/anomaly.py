@@ -92,7 +92,7 @@ def callbacks(app):
         print(f"Run anomaly detection ({algorithm}).")
 
         predictions, df_shap = T.detect_anomalies(
-            qc_data, algorithm=algorithm, fraction=0.05, n_estimators=200,
+            qc_data, algorithm=algorithm, fraction=0.05, n_estimators=1000,
         )
 
         print('Predictions:', predictions)
