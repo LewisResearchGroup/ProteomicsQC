@@ -50,7 +50,7 @@ debugpy==1.6.0
 decorator==5.1.1
 defusedxml==0.7.1
 Deprecated==1.2.13
-Django==3.2.13
+Django==3.2.14
 django-admin-index==2.0.0
 django-bootstrap4==22.1
 django-cache-memoize==0.1.10
