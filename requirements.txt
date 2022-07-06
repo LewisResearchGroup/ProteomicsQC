@@ -113,7 +113,7 @@ kombu==5.2.4
 lightgbm==3.3.2
 llvmlite==0.37.0
 locket==0.2.1
-lxml==4.8.0
+lxml==4.9.1
 Mako==1.2.0
 Markdown==3.3.6
 MarkupSafe==2.0.1
