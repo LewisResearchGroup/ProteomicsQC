@@ -526,8 +526,8 @@ def detect_anomalies(qc_data, algorithm=None, **model_kws):
 
 def get_marker_color(use_downstream, flagged, selected):
     colors = {
-        ('unknown', False, False): 'white',
-        ('unknown', True,  False): 'white',
+        ('unknown', False, False): 'grey',
+        ('unknown', True,  False): 'grey',
         ('unknown', False, True):  'black',
         ('unknown', True,  True):  'black',
 
