@@ -15,6 +15,9 @@ import plotly.graph_objects as go
 from matplotlib import pyplot as pl
 from numpy import NaN
 
+from pandas.api.types import is_numeric_dtype
+
+
 from pycaret.anomaly import (
     setup,
     create_model,
@@ -399,11 +402,16 @@ def plotly_heatmap(
         return fig
 
 
-def detect_anomalies(qc_data, algorithm=None, columns=None, **model_kws):
+def detect_anomalies(qc_data, algorithm=None, columns=None, max_features=None, precentage=None, **model_kws):
     
-    selected_cols = columns
+    selected_cols = [c for c in columns if is_numeric_dtype(qc_data[c])]
+
+    print('Selected columns for anomaly detection:', selected_cols)
 
     selected_cols.reverse()
+
+    if max_features is not None:
+        max_features = max(max_features, len(selected_cols))
 
     for col in selected_cols:
         if not col in qc_data.columns:
@@ -441,8 +449,12 @@ def detect_anomalies(qc_data, algorithm=None, columns=None, **model_kws):
     # change it to original names
     data.columns = selected_cols
 
-    sa = ShapAnalysis(model, data)
-    shapley_values = sa.df_shap.reindex(selected_cols, axis=1)
+    if algorithm == 'iforest':
+        sa = ShapAnalysis(model, data)
+        shapley_values = sa.df_shap.reindex(selected_cols, axis=1)
+    else:
+        shapley_values = None
+
     prediction = predict_model(model, df_all)[["Anomaly", "Anomaly_Score"]]
 
     for c in selected_cols:
