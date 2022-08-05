@@ -72,8 +72,9 @@ def callbacks(app):
         State("anomaly-algorithm", 'value'),
         State("project", "value"),
         State("pipeline", "value"),
+        State("qc-table-columns", "value"),
     )
-    def run_anomaly_detection(n_clicks, algorithm, project, pipeline, **kwargs):
+    def run_anomaly_detection(n_clicks, algorithm, project, pipeline, columns, **kwargs):
         if n_clicks is None:
             raise PreventUpdate
 
@@ -91,7 +92,7 @@ def callbacks(app):
         print(f"Run anomaly detection ({algorithm}).")
 
         predictions, df_shap = T.detect_anomalies(
-            qc_data, algorithm=algorithm, fraction=0.05, n_estimators=1000, max_features=10
+            qc_data, algorithm=algorithm, columns=columns, fraction=0.05, n_estimators=1000, max_features=max(10, len(columns))
         )
 
         print('Predictions:', predictions)
