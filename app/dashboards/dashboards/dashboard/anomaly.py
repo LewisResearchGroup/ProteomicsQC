@@ -160,3 +160,4 @@ def callbacks(app):
 
         config = T.gen_figure_config(filename="Anomaly-Detection-Shapley-values")
         return fig, config
+

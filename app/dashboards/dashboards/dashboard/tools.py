@@ -116,7 +116,6 @@ def get_protein_names(
             raw_files=raw_files,
         )
     )
-    print('T:', data)
     _json = requests.post(url, data=data, headers=headers).json()
     return _json
 
@@ -405,25 +404,18 @@ def plotly_heatmap(
 def detect_anomalies(qc_data, algorithm=None, columns=None, max_features=None, precentage=None, **model_kws):
     
     selected_cols = [c for c in columns if is_numeric_dtype(qc_data[c])]
-
-    print('Selected columns for anomaly detection:', selected_cols)
-
     selected_cols.reverse()
-
     if max_features is not None:
         max_features = max(max_features, len(selected_cols))
-
     for col in selected_cols:
         if not col in qc_data.columns:
             selected_cols.remove(col)
             logging.warning(f'Column not found in QC data: {col}')
-
     log_cols = [
         "Ms1MedianSummedIntensity",
         "Ms2MedianSummedIntensity",
         "MedianPrecursorIntensity",
     ]
-
     for c in log_cols:
         qc_data[c] = qc_data[c].apply(log2p1)
     
@@ -441,25 +433,17 @@ def detect_anomalies(qc_data, algorithm=None, columns=None, max_features=None, p
 
     logging.info(f'Create anomaly model: {algorithm}')
     model = create_model(algorithm, **model_kws)
-
     pipeline = get_config("prep_pipe")
     data = pipeline.transform(df_all)
-
     # pycaret changes column names
     # change it to original names
     data.columns = selected_cols
-
     if algorithm == 'iforest':
         sa = ShapAnalysis(model, data)
         shapley_values = sa.df_shap.reindex(selected_cols, axis=1)
     else:
         shapley_values = None
-
     prediction = predict_model(model, df_all)[["Anomaly", "Anomaly_Score"]]
-
-    for c in selected_cols:
-        print(c)
-
     return prediction, shapley_values
 
 
