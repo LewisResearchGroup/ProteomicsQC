@@ -17,9 +17,9 @@ from .forms import BasicUploadForm, SearchResult
 from .models import RawFile, Result, Pipeline
 from project.models import Project
 
-from lrg_omics.tools import today
-from lrg_omics.proteomics.vis.plotly.rawtools import histograms, lines_plot
-from lrg_omics.plotly import (
+from lrg_omics.common import today
+from lrg_omics.proteomics.rawtools.plotly import histograms, lines_plot
+from lrg_omics.plotly_tools import (
     set_template,
     plotly_heatmap,
     plotly_fig_to_div,

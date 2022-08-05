@@ -39,7 +39,7 @@ qc_columns_default = [
     "FractionOfRunAbove10%MaxIntensity",
     "Protein_mean_seq_cov [%]",
     "TMT1_missing_values",
-    "TMT2_missing_value",
+    "TMT2_missing_values",
     "TMT3_missing_values",
     "TMT4_missing_values",
     "TMT5_missing_values",
