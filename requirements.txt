@@ -50,7 +50,7 @@ debugpy==1.6.0
 decorator==5.1.1
 defusedxml==0.7.1
 Deprecated==1.2.13
-Django==3.2.14
+Django==3.2.15
 django-admin-index==2.0.0
 django-bootstrap4==22.1
 django-cache-memoize==0.1.10
@@ -81,7 +81,6 @@ future==0.18.2
 gensim==3.8.3
 gitdb==4.0.9
 GitPython==3.1.27
-#pygraphviz
 greenlet==1.1.2
 gunicorn==20.1.0
 h5py==3.6.0
@@ -127,7 +126,7 @@ multimethod==1.7
 murmurhash==1.0.6
 mypy-extensions==0.4.3
 nbclient==0.5.13
-nbconvert
+nbconvert==6.5.1
 nbformat==5.3.0
 nest-asyncio==1.5.5
 networkx==2.7.1
