@@ -24,7 +24,7 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from dash_tabulator import DashTabulator
 
-from lrg_omics.plotly import plotly_heatmap, plotly_bar, plotly_histogram, set_template
+from lrg_omics.plotly_tools import plotly_heatmap, plotly_bar, plotly_histogram, set_template
 from lrg_omics.proteomics import ProteomicsQC
 
 import plotly.graph_objects as go
@@ -38,7 +38,7 @@ try:
     from .tools import list_to_dropdown_options
     from . import tools as T
 except Exception as e:
-    logging.warngin(e)
+    logging.warning(e)
     from tools import list_to_dropdown_options
     import tools as T
 

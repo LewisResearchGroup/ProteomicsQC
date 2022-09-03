@@ -5,9 +5,9 @@ from celery import shared_task
 
 import shutil
 
-from lrg_omics.proteomics import MaxquantRunner
+from lrg_omics.proteomics.maxquant import MaxquantRunner
 
-from lrg_omics.proteomics.quality_control.rawtools import (
+from lrg_omics.proteomics.rawtools.quality_control import (
     rawtools_metrics_cmd,
     rawtools_qc_cmd,
 )

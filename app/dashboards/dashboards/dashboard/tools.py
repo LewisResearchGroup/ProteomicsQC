@@ -15,6 +15,9 @@ import plotly.graph_objects as go
 from matplotlib import pyplot as pl
 from numpy import NaN
 
+from pandas.api.types import is_numeric_dtype
+
+
 from pycaret.anomaly import (
     setup,
     create_model,
@@ -113,7 +116,6 @@ def get_protein_names(
             raw_files=raw_files,
         )
     )
-    print('T:', data)
     _json = requests.post(url, data=data, headers=headers).json()
     return _json
 
@@ -190,7 +192,9 @@ def log2p1(x):
 
 class ShapAnalysis:
     def __init__(self, model, df):
-        explainer = shap.TreeExplainer(model)
+        #explainer = shap.TreeExplainer(model)
+        explainer = shap.Explainer(model)
+        
         shap_values = explainer(df)
         self._shap_values = shap_values
         self._instance_names = df.index.to_list()
@@ -397,94 +401,24 @@ def plotly_heatmap(
         return fig
 
 
-def detect_anomalies(qc_data, **model_kws):
-    selected_cols = [
-        "N_protein_groups",
-        "N_protein_true_hits",
-        "N_protein_reverse_seq",
-        "Protein_mean_seq_cov [%]",
-        "N_peptides",
-        "N_peptides_reverse",
-        "N_protein_potential_contaminants",
-        "N_peptides_potential_contaminants",
-        "TMT1_missing_values",
-        "TMT2_missing_values",
-        "TMT3_missing_values",
-        "TMT4_missing_values",
-        "TMT5_missing_values",
-        "TMT6_missing_values",
-        "TMT7_missing_values",
-        "TMT8_missing_values",
-        "TMT9_missing_values",
-        "TMT10_missing_values",
-        "TMT11_missing_values",
-        "Oxidations [%]",
-        "Missed Cleavages [%]",
-        "N_missed_cleavages_total",
-        "N_missed_cleavages_eq_0 [%]",
-        "N_missed_cleavages_eq_1 [%]",
-        "N_missed_cleavages_eq_2 [%]",
-        "N_missed_cleavages_gt_3 [%]",
-        "N_peptides_last_amino_acid_K [%]",
-        "N_peptides_last_amino_acid_R [%]",
-        "N_peptides_last_amino_acid_other [%]",
-        "Peak Width(ave)",
-        "Peak Width (std)",
-        "MeanCyclesPerAveragePeak",
-        "PeakCapacity",
-        "TimeBeforeFirstExceedanceOf10%MaxIntensity",
-        "TimeAfterLastExceedanceOf10%MaxIntensity",
-        "FractionOfRunAbove10%MaxIntensity",
-        "MedianAsymmetryAt10%H",
-        "MedianAsymmetryAt50%H",
-        "MedianPeakWidthAt10%H(s)",
-        "MedianPeakWidthAt50%H(s)",
-        "NumEsiInstabilityFlags",
-        "TotalScans",
-        "MS/MS Submitted",
-        "MS/MS Identified",
-        "MS/MS Identified [%]",
-        "MS",
-        "MS/MS",
-        "MS3",
-        "Ms1ScanRate(/s)",
-        "Ms2ScanRate(/s)",
-        "Ms3ScanRate(/s)",
-        "MedianMs1FillTime(ms)",
-        "MedianMs2FillTime(ms)",
-        "MedianMs3FillTime(ms)",
-        "Ms1MedianSummedIntensity",
-        "Ms2MedianSummedIntensity",
-        "MedianPrecursorIntensity",
-        "MeanMs2TriggerRate(/Ms1Scan)",
-        "MedianMs1IsolationInterence",
-        "MedianMs2PeakFractionConsumingTop80PercentTotalIntensity",
-        "MeanDutyCycle(s)",
-        "Av. Absolute Mass Deviation [mDa]",
-        "Mass Standard Deviation [mDa]",
-        "Uncalibrated - Calibrated m/z [ppm] (ave)",
-        "Uncalibrated - Calibrated m/z [ppm] (sd)",
-        "Uncalibrated - Calibrated m/z [Da] (ave)",
-        "Uncalibrated - Calibrated m/z [Da] (sd)",
-        "TotalAnalysisTime(min)",
-        "Peptide Sequences Identified",
-        "NumMs1Scans",
-        "NumMs2Scans",
-        "NumMs3Scans",
-        "Mean_parent_int_frac",
-    ]
-
+def detect_anomalies(qc_data, algorithm=None, columns=None, max_features=None, precentage=None, **model_kws):
+    
+    selected_cols = [c for c in columns if is_numeric_dtype(qc_data[c])]
     selected_cols.reverse()
-
+    if max_features is not None:
+        max_features = max(max_features, len(selected_cols))
+    for col in selected_cols:
+        if not col in qc_data.columns:
+            selected_cols.remove(col)
+            logging.warning(f'Column not found in QC data: {col}')
     log_cols = [
         "Ms1MedianSummedIntensity",
         "Ms2MedianSummedIntensity",
         "MedianPrecursorIntensity",
     ]
-
     for c in log_cols:
         qc_data[c] = qc_data[c].apply(log2p1)
-
+    
     df_train = qc_data[qc_data["Use Downstream"] == True][selected_cols].fillna(0)
     df_test = qc_data[qc_data["Use Downstream"] != True][selected_cols].fillna(0)
     df_all = qc_data[selected_cols].fillna(0)
@@ -497,36 +431,28 @@ def detect_anomalies(qc_data, **model_kws):
         numeric_features=selected_cols,
     )
 
-    model_name = "iforest"
-    model = create_model(model_name, **model_kws)
-
+    logging.info(f'Create anomaly model: {algorithm}')
+    model = create_model(algorithm, **model_kws)
     pipeline = get_config("prep_pipe")
     data = pipeline.transform(df_all)
-
     # pycaret changes column names
     # change it to original names
     data.columns = selected_cols
-
-    sa = ShapAnalysis(model, data)
-    shapley_values = sa.df_shap.reindex(selected_cols, axis=1)
+    if algorithm == 'iforest':
+        sa = ShapAnalysis(model, data)
+        shapley_values = sa.df_shap.reindex(selected_cols, axis=1)
+    else:
+        shapley_values = None
     prediction = predict_model(model, df_all)[["Anomaly", "Anomaly_Score"]]
-
-    for c in selected_cols:
-        print(c)
-
     return prediction, shapley_values
 
 
 def get_marker_color(use_downstream, flagged, selected):
     colors = {
-        (NaN, False, False): 'white',
-        (NaN, False, False): 'white',
-        (NaN, True,  False): 'white',
-        (NaN, True,  False): 'white',
-        (NaN, False, True):  'black',
-        (NaN, False, True):  'black',
-        (NaN, True,  True):  'black',
-        (NaN, True,  True):  'black',   
+        ('unknown', False, False): 'grey',
+        ('unknown', True,  False): 'grey',
+        ('unknown', False, True):  'black',
+        ('unknown', True,  True):  'black',
 
         (True,  False, False): 'blue',
         (False, False, False): 'deepskyblue',
@@ -537,20 +463,17 @@ def get_marker_color(use_downstream, flagged, selected):
         (True,  True,  True):  'cyan',
         (False, True,  True):  'cyan',        
     }
-    color = colors[(use_downstream, flagged, selected)]
+    key = (use_downstream if isinstance(use_downstream, bool) else 'unknown', flagged, selected)
+    color = colors[key]
     return color
     
 
 def get_marker_line_color(use_downstream, flagged, selected):
     colors = {
-        (NaN, False, False): 'lightblue',
-        (NaN, False, False): 'lightblue',
-        (NaN, True,  False): 'red',
-        (NaN, True,  False): 'red',
-        (NaN, False, True):  'black',
-        (NaN, False, True):  'black',
-        (NaN, True,  True):  'black',
-        (NaN, True,  True):  'black',
+        ('unknown', False, False): 'lightblue',
+        ('unknown', True,  False): 'red',
+        ('unknown', False, True):  'black',
+        ('unknown', True,  True):  'black',
 
         (True,  False, False): 'deepskyblue',
         (False, False, False): 'lightblue',
@@ -561,5 +484,5 @@ def get_marker_line_color(use_downstream, flagged, selected):
         (True,  True,  True):  'cyan',
         (False, True,  True):  'cyan',        
     }
-    color = colors[(use_downstream, flagged, selected)]
+    color = colors[(use_downstream if isinstance(use_downstream, bool) else 'unknown', flagged, selected)]
     return color

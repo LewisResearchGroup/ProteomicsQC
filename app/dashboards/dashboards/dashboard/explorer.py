@@ -334,7 +334,6 @@ def callbacks(app):
     )
     def populate_chk_scatter_matrix(tab, data):
         if tab != "explorer":
-            print(tab)
             raise PreventUpdate
         df = pd.DataFrame(data)
         df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])

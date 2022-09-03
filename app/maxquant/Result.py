@@ -227,7 +227,10 @@ class Result(models.Model):
         return stream.getvalue()
 
     def maxquant_qc_data(self):
-        df = load_maxquant_data_from(self.path)
+        try:
+            df = load_maxquant_data_from(self.path)
+        except Exception as e:
+            logging.warning(f'{e}: load_maxquant_data_from({self.path})')
         if df is None:
             df = pd.DataFrame()
         df["RawFile"] = self.raw_fn.with_suffix("").name
