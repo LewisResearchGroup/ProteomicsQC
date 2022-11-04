@@ -135,7 +135,7 @@ notebook==6.4.12
 numba==0.54.1
 numexpr==2.8.1
 numpy
-oauthlib==3.2.0
+oauthlib==3.2.1
 openpyxl==3.0.9
 packaging==21.3
 pandas==1.4.2
