@@ -1,5 +1,3 @@
-[![Codacy Security Scan](https://github.com/LewisResearchGroup/ProteomicsQC/actions/workflows/codacy-analysis.yml/badge.svg)](https://github.com/LewisResearchGroup/ProteomicsQC/actions/workflows/codacy-analysis.yml)
-
 ![](docs/img/ProteomicsQC.png)
 
 # **ProteomicsQC**: Quality Control Server for Large-Scale Quantitative Proteomics with http-based API
