@@ -425,15 +425,15 @@ def detect_anomalies(qc_data, algorithm=None, columns=None, max_features=None, p
 
     _ = setup(
         df_train,
-        silent=True,
-        ignore_low_variance=False,
-        remove_perfect_collinearity=False,
+        #silent=True,
+        #ignore_low_variance=False,
+        #remove_perfect_collinearity=False,
         numeric_features=selected_cols,
     )
 
     logging.info(f'Create anomaly model: {algorithm}')
     model = create_model(algorithm, **model_kws)
-    pipeline = get_config("prep_pipe")
+    pipeline = get_config("pipeline")
     data = pipeline.transform(df_all)
     # pycaret changes column names
     # change it to original names
