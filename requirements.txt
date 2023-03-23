@@ -29,3 +29,5 @@ shap
 pycaret==3
 psycopg2-binary
 panel
+pytest-django
+pytest-celery
