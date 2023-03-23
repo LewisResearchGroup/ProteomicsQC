@@ -1,3 +1,5 @@
+import time
+
 from django.test import TestCase
 from project.models import Project
 from maxquant.models import Pipeline
@@ -11,28 +13,34 @@ from glob import glob
 from django.core.files.uploadedfile import SimpleUploadedFile
 from celery.contrib.testing.worker import start_worker
 
-import time
+from celery.contrib.testing.tasks import ping
 
 from maxquant import tasks
 from main.celery import app
 
 
 class RawFileTestCase(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.celery_worker = start_worker(app)
-        cls.celery_worker.__enter__()
+    
+    #@classmethod
+    #def setUpClass(cls):
+    #    super().setUpClass()
+    #    cls.celery_worker = start_worker(app)
+    #    cls.celery_worker.__enter__()
+#
+    #@classmethod
+    #def tearDownClass(cls):
+    #    super().tearDownClass()
+    #    cls.celery_worker.__exit__(None, None, None)
 
     def setUp(self):
         if not hasattr(self, "pipeline"):
-            print("Setup")
+            print("Setup RawFileTestCase")
             self.project = Project.objects.create(
                 name="project", description="A test project"
             )
 
-            fn_mqpar = P("tests/data/D01/TMT11.xml")
-            fn_fasta = P("tests/data/D01/minimal.fasta")
+            fn_mqpar = P("tests/data/TMT11.xml")
+            fn_fasta = P("tests/data/minimal.fasta")
 
             contents_mqpar = fn_mqpar.read_bytes()
             contents_fasta = fn_fasta.read_bytes()
@@ -48,6 +56,7 @@ class RawFileTestCase(TestCase):
             self.raw_file = RawFile.objects.create(
                 pipeline=self.pipeline, orig_file=SimpleUploadedFile("fake.raw", b"...")
             )
+            print('...done setup RawFileTestCase.')
 
     def test__raw_file_exists(self):
         assert self.raw_file.path.is_file(), self.raw_file.path
@@ -56,7 +65,8 @@ class RawFileTestCase(TestCase):
         path = self.raw_file.output_dir
         files = glob(f"{self.raw_file.pipeline.path}/**/*", recursive=True)
         files.sort()
-        assert path.is_dir(), f"{path} NOT IN:\n\t" + "\n\t".join(files)
+        print(files)
+        assert path.is_dir(), f"{path} NOT FOUND\n\t" + "\n\t".join(files)
 
     def test__maxquant_results_created(self):
         result = Result.objects.get(raw_file=self.raw_file)

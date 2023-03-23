@@ -4,7 +4,7 @@ RUN cat /etc/os-release
 
 ENV PYTHONUNBUFFERED=1
 
-RUN mkdir /data /compute /static /appmedia
+RUN mkdir /data /compute /static /appmedia /datalake
 
 RUN apt update && apt install -y build-essential time
 
@@ -23,6 +23,8 @@ RUN cd /lrg-omics && pip install -e .
 COPY new_req.txt new_req.txt
 
 RUN pip install -r new_req.txt
+
+RUN chown 1000:1000 /data /compute /static /appmedia /datalake
 
 COPY ./app /app
 

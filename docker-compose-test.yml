@@ -13,8 +13,6 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./app/:/app/
-      - /tmp/ProteomicsQC/testing/datalake:/datalake/      
-      - /tmp/ProteomicsQC/testing/compute:/compute/      
     ports:
       - "8000:8000"
     depends_on:
@@ -25,8 +23,6 @@ services:
   
   db:
     image: postgres:13.4
-    volumes:
-      - ${DB}:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
@@ -48,8 +44,6 @@ services:
     volumes:
       - ./app/:/app/
       - ./lib/lrg_omics/:/lrg-omics/
-      - /tmp/ProteomicsQC/testing/datalake:/datalake/      
-      - /tmp/ProteomicsQC/testing/compute:/compute/
     environment:
       - DB_HOST=db
       - DB_NAME=app
