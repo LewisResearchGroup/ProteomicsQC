@@ -35,8 +35,7 @@ The pipeline is restricted to single file setup which might conflict with the se
 
 The server manages proteomics pipelines belonging to multiple projects. The server is mostly implemented in Python and is composed of several components such as a PostgreSQL database, a queuing system (Celery, Redis), a dashboard (Plotly-Dash) and an API (Django REST-Framwork).
 
-![](./docs/img/workflow.png 'The workflow managed by the proteomics pipeline server.')
-
+<img src="./docs/img/workflow.png" width="100%">
 
 ## Features
 
