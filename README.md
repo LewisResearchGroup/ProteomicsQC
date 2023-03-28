@@ -83,9 +83,3 @@ This plot highlights the specific features which are statistically 'anormal'.
 
 ![](./docs/img/example-anomaly-scores.png 'Many customiable Quality Control metrics in one place.')
 
-### Scatterplot tool to explore relationships between variables
-Other visualizations that can be generated with the dashboard are scatterplots, scatterplot-matrix. The tools are interactive, so that the user can select and highlight specific samples, if needed.
-
-![](./docs/img/example-qc-scatter-plot.png 'Scatterplot tool to explore relationships between variables.')
-![](./docs/img/example-qc-normalied-tmt-intensity.png 'Visualization of normalized reporter intensity (TMT11).')
-
