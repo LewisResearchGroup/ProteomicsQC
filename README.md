@@ -1,4 +1,4 @@
-![](docs/img/ProteomicsQC.png)
+![](docs/img/ProteomicsQC.jpg)
 
 # **ProteomicsQC**: Quality Control Server for large-cohort quantitative proteomics based tandem-mass-tags (e.g. TMT11)
 
