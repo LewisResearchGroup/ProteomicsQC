@@ -13,7 +13,7 @@ an admin account
 ![](img/login.png)
 
 
-![](img/click-on-admin.png)
+![](img/admin-click-on-admin.png)
 
 To setup a 
 

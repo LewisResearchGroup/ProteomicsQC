@@ -4,7 +4,7 @@ A project is a logical container for pipelines. Each project can contain multipl
 submitted to certain or added within a certain project will be stored in a dedicated project directory in
 the datalake. 
 
-To set up a new pipeline the user has to login to the [admin panel](how-to-access-the-admin-panel.md]).
+To set up a new pipeline the user has to login to the [admin panel](how-to-access-the-admin-panel.md).
 
 ![](img/admin-panel.png)
 
