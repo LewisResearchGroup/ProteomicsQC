@@ -69,10 +69,10 @@ When the user drops a file to the web-upload page of a particular pipeline, it i
 Here, all quality control metrics can be visualized simultaneously in customized order, and the relationships between QC metrics can be plotted.
 Timelines of up to 60 quality control metrics can be viewed simultanously in one place. 
 
-  - `accepted` samples for downstream processing have a dark hue
-  - `rejected` samples have a brighter hue 
-  - `normal` samples are colored blue
-  - `flagged` samples, potential outliers, are colored red 
+-   `accepted` samples for downstream processing have a dark hue
+-   `rejected` samples have a brighter hue 
+-   `normal` samples are colored blue
+-   `flagged` samples, potential outliers, are colored red 
 
 ![](./docs/img/QC-barplot-small.jpg 'Many customiable Quality Control metrics in one place.')
 
