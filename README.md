@@ -65,9 +65,15 @@ Django is a popular web framework for building web applications in Python. The D
 
 ## Dashboard
 
-All quality control metrics can be visualized simultaneously in customized order.
-This way the user can visalize the timelines of ~60 quality control metrics in one place. 
-Bright hue samples are excluded from downstream processing. Red samples are flagged as potential outliers.
+When the user drops a file to the web-upload page of a particular pipeline, it is automatically processed and the results are sent to the dashboard.
+Here, all quality control metrics can be visualized simultaneously in customized order, and the relationships between QC metrics can be plotted.
+Timelines of up to 60 quality control metrics can be viewed simultanously in one place. 
+
+- Bright hue samples are excluded from downstream processing. 
+- Dark hue samples are accepted
+- Red samples are flagged as potential outliers
+- `normal` samples are colored blue
+
 ![](./docs/img/QC-barplot.png 'Many customiable Quality Control metrics in one place.')
 
 ### Explainable AI explation for anomaly
