@@ -81,5 +81,5 @@ To help the user spotting anormal trends in the vast feature space, outlier dete
 Speficially, Isolation forest or other outlier detection algorithms can be applied and are subjected to the SHapley Additive exPlanations (SHAP) algorithm.
 This plot highlights the specific features which are statistically 'anormal'.
 
-![](./docs/img/example-anomaly-scores.png 'Many customiable Quality Control metrics in one place.')
+![](./docs/img/XAI-small.jpg 'Many customiable Quality Control metrics in one place.')
 
