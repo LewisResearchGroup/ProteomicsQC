@@ -1,6 +1,6 @@
 ![](docs/img/ProteomicsQC.png)
 
-# **ProteomicsQC**: Quality Control Server for Large-Scale Quantitative Proteomics with http-based API
+# **ProteomicsQC**: Quality Control Server for large-cohort quantitative proteomics based tandem-mass-tags (e.g. TMT11)
 
 A quality control (QC) pipeline server for quantitative proteomics, automated processing, and interactive visualisations of QC results.
 The server allows to setup multiple proteomics pipelines grouped by projects. 
