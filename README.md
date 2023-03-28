@@ -67,7 +67,7 @@ New projects and pipelines can be setup via the admin view.
 ## Dashboard examples
 
 ### Timelines of ~60 quality control metrics in one place
-![](./docs/img/example-qc-barplot.png 'Many customiable Quality Control metrics in one place.')
+![](./docs/img/QC-barplot.png 'Many customiable Quality Control metrics in one place.')
 All quality control metrics can be visualized simultaneously in customized order. Flagged samples are displayed in red.
 
 ### Explainable AI explation for anomaly
