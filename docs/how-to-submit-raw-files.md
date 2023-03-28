@@ -9,7 +9,10 @@ is the web frontend. After setting up a pipeline you can navigate to the
 
 `Projects -> Your project -> Your pipeline -> Upload RAW`
 
+Then click on `Upload .RAW` and select one or more .RAW files to upload.
+
 ![](img/gui-upload-raw.jpg)
+
 
 
 ## 2) Admin panel
@@ -17,6 +20,7 @@ is the web frontend. After setting up a pipeline you can navigate to the
 Navitgate to `Admin -> RawFiles -> ADD RAWFILE`
 
 Then select your pipeline and RAW file that you want to upload and click `SAVE`.
+
 
 
 ## 3) Using the API
