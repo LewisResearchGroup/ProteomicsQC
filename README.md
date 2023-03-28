@@ -64,11 +64,12 @@ New projects and pipelines can be setup via the admin view.
 > The admin view provides and overview over all proteomics runs with list and detail views.
 
 
-## Dashboard examples
+## Dashboard
 
-### Timelines of ~60 quality control metrics in one place
+All quality control metrics can be visualized simultaneously in customized order.
+This way the user can visalize the timelines of ~60 quality control metrics in one place. 
+Bright hue samples are excluded from downstream processing. Red samples are flagged as potential outliers.
 ![](./docs/img/QC-barplot.png 'Many customiable Quality Control metrics in one place.')
-All quality control metrics can be visualized simultaneously in customized order. Flagged samples are displayed in red.
 
 ### Explainable AI explation for anomaly
 ![](./docs/img/example-anomaly-scores.png 'Many customiable Quality Control metrics in one place.')
