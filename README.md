@@ -55,8 +55,6 @@ The server manages proteomics pipelines belonging to multiple projects. The serv
 ### Pipelines overview
 The server has a simple static http frontend and admin view, generated with Django; and a dynamic and interactive dashboard implemented with Plotly-Dash. The Project detail-view, for example, shows and overview over all pipelines associated with the current project and the number of submitted files.
 
-![](./docs/img/Pipelines.png)
-
 <img src="./docs/img/Pipelines.png" width="100%">
 
 
