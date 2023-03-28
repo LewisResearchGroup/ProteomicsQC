@@ -28,7 +28,7 @@ This repository contains git submodules and should be cloned with:
 
 
 ## Limitations
-The pipeline is restricted to single file setup which might conflict with the setup of some laboratories that store single sample results in multiple files. The pipeline processes each file separately and independently.
+The pipeline is restricted to single file setup which might conflict with the setup of some laboratories that split sample results into multiple files. The pipeline processes each file separately and independently.
 
 
 ## Overview
