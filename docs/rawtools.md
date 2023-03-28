@@ -1,9 +1,18 @@
 # RawTools
 
-RawTools is an open-source and freely available package designed to perform scan data parsing and quantification, and quality control analysis of Thermo Orbitrap raw mass spectrometer files. 
+> Kovalchik KA, Colborne S, Spencer SE, Sorensen PH, Chen DDY, Morin GB, et al. RawTools: Rapid and Dynamic Interrogation of Orbitrap Data Files for Mass Spectrometer System Management. J Proteome Res. 2018. doi:10.1021/acs.jproteome.8b00721
+
+RawTools is a comprehensive and user-friendly software designed for the analysis of mass spectrometry-based proteomics data. It is an open-source tool that provides a range of features for processing and analyzing raw proteomics data, including quality control checks, filtering, normalization, peak detection, and quantification.
+
+The tool supports various file formats commonly used in proteomics, including RAW, MGF, and mzML files, and offers a range of visualization options to aid in data exploration and interpretation. The software also includes advanced features such as label-free quantification, statistical analysis, and data normalization, making it an ideal tool for proteomics researchers.
+
+One of the key strengths of RawTools is its user-friendly interface, which allows researchers to easily navigate through their data and perform complex analyses without the need for extensive programming skills. The software is regularly updated, and its development is driven by a community of researchers and bioinformaticians, ensuring that it stays up-to-date with the latest advancements in proteomics research.
+
+Overall, RawTools is a powerful and versatile tool that can help researchers to efficiently process, analyze, and interpret their proteomics data, providing valuable insights into the biological systems under investigation.
+
 More information is available in the Github [repository](https://github.com/kevinkovalchik/RawTools).
 
-> Kovalchik KA, Colborne S, Spencer SE, Sorensen PH, Chen DDY, Morin GB, et al. RawTools: Rapid and Dynamic Interrogation of Orbitrap Data Files for Mass Spectrometer System Management. J Proteome Res. 2018. doi:10.1021/acs.jproteome.8b00721
+
 
 ## Parameters
 Here is the help text that explains the different parameters of _RawTools_ that are relevant for _Proteomics QC_. However, not all of them were tested.
