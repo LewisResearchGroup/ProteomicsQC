@@ -9,7 +9,7 @@ is the web frontend. After setting up a pipeline you can navigate to the
 
 Projects -> Your project -> Your pipeline -> Upload RAW
 
-<img src="docs/img/Pipelines.png" width="100%">
+<img src="img/gui-upload-raw.jpg" width="100%">
 
 
 ## 2) Admin panel
