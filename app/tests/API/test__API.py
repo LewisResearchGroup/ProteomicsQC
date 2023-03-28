@@ -1,3 +1,6 @@
+import time
+import requests
+
 from django.test import TestCase
 from project.models import Project
 from maxquant.models import Pipeline
@@ -11,21 +14,18 @@ from glob import glob
 from django.core.files.uploadedfile import SimpleUploadedFile
 from celery.contrib.testing.worker import start_worker
 
-import time
-
 from maxquant import tasks
 from main.celery import app
 
+from celery.contrib.testing.tasks import ping
+
+from django.test import Client
 
 URL = "http://localhost:8000"
 
 
-class RawFileTestCase(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.celery_worker = start_worker(app)
-        cls.celery_worker.__enter__()
+
+class ApiTestCase(TestCase):
 
     def setUp(self):
         if not hasattr(self, "pipeline"):
@@ -34,8 +34,8 @@ class RawFileTestCase(TestCase):
                 name="project", description="A test project"
             )
 
-            fn_mqpar = P("tests/data/D01/TMT11.xml")
-            fn_fasta = P("tests/data/D01/minimal.fasta")
+            fn_mqpar = P("tests/data/TMT11.xml")
+            fn_fasta = P("tests/data/minimal.fasta")
 
             contents_mqpar = fn_mqpar.read_bytes()
             contents_fasta = fn_fasta.read_bytes()
@@ -53,8 +53,8 @@ class RawFileTestCase(TestCase):
             )
 
     def test__projects(self):
+        c = Client()
         url = f"{URL}/api/projects"
-        _json = requests.post(url).json()
-        output = [{"label": i["name"], "value": i["slug"]} for i in _json]
-        print(output)
-        assert False
+        actual = c.post(url).json()
+        expected = [{'pk': 1, 'name': 'project', 'description': 'A test project', 'slug': 'project'}]
+        assert actual == expected, actual

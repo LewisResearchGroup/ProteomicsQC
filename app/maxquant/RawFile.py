@@ -2,6 +2,7 @@ import os
 import hashlib
 import shutil
 import zipfile
+import logging 
 
 from pathlib import Path as P
 from uuid import uuid4
@@ -78,7 +79,7 @@ class RawFile(models.Model):
             super(RawFile, self).save(*args, **kwargs)
 
         except IntegrityError as e:
-            print(e)
+            logging.warning(e)
             pass
 
     def __str__(self):
@@ -138,6 +139,9 @@ class RawFile(models.Model):
     def output_dir(self):
         return self.pipeline.output_path / self.name
 
+    def make_output_dir(self):
+        os.makedirs(self.output_dir, exist_ok=True)
+
     def submit(self):
         pass
 
@@ -148,10 +152,15 @@ def move_rawfile_to_input_dir(sender, instance, created, *args, **kwargs):
     if created:
         raw_file.move_to_input_dir()
 
-    # Create MaxQuant runs only if not present yet
+    # create output directory
+    raw_file.make_output_dir()
+
+    # Create Results only if not present yet
     if raw_file.pipeline.has_maxquant_config:
         if len(Result.objects.filter(raw_file=raw_file)) == 0:
             Result.objects.create(raw_file=raw_file)
+
+
 
 
 @receiver(models.signals.post_delete, sender=RawFile)

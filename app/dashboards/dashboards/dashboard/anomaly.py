@@ -153,7 +153,7 @@ def callbacks(app):
         fig = T.px_heatmap(
             df_shap.T,
             layout_kws=dict(
-                title="Anomaly feature score (shapley values)", height=2000
+                title="Anomaly feature score (shapley values)", height=1200
             ),
         )
         fig.update_layout(font=C.figure_font)

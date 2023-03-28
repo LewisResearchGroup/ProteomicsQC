@@ -32,6 +32,7 @@ print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
 if DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
+
 ## X-Frame-Options
 # X_FRAME_OPTIONS = 'DENY'
 # django-plotly-dash needs:
@@ -278,4 +279,4 @@ if EMAIL_HOST is not None:
 
 GANALYTICS = os.getenv("GANALYTICS")
 
-PAGINATE = 30
+PAGINATE = 100

@@ -55,7 +55,7 @@ down:
 	sudo docker-compose -f docker-compose-develop.yml down
 
 test: 
-	sudo docker-compose -f docker-compose-develop.yml run web python manage.py test --noinput
+	sudo docker-compose -f docker-compose-test.yml run web python manage.py test --noinput
 
 get-test-data:
 	gdown --folder https://drive.google.com/drive/folders/1kdQUXbr6DTBNLFBXLYrR_RLoXDFwCh_N?usp=sharing --output app/tests/data/D01
@@ -65,3 +65,8 @@ doc:
 
 schema:
 	sudo docker-compose -f docker-compose-develop.yml run web python manage.py graph_models --arrow-shape normal -o schema.png -a 
+
+versions:
+	sudo docker-compose run web conda env export -n base
+
+
