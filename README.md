@@ -74,7 +74,7 @@ Timelines of up to 60 quality control metrics can be viewed simultanously in one
 - Red samples are flagged as potential outliers
 - `normal` samples are colored blue
 
-![](./docs/img/QC-barplot--small.jpg 'Many customiable Quality Control metrics in one place.')
+![](./docs/img/QC-barplot-small.jpg 'Many customiable Quality Control metrics in one place.')
 
 ### Explainable AI explation for anomaly detection
 To help the user spotting anormal trends in the vast feature space, outlier detection and explainable AI are applied. 
