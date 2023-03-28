@@ -58,10 +58,9 @@ The server has a simple static http frontend and admin view, generated with Djan
 
 ### Admin view
 
-New projects and pipelines can be setup via the admin view.
+Django is a popular web framework for building web applications in Python. The Django admin view is a built-in feature of Django that provides an easy-to-use interface for managing the application's data models. The admin view is automatically generated based on the models defined in the application's code, and allows administrators to perform CRUD (Create, Read, Update, and Delete) operations on the application's data. This way new projects, and pipelines can be setup. It also provides an overview over all results and raw files stored on the server and can be used for troubleshooting, if some runs are unsuccessful.
 
 ![](./docs/img/example-admin-view.png 'Overview over all jobs on the server.')
-> The admin view provides and overview over all proteomics runs with list and detail views.
 
 
 ## Dashboard
