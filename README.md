@@ -76,9 +76,12 @@ Timelines of up to 60 quality control metrics can be viewed simultanously in one
 
 ![](./docs/img/QC-barplot.png 'Many customiable Quality Control metrics in one place.')
 
-### Explainable AI explation for anomaly
+### Explainable AI explation for anomaly detection
+To help the user spotting anormal trends in the vast feature space, outlier detection and explainable AI are applied. 
+Speficially, Isolation forest or other outlier detection algorithms can be applied and are subjected to the SHapley Additive exPlanations (SHAP) algorithm.
+This plot highlights the specific features which are statistically 'anormal'.
+
 ![](./docs/img/example-anomaly-scores.png 'Many customiable Quality Control metrics in one place.')
-Anomaly detection with Isolation forest explained with SHapley Additive exPlanations (SHAP).
 
 ### Scatterplot tool to explore relationships between variables
 ![](./docs/img/example-qc-scatter-plot.png 'Scatterplot tool to explore relationships between variables.')
