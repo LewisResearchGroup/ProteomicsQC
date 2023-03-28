@@ -57,7 +57,7 @@ The server has a simple static http frontend and admin view, generated with Djan
 
 ![](./docs/img/Pipelines.png)
 
-<img src="./docs/img/Pipelines.png" alt= “” width="value" width="100%">
+<img src="./docs/img/Pipelines.png" width="100%">
 
 
 ### Admin view
