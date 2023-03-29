@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.conf import settings
-from .forms import UserCreationForm
+from .forms import MyUserCreationForm
 
 
 def index(request):
@@ -11,7 +11,7 @@ def index(request):
 
 def registration(request):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = MyUserCreationForm(request.POST)
         if form.is_valid():
             form.save()
             email = form.cleaned_data["email"]
@@ -20,6 +20,6 @@ def registration(request):
             login(request, user)
             return redirect("home")
     else:
-        form = UserCreationForm()
+        form = MyUserCreationForm()
     context = {"form": form, "home_title": settings.HOME_TITLE}
     return render(request, "registration/register.html", context)
