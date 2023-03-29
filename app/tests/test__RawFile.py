@@ -17,17 +17,6 @@ from main.celery import app
 
 
 class RawFileTestCase(TestCase):
-    
-    #@classmethod
-    #def setUpClass(cls):
-    #    super().setUpClass()
-    #    cls.celery_worker = start_worker(app)
-    #    cls.celery_worker.__enter__()
-#
-    #@classmethod
-    #def tearDownClass(cls):
-    #    super().tearDownClass()
-    #    cls.celery_worker.__exit__(None, None, None)
 
     def setUp(self):
         if not hasattr(self, "pipeline"):
@@ -68,3 +57,43 @@ class RawFileTestCase(TestCase):
     def test__maxquant_results_created(self):
         result = Result.objects.get(raw_file=self.raw_file)
         assert result is not None, result
+
+
+class SameRawFileCanBeUploadedToMultiplePipelines(TestCase):
+
+    def setUp(self):
+        self.project = Project.objects.create(
+            name="project", description="A test project"
+        )
+
+        fn_mqpar = P("tests/data/TMT11.xml")
+        fn_fasta = P("tests/data/minimal.fasta")
+
+        contents_mqpar = fn_mqpar.read_bytes()
+        contents_fasta = fn_fasta.read_bytes()
+
+        self.pipeline_A = Pipeline.objects.create(
+            name="pipeA",
+            project=self.project,
+            fasta_file=SimpleUploadedFile("my_fasta.fasta", contents_fasta),
+            mqpar_file=SimpleUploadedFile("my_mqpar.xml", contents_mqpar),
+            rawtools_args="-p -q -x -u -l -m -r TMT11 -chro 12TB",
+        )
+
+        self.pipeline_B = Pipeline.objects.create(
+            name="pipeB",
+            project=self.project,
+            fasta_file=SimpleUploadedFile("my_fasta.fasta", contents_fasta),
+            mqpar_file=SimpleUploadedFile("my_mqpar.xml", contents_mqpar),
+            rawtools_args="-p -q -x -u -l -m -r TMT11 -chro 12TB",
+        )
+
+    def test__upload_same_raw_file_to_different_pipelines(self):
+
+        self.raw_file = RawFile.objects.create(
+                pipeline=self.pipeline_A, orig_file=SimpleUploadedFile("fake.raw", b"...")
+            )
+
+        self.raw_file = RawFile.objects.create(
+                pipeline=self.pipeline_B, orig_file=SimpleUploadedFile("fake.raw", b"...")
+            )

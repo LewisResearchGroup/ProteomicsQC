@@ -20,9 +20,9 @@ COPY ./lib/lrg-omics /lrg-omics
 
 RUN cd /lrg-omics && pip install -e .
 
-COPY new_req.txt new_req.txt
-
-RUN pip install -r new_req.txt
+# Used for testing
+# COPY new_req.txt new_req.txt
+# RUN pip install -r new_req.txt
 
 RUN chown 1000:1000 /data /compute /static /appmedia /datalake
 
