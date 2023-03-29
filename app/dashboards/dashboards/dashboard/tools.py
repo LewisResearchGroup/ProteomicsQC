@@ -3,13 +3,14 @@ from select import select
 import sys
 import json
 import logging
-#from xml.etree.ElementPath import _SelectorContext
+
+# from xml.etree.ElementPath import _SelectorContext
 import requests
 import shap
 import pandas as pd
 import numpy as np
 
-from dash import dash_table as dt 
+from dash import dash_table as dt
 from dash.dash_table import DataTable, Format
 
 import plotly.graph_objects as go
@@ -190,9 +191,9 @@ def log2p1(x):
 
 class ShapAnalysis:
     def __init__(self, model, df):
-        #explainer = shap.TreeExplainer(model)
+        # explainer = shap.TreeExplainer(model)
         explainer = shap.Explainer(model)
-        
+
         shap_values = explainer(df)
         self._shap_values = shap_values
         self._instance_names = df.index.to_list()
@@ -399,8 +400,15 @@ def plotly_heatmap(
         return fig
 
 
-def detect_anomalies(qc_data, algorithm=None, columns=None, max_features=None, precentage=None, **model_kws):
-    
+def detect_anomalies(
+    qc_data,
+    algorithm=None,
+    columns=None,
+    max_features=None,
+    precentage=None,
+    **model_kws,
+):
+
     selected_cols = [c for c in columns if is_numeric_dtype(qc_data[c])]
     selected_cols.reverse()
     if max_features is not None:
@@ -408,7 +416,7 @@ def detect_anomalies(qc_data, algorithm=None, columns=None, max_features=None, p
     for col in selected_cols:
         if not col in qc_data.columns:
             selected_cols.remove(col)
-            logging.warning(f'Column not found in QC data: {col}')
+            logging.warning(f"Column not found in QC data: {col}")
     log_cols = [
         "Ms1MedianSummedIntensity",
         "Ms2MedianSummedIntensity",
@@ -416,27 +424,27 @@ def detect_anomalies(qc_data, algorithm=None, columns=None, max_features=None, p
     ]
     for c in log_cols:
         qc_data[c] = qc_data[c].apply(log2p1)
-    
+
     df_train = qc_data[qc_data["Use Downstream"] == True][selected_cols].fillna(0)
     df_test = qc_data[qc_data["Use Downstream"] != True][selected_cols].fillna(0)
     df_all = qc_data[selected_cols].fillna(0)
 
     _ = setup(
         df_train,
-        #silent=True,
-        #ignore_low_variance=False,
-        #remove_perfect_collinearity=False,
+        # silent=True,
+        # ignore_low_variance=False,
+        # remove_perfect_collinearity=False,
         numeric_features=selected_cols,
     )
 
-    logging.info(f'Create anomaly model: {algorithm}')
+    logging.info(f"Create anomaly model: {algorithm}")
     model = create_model(algorithm, **model_kws)
     pipeline = get_config("pipeline")
     data = pipeline.transform(df_all)
     # pycaret changes column names
     # change it to original names
     data.columns = selected_cols
-    if algorithm == 'iforest':
+    if algorithm == "iforest":
         sa = ShapAnalysis(model, data)
         shapley_values = sa.df_shap.reindex(selected_cols, axis=1)
     else:
@@ -447,40 +455,48 @@ def detect_anomalies(qc_data, algorithm=None, columns=None, max_features=None, p
 
 def get_marker_color(use_downstream, flagged, selected):
     colors = {
-        ('unknown', False, False): 'grey',
-        ('unknown', True,  False): 'grey',
-        ('unknown', False, True):  'black',
-        ('unknown', True,  True):  'black',
-
-        (True,  False, False): 'blue',
-        (False, False, False): 'deepskyblue',
-        (True,  True,  False): 'red',
-        (False, True,  False): 'pink',
-        (True,  False, True):  'magenta',
-        (False, False, True):  'magenta',
-        (True,  True,  True):  'cyan',
-        (False, True,  True):  'cyan',        
+        ("unknown", False, False): "grey",
+        ("unknown", True, False): "grey",
+        ("unknown", False, True): "black",
+        ("unknown", True, True): "black",
+        (True, False, False): "blue",
+        (False, False, False): "deepskyblue",
+        (True, True, False): "red",
+        (False, True, False): "pink",
+        (True, False, True): "magenta",
+        (False, False, True): "magenta",
+        (True, True, True): "cyan",
+        (False, True, True): "cyan",
     }
-    key = (use_downstream if isinstance(use_downstream, bool) else 'unknown', flagged, selected)
+    key = (
+        use_downstream if isinstance(use_downstream, bool) else "unknown",
+        flagged,
+        selected,
+    )
     color = colors[key]
     return color
-    
+
 
 def get_marker_line_color(use_downstream, flagged, selected):
     colors = {
-        ('unknown', False, False): 'lightblue',
-        ('unknown', True,  False): 'red',
-        ('unknown', False, True):  'black',
-        ('unknown', True,  True):  'black',
-
-        (True,  False, False): 'deepskyblue',
-        (False, False, False): 'lightblue',
-        (True,  True,  False): 'red',
-        (False, True,  False): 'pink',
-        (True,  False, True):  'magenta',
-        (False, False, True):  'magenta',
-        (True,  True,  True):  'cyan',
-        (False, True,  True):  'cyan',        
+        ("unknown", False, False): "lightblue",
+        ("unknown", True, False): "red",
+        ("unknown", False, True): "black",
+        ("unknown", True, True): "black",
+        (True, False, False): "deepskyblue",
+        (False, False, False): "lightblue",
+        (True, True, False): "red",
+        (False, True, False): "pink",
+        (True, False, True): "magenta",
+        (False, False, True): "magenta",
+        (True, True, True): "cyan",
+        (False, True, True): "cyan",
     }
-    color = colors[(use_downstream if isinstance(use_downstream, bool) else 'unknown', flagged, selected)]
+    color = colors[
+        (
+            use_downstream if isinstance(use_downstream, bool) else "unknown",
+            flagged,
+            selected,
+        )
+    ]
     return color

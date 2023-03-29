@@ -159,8 +159,6 @@ def move_rawfile_to_input_dir(sender, instance, created, *args, **kwargs):
             Result.objects.create(raw_file=raw_file)
 
 
-
-
 @receiver(models.signals.post_delete, sender=RawFile)
 def delete_rawfile(sender, instance, *args, **kwargs):
     raw_file = instance

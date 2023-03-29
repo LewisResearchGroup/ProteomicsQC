@@ -66,7 +66,6 @@ plot_columns = [
 
 layout = html.Div(
     [
-
         dcc.Dropdown(
             id="proteins-options",
             placeholder="Options",
@@ -77,13 +76,11 @@ layout = html.Div(
                     "label": "Remove reversed sequences",
                 },
             ],
-            value=['remove_contaminants', 'remove_reversed_sequences'],
+            value=["remove_contaminants", "remove_reversed_sequences"],
             multi=True,
             style={"margin-top": "50px", "margin-bottom": "50px"},
         ),
-
         html.Button("Update table", id="proteins-update"),
-
         dcc.Loading(proteins_table),
         dcc.Dropdown(
             id="protein-plot-column",

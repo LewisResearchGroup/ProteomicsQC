@@ -6,7 +6,6 @@ from pathlib import Path as P
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 
-
 class PipelineTestCase(TestCase):
     def setUp(self):
         Project.objects.create(name="test-pipeline", description="a test project")
@@ -17,7 +16,6 @@ class PipelineTestCase(TestCase):
         project = Project.objects.get(name="test-pipeline")
         pipeline = Pipeline.objects.get(name="test", project=project.pk)
         assert pipeline is not None, pipeline
-
 
 
 class PipelineTestCaseWithFiles(TestCase):

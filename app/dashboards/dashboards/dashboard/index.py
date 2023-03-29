@@ -16,7 +16,12 @@ pn.extension("plotly")
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from lrg_omics.plotly_tools import plotly_heatmap, plotly_bar, plotly_histogram, set_template
+from lrg_omics.plotly_tools import (
+    plotly_heatmap,
+    plotly_bar,
+    plotly_histogram,
+    set_template,
+)
 from lrg_omics.proteomics import ProteomicsQC
 
 from scipy.cluster.hierarchy import linkage, dendrogram
