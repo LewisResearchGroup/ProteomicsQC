@@ -44,7 +44,7 @@ class MaxQuantExecutable(models.Model):
         return COMPUTE_ROOT / "software" / "MaxQuant" / P(fn).name
 
     def save(self, *args, **kwargs):
-        print("Save MQ bin")
+        logging.info("Save MQ bin")
         super(MaxQuantExecutable, self).save(*args, **kwargs)
 
 
@@ -59,7 +59,7 @@ def unzip_maxquant(sender, instance, created, *args, **kwargs):
     # Skip when it is a directory.
     if name.is_file():
         with zipfile.ZipFile(name, "r") as zip_ref:
-            print("Extracting zip archive:", name, tmp)
+            logging.info("Extracting zip archive:", name, tmp)
             zip_ref.extractall(tmp)
         os.remove(name)
         os.rename(tmp, name)
