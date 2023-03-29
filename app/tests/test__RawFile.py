@@ -15,7 +15,6 @@ from celery.contrib.testing.worker import start_worker
 
 from celery.contrib.testing.tasks import ping
 
-from maxquant import tasks
 from main.celery import app
 
 

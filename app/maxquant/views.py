@@ -136,9 +136,9 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
                 .rename(columns={"RetentionTime": "Retention time"})
                 .set_index("Retention time")
             )
-            fig = lines_plot(df, cols=["Intensity"], title=f"Ms TIC chromatogram")
+            fig = lines_plot(df, cols=["Intensity"], title="Ms TIC chromatogram")
             figures.append(plotly_fig_to_div(fig))
-            fig = histograms(df, cols=["Intensity"], title=f"Ms TIC histogram")
+            fig = histograms(df, cols=["Intensity"], title="Ms TIC histogram")
             figures.append(plotly_fig_to_div(fig))
 
         fn = f"{path_rt}/{raw_fn}_Ms2_TIC_chromatogram.txt"
@@ -148,9 +148,9 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
                 .rename(columns={"RetentionTime": "Retention time"})
                 .set_index("Retention time")
             )
-            fig = lines_plot(df, cols=["Intensity"], title=f"Ms2 TIC chromatogram")
+            fig = lines_plot(df, cols=["Intensity"], title="Ms2 TIC chromatogram")
             figures.append(plotly_fig_to_div(fig))
-            fig = histograms(df, cols=["Intensity"], title=f"Ms2 TIC histogram")
+            fig = histograms(df, cols=["Intensity"], title="Ms2 TIC histogram")
             figures.append(plotly_fig_to_div(fig))
 
         fn = f"{path}/evidence.txt"

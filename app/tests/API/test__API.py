@@ -1,5 +1,4 @@
 import time
-import requests
 
 from django.test import TestCase
 from project.models import Project
