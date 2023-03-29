@@ -4,7 +4,7 @@ from maxquant.models import Pipeline
 
 from pathlib import Path as P
 from django.core.files.uploadedfile import SimpleUploadedFile
-from glob import glob
+
 
 
 class PipelineTestCase(TestCase):

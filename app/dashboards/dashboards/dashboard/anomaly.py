@@ -7,7 +7,6 @@ from dash import html, dcc
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-from dash_tabulator import DashTabulator
 
 from lrg_omics.proteomics import ProteomicsQC
 

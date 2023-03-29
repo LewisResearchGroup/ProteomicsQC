@@ -24,7 +24,6 @@ from django.utils.html import mark_safe
 from lrg_omics.proteomics.tools import load_rawtools_data_from, load_maxquant_data_from
 from lrg_omics.proteomics.maxquant.MaxquantReader import MaxquantReader
 
-from .rawtools import RawToolsSetup
 from .tasks import rawtools_metrics, rawtools_qc, run_maxquant
 
 DATALAKE_ROOT = settings.DATALAKE_ROOT

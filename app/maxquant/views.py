@@ -20,7 +20,6 @@ from project.models import Project
 from lrg_omics.common import today
 from lrg_omics.proteomics.rawtools.plotly import histograms, lines_plot
 from lrg_omics.plotly_tools import (
-    set_template,
     plotly_heatmap,
     plotly_fig_to_div,
     plotly_dendrogram,
@@ -85,7 +84,6 @@ def pipeline_download_file(request, pk):
     pipeline = Pipeline.objects.get(pk=pipeline_pk)
     project = pipeline.project
     project_name = project.name
-    pipeline_name = pipeline.name
 
     stream = BytesIO()
     dfs = []
