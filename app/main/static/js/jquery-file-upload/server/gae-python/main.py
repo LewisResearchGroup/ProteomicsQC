@@ -113,7 +113,7 @@ class UploadHandler(CORSHandler):
     def handle_upload(self):
         results = []
         for name, fieldStorage in self.request.POST.items():
-            if type(fieldStorage) is unicode:
+            if isinstance(fieldStorage, str):
                 continue
             result = {}
             result["name"] = urllib.unquote(fieldStorage.filename)

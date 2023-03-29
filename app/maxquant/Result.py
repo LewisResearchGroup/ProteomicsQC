@@ -4,6 +4,7 @@ import shutil
 import zipfile
 import pandas as pd
 import logging
+import datetime
 
 from functools import lru_cache
 
@@ -14,7 +15,6 @@ from glob import glob
 
 from django.db import models
 from django_currentuser.db.models import CurrentUserField
-from django.template.defaultfilters import slugify
 from django.dispatch import receiver
 from django.utils import timezone
 from django.conf import settings

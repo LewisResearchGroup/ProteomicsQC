@@ -1,5 +1,4 @@
 import time
-import requests
 
 from django.test import TestCase
 from project.models import Project
@@ -9,15 +8,12 @@ from maxquant.models import Result
 from maxquant.models import RawFile
 
 from pathlib import Path as P
-from glob import glob
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from celery.contrib.testing.worker import start_worker
 
 from maxquant import tasks
 from main.celery import app
-
-from celery.contrib.testing.tasks import ping
 
 from django.test import Client
 

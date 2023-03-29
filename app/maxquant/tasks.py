@@ -1,6 +1,6 @@
 import os
 import logging
-from os.path import dirname, isdir, join, isfile, basename
+from os.path import isdir, join, isfile, basename
 from celery import shared_task
 
 import shutil

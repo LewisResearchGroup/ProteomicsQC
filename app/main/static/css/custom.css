@@ -2,305 +2,305 @@
 
 
 body {
-    font-family: 'Dongle', sans-serif;
-    background: #fafafa;
-    margin-bottom: 10%;
+  font-family: 'Dongle', sans-serif;
+  background: #fafafa;
+  margin-bottom: 10%;
 }
 
 
 #title{
-    color:rgb(240, 240, 240);
-    font-size: 30;
-    font-weight: bold;
-    text-align: left;
-    padding: 20;
+  color:rgb(240, 240, 240);
+  font-size: 30;
+  font-weight: bold;
+  text-align: left;
+  padding: 20;
 }
 
 .header {
-    width: 70%;
-    align-content: left;
+  width: 70%;
+  align-content: left;
 }
 
 
 #CookielawBanner { 
-    background-color: lightgray !important;
-    border: 2px solid red;
-    border-radius: 5px;
-    max-width: 100%;
-    margin: auto;
+  background-color: lightgray !important;
+  border: 2px solid red;
+  border-radius: 5px;
+  max-width: 100%;
+  margin: auto;
 }
 
 
 #LoginButton:hover {
-    background-color: blue;
+  background-color: blue;
 }
 
 hr {
-    margin-top: 20px;
-    margin-bottom: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .nobull {
-    list-style-type: none !important;
+  list-style-type: none !important;
 }
 
 .no-shadows {
-    box-shadow: none!important;
+  box-shadow: none!important;
 }
 
 .dashapp {
-    padding-top: 10px;
+  padding-top: 10px;
 }
 
 .btn{
-    width: 220px;
-    min-height: 40px;
-    margin: 5px 5px 5px 5px;
-    background-color: darkcyan;
-    color: white;
-    font-weight: bold;
-    text-align: center;
-    padding: 5px;
+  width: 220px;
+  min-height: 40px;
+  margin: 5px 5px 5px 5px;
+  background-color: darkcyan;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  padding: 5px;
 }
 
 #logout {
-    background:darkred;
-    float: right;
+  background:darkred;
+  float: right;
 }
 
 .right{
-    float: right !important;
+  float: right !important;
 }
 
 .full_width {
-    width: 100%;
-    margin: 5px;
+  width: 100%;
+  margin: 5px;
 }
 
 .btn:hover {
-    background-color: blue;
-    color: white !important;
+  background-color: blue;
+  color: white !important;
 }
 
 nav ul a:hover {
-    background-color: lightcyan;
+  background-color: lightcyan;
 }
 
 h1 {
-    font-size: 30;
-    color: rgb(0, 80, 80);
-    font-weight: bold;
+  font-size: 30;
+  color: rgb(0, 80, 80);
+  font-weight: bold;
 
 }
 
 iframe {
-    overflow: hidden;
+  overflow: hidden;
 }
 
 .button {
-    background-color: #27A69A !important;
+  background-color: #27a69a !important;
 }
 
 input[type=text] {
-    width:100%;
-    font-size: large;
+  width:100%;
+  font-size: large;
 }
 
 tr th label {
-    font-size: large;
+  font-size: large;
 }
 
 
 input[type=submit] {
-    width: 220px;
-    min-height: 40px;
-    margin: 5px 5px 5px 5px;
-    background-color: darkcyan;
-    color: white;
-    font-weight: bold;
-    text-align: center;
-    padding: 5px;
-    border: none;
-    border-radius: 5px;
+  width: 220px;
+  min-height: 40px;
+  margin: 5px 5px 5px 5px;
+  background-color: darkcyan;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  padding: 5px;
+  border: none;
+  border-radius: 5px;
 }
 
 
 tr th .btn {
-    height: 30px;
-    font-weight: normal;
+  height: 30px;
+  font-weight: normal;
 }
 
 #sortnsearch {
-    padding-bottom: 50px; 
+  padding-bottom: 50px; 
 }
 
 .figure_a {
-    max-width:1200; 
-    height:400;
+  max-width:1200; 
+  height:400;
 }
 
 
 .figure_large_quare {
-    max-width:1200; 
-    height:120;
+  max-width:1200; 
+  height:120;
 }
 
 .figure_large_rect {
-    max-width:1200; 
+  max-width:1200; 
 }
 
 .block {
-    background-color: lightgrey;
-    padding: 20px;
-    border-radius: 10px;
-    margin-top: 10px;
-    margin-bottom: 20px;
+  background-color: lightgrey;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 10px;
+  margin-bottom: 20px;
 }
 
 .project {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 table {
-    width: 100%;
+  width: 100%;
 }
 
 th, td {
-    padding: auto;
+  padding: auto;
   }
 
 table thead th { border-bottom: 1px solid #000; }
 
 table tr th {
-    vertical-align: middle;
+  vertical-align: middle;
 }
 
 #CookielawBanner {
-    background: #fff;
-    padding: 15px 0;
+  background: #fff;
+  padding: 15px 0;
 }
 
 #CookielawBanner .container {
-    position: relative;
+  position: relative;
 }
 
 
 #CookielawBanner #CookielawCross {
-    background: url('../img/close.png') no-repeat 0 0;
-    cursor: pointer;
-    display: block;
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 15px;
-    height: 15px;
+  background: url('../img/close.png') no-repeat 0 0;
+  cursor: pointer;
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 15px;
+  height: 15px;
 }
 
 .pagination {
-    max-width: 100%;
+  max-width: 100%;
 }
 
 .pagination li {
-    margin: 0px;
-    padding: 0px 10px 0px 10px ;
-    font-size: large;
-    background-color: lightgrey;
-    color: black;
-    border: 0.5px solid darkgrey;
+  margin: 0px;
+  padding: 0px 10px 0px 10px ;
+  font-size: large;
+  background-color: lightgrey;
+  color: black;
+  border: 0.5px solid darkgrey;
 } 
 
 
 .pagination li a {
-    color: black;
+  color: black;
 } 
 
 
 .pagination .active {
-    color: white;
-    background-color: darkcyan;
+  color: white;
+  background-color: darkcyan;
 } 
 
 
 ul {
-    list-style-type: none !important;
+  list-style-type: none !important;
 }
 
 ul ul a {
-    font-size: 0.9em !important;
-    padding-left: 30px !important;
-    background: #6d7fcc;
+  font-size: 0.9em !important;
+  padding-left: 30px !important;
+  background: #6d7fcc;
 }
 
 ul .disabled {
-    background: lightgrey;
-    color: darkgrey;
+  background: lightgrey;
+  color: darkgrey;
 }
 
 
 @media (max-width: 1000px) {
-    #logout {
-        float: None;
-    }
+  #logout {
+    float: None;
+  }
 }
 
 @media (max-width: 500px) {
-    .btn {
-        width: 100%;
-    }
+  .btn {
+    width: 100%;
+  }
 }
 
 
 a[data-toggle="collapse"] {
-    position: relative;
+  position: relative;
 }
 
 .dropdown-toggle::after {
-    display: block;
-    position: absolute;
-    top: 50%;
-    right: 20px;
-    transform: translateY(-50%);
+  display: block;
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
 }
 
 #sidebar {
-    min-width: 250px;
-    max-width: 250px;
-    min-height: 100vh;
+  min-width: 250px;
+  max-width: 250px;
+  min-height: 100vh;
 }
 
 .wrapper {
-    display: flex;
-    align-items: stretch;
+  display: flex;
+  align-items: stretch;
 }
 
 #sidebar.active {
-    margin-left: -250px;
+  margin-left: -250px;
 }
 
 .warning {
-    color: white;
-    margin: auto;
-    background: darkred;
-    text-align: center;
-    padding: 5px;
-    border-radius: 5px;
-    font-weight: bold;
+  color: white;
+  margin: auto;
+  background: darkred;
+  text-align: center;
+  padding: 5px;
+  border-radius: 5px;
+  font-weight: bold;
 }
 
 
 a:hover {
-    text-decoration: None;
+  text-decoration: None;
 }
 
 #username {
-    font-weight: bold;
-    padding: 5px;
+  font-weight: bold;
+  padding: 5px;
 }
 
 .flex-wrapper {
-    display: flex;
-    min-height: 90vh;
-    flex-direction: column;
-    justify-content: space-between;
+  display: flex;
+  min-height: 90vh;
+  flex-direction: column;
+  justify-content: space-between;
 }
 

@@ -1,5 +1,4 @@
 import os
-import sys
 import pandas as pd
 import numpy as np
 from pathlib import Path as P
@@ -22,12 +21,9 @@ import dash_table as dt
 
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-from dash_tabulator import DashTabulator
 
 from lrg_omics.plotly_tools import plotly_heatmap, plotly_bar, plotly_histogram, set_template
 from lrg_omics.proteomics import ProteomicsQC
-
-import plotly.graph_objects as go
 
 from scipy.cluster.hierarchy import linkage, dendrogram
 from scipy.spatial.distance import pdist, squareform

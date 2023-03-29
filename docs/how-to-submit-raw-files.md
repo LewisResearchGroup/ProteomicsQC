@@ -25,6 +25,6 @@ Then select your pipeline and RAW file that you want to upload and click `SAVE`.
 
 ## 3) Using the API
 
-You can upload a RAW file using the API as described [here](/api)
+You can upload a RAW file using the API as described [here](api.md)
 
 
