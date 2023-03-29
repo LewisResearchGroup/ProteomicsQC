@@ -18,10 +18,6 @@ class PipelineTestCase(TestCase):
         pipeline = Pipeline.objects.get(name="test", project=project.pk)
         assert pipeline is not None, pipeline
 
-    def test__pipeline_creation(self):
-        project = Project.objects.get(name="test-pipeline")
-        pipeline = Pipeline.objects.get(name="test", project=project.pk)
-        assert pipeline is not None, pipeline
 
 
 class PipelineTestCaseWithFiles(TestCase):

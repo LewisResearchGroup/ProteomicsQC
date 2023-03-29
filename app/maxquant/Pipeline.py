@@ -1,7 +1,5 @@
 import os
-import hashlib
 import shutil
-import zipfile
 
 from pathlib import Path as P
 

@@ -1,7 +1,6 @@
 from django.contrib import admin
 from .models import (
     Pipeline,
-    FastaFile,
     MaxQuantExecutable,
     MaxQuantParameter,
     RawFile,

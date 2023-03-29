@@ -9,7 +9,7 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.dispatch import receiver
 from django.conf import settings
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 
 from django_currentuser.db.models import CurrentUserField
 

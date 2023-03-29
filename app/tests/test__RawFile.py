@@ -13,8 +13,6 @@ from glob import glob
 from django.core.files.uploadedfile import SimpleUploadedFile
 from celery.contrib.testing.worker import start_worker
 
-from celery.contrib.testing.tasks import ping
-
 from main.celery import app
 
 

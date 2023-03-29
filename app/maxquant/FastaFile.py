@@ -7,14 +7,10 @@ from pathlib import Path as P
 
 from django.db import models
 from django_currentuser.db.models import CurrentUserField
-from django.template.defaultfilters import slugify
 from django.dispatch import receiver
 from django.utils import timezone
 from django.conf import settings
 from django.utils.html import mark_safe
-
-from uuid import uuid4
-
 
 DATALAKE_ROOT = settings.DATALAKE_ROOT
 COMPUTE_ROOT = settings.COMPUTE_ROOT
