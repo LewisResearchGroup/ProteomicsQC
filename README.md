@@ -39,14 +39,14 @@ The server manages proteomics pipelines belonging to multiple projects. The serv
 
 ## Features
 
-1. Different project spaces    
-2. Setup of different pipelines (using MaxQuant and RawTools)
-3. Upload .RAW files and automatic submission to a job queueing system
-4. Data management of input and output files
-5. User rights management
-6. Data API for programmatic file submission and download of results
-7. Dashboard for quality control (QC)
-8. Anomaly detection with Isolation Forest and explainable AI using SHAP
+1.  Different project spaces    
+2.  Setup of different pipelines (using MaxQuant and RawTools)
+3.  Upload .RAW files and automatic submission to a job queueing system
+4.  Data management of input and output files
+5.  User rights management
+6.  Data API for programmatic file submission and download of results
+7.  Dashboard for quality control (QC)
+8.  Anomaly detection with Isolation Forest and explainable AI using SHAP
 
 
 ## The GUI
