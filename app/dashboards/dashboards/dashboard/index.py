@@ -3,8 +3,6 @@ import pandas as pd
 import numpy as np
 from pathlib import Path as P
 
-from plotly.missing_ipywidgets import FigureWidget
-
 import dash
 from dash import html, dcc
 from dash import dash_table as dt

@@ -1,7 +1,7 @@
 import os
 import hashlib
 import shutil
-import logging 
+import logging
 
 from pathlib import Path as P
 

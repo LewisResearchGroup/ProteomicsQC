@@ -21,8 +21,6 @@ from pandas.api.types import is_numeric_dtype
 from pycaret.anomaly import (
     setup,
     create_model,
-    save_model,
-    load_model,
     get_config,
     predict_model,
 )
