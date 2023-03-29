@@ -269,7 +269,6 @@ def get_protein_groups_data(
 
 def get_qc_data(project_slug, pipeline_slug, data_range=None):
     pipeline = Pipeline.objects.get(slug=pipeline_slug)
-    path = pipeline.path
     results = Result.objects.filter(raw_file__pipeline=pipeline)
     n_results = len(results)
 
