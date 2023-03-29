@@ -195,7 +195,9 @@ class Result(models.Model):
     def get_data_from_file(self, fn="proteinGroups.txt"):
         abs_fn = self.output_dir_maxquant / fn
         if abs_fn.is_file():
-            df = MaxquantReader(remove_contaminants=False, remove_reverse=False).read(abs_fn)
+            df = MaxquantReader(remove_contaminants=False, remove_reverse=False).read(
+                abs_fn
+            )
             if df is None:
                 return None
             df["RawFile"] = str(self.raw_file.name)
@@ -228,7 +230,7 @@ class Result(models.Model):
         try:
             df = load_maxquant_data_from(self.path)
         except Exception as e:
-            logging.warning(f'{e}: load_maxquant_data_from({self.path})')
+            logging.warning(f"{e}: load_maxquant_data_from({self.path})")
         if df is None:
             df = pd.DataFrame()
         df["RawFile"] = self.raw_fn.with_suffix("").name

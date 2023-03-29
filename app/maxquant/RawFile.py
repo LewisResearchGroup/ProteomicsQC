@@ -1,7 +1,7 @@
 import os
 import hashlib
 import shutil
-import logging 
+import logging
 
 from pathlib import Path as P
 
@@ -157,8 +157,6 @@ def move_rawfile_to_input_dir(sender, instance, created, *args, **kwargs):
     if raw_file.pipeline.has_maxquant_config:
         if len(Result.objects.filter(raw_file=raw_file)) == 0:
             Result.objects.create(raw_file=raw_file)
-
-
 
 
 @receiver(models.signals.post_delete, sender=RawFile)

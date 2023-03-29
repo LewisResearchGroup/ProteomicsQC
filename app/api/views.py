@@ -290,11 +290,11 @@ def get_qc_data(project_slug, pipeline_slug, data_range=None):
         try:
             rts.append(result.rawtools_qc_data())
         except Exception as e:
-            logging.warning(f'{e}: {result.raw_file.name} rawtools_qc_data')
+            logging.warning(f"{e}: {result.raw_file.name} rawtools_qc_data")
         try:
             mqs.append(result.maxquant_qc_data())
         except Exception as e:
-            logging.warning(f'{e}: {result.raw_file.name} maxquant_qc_data')
+            logging.warning(f"{e}: {result.raw_file.name} maxquant_qc_data")
 
     rt = pd.concat(rts)
     mq = pd.concat(mqs)
@@ -304,7 +304,7 @@ def get_qc_data(project_slug, pipeline_slug, data_range=None):
     try:
         rt["Index"] = rt["DateAcquired"].rank()
     except KeyError as e:
-        logging.error(f'{e}: {rt}')
+        logging.error(f"{e}: {rt}")
 
     if (rt is None) and (mq is not None):
         return mq

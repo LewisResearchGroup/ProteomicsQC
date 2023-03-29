@@ -13,7 +13,6 @@ from .forms import SearchProject, SearchPipeline
 from maxquant.models import Pipeline
 
 
-
 class ProjectListView(LoginRequiredMixin, FormMixin, ListView):
     model = Project
     login_url = "/accounts/login/"

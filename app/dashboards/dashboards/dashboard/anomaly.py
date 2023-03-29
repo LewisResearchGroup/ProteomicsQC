@@ -25,37 +25,45 @@ checklist_options = [
 
 
 algorithm_options = [
-    {'label': 'Isolation Forest', 'value': 'iforest'},
-    {'label': 'Angle-base Outlier Detection', 'value': 'abod'},
-    {'label': 'Clustering-Based Local Outlier', 'value': 'cluster'},
-    {'label': 'Connectivity-Based Outlier Factor', 'value': 'cof'},
-    {'label': 'Histogram-based Outlier Detection', 'value': 'histogram'},
-    {'label': 'k-Nearest Neighbors Detector', 'value': 'knn'},
-    {'label': 'Local Outlier Factor', 'value': 'lof'},
-    {'label': 'One-class SVM detector', 'value': 'svm'},
-    {'label': 'Principal Component Analysis', 'value': 'pca'},
-    {'label': 'Minimum Covariance Determinant', 'value': 'mcd'},
-    {'label': 'Subspace Outlier Detection', 'value': 'sod'},
-    {'label': 'Stochastic Outlier Selection', 'value': 'sos'},
+    {"label": "Isolation Forest", "value": "iforest"},
+    {"label": "Angle-base Outlier Detection", "value": "abod"},
+    {"label": "Clustering-Based Local Outlier", "value": "cluster"},
+    {"label": "Connectivity-Based Outlier Factor", "value": "cof"},
+    {"label": "Histogram-based Outlier Detection", "value": "histogram"},
+    {"label": "k-Nearest Neighbors Detector", "value": "knn"},
+    {"label": "Local Outlier Factor", "value": "lof"},
+    {"label": "One-class SVM detector", "value": "svm"},
+    {"label": "Principal Component Analysis", "value": "pca"},
+    {"label": "Minimum Covariance Determinant", "value": "mcd"},
+    {"label": "Subspace Outlier Detection", "value": "sod"},
+    {"label": "Stochastic Outlier Selection", "value": "sos"},
 ]
 
 layout = html.Div(
     [
         html.H1("Anomaly detection"),
-        html.Label('Select Algorithm'),
-        dcc.Dropdown(id='anomaly-algorithm', options=algorithm_options, value='iforest'),
-        html.Label('Estimated outlier fraction'),
-        dcc.Slider(id='anomaly-fraction', value=5, min=1, max=100, step=1, 
-                   marks={ i: {'label': f'{i}%'} for i in range(10, 110, 10)}),
+        html.Label("Select Algorithm"),
+        dcc.Dropdown(
+            id="anomaly-algorithm", options=algorithm_options, value="iforest"
+        ),
+        html.Label("Estimated outlier fraction"),
+        dcc.Slider(
+            id="anomaly-fraction",
+            value=5,
+            min=1,
+            max=100,
+            step=1,
+            marks={i: {"label": f"{i}%"} for i in range(10, 110, 10)},
+        ),
         dcc.Checklist(
             id="anomaly-checklist",
             options=checklist_options,
             value=["hide_rejected"],
             style=dict(padding="15px"),
         ),
-
-        dbc.Button("Predict Anomalies", id="anomaly-btn", className="btn", color='primary'),
-
+        dbc.Button(
+            "Predict Anomalies", id="anomaly-btn", className="btn", color="primary"
+        ),
         dcc.Loading(
             [dcc.Graph(id="anomaly-figure")],
         ),
@@ -67,17 +75,19 @@ def callbacks(app):
     @app.callback(
         Output("shapley-values", "children"),
         Input("anomaly-btn", "n_clicks"),
-        State("anomaly-algorithm", 'value'),
+        State("anomaly-algorithm", "value"),
         State("project", "value"),
         State("pipeline", "value"),
         State("qc-table-columns", "value"),
-        State('anomaly-fraction', 'value'),
+        State("anomaly-fraction", "value"),
     )
-    def run_anomaly_detection(n_clicks, algorithm, project, pipeline, columns, fraction, **kwargs):
+    def run_anomaly_detection(
+        n_clicks, algorithm, project, pipeline, columns, fraction, **kwargs
+    ):
         if n_clicks is None:
             raise PreventUpdate
 
-        fraction = fraction / 100.
+        fraction = fraction / 100.0
 
         uid = kwargs["user"].uuid
 
@@ -92,11 +102,8 @@ def callbacks(app):
 
         logging.info(f"Run anomaly detection ({algorithm}).")
 
-        if algorithm == 'iforest':
-            params = dict(
-                n_estimators=1000, 
-                max_features=10
-            )
+        if algorithm == "iforest":
+            params = dict(n_estimators=1000, max_features=10)
         else:
             params = {}
 
@@ -104,8 +111,8 @@ def callbacks(app):
             qc_data, algorithm=algorithm, columns=columns, fraction=fraction, **params
         )
 
-        logging.info(f'Predictions: {predictions}')
-        logging.info(f'Shapley values: {df_shap}')
+        logging.info(f"Predictions: {predictions}")
+        logging.info(f"Shapley values: {df_shap}")
 
         # Update flags
         currently_unflagged = list(qc_data[~qc_data.Flagged].reset_index().RawFile)
@@ -152,4 +159,3 @@ def callbacks(app):
 
         config = T.gen_figure_config(filename="Anomaly-Detection-Shapley-values")
         return fig, config
-

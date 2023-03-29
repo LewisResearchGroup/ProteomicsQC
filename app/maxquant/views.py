@@ -40,9 +40,7 @@ def maxquant_pipeline_view(request, project, pipeline):
             request.method = "POST"
         else:
             form = SearchResult(request.POST)
-            maxquant_runs =  Result.objects.filter(
-                raw_file__pipeline__slug=pipeline
-            )
+            maxquant_runs = Result.objects.filter(raw_file__pipeline__slug=pipeline)
 
     if request.method == "POST":
         request.session["search-files"] = request.POST

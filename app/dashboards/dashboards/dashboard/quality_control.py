@@ -30,7 +30,11 @@ x_options = [
 layout = html.Div(
     [
         html.Div(
-            [html.P(["x-Axis:", dcc.Dropdown(id="x", options=x_options, value='Index')])],
+            [
+                html.P(
+                    ["x-Axis:", dcc.Dropdown(id="x", options=x_options, value="Index")]
+                )
+            ],
             style={"width": "100%", "margin": "auto"},
         ),
         html.Div(
@@ -75,8 +79,8 @@ def callbacks(app):
 
         df = pd.DataFrame(data)
 
-        df['Selected'] = False
-        df.loc[selected, 'Selected'] = True
+        df["Selected"] = False
+        df.loc[selected, "Selected"] = True
 
         assert pd.value_counts(df.columns).max() == 1, pd.value_counts(df.columns)
 
@@ -101,7 +105,7 @@ def callbacks(app):
                 x=df[x],
                 y=df[col],
                 name=col,
-                hovertext=df.RawFile + '<br>' + df.DateAcquired.astype(str),
+                hovertext=df.RawFile + "<br>" + df.DateAcquired.astype(str),
                 text=None if x == "RawFile" else df["RawFile"],
             )
             fig.add_trace(trace, row=1 + i, col=1)
@@ -116,8 +120,14 @@ def callbacks(app):
             yaxis={"automargin": True},
         )
 
-        marker_color = df[["Use Downstream", "Flagged", "Selected"]].apply(lambda row: T.get_marker_color(*row), axis=1)
-        marker_line_color = df[["Use Downstream", "Flagged", "Selected"]].fillna('unknown').apply(lambda row: T.get_marker_line_color(*row), axis=1)
+        marker_color = df[["Use Downstream", "Flagged", "Selected"]].apply(
+            lambda row: T.get_marker_color(*row), axis=1
+        )
+        marker_line_color = (
+            df[["Use Downstream", "Flagged", "Selected"]]
+            .fillna("unknown")
+            .apply(lambda row: T.get_marker_line_color(*row), axis=1)
+        )
 
         fig.update_traces(
             marker_color=marker_color,

@@ -258,6 +258,6 @@ class MaxQuantExecutableAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Pipeline, PipelineAdmin)
-#admin.site.register(MaxQuantExecutable, MaxQuantExecutableAdmin)
+# admin.site.register(MaxQuantExecutable, MaxQuantExecutableAdmin)
 admin.site.register(RawFile, RawFileAdmin)
 admin.site.register(Result, ResultAdmin)

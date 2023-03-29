@@ -3,8 +3,6 @@ import pandas as pd
 import numpy as np
 from pathlib import Path as P
 
-from plotly.missing_ipywidgets import FigureWidget
-
 import dash
 from dash import html, dcc
 from dash import dash_table as dt
@@ -18,7 +16,12 @@ pn.extension("plotly")
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from lrg_omics.plotly_tools import plotly_heatmap, plotly_bar, plotly_histogram, set_template
+from lrg_omics.plotly_tools import (
+    plotly_heatmap,
+    plotly_bar,
+    plotly_histogram,
+    set_template,
+)
 from lrg_omics.proteomics import ProteomicsQC
 
 from scipy.cluster.hierarchy import linkage, dendrogram

@@ -4,7 +4,6 @@ from pathlib import Path as P
 
 
 class ProjectTestCase(TestCase):
-    
     def setUp(self):
         Project.objects.create(name="test", description="A test project")
 

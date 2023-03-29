@@ -17,7 +17,6 @@ from main.celery import app
 
 
 class RawFileTestCase(TestCase):
-
     def setUp(self):
         if not hasattr(self, "pipeline"):
             print("Setup RawFileTestCase")
@@ -42,7 +41,7 @@ class RawFileTestCase(TestCase):
             self.raw_file = RawFile.objects.create(
                 pipeline=self.pipeline, orig_file=SimpleUploadedFile("fake.raw", b"...")
             )
-            print('...done setup RawFileTestCase.')
+            print("...done setup RawFileTestCase.")
 
     def test__raw_file_exists(self):
         assert self.raw_file.path.is_file(), self.raw_file.path
@@ -60,7 +59,6 @@ class RawFileTestCase(TestCase):
 
 
 class SameRawFileCanBeUploadedToMultiplePipelines(TestCase):
-
     def setUp(self):
         self.project = Project.objects.create(
             name="project", description="A test project"
@@ -91,9 +89,9 @@ class SameRawFileCanBeUploadedToMultiplePipelines(TestCase):
     def test__upload_same_raw_file_to_different_pipelines(self):
 
         self.raw_file = RawFile.objects.create(
-                pipeline=self.pipeline_A, orig_file=SimpleUploadedFile("fake.raw", b"...")
-            )
+            pipeline=self.pipeline_A, orig_file=SimpleUploadedFile("fake.raw", b"...")
+        )
 
         self.raw_file = RawFile.objects.create(
-                pipeline=self.pipeline_B, orig_file=SimpleUploadedFile("fake.raw", b"...")
-            )
+            pipeline=self.pipeline_B, orig_file=SimpleUploadedFile("fake.raw", b"...")
+        )

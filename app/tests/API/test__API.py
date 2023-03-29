@@ -17,9 +17,7 @@ from django.test import Client
 URL = "http://localhost:8000"
 
 
-
 class ApiTestCase(TestCase):
-
     def setUp(self):
         if not hasattr(self, "pipeline"):
             print("Setup")
@@ -49,5 +47,12 @@ class ApiTestCase(TestCase):
         c = Client()
         url = f"{URL}/api/projects"
         actual = c.post(url).json()
-        expected = [{'pk': 1, 'name': 'project', 'description': 'A test project', 'slug': 'project'}]
+        expected = [
+            {
+                "pk": 1,
+                "name": "project",
+                "description": "A test project",
+                "slug": "project",
+            }
+        ]
         assert actual == expected, actual
