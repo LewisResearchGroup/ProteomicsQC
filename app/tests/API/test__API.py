@@ -1,9 +1,6 @@
-import time
-
 from django.test import TestCase
 from project.models import Project
 from maxquant.models import Pipeline
-from maxquant.models import Result
 
 from maxquant.models import RawFile
 
