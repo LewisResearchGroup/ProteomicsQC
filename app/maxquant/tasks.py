@@ -3,8 +3,6 @@ import logging
 from os.path import isdir, join, isfile, basename
 from celery import shared_task
 
-import shutil
-
 from lrg_omics.proteomics.maxquant import MaxquantRunner
 
 from lrg_omics.proteomics.rawtools.quality_control import (

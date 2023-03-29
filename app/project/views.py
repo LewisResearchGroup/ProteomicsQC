@@ -1,17 +1,18 @@
 from django.views.generic import ListView, DetailView
+from django.views.generic.edit import FormMixin
+from django.views.generic.list import MultipleObjectMixin
+
 from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
 from django.http import Http404
+from django.core.paginator import Paginator, EmptyPage
 
 from .models import Project
 from .forms import SearchProject, SearchPipeline
-from django.views.generic.edit import FormMixin
-from django.views.generic.list import MultipleObjectMixin
 
 from maxquant.models import Pipeline
 
-from django.core.paginator import Paginator
 
 
 class ProjectListView(LoginRequiredMixin, FormMixin, ListView):
