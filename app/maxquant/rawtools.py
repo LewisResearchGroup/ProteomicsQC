@@ -1,5 +1,4 @@
 from django.db import models
-from django_currentuser.db.models import CurrentUserField
 
 
 class RawToolsSetup(models.Model):

@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import RawFile, BasicUpload, Result
+from .models import RawFile
 
 
 class BasicUploadForm(forms.ModelForm):
