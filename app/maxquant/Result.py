@@ -10,7 +10,6 @@ from functools import lru_cache
 
 from io import BytesIO
 from pathlib import Path as P
-from uuid import uuid4
 from glob import glob
 
 from django.db import models

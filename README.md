@@ -11,7 +11,6 @@ Underlying software is _MaxQuant_ and _RawTools_ for proteomics, _Django_ for th
 
 More information can be found in the [Documentation](https://LewisResearchGroup.github.io/ProteomicsQC/).
 
-
 ## Installation
 
 This repository contains git submodules and should be cloned with:
@@ -30,7 +29,6 @@ This repository contains git submodules and should be cloned with:
 ## Limitations
 The pipeline is restricted to single file setup which might conflict with the setup of some laboratories that split sample results into multiple files. The pipeline processes each file separately and independently.
 
-
 ## Overview
 
 The server manages proteomics pipelines belonging to multiple projects. The server is mostly implemented in Python and is composed of several components such as a PostgreSQL database, a queuing system (Celery, Redis), a dashboard (Plotly-Dash) and an API (Django REST-Framwork).
@@ -48,7 +46,6 @@ The server manages proteomics pipelines belonging to multiple projects. The serv
 7.  Dashboard for quality control (QC)
 8.  Anomaly detection with Isolation Forest and explainable AI using SHAP
 
-
 ## The GUI
 
 ### Pipelines overview
@@ -56,13 +53,11 @@ The server has a simple static http frontend and admin view, generated with Djan
 
 <img src="./docs/img/Pipelines.png" width="100%">
 
-
 ### Admin view
 
 Django is a popular web framework for building web applications in Python. The Django admin view is a built-in feature of Django that provides an easy-to-use interface for managing the application's data models. The admin view is automatically generated based on the models defined in the application's code, and allows administrators to perform CRUD (Create, Read, Update, and Delete) operations on the application's data. This way new projects, and pipelines can be setup. It also provides an overview over all results and raw files stored on the server and can be used for troubleshooting, if some runs are unsuccessful.
 
 ![](./docs/img/example-admin-view.png 'Overview over all jobs on the server.')
-
 
 ## Dashboard
 
@@ -78,6 +73,7 @@ Timelines of up to 60 quality control metrics can be viewed simultanously in one
 ![](./docs/img/QC-barplot-small.jpg 'Many customiable Quality Control metrics in one place.')
 
 ### Explainable AI to gain insights into anomaly detection
+
 To help the user spotting anormal trends in the vast feature space, outlier detection and explainable AI are applied. 
 Speficially, Isolation forest or other outlier detection algorithms can be applied and are subjected to the SHapley Additive exPlanations (SHAP) algorithm.
 This plot highlights the specific features which are statistically 'anormal'.

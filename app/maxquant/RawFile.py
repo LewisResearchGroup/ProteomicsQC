@@ -4,7 +4,6 @@ import shutil
 import logging 
 
 from pathlib import Path as P
-from uuid import uuid4
 
 from django.db import models, IntegrityError
 from django_currentuser.db.models import CurrentUserField

@@ -6,7 +6,10 @@ ENV PYTHONUNBUFFERED=1
 
 RUN mkdir /data /compute /static /appmedia /datalake
 
-RUN apt-get update && apt install -y build-essential time
+RUN apt-get update && \
+    apt-get install -y build-essential time \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN python --version
 
