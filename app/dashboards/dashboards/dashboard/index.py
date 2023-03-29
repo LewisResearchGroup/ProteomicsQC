@@ -4,20 +4,16 @@ import numpy as np
 from pathlib import Path as P
 
 from plotly.missing_ipywidgets import FigureWidget
-import requests
 
 import dash
-import plotly
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import html, dcc
+from dash import dash_table as dt
 import dash_bootstrap_components as dbc
 
 import plotly.express as px
 import panel as pn
 
 pn.extension("plotly")
-
-import dash_table as dt
 
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -26,7 +22,7 @@ from lrg_omics.plotly_tools import plotly_heatmap, plotly_bar, plotly_histogram,
 from lrg_omics.proteomics import ProteomicsQC
 
 from scipy.cluster.hierarchy import linkage, dendrogram
-from scipy.spatial.distance import pdist, squareform
+from scipy.spatial.distance import squareform
 
 import logging
 
