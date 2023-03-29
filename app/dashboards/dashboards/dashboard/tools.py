@@ -15,7 +15,6 @@ from dash.dash_table import DataTable, Format
 import plotly.express as px
 import plotly.graph_objects as go
 from matplotlib import pyplot as pl
-from numpy import NaN
 
 from pandas.api.types import is_numeric_dtype
 

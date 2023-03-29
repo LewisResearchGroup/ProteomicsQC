@@ -68,7 +68,7 @@ class Pipeline(MaxQuantParameter, FastaFile, RawToolsSetup):
 
     @property
     def tmp_dir(self):
-        return f"{TMP_ROOT}/{self.project.slug}/{self.slug}"
+        return f"{COMPUTE_ROOT}/{self.project.slug}/{self.slug}"
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
