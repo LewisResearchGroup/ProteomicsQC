@@ -36,4 +36,4 @@ UID=$(id -u):$(id -g)
 """>> .env
 
 echo "## SECURITY KEYS" >> .env
-echo "SECRET_KEY=`openssl rand -hex 32`" >> .env
+echo "SECRET_KEY=$( openssl rand -hex 32 )" >> .env

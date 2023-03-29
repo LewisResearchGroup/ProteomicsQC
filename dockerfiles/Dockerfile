@@ -1,4 +1,4 @@
-FROM continuumio/miniconda3
+FROM continuumio/miniconda3:latest
 
 RUN cat /etc/os-release
 
@@ -6,7 +6,7 @@ ENV PYTHONUNBUFFERED=1
 
 RUN mkdir /data /compute /static /appmedia /datalake
 
-RUN apt update && apt install -y build-essential time
+RUN apt-get update && apt install -y build-essential time
 
 RUN python --version
 

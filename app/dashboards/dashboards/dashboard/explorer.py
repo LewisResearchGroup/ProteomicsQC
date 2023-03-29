@@ -1,3 +1,4 @@
+import logging
 import pandas as pd
 import numpy as np
 import plotly.express as px
@@ -12,13 +13,14 @@ from dash.exceptions import PreventUpdate
 try:
     from . import config as C
     from . import tools as T
-except:
+except Exception as e:
+    logging.warning(e)
     import config as C
     import tools as T
 
 all_columns = C.qc_columns_default + C.qc_columns_options + C.qc_columns_always
 res = []
-[res.append(x) for x in all_columns if x not in res]
+_ = [res.append(x) for x in all_columns if x not in res]
 all_columns = res
 
 layout = html.Div(
@@ -279,7 +281,6 @@ def callbacks(app):
         df = pd.DataFrame(data)
         df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
         numeric_columns = df.select_dtypes(include=np.number).columns
-        n_dimensions = len(numeric_columns)
 
         if ndxs is not None:
             df = df.reindex(ndxs)

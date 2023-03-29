@@ -1,10 +1,10 @@
-from tkinter.messagebox import YES
 from django.test import TestCase
 from project.models import Project
 from pathlib import Path as P
 
 
 class ProjectTestCase(TestCase):
+    
     def setUp(self):
         Project.objects.create(name="test", description="A test project")
 
