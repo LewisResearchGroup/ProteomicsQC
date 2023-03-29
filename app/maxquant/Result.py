@@ -154,7 +154,7 @@ class Result(models.Model):
             raw_file = str(self.raw_fn)
             params = self.maxquant_parameters()
             run_maxquant.delay(raw_file, params, rerun=rerun)
-            print("Submitted MaxQuant.")
+            logging.info("Submitted MaxQuant.")
 
     @property
     def maxquant_execution_time(self):
@@ -174,7 +174,7 @@ class Result(models.Model):
             shutil.rmtree(out_dir)
         if rerun or (self.n_files_rawtools_qc == 0):
             rawtools_qc.delay(inp_dir, out_dir)
-            print("Submitted RawTools QC.")
+            logging.info("Submitted RawTools QC.")
 
     def run_rawtools_metrics(self, rerun=False):
         raw_fn, out_dir, args = (
@@ -186,10 +186,10 @@ class Result(models.Model):
             shutil.rmtree(out_dir)
         if rerun or (self.n_files_rawtools_metrics == 0):
             rawtools_metrics.delay(raw_fn, out_dir, args)
-            print("Submitted RawTools metrics.")
+            logging.info("Submitted RawTools metrics.")
 
     def run(self):
-        print("Run Jobs")
+        logging.info("Run Jobs")
         self.run_maxquant()
         self.run_rawtools_metrics()
         self.run_rawtools_qc()

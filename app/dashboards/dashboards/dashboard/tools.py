@@ -8,9 +8,10 @@ import requests
 import shap
 import pandas as pd
 import numpy as np
-import dash_table as dt
-from dash_table import DataTable
-from dash_table.Format import Format
+
+from dash import dash_table as dt 
+from dash.dash_table import DataTable, Format
+
 import plotly.express as px
 import plotly.graph_objects as go
 from matplotlib import pyplot as pl

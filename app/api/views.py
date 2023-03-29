@@ -102,8 +102,6 @@ class ProteinNamesAPI(generics.ListAPIView):
             data["remove_reversed_sequences"],
         )
 
-        print('V:', data)
-
         fns = get_protein_quant_fn(project_slug, pipeline_slug, data_range=data_range)
 
         if raw_files is not None:
