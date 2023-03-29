@@ -1,6 +1,4 @@
 from django.db import models
-from django_currentuser.db.models import CurrentUserField
-from django.utils import timezone
 
 
 class RawToolsSetup(models.Model):
