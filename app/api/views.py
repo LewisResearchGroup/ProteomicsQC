@@ -2,7 +2,6 @@ from django.http.response import HttpResponse
 import pandas as pd
 import numpy as np
 import logging
-import json
 
 import dask.dataframe as dd
 

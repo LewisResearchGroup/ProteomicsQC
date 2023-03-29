@@ -12,7 +12,6 @@ import numpy as np
 from dash import dash_table as dt 
 from dash.dash_table import DataTable, Format
 
-import plotly.express as px
 import plotly.graph_objects as go
 from matplotlib import pyplot as pl
 

@@ -6,7 +6,6 @@ import zipfile
 from pathlib import Path as P
 
 from django.db import models
-from django_currentuser.db.models import CurrentUserField
 from django.template.defaultfilters import slugify
 from django.dispatch import receiver
 from django.utils import timezone

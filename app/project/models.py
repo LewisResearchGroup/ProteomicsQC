@@ -3,8 +3,6 @@
 import os
 import shutil
 
-from pathlib import Path as P
-
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.dispatch import receiver

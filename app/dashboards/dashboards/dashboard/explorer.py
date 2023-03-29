@@ -279,7 +279,6 @@ def callbacks(app):
             raise PreventUpdate
         df = pd.DataFrame(data)
         df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
-        numeric_columns = df.select_dtypes(include=np.number).columns
 
         if ndxs is not None:
             df = df.reindex(ndxs)
