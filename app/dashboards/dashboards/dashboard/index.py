@@ -24,7 +24,7 @@ from lrg_omics.plotly_tools import (
 )
 from lrg_omics.proteomics import ProteomicsQC
 
-from scipy.cluster.hierarchy import linkage, dendrogram
+from scipy.cluster.hierarchy import dendrogram
 from scipy.spatial.distance import squareform
 
 import logging

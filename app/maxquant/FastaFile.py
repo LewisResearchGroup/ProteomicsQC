@@ -5,7 +5,6 @@ import shutil
 from pathlib import Path as P
 
 from django.db import models
-from django.dispatch import receiver
 from django.conf import settings
 from django.utils.html import mark_safe
 
