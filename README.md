@@ -74,9 +74,7 @@ Timelines of up to 60 quality control metrics can be viewed simultanously in one
 
 ### Explainable AI to gain insights into anomaly detection
 
-To help the user spotting anormal trends in the vast feature space, outlier detection and explainable AI are applied. 
-Speficially, Isolation forest or other outlier detection algorithms can be applied and are subjected to the SHapley Additive exPlanations (SHAP) algorithm.
-This plot highlights the specific features which are statistically 'anormal'.
+In order to assist users in identifying abnormal trends within the extensive feature space, both outlier detection techniques and explainable AI methods are employed. Specifically, algorithms such as Isolation Forest or other comparable outlier detection approaches can be utilized to spot unusual patterns. These algorithms are then analyzed using the SHapley Additive exPlanations (SHAP) algorithm, which is a powerful tool for interpreting the output of machine learning models. By applying the SHAP algorithm, a plot can be generated that emphasizes the particular features that deviate significantly from normal statistical behavior, making it easier for users to understand the underlying causes of these anomalies.
 
 ![](./docs/img/XAI-small.jpg 'Many customiable Quality Control metrics in one place.')
 
