@@ -11,9 +11,11 @@ import pandas as pd
 import numpy as np
 
 from dash import dash_table as dt
-from dash.dash_table import DataTable, Format
+from dash.dash_table import Format
 
 import plotly.graph_objects as go
+import plotly.figure_factory as ff
+
 from matplotlib import pyplot as pl
 
 from pandas.api.types import is_numeric_dtype
@@ -426,7 +428,6 @@ def detect_anomalies(
         qc_data[c] = qc_data[c].apply(log2p1)
 
     df_train = qc_data[qc_data["Use Downstream"] == True][selected_cols].fillna(0)
-    df_test = qc_data[qc_data["Use Downstream"] != True][selected_cols].fillna(0)
     df_all = qc_data[selected_cols].fillna(0)
 
     _ = setup(
