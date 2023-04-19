@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 
 from dash import dash_table as dt
-from dash.dash_table import Format
+from dash.dash_table.Format import Format
 
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
