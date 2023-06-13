@@ -228,7 +228,7 @@ class Result(models.Model):
 
     def maxquant_qc_data(self):
         try:
-            df = load_maxquant_data_from(self.path)
+            df = load_maxquant_data_from(self.path, unpack=False)
         except Exception as e:
             logging.warning(f"{e}: load_maxquant_data_from({self.path})")
         if df is None:

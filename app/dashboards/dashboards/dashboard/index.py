@@ -242,7 +242,6 @@ def populate_pipelines(project):
         output = [{"label": i["name"], "value": i["slug"]} for i in _json]
         return output
 
-
 @app.callback(
     Output("qc-table-div", "children"),
     Input("qc-update-table", "n_clicks"),
@@ -265,6 +264,7 @@ def refresh_qc_table(n_clicks, pipeline, project, optional_columns, data_range):
     if "DateAcquired" in df.columns:
         df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
         df = df.replace("not detected", np.NaN)[C.qc_columns_always + optional_columns]
+
     return T.table_from_dataframe(df, id="qc-table", row_selectable="multi")
 
 
