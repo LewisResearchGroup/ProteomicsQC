@@ -17,7 +17,57 @@ This repository contains git submodules and should be cloned with:
 
     git clone --recursive git@github.com:LewisResearchGroup/ProteomicsQC.git
 
+After cloning the repository a configuration file needs to be created and edited.
+
     ./scripts/generate_config.sh  # generates a .env file for configuration
+
+This will create the `.env` file in the root directory of ProteomicsQC.
+
+    #.env content
+    # OMICS PIPELINES CONFIG
+    
+    ## HOMPAGE SETTINGS
+    HOME_TITLE=ProteomicsQC
+    HOSTNAME=localhost
+    ALLOWED_HOSTS=localhost
+    
+    ## STORAGE
+    DATALAKE=./data/datalake
+    COMPUTE=./data/compute
+    MEDIA=./data/media
+    STATIC=./data/static
+    DB=./data/db
+    
+    ## EMAIL SETTINGS
+    EMAIL_HOST=smtp.gmail.com
+    EMAIL_USE_TLS=True
+    EMAIL_USE_SSL=False
+    EMAIL_PORT=587
+    EMAIL_HOST_USER=''
+    EMAIL_HOST_PASSWORD=''
+    DEFAULT_FROM_EMAIL=''
+    
+    ## CELERY
+    CONCURRENCY=8
+    
+    ##USERID
+    UID=1000:1000
+    
+    ## SECURITY KEYS
+    SECRET_KEY=
+
+The storage section defines the relative or absolute paths to the file system of your server to store persistent data.
+Importantly, for production the location of the static folder should be exposed by your server under `https://your-url/static`, since
+Django does not serve static files in production. We recommend using NGINX to serve the static files. 
+
+To enable email-notifications (e.g. for authentification, or password changes) from the server the EMAIL settings need to be updated with information from your email provider.
+If you use your own domain to serve ProteomicsQC, you need to add it to the `ALLOWED_HOSTS` as a comma separated list:
+    
+    HOSTNAME=localhost
+    ALLOWED_HOSTS=localhost,your-url,your-internal-ip
+    OMICS_URL=http://localhost:8080
+
+You can start the server with the following commands:
 
     make init  # to start the server the first time
 
