@@ -23,7 +23,7 @@ This repository contains git submodules and should be cloned with:
 
     make devel  # starts a development server on port 8000
     
-    make serve  # starts the production server on port 8000
+    make serve  # starts the production server on port 8080
 
 
 ## Limitations
