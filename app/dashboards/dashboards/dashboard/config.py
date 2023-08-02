@@ -65,14 +65,14 @@ qc_columns_options = [
     "MedianMs1IsolationInterence",
     "MedianMs2PeakFractionConsumingTop80PercentTotalIntensity",
     "NumEsiInstabilityFlags",
-    "MedianMassDrift(ppm)",
-    "IdentificationRate(IDs/Ms2Scan)",
-    "DigestionEfficiency",
-    "MissedCleavageRate(/PSM)",
-    "MedianPeptideScore",
-    "CutoffDecoyScore(0.05FDR)",
-    "NumberOfPSMs",
-    "NumberOfUniquePeptides",
+    # "MedianMassDrift(ppm)",  # no values generated
+    # "IdentificationRate(IDs/Ms2Scan)",  # no values generated
+    # "DigestionEfficiency",  # no values generated
+    # "MissedCleavageRate(/PSM)",  # no values generated
+    # "MedianPeptideScore",  # no values generated
+    # "CutoffDecoyScore(0.05FDR)",  # no values generated
+    # "NumberOfPSMs",  # no values generated
+    # "NumberOfUniquePeptides",  # no values generated
     "MedianMs1FillTime(ms)",
     "MedianMs2FillTime(ms)",
     "MedianMs3FillTime(ms)",
@@ -87,7 +87,7 @@ qc_columns_options = [
     "FractionOfRunAbove10%MaxIntensity",
     "PsmChargeRatio3to2",
     "PsmChargeRatio4to2",
-    "SearchParameters",
+    # "SearchParameters",  # not used
     "RawFilePath",
     "Date",
     "Day",
