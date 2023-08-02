@@ -62,7 +62,7 @@ qc_columns_options = [
     "Ms1MedianSummedIntensity",
     "Ms2MedianSummedIntensity",
     "MedianPrecursorIntensity",
-    "MedianMs1IsolationInterence",
+    # "MedianMs1IsolationInterence",  # no values generated
     "MedianMs2PeakFractionConsumingTop80PercentTotalIntensity",
     "NumEsiInstabilityFlags",
     # "MedianMassDrift(ppm)",  # no values generated
@@ -85,8 +85,8 @@ qc_columns_options = [
     "TimeBeforeFirstExceedanceOf10%MaxIntensity",
     "TimeAfterLastExceedanceOf10%MaxIntensity",
     "FractionOfRunAbove10%MaxIntensity",
-    "PsmChargeRatio3to2",
-    "PsmChargeRatio4to2",
+    # "PsmChargeRatio3to2",  # no values generated
+    # "PsmChargeRatio4to2",  # no values generated
     # "SearchParameters",  # not used
     "RawFilePath",
     "Date",
