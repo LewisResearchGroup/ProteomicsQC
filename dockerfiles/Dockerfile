@@ -14,7 +14,7 @@ RUN apt-get update && \
 RUN python --version
 
 #RUN conda install -c conda-forge -c bioconda pip rawtools maxquant=1.6.10.43 mono=5 mamba
-RUN conda install -c conda-forge -c bioconda pip rawtools maxquant=2 mono=5 mamba
+RUN conda install -c conda-forge -c bioconda pip rawtools maxquant=2 mono=5
 
 COPY requirements.txt requirements.txt
 
