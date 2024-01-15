@@ -28,6 +28,8 @@ https://docs.docker.com/engine/install/ubuntu/
 ## HOMPAGE SETTINGS
 HOME_TITLE=Your Hompage Title
 HOSTNAME=localhost:8080
+ALLOWED_HOSTS=localhost
+CSRF_TRUSTED_ORIGINS=http://localhost
 
 ## STORAGE
 DB=./data/db/
