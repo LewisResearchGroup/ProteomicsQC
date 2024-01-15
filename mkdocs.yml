@@ -2,7 +2,7 @@ site_name: Proteomics QC
 nav:
     - Home: index.md
     - Installation: installation.md
-    - Setup an online server: server.md
+    #- Setup an online server: server.md
     #- User Manual: manual.md
     - Admin panel: how-to-access-the-admin-panel.md
     - Create a project: how-to-add-a-project.md
