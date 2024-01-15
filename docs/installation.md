@@ -66,18 +66,20 @@ SECRET_KEY=...
 And follow the instructions to provide an email address and 
 password.
 
+## 7) Run a development server (Optional)
 
-## 7) Run the server in production
+    make devel  # starts the production server on port 8080
+
+The development server will run on [localhost:8000](localhost:8000).
+
+## 8) Run the server in production
 
     make collectstatic  # The static url has to be setup with a remote proxy.
     make serve  # starts the production server on port 8000
 
 You can now navigate to [localhost:8080/admin](localhost:8080/admin) and login to the
-admin account with the credentials you provided in step 5.
+admin account with the credentials you provided in step 5. To make this work you have to 
+configure a remote server that exposes forwards traffic to ports 80 (http) or 443 (https)
+to port 8080 and back. We recommend using NGINX for this purpose.
 
 
-## 8) Run a development server (Optional)
-
-    make devel
-
-The development server will run on [localhost:8000](localhost:8000).
