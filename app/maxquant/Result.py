@@ -18,7 +18,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.conf import settings
 from django.shortcuts import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.utils.html import mark_safe
 
 from lrg_omics.proteomics.tools import load_rawtools_data_from, load_maxquant_data_from

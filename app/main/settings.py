@@ -21,12 +21,12 @@ DEBUG = os.getenv("ENVIRONMENT") == "develop"
 
 HOSTNAME = os.getenv("HOSTNAME", "localhost")
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
-ALLOWED_HOSTS.extend([HOSTNAME, f"https://{HOSTNAME}"])
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS").split(",")
 
 print("DEBUG:", DEBUG)
 print("ENVIRONMENT:", os.getenv("ENVIRONMENT"))
 print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
-
+print("CSRF_TRUSTED_ORIGINS:", CSRF_TRUSTED_ORIGINS)
 
 # Security settings
 if DEBUG:
@@ -54,7 +54,6 @@ CSRF_COOKIE_SECURE = not DEBUG
 CSRF_USE_SESSIONS = True
 
 CSRF_COOKIE_HTTPONLY = True
-CSRF_TRUSTED_ORIGINS = ALLOWED_HOSTS
 
 SECURE_BROWSER_XSS_FILTER = True
 
