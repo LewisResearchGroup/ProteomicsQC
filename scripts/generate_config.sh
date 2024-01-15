@@ -7,6 +7,7 @@ echo """
 HOME_TITLE='Proteomics Pipelines'
 HOSTNAME=localhost
 ALLOWED_HOSTS=localhost
+CSRF_TRUSTED_ORIGINS=http://localhost
 """ >> .env
 
 echo """## STORAGE
