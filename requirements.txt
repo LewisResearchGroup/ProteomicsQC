@@ -6,6 +6,7 @@ dash-table
 dash-table-experiments
 dash-tabulator
 dask
+dask[dataframe]
 Django
 django-admin-index
 django-bootstrap4
@@ -26,7 +27,7 @@ celery
 scikit-learn
 scikit-plot
 shap
-pycaret==3
+pycaret==3.3
 psycopg2-binary
 panel
 pytest-django
