@@ -2,6 +2,7 @@ import os
 import hashlib
 import shutil
 import zipfile
+import logging
 
 from pathlib import Path as P
 
@@ -19,8 +20,8 @@ COMPUTE = settings.COMPUTE
 
 class MaxQuantExecutable(models.Model):
     class Meta:
-        verbose_name = _("MaxQuant Executable")
-        verbose_name_plural = _("MaxQuant Executables")
+        verbose_name = _("MaxQuant Version")
+        verbose_name_plural = _("MaxQuant Versions")
 
     filename = models.FileField(
         upload_to="software/MaxQuant",

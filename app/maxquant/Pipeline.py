@@ -48,7 +48,7 @@ class Pipeline(MaxQuantParameter, FastaFile, RawToolsSetup):
         null=True,
         blank=True,
         max_length=2000,
-        help_text="If this field is empty the default MaxQuant version (1.6.10.43) will be used. "
+        help_text="If this field is empty the default MaxQuant version (2.0.3.0) will be used. "
         "To try a different version go to MaxQuant Executables. If this is changed, "
         "all MaxQuant jobs in this pipeline should be rerun.",
     )
