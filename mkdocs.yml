@@ -17,7 +17,7 @@ nav:
 extra:
   analytics:
       provider: google
-      property: G-9FFCYK4MWP 
+      property: G-9FFCYK4MWP   
 theme:
   name: material
 

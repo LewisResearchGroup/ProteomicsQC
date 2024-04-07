@@ -6,7 +6,7 @@ ProteomicsQC is a Quality Control server for quantiative proteomics with a spe
 
 Scientists can login, submit files, and explore the results remotely. The software features automatic sample processing for multiple projects by simple drag and drop of proteomics RAW files into a web frontend, an interactive dashboard that integrates machine learning powered explainable anomaly detection, and an API for automated/programmatic access and extensibility.  
 
-- You can find the software repository on [Github](https://github.com/sorenwacker/ProteomicsQC).
+- You can find the software repository on [Github](https://github.com/LewisResearchGroup/ProteomicsQC).
 - And a running version on [ResistanceDB](https://proteomics.resistancedb.org).
 
 Image elements were taken from [Flaticon.com](https://flaticon.com).
