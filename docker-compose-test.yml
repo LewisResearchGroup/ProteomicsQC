@@ -10,7 +10,7 @@ services:
       - ./.env
     environment:
       - ENVIRONMENT=develop
-    command: python manage.py runserver 0.0.0.0:8000
+    command: /miniforge/bin/mamba run -p /miniforge python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./app/:/app/
     ports:
@@ -38,7 +38,7 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/Dockerfile
-    command: bash -c "celery -A main worker -l info --concurrency ${CONCURRENCY}"
+    command:  /miniforge/bin/mamba run -p /miniforge celery -A main worker -l info --concurrency ${CONCURRENCY}
     env_file:
       - ./.env    
     volumes:

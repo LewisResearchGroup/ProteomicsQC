@@ -12,7 +12,7 @@ services:
       - ./.env
     environment:
       - ENVIRONMENT=production
-    command: python server.py
+    command: /miniforge/bin/mamba run -p /miniforge python server.py
     volumes:
       - ./app/:/app/
       - ./lib/lrg-omics/:/lrg-omics/
@@ -53,7 +53,7 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/Dockerfile
-    command: bash -c "celery -A main worker -l info --concurrency ${CONCURRENCY}"
+    command:  /miniforge/bin/mamba run -p /miniforge celery -A main worker -l info --concurrency ${CONCURRENCY}
     env_file:
       - ./.env    
     volumes:
