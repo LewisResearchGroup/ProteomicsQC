@@ -119,7 +119,8 @@ class Result(models.Model):
         ):
             return "maxquant"
         else:
-            return f"mono {self.raw_file.pipeline.maxquant_executable}"
+            # return f"mono {self.raw_file.pipeline.maxquant_executable}"
+            return f"dotnet {self.raw_file.pipeline.maxquant_executable}"
 
     @property
     def run_dir_exists(self):
