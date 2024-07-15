@@ -2,8 +2,7 @@ version: "3.3"
    
 services:
   web:
-    container_name: web
-    #restart: no
+    container_name: web_proteomicsqc
     user: ${UID}
     build:
       context: .
@@ -27,7 +26,7 @@ services:
       - redis:redis
   
   db:
-    container_name: db_pqc
+    container_name: db_proteomicsqc
     #restart: never
     image: postgres:13.4
     volumes:
@@ -38,14 +37,14 @@ services:
       - POSTGRES_PASSWORD=postgres
 
   redis:
-    container_name: redis
+    container_name: redis_proteomicsqc
     #restart: no
     image: redis:alpine
     ports:
       - "6379:6379"
 
   celery:
-    container_name: celery
+    container_name: celery_proteomicsqc
     #restart: no
     user: ${UID}
     build:
