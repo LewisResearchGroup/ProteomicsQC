@@ -2,7 +2,7 @@ version: "3.3"
    
 services:
   web:
-    container_name: web_proteomics_qc
+    container_name: web_proteomicsqc
     restart: always
     user: ${UID}
     build: 
