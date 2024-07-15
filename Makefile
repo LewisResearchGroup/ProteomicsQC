@@ -1,8 +1,8 @@
 migrate: 
-	sudo docker-compose run web_proteomicsqc python manage.py migrate
+	sudo docker-compose run proteomicsqc_web python manage.py migrate
 
 migrations: 
-	sudo docker-compose run web_proteomicsqc python manage.py makemigrations $(ARGS)
+	sudo docker-compose run proteomicsqc_web python manage.py makemigrations $(ARGS)
 
 run:
 	sudo docker-compose down && sudo docker-compose up
@@ -17,16 +17,16 @@ build:
 	sudo docker-compose build
 
 createsuperuser:
-	sudo docker-compose run web_proteomicsqc python manage.py createsuperuser
+	sudo docker-compose run proteomicsqc_web python manage.py createsuperuser
 
 collectstatic:
-	sudo docker-compose run web_proteomicsqc python manage.py collectstatic
+	sudo docker-compose run proteomicsqc_web python manage.py collectstatic
 
 showenv:
-	sudo docker-compose run web_proteomicsqc pip list
+	sudo docker-compose run proteomicsqc_web pip list
 
 manage:
-	sudo docker-compose run web_proteomicsqc python manage.py $(CMD)
+	sudo docker-compose run proteomicsqc_web python manage.py $(CMD)
 
 reset_migrations:
 	sudo find . -path "*/migrations/*.pyc"  -delete
@@ -55,7 +55,7 @@ down:
 	sudo docker-compose -f docker-compose-develop.yml down
 
 test: 
-	sudo docker-compose -f docker-compose-test.yml run web_proteomicsqc python manage.py test --noinput
+	sudo docker-compose -f docker-compose-test.yml run proteomicsqc_web python manage.py test --noinput
 
 get-test-data:
 	gdown --folder https://drive.google.com/drive/folders/1kdQUXbr6DTBNLFBXLYrR_RLoXDFwCh_N?usp=sharing --output app/tests/data/D01
@@ -64,7 +64,7 @@ doc:
 	mkdocs gh-deploy
 
 schema:
-	sudo docker-compose -f docker-compose-develop.yml run web_proteomicsqc python manage.py graph_models --arrow-shape normal -o schema.png -a 
+	sudo docker-compose -f docker-compose-develop.yml run proteomicsqc_web python manage.py graph_models --arrow-shape normal -o schema.png -a 
 
 versions:
 	sudo docker-compose run proteomicsqc_web conda env export -n base

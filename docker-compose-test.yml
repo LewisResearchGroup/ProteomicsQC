@@ -2,7 +2,7 @@ version: "3.3"
    
 services:
   web:
-    container_name: web_proteomicsqc
+    container_name: proteomicsqc_web
     user: ${UID}
     build: 
       context: .
@@ -23,7 +23,7 @@ services:
       - redis:redis
   
   db:
-    container_name: db_proteomicsqc
+    container_name: proteomicsqc_db
     image: postgres:13.4
     environment:
       - POSTGRES_DB=postgres
@@ -31,13 +31,13 @@ services:
       - POSTGRES_PASSWORD=postgres
 
   redis:
-    container_name: redis_proteomicsqc
+    container_name: proteomicsqc_redis
     image: redis:alpine
     ports:
       - "6379:6379"
 
   celery:
-    container_name: celery_proteomicsqc
+    container_name: proteomicsqc_celery
     user: ${UID}
     build:
       context: .
