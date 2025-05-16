@@ -30,7 +30,7 @@ from scipy.spatial.distance import squareform
 import logging
 
 try:
-    from .tools import list_to_dropdown_options
+    from . tools import list_to_dropdown_options
     from . import tools as T
 except Exception as e:
     logging.warning(f'Trying to import .tools this error occurred:\n{e}')
