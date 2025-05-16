@@ -31,7 +31,8 @@ services:
   db:
     container_name: db_proteomics_qc_production
     restart: always
-    image: postgres:13.4
+    # update to postgres v14
+    image: postgres:14
     volumes:
       - ${DB}:/var/lib/postgresql/data
     environment:
