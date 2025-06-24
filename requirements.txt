@@ -21,13 +21,15 @@ django-ordered-model
 django-plotly-dash
 djangorestframework
 dpd_static_support
+joblib==1.2.0
 pyarrow
 redis
 celery
-scikit-learn
+scikit-learn==1.2.2
+scipy==1.9.3
 scikit-plot
 shap
-pycaret==3.3
+pycaret==3.0.0
 psycopg2-binary
 panel
 pytest-django

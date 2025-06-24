@@ -31,7 +31,8 @@ services:
   db:
     container_name: db_pqc
     #restart: never
-    image: postgres:13.4
+    #image: postgres:13.4
+    image: postgres:14
     volumes:
       - ${DB}:/var/lib/postgresql/data
     environment:

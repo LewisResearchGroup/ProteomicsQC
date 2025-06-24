@@ -38,3 +38,7 @@ UID=$(id -u):$(id -g)
 
 echo "## SECURITY KEYS" >> .env
 echo "SECRET_KEY=$( openssl rand -hex 32 )" >> .env
+
+# this prevents permission issues
+mkdir -p data/{compute,datalake,db,media,static}
+chown -R "$USER":"$USER" data
