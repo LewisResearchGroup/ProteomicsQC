@@ -144,6 +144,11 @@ layout = html.Div(
                                 id="qc-update-table",
                                 className="btn",
                             ),
+                            # Hint: after loading, choose a few numeric columns and click Refresh Plots
+                            html.Div(
+                                "Tip: pick a few numeric metrics (e.g. N_peptides) before refreshing plots.",
+                                style={"fontSize": "12px", "color": "#555"},
+                            ),
                             html.Button(
                                 "Clear Selection",
                                 id="qc-clear-selection",
@@ -191,9 +196,15 @@ layout = html.Div(
                             html.Div(
                                 id="tabs-content",
                                 children=[
-                                    dcc.Graph(id="qc-figure", style={}),
-                                    dcc.Graph(id="explorer-figure", style={}),
-                                    dcc.Graph(id="explorer-scatter-matrix", style={}),
+                                    # hidden placeholders so callbacks have target components before tab render
+                                    dcc.Graph(
+                                        id="explorer-figure",
+                                        style={"display": "none"},
+                                    ),
+                                    dcc.Graph(
+                                        id="explorer-scatter-matrix",
+                                        style={"display": "none"},
+                                    ),
                                 ],
                             ),
                         ]

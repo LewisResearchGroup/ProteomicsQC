@@ -141,7 +141,10 @@ def callbacks(app):
 
         df_shap = pd.read_json(shapley_values)
         qc_data = pd.DataFrame(qc_data)
-        qc_data = qc_data.iloc[ndxs]
+        if ndxs is None:
+            ndxs = list(qc_data.index)
+        else:
+            qc_data = qc_data.iloc[ndxs]
 
         if "hide_rejected" in options:
             qc_data = qc_data[qc_data["Use Downstream"] != False]

@@ -92,13 +92,7 @@ layout = html.Div(
                         dcc.Loading(
                             [
                                 html.Div(style={"min-width": 300}),
-                                dcc.Graph(
-                                    id="explorer-figure", style={"max-width": "100%"}
-                                ),
-                                dcc.Graph(
-                                    id="qc-figure",
-                                    style={"visibility": "hidden"},
-                                ),
+                                dcc.Graph(id="explorer-figure", style={"max-width": "100%"}),
                             ]
                         ),
                     ]
@@ -128,8 +122,6 @@ layout = html.Div(
                                 style={"max-width": "100%"},
                             ),
                         ),
-                        # placeholder
-                        dcc.Graph(id="qc-figure", style={"visibility": "hidden"}),
                     ]
                 ),
             ]
@@ -184,7 +176,9 @@ def callbacks(app):
         df["Selected"] = False
         df.loc[selected, "Selected"] = True
 
-        if ndxs is not None:
+        if ndxs is None:
+            ndxs = list(df.index)
+        else:
             df = df.reindex(ndxs)
 
         if facet_row is not None:
@@ -284,7 +278,9 @@ def callbacks(app):
         df = pd.DataFrame(data)
         df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
 
-        if ndxs is not None:
+        if ndxs is None:
+            ndxs = list(df.index)
+        else:
             df = df.reindex(ndxs)
 
         fig = px.scatter_matrix(df, dimensions=columns)

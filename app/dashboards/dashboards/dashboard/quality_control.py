@@ -44,15 +44,15 @@ layout = html.Div(
             [
                 html.Div(
                     [
-                        dcc.Graph(id="qc-figure", style={"max-width": "100%"}),
+                        dcc.Graph(
+                            id="qc-figure",
+                            style={"max-width": "100%", "minHeight": "400px"},
+                        ),
                     ],
                     style={"textAlign": "center"},
                 )
             ]
         ),
-        # placeholders for callbacks
-        dcc.Graph(id="explorer-figure", style={"visibility": "hidden"}),
-        dcc.Graph(id="explorer-scatter-matrix", style={"visibility": "hidden"}),
     ]
 )
 
@@ -70,7 +70,7 @@ def callbacks(app):
     )
     def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
         """Creates the bar-plot figure"""
-        if (data is None) or (ndxs is None) or (len(ndxs) == 0):
+        if data is None:
             raise PreventUpdate
 
         if x is None:
@@ -81,6 +81,8 @@ def callbacks(app):
         df["Selected"] = False
         df.loc[selected, "Selected"] = True
 
+        if ndxs is None:
+            ndxs = list(df.index)
         assert pd.value_counts(df.columns).max() == 1, pd.value_counts(df.columns)
 
         df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
@@ -88,15 +90,30 @@ def callbacks(app):
         if ndxs is not None:
             df = df.reindex(ndxs)
 
-        numeric_columns = df[optional_columns].head(1)._get_numeric_data().columns
+        # keep only columns that exist and are numeric
+        available_cols = [c for c in optional_columns if c in df.columns]
+        if len(available_cols) == 0:
+            raise PreventUpdate
+        numeric_columns = (
+            df[available_cols].head(1)._get_numeric_data().columns.tolist()
+        )
+        if len(numeric_columns) == 0:
+            raise PreventUpdate
+        logging.info(f"QC plot columns (numeric, capped): {numeric_columns}")
+
+        # limit how many subplots we render to avoid huge figures
+        max_plots = 6
+        if len(numeric_columns) > max_plots:
+            numeric_columns = numeric_columns[:max_plots]
+            logging.info(f"QC plot columns truncated to first {max_plots}: {numeric_columns}")
 
         fig = make_subplots(
             cols=1,
             rows=len(numeric_columns),
             subplot_titles=numeric_columns,
             shared_xaxes=True,
-            # vertical_spacing=0.05,
-            print_grid=True,
+            vertical_spacing=0.02,
+            print_grid=False,
         )
 
         for i, col in enumerate(numeric_columns):
@@ -112,9 +129,9 @@ def callbacks(app):
         fig.update_layout(
             hovermode="closest",
             hoverlabel_namelength=-1,
-            height=500 + 250 * (i + 1),
+            height=min(1600, max(400, 250 * (i + 1))),
             showlegend=False,
-            margin=dict(l=None, r=None, b=500, t=None, pad=0),
+            margin=dict(l=40, r=40, b=120, t=40, pad=0),
             font=C.figure_font,
             yaxis={"automargin": True},
         )
@@ -134,6 +151,8 @@ def callbacks(app):
             marker_line_width=1,
             opacity=0.8,
         )
+
+        logging.info(f"QC plot built with {len(fig.data)} traces and height {fig.layout.height}")
 
         fig.update_xaxes(matches="x")
 
