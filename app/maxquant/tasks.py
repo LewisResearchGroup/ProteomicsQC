@@ -17,6 +17,8 @@ def rawtools_metrics(raw, output_dir, arguments=None, rerun=False):
         raw=raw, output_dir=output_dir, rerun=rerun, arguments=arguments
     )
     if cmd is not None:
+        logging.info(f"[rawtools_metrics] {cmd}")
+        print(f"[rawtools_metrics] {cmd}")
         os.system(cmd)
 
 
@@ -24,10 +26,14 @@ def rawtools_metrics(raw, output_dir, arguments=None, rerun=False):
 def rawtools_qc(input_dir, output_dir, rerun=False):
     cmd = rawtools_qc_cmd(input_dir=input_dir, output_dir=output_dir, rerun=rerun)
     if cmd is not None:
+        logging.info(f"[rawtools_qc] {cmd}")
+        print(f"[rawtools_qc] {cmd}")
         os.system(cmd)
 
 
 @shared_task
 def run_maxquant(raw_file, params, rerun=False):
     mq = MaxquantRunner(verbose=True, **params)
+    logging.info(f"[run_maxquant] raw_file={raw_file} params={params} rerun={rerun}")
+    print(f"[run_maxquant] raw_file={raw_file} params={params} rerun={rerun}")
     mq.run(raw_file, rerun=rerun)
