@@ -46,4 +46,9 @@ RUN cd /lrg-omics && pip install -e .
 
 COPY ./app /app
 
+# ensure plotly asset is available locally for dash (even without collectstatic)
+RUN mkdir -p /app/main/static/dash/component_data/plotly/package_data \
+    && cp /opt/conda/lib/python3.10/site-packages/plotly/package_data/plotly.min.js \
+         /app/main/static/dash/component_data/plotly/package_data/plotly.min.js
+
 WORKDIR /app/
