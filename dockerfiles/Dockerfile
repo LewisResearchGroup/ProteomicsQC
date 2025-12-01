@@ -22,11 +22,12 @@ RUN curl -SL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh \
     && chmod +x /tmp/dotnet-install.sh \
     && /tmp/dotnet-install.sh --channel 2.1 --install-dir /usr/share/dotnet \
     && /tmp/dotnet-install.sh --channel 3.1 --install-dir /usr/share/dotnet \
+    && /tmp/dotnet-install.sh --channel 8.0 --install-dir /usr/share/dotnet \
     && ln -sf /usr/share/dotnet/dotnet /usr/bin/dotnet \
     && rm /tmp/dotnet-install.sh
 
 # add uv package really fast for installations; override channels to avoid TOS prompts
-RUN conda install --override-channels -c conda-forge -c bioconda pip rawtools maxquant=2.0.3.0 mono=5 uv
+RUN conda install --override-channels -c conda-forge -c bioconda pip rawtools mono=5 uv
 
 COPY requirements.txt requirements.txt
 
