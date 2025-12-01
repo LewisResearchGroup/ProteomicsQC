@@ -421,14 +421,17 @@ def detect_anomalies(
     **model_kws,
 ):
 
-    selected_cols = [c for c in columns if is_numeric_dtype(qc_data[c])]
+    if columns is None:
+        columns = []
+
+    # only use columns that exist and are numeric
+    available_cols = [c for c in columns if c in qc_data.columns]
+    selected_cols = [c for c in available_cols if is_numeric_dtype(qc_data[c])]
+    if not selected_cols:
+        raise ValueError("No numeric columns available for anomaly detection")
     selected_cols.reverse()
     if max_features is not None:
         max_features = max(max_features, len(selected_cols))
-    for col in selected_cols:
-        if not col in qc_data.columns:
-            selected_cols.remove(col)
-            logging.warning(f"Column not found in QC data: {col}")
     log_cols = [
         "Ms1MedianSummedIntensity",
         "Ms2MedianSummedIntensity",
