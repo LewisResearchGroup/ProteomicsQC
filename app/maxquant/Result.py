@@ -118,8 +118,12 @@ class Result(models.Model):
             or self.raw_file.pipeline.maxquant_executable == ""
         ):
             return "maxquant"
-        else:
-            return f"mono {self.raw_file.pipeline.maxquant_executable}"
+        exe = self.raw_file.pipeline.maxquant_executable
+        exe_str = str(exe)
+        # Always run provided executables via mono to avoid dotnet dependency
+        if exe_str.lower().endswith(".exe"):
+            return f"mono {exe_str}"
+        return exe_str
 
     @property
     def run_dir_exists(self):
