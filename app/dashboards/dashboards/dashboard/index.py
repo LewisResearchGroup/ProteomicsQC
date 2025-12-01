@@ -261,9 +261,17 @@ def refresh_qc_table(n_clicks, pipeline, project, optional_columns, data_range):
 
     df = pd.DataFrame(data)
 
+    if df.empty:
+        return T.table_from_dataframe(df, id="qc-table", row_selectable="multi")
+
+    # keep only columns that exist to avoid key errors
+    available_cols = [c for c in columns if c in df.columns]
+
     if "DateAcquired" in df.columns:
-        df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
-        df = df.replace("not detected", np.NaN)[C.qc_columns_always + optional_columns]
+        df["DateAcquired"] = pd.to_datetime(df["DateAcquired"], errors="coerce")
+    df = df.replace("not detected", np.NaN)
+    if len(available_cols) > 0:
+        df = df[available_cols]
 
     return T.table_from_dataframe(df, id="qc-table", row_selectable="multi")
 

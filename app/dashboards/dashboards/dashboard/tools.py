@@ -124,10 +124,20 @@ def get_protein_names(
 def get_qc_data(project, pipeline, columns, data_range=None):
     url = f"{URL}/api/qc-data"
     headers = {"Content-type": "application/json"}
-    data = json.dumps(
-        dict(project=project, pipeline=pipeline, columns=columns, data_range=data_range)
-    )
-    return requests.post(url, data=data, headers=headers).json()
+    payload = dict(project=project, pipeline=pipeline, columns=columns, data_range=data_range)
+    try:
+        resp = requests.post(url, data=json.dumps(payload), headers=headers, timeout=30)
+        if not resp.ok:
+            logging.error(f"QC data request failed ({resp.status_code}): {resp.text[:500]}")
+            return {}
+        try:
+            return resp.json()
+        except ValueError as e:
+            logging.error(f"QC data JSON decode failed: {e}; body: {resp.text[:500]}")
+            return {}
+    except Exception as e:
+        logging.error(f"QC data request error: {e}")
+        return {}
 
 
 def gen_figure_config(

@@ -63,16 +63,19 @@ class QcDataAPI(generics.ListAPIView):
 
         df = get_qc_data(project_slug, pipeline_slug, data_range)
 
+        # Ensure JSON-serializable values
+        df = df.replace({np.nan: None})
+
         response = {}
 
-        if "columns" not in data:
+        if ("columns" not in data) or (not data.get("columns")):
             cols = df.columns
         else:
             cols = data["columns"]
 
         for col in cols:
             if col in df.columns:
-                response[col] = list(df[col])
+                response[col] = df[col].tolist()
             else:
                 response[col] = ""
 
