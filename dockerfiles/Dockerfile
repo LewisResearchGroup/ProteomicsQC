@@ -8,14 +8,25 @@ RUN cat /etc/os-release
 ENV PYTHONUNBUFFERED=1
 
 RUN apt-get update && \
-    apt-get install -y build-essential time \
+    apt-get install -y build-essential time curl libicu-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 RUN python --version
 
-#add uv package really fast for installations
-RUN conda install -c conda-forge -c bioconda pip rawtools maxquant=2.0.3.0 mono=5 uv
+# allow running dotnet without ICU globalization data if needed
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+
+# install .NET Core runtimes so MaxQuantCmd.exe dependencies are available
+RUN curl -SL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh \
+    && chmod +x /tmp/dotnet-install.sh \
+    && /tmp/dotnet-install.sh --channel 2.1 --install-dir /usr/share/dotnet \
+    && /tmp/dotnet-install.sh --channel 3.1 --install-dir /usr/share/dotnet \
+    && ln -sf /usr/share/dotnet/dotnet /usr/bin/dotnet \
+    && rm /tmp/dotnet-install.sh
+
+# add uv package really fast for installations; override channels to avoid TOS prompts
+RUN conda install --override-channels -c conda-forge -c bioconda pip rawtools maxquant=2.0.3.0 mono=5 uv
 
 COPY requirements.txt requirements.txt
 
