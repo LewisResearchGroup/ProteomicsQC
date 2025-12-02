@@ -22,7 +22,7 @@ RUN curl -SL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh \
     && chmod +x /tmp/dotnet-install.sh \
     && /tmp/dotnet-install.sh --channel 2.1 --install-dir /usr/share/dotnet \
     && /tmp/dotnet-install.sh --channel 3.1 --install-dir /usr/share/dotnet \
-    && /tmp/dotnet-install.sh --channel 8.0 --install-dir /usr/share/dotnet \
+    && /tmp/dotnet-install.sh --version 8.0.302 --install-dir /usr/share/dotnet \
     && ln -sf /usr/share/dotnet/dotnet /usr/bin/dotnet \
     && rm /tmp/dotnet-install.sh
 
