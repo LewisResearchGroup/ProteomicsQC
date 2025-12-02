@@ -43,7 +43,7 @@ class Pipeline(MaxQuantParameter, FastaFile, RawToolsSetup):
 
     maxquant_executable = models.FilePathField(
         path=str(COMPUTE_ROOT),
-        match=".*MaxQuantCmd.exe",
+        match=r".*MaxQuantCmd\.(exe|dll)",
         recursive=True,
         null=True,
         blank=True,

@@ -1,4 +1,5 @@
 import os
+import re
 import hashlib
 import shutil
 import zipfile
@@ -120,8 +121,32 @@ class Result(models.Model):
             return "maxquant"
         exe = self.raw_file.pipeline.maxquant_executable
         exe_str = str(exe)
-        # Always run provided executables via mono to avoid dotnet dependency
-        if exe_str.lower().endswith(".exe"):
+        runtime = os.getenv("MAXQUANT_RUNTIME", "").lower()
+
+        def version_tuple(path):
+            match = re.search(r"(\d+)\.(\d+)\.(\d+)\.(\d+)", path)
+            if not match:
+                return None
+            return tuple(int(part) for part in match.groups())
+
+        def use_dotnet(path):
+            if runtime in {"mono", "dotnet"}:
+                return runtime == "dotnet"
+            version = version_tuple(path)
+            # MaxQuant >= 2.6.3.0 ships for .NET; older versions keep using mono
+            if version and version >= (2, 6, 3, 0):
+                return True
+            return False
+
+        lower = exe_str.lower()
+        if lower.endswith(".dll"):
+            return f"dotnet {exe_str}"
+
+        if lower.endswith(".exe"):
+            if use_dotnet(exe_str):
+                dll_candidate = str(P(exe_str).with_suffix(".dll"))
+                target = dll_candidate if os.path.isfile(dll_candidate) else exe_str
+                return f"dotnet {target}"
             return f"mono {exe_str}"
         return exe_str
 
