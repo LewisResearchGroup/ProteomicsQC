@@ -2,7 +2,7 @@
 <MaxQuantParams xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
    <fastaFiles>
       <FastaFileInfo>
-         <fastaFilePath>__FASTA__</fastaFilePath>
+         <fastaFilePath>/tmp/test.fasta</fastaFilePath>
          <identifierParseRule>>[^|]*\|(.*?)\|</identifierParseRule>
          <descriptionParseRule>>(.*)</descriptionParseRule>
          <taxonomyParseRule>OX=(\d+)</taxonomyParseRule>
@@ -140,10 +140,10 @@
    <showIsotopeMassDifferences>False</showIsotopeMassDifferences>
    <profilePerformance>False</profilePerformance>
    <filePaths>
-      <string>__RAW__</string>
+      <string>/tmp/TEST.RAW</string>
    </filePaths>
    <experiments>
-      <string>__LABEL__</string>
+      <string>TESTLABEL</string>
    </experiments>
    <fractions>
       <short>1</short>
