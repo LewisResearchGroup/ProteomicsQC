@@ -114,7 +114,7 @@
    <writeDiaFragmentQuantTable>False</writeDiaFragmentQuantTable>
    <writeMzTab>False</writeMzTab>
    <writeSdrf>False</writeSdrf>
-   <sdrfFile></sdrfFile>
+   <sdrfFile>/tmp/mq.sdrf.tsv</sdrfFile>
    <disableMd5>False</disableMd5>
    <cacheBinInds>True</cacheBinInds>
    <etdIncludeB>False</etdIncludeB>
@@ -124,7 +124,7 @@
    <variationMode>none</variationMode>
    <useSeriesReporters>False</useSeriesReporters>
    <name>CommandlineSession</name>
-   <maxQuantVersion>2.7.0.0</maxQuantVersion>
+   <maxQuantVersion>2.7.5.0</maxQuantVersion>
    <pluginFolder></pluginFolder>
    <numThreads>4</numThreads>
    <emailAddress></emailAddress>
