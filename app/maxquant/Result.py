@@ -6,6 +6,7 @@ import zipfile
 import pandas as pd
 import logging
 import datetime
+import shlex
 
 from functools import lru_cache
 
@@ -114,6 +115,7 @@ class Result(models.Model):
 
     @property
     def maxquantcmd(self):
+        dotnet_cmd = os.getenv("DOTNET_CMD", "dotnet")
         if (
             self.raw_file.pipeline.maxquant_executable is None
             or self.raw_file.pipeline.maxquant_executable == ""
@@ -121,6 +123,7 @@ class Result(models.Model):
             return "maxquant"
         exe = self.raw_file.pipeline.maxquant_executable
         exe_str = str(exe)
+        exe_quoted = shlex.quote(exe_str)
         runtime = os.getenv("MAXQUANT_RUNTIME", "").lower()
 
         def version_tuple(path):
@@ -133,22 +136,22 @@ class Result(models.Model):
             if runtime in {"mono", "dotnet"}:
                 return runtime == "dotnet"
             version = version_tuple(path)
-            # MaxQuant >= 2.6.3.0 ships for .NET; older versions keep using mono
-            if version and version >= (2, 6, 3, 0):
+            # MaxQuant >= 2.6.* ships for .NET; older versions keep using mono
+            if version and version >= (2, 6, 0, 0):
                 return True
             return False
 
         lower = exe_str.lower()
         if lower.endswith(".dll"):
-            return f"dotnet {exe_str}"
+            return f"{dotnet_cmd} {exe_quoted}"
 
         if lower.endswith(".exe"):
             if use_dotnet(exe_str):
                 dll_candidate = str(P(exe_str).with_suffix(".dll"))
                 target = dll_candidate if os.path.isfile(dll_candidate) else exe_str
-                return f"dotnet {target}"
-            return f"mono {exe_str}"
-        return exe_str
+                return f"{dotnet_cmd} {shlex.quote(target)}"
+            return f"mono {exe_quoted}"
+        return exe_quoted
 
     @property
     def run_dir_exists(self):
