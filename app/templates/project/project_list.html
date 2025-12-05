@@ -3,7 +3,7 @@
 {% block content %}
   <h1 class='project'>Projects</h1>
 
-  <div class="block">
+  <!-- <div class="block">
     <form action="" method="post">
       {% csrf_token %}
       <table>
@@ -11,11 +11,11 @@
       </table>
       <input type="submit" value="Submit">
     </form>
-  </div>
+  </div> -->
 
-  <div class='block'>
+  <div class='block' style="background-color: #fafafa !important;">
     {% if project_list %}
-      <table>
+      <table style="background-color: #fafafa; border-collapse: separate;">
         <thead>
           <tr>
             <th>ID</th>
@@ -43,4 +43,3 @@
     {% endif %}
   </div>
 {% endblock %}
-

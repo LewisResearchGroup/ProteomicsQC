@@ -150,7 +150,7 @@ tr th .btn {
 }
 
 .block {
-  background-color: lightgrey;
+  background-color: white !important;
   padding: 20px;
   border-radius: 10px;
   margin-top: 10px;
@@ -303,4 +303,3 @@ a:hover {
   flex-direction: column;
   justify-content: space-between;
 }
-
