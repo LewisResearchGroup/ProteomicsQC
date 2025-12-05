@@ -1,6 +1,4 @@
 [submodule "lib/lrg-omics"]
 	path = lib/lrg-omics
 	url = https://github.com/LewisResearchGroup/lrg-omics.git
-[submodule "lib/lrg_omics"]
-	path = lib/lrg_omics
-	url = https://git@github.com:LSARP/lrg-omics.git
+	branch = develop
