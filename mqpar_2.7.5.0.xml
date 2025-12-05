@@ -3,9 +3,9 @@
    <fastaFiles>
       <FastaFileInfo>
          <fastaFilePath>__FASTA__</fastaFilePath>
-         <identifierParseRule>>[^|]*\|(.*?)\|</identifierParseRule>
+         <identifierParseRule>>([^ ]*)</identifierParseRule>
          <descriptionParseRule>>(.*)</descriptionParseRule>
-         <taxonomyParseRule>OX=(\d+)</taxonomyParseRule>
+         <taxonomyParseRule></taxonomyParseRule>
          <variationParseRule></variationParseRule>
          <modificationParseRule></modificationParseRule>
          <taxonomyId></taxonomyId>
@@ -92,6 +92,7 @@
    <restrictProteinQuantification>True</restrictProteinQuantification>
    <restrictMods>
       <string>Oxidation (M)</string>
+      <string>Acetyl (Protein N-term)</string>
    </restrictMods>
    <matchingTimeWindow>0</matchingTimeWindow>
    <matchingIonMobilityWindow>0</matchingIonMobilityWindow>
@@ -113,8 +114,6 @@
    <writeDiaFragmentTable>False</writeDiaFragmentTable>
    <writeDiaFragmentQuantTable>False</writeDiaFragmentQuantTable>
    <writeMzTab>False</writeMzTab>
-   <writeSdrf>False</writeSdrf>
-   <sdrfFile>/tmp/mq.sdrf.tsv</sdrfFile>
    <disableMd5>False</disableMd5>
    <cacheBinInds>True</cacheBinInds>
    <etdIncludeB>False</etdIncludeB>
@@ -123,10 +122,10 @@
    <variationParseRule></variationParseRule>
    <variationMode>none</variationMode>
    <useSeriesReporters>False</useSeriesReporters>
-   <name>CommandlineSession</name>
+   <name>session1</name>
    <maxQuantVersion>2.7.5.0</maxQuantVersion>
    <pluginFolder></pluginFolder>
-   <numThreads>4</numThreads>
+   <numThreads>3</numThreads>
    <emailAddress></emailAddress>
    <smtpHost></smtpHost>
    <emailFromAddress></emailFromAddress>
@@ -146,7 +145,7 @@
       <string>__LABEL__</string>
    </experiments>
    <fractions>
-      <short>1</short>
+      <short>32767</short>
    </fractions>
    <ptms>
       <boolean>False</boolean>
@@ -160,7 +159,7 @@
    <lfqTopNPeptides>0</lfqTopNPeptides>
    <diaJoinPrecChargesForLfq>False</diaJoinPrecChargesForLfq>
    <diaFragChargesForQuant>1</diaFragChargesForQuant>
-   <gridSpacing>0.7</gridSpacing>
+   <gridSpacing>0.1</gridSpacing>
    <proteinGroupingFile></proteinGroupingFile>
    <simplePepCalculation>False</simplePepCalculation>
    <useAndromeda20>False</useAndromeda20>
@@ -168,6 +167,7 @@
    <andromeda20AltModelPath></andromeda20AltModelPath>
    <intensityPredictionFolder></intensityPredictionFolder>
    <encoding>0</encoding>
+   <customTxtFolder></customTxtFolder>
    <parameterGroups>
       <parameterGroup>
          <andromeda20AltModelPath></andromeda20AltModelPath>
@@ -448,7 +448,7 @@
          <diaMinFragProfileCorrelation>0</diaMinFragProfileCorrelation>
          <diaClassificationModel>1</diaClassificationModel>
          <diaXgBoostMinChildWeight>9</diaXgBoostMinChildWeight>
-         <diaXgBoostMaximumTreeDepth>3</diaXgBoostMaximumTreeDepth>
+         <diaXgBoostMaximumTreeDepth>4</diaXgBoostMaximumTreeDepth>
          <diaXgBoostEstimators>580</diaXgBoostEstimators>
          <diaXgBoostGamma>0.9</diaXgBoostGamma>
          <diaXgBoostMaxDeltaStep>3</diaXgBoostMaxDeltaStep>
@@ -507,13 +507,13 @@
          <diaPredictCharges>False</diaPredictCharges>
          <diaUseProbScore>True</diaUseProbScore>
          <diaProbScoreP>0.055</diaProbScoreP>
-         <diaProbScoreG>1.2</diaProbScoreG>
+         <diaProbScoreG>0.5</diaProbScoreG>
          <diaProbScoreStep>0.1</diaProbScoreStep>
          <isM2FragTypeOverride>False</isM2FragTypeOverride>
          <ms2FragTypeOverride>0</ms2FragTypeOverride>
          <classicLfqForSingleShots>True</classicLfqForSingleShots>
          <subsamplePeptidesForLfqNorm>True</subsamplePeptidesForLfqNorm>
-         <lfqSubsampleNormConstant>1200</lfqSubsampleNormConstant>
+         <lfqSubsampleNormConstant>400</lfqSubsampleNormConstant>
          <sequenceBasedModifier>False</sequenceBasedModifier>
          <diaRtFromSamplesForExport>True</diaRtFromSamplesForExport>
          <diaCcsFromSamplesForExport>True</diaCcsFromSamplesForExport>
@@ -551,6 +551,11 @@
          <diaUseWaterLosses>False</diaUseWaterLosses>
          <diaUseAmmoniaLosses>False</diaUseAmmoniaLosses>
          <diaUseRtFeaturesInMlScoring>True</diaUseRtFeaturesInMlScoring>
+         <diaCountSamples>False</diaCountSamples>
+         <diaCountSamplesSecondScore>True</diaCountSamplesSecondScore>
+         <diaCountSamplesUpperPercentile>50</diaCountSamplesUpperPercentile>
+         <diaCountSamplesNumLowerPercentiles>5</diaCountSamplesNumLowerPercentiles>
+         <diaSeparateCalibrationPerLib>False</diaSeparateCalibrationPerLib>
       </parameterGroup>
    </parameterGroups>
    <msmsParamsArray>
