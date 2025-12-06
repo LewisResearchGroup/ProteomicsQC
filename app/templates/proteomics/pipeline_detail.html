@@ -3,41 +3,69 @@
 {% block content %}
     {% include 'proteomics/include/pipeline_head.html' with project=project %}
 
-    <!-- <div class="block">
-      <form action="" method="post">
-        {% csrf_token %}
-        <table>
-        {{ form.as_table }}
-        </table>
-        <input type="submit" value="Submit">
-      </form>
-    </div>  -->
+    <div id="upload-raw" class="pipeline-upload">
+      <div class="upload-dropzone text-muted text-center">
+        <h4>drop .raw files here to upload</h4>
+        <div class="upload-divider">or</div>
+        <button type="button" class="btn btn-primary js-upload-photos">
+          <span class="glyphicon glyphicon-cloud-upload"></span> upload .raw
+        </button>
+      </div>
+
+      <input id="fileupload" type="file" name="orig_file" multiple
+             style="display: none;"
+             data-url="{% url 'maxquant:basic_upload' %}"
+             data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}", "pipeline": "{{ pipeline.pk }}"}'>
+
+      <table id="gallery" class="table table-bordered" style="margin-top: 10px;">
+        <!-- <thead>
+          <tr><th>RawFile Uploaded</th></tr>
+        </thead> -->
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="modal fade" id="modal-progress" data-backdrop="static" data-keyboard="false">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Uploading...</h4>
+          </div>
+          <div class="modal-body">
+            <div class="progress">
+              <div class="progress-bar" role="progressbar" style="width: 0%;">0%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div style='margin-top: 50px'>
       {% include 'proteomics/include/list_mq_runs.html' with maxquant_runs=maxquant_runs %}
     </div>
 
-    <div class="block">
-      {% if maxquant_runs.has_other_pages %}
-        <ul class="pagination">
-          {% if maxquant_runs.has_previous %}
-          <li><a href="?page={{ maxquant_runs.previous_page_number }}">&laquo;</a></li>
-          {% else %}
-          <li class="disabled"><span>&laquo;</span></li>
-          {% endif %}
-          {% for i in maxquant_runs.paginator.page_range %}
-          {% if maxquant_runs.number == i %}
-              <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
-          {% else %}
-              <li><a href="?page={{ i }}">{{ i }}</a></li>
-          {% endif %}
-          {% endfor %}
-          {% if maxquant_runs.has_next %}
-          <li><a href="?page={{ maxquant_runs.next_page_number }}">&raquo;</a></li>
-          {% else %}
-          <li class="disabled"><span>&raquo;</span></li>
-          {% endif %}
-        </ul>
-      {% endif %}
+    {% if maxquant_runs.has_other_pages %}
+    <div class="block raw-files-pagination">
+      <ul class="pagination">
+        {% if maxquant_runs.has_previous %}
+        <li><a href="?page={{ maxquant_runs.previous_page_number }}">&laquo;</a></li>
+        {% else %}
+        <li class="disabled"><span>&laquo;</span></li>
+        {% endif %}
+        {% for i in maxquant_runs.paginator.page_range %}
+        {% if maxquant_runs.number == i %}
+            <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+        {% else %}
+            <li><a href="?page={{ i }}">{{ i }}</a></li>
+        {% endif %}
+        {% endfor %}
+        {% if maxquant_runs.has_next %}
+        <li><a href="?page={{ maxquant_runs.next_page_number }}">&raquo;</a></li>
+        {% else %}
+        <li class="disabled"><span>&raquo;</span></li>
+        {% endif %}
+      </ul>
     </div>
+    {% endif %}
 {% endblock %}

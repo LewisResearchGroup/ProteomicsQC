@@ -165,6 +165,46 @@ tr th .btn {
   background-color: #fafafa !important;
 }
 
+.pipeline-upload {
+  background-color: transparent !important;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  padding: 10px 0;
+  margin: 0 auto 20px auto;
+}
+
+.raw-files-block {
+  background-color: #fafafa !important;
+}
+
+.raw-files-pagination {
+  background-color: #fafafa !important;
+}
+
+.upload-dropzone {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 24px;
+  border: 1px dashed #c8c8c8;
+  border-radius: 8px;
+  background-color: #fafafa;
+  margin: 0 auto 10px auto;
+}
+
+.upload-dropzone h4 {
+  margin: 0;
+  color: #666;
+}
+
+.upload-divider {
+  font-size: 12px;
+  color: #888;
+  letter-spacing: 0.5px;
+}
+
 .project-header {
   display: flex !important;
   flex-direction: row !important;
