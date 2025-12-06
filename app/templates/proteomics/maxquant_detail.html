@@ -3,19 +3,37 @@
 {% block content %}
 
   <div class='block'>
-    <h1 class='pipeline'>{{ project.name }} - {{ pipeline.name }} ({{ pipeline.id}})</h1>
-    <h2>{{ raw_file.name }}</h2>
-    <a href="{% url 'maxquant:detail' project=project.slug pipeline=pipeline.slug %}"><button class="btn" title='Back to pipeline overview.'><i class="fas fa-arrow-left"></i></button></a>
-    <a href="{% url 'maxquant:download_run' object.pk %}" download><button class='btn' title='Download all MaxQuant files for this particular run (~70MB).'>Download</button></a>
-    <a href="{{ object.path }}"><button class='btn'>Browse</button></a>
+    <div class="pipeline-header-row">
+      <div class="pipeline-header-text">
+        <h1 class='pipeline' style="font-size: 24px; color: #333;"><strong>Project:</strong> {{ project.name }}</h1>
+        <h2 class='name' style="font-size: 18px; color: #666;"><strong>Pipeline:</strong> {{ pipeline.name }}</h2>
+        <h3 class='description' style="font-size: 16px; color: #888;"><strong>Description:</strong> {{ pipeline.description }}</h3>
+        <p class='raw-file-title' style="font-size: 16px; color: #888; margin: 8px 0 0 0;"><strong>Raw file:</strong> {{ raw_file.name }}</p>
+      </div>
+      <div class="pipeline-actions run-actions-column">
+        <a href="{% url 'maxquant:detail' project=project.slug pipeline=pipeline.slug %}">
+          <button class='btn project-back-btn' 
+                  style="display:inline-flex; gap:6px; align-items:center; justify-content:center;"
+                  title='Back to pipeline overview.'>
+            <i class="fas fa-arrow-left"></i>
+            <span class="project-back-text">Back to pipeline</span>
+          </button>
+        </a>
+        <a href="{% url 'maxquant:download_run' object.pk %}" download id="download-run-link">
+          <button class='btn download-btn' id="download-run-btn" title='Download all MaxQuant files for this particular run'>Download all results</button>
+        </a>
+      </div>
+    </div>
 
   </div>
 
   <br> 
 
-  <h2>{{ object.raw_file }}</h2>
+  <h3 class='name' style="font-size: 18px; color: #666;"><strong>Results for file:</strong> {{ object.raw_file }}</h3>
 
-  <p>MaxQuant output from {{object.raw_file}} in pipeline {{ pipeline.project.name }} - {{ pipeline.name }}.</p>
+  <!-- <p>MaxQuant output from {{object.raw_file}} in pipeline {{ pipeline.project.name }} - {{ pipeline.name }}.</p> -->
+
+  <p id="download-status" class="download-status" aria-live="polite"></p>
 
   <hr />
 
@@ -25,5 +43,27 @@
     </div>
     <hr />
   {% endfor %}
+
+  <script>
+    (function() {
+      const btn = document.getElementById("download-run-btn");
+      const status = document.getElementById("download-status");
+      if (!btn || !status) return;
+
+      btn.addEventListener("click", function() {
+        status.textContent = "Preparing download...";
+        btn.disabled = true;
+        btn.classList.add("is-downloading");
+        // After a few seconds, assume the browser handled the download; update/helpful note and clear.
+        setTimeout(() => {
+          status.textContent = "Download almost ready. If not prompted, please check your browser's download bar.";
+          btn.disabled = false;
+          setTimeout(() => {
+            status.textContent = "";
+          }, 10000);
+        }, 10000);
+      });
+    })();
+  </script>
 
 {% endblock %}
