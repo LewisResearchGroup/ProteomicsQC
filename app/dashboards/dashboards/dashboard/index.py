@@ -280,7 +280,7 @@ def refresh_qc_table(n_clicks, pipeline, project, optional_columns, data_range):
 
     if "DateAcquired" in df.columns:
         df["DateAcquired"] = pd.to_datetime(df["DateAcquired"], errors="coerce")
-    df = df.replace("not detected", np.NaN)
+    df = df.replace("not detected", np.nan)
     if len(available_cols) > 0:
         df = df[available_cols]
 
