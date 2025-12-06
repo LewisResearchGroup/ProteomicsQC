@@ -6,24 +6,28 @@
       <tr>
         <th>ID</th>
         <th>Name</th>
+        <th>Description</th>
         <th># Raw Files</th>
         <th>Link</th>
       </tr>
    </thead>
     {% for pipeline in maxquant_pipelines %}
     <tr>
-      <th>
+      <td>
         {{ pipeline.id }}
-      </th>
-      <th>
+      </td>
+      <td>
         {{ pipeline.name }}</a>           
-      </th>
-      <th>
+      </td>
+      <td>
+        {{ pipeline.description }}
+      </td>
+      <td>
         {{ pipeline.n_files }}</a>           
-      </th>
-      <th>
+      </td>
+      <td>
         <a href="{{ pipeline.url }}"><button class='btn full_width'>Open</button></a>   
-      </th>
+      </td>
     </tr>
     {% endfor %}
   </table>

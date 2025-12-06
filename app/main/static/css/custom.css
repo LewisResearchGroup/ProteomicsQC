@@ -217,6 +217,10 @@ table tr th {
   vertical-align: middle;
 }
 
+table tbody td {
+  font-weight: normal;
+}
+
 #CookielawBanner {
   background: #fff;
   padding: 15px 0;

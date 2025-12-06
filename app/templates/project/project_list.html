@@ -26,18 +26,18 @@
        </thead>
       {% for project in project_list %}
       <tr>
-        <th>
+        <td>
           {{ project.id }}
-        </th>
-        <th>
+        </td>
+        <td>
           {{ project.name }}</a>
-        </th>
-        <th>
+        </td>
+        <td>
           {{ project.description }}
-        </th>
-        <th>
+        </td>
+        <td>
           <a href="{% url 'project:detail' slug=project.slug %}"><button class='btn full_width'> Open</button></a>   
-        </th>
+        </td>
       </tr>
       {% endfor %}
     </table>
