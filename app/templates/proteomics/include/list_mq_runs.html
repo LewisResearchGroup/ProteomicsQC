@@ -1,6 +1,6 @@
 {% if maxquant_runs %}
   <div class='block'>
-  <label>Raw Files</label>
+  <h2 class='name' style="font-size: 18px; color: #666;"><strong>Explore Raw Files</strong></h2>
     {% for maxquant_run in maxquant_runs %}
       <a href="{{ maxquant_run.url }}"><button class='btn full_width'> {{ maxquant_run.raw_file  }}</button></a>
     {% endfor %}
