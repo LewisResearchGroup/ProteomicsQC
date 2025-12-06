@@ -3,7 +3,7 @@
 {% block content %}
     {% include 'proteomics/include/pipeline_head.html' with project=project %}
 
-    <div class="block">
+    <!-- <div class="block">
       <form action="" method="post">
         {% csrf_token %}
         <table>
@@ -11,7 +11,7 @@
         </table>
         <input type="submit" value="Submit">
       </form>
-    </div> 
+    </div>  -->
 
     <div style='margin-top: 50px'>
       {% include 'proteomics/include/list_mq_runs.html' with maxquant_runs=maxquant_runs %}

@@ -157,6 +157,14 @@ tr th .btn {
   margin-bottom: 20px;
 }
 
+.pipeline-block {
+  background-color: #fafafa !important;
+}
+
+.pipeline-table {
+  background-color: #fafafa !important;
+}
+
 .project-header {
   display: flex !important;
   flex-direction: row !important;
@@ -197,6 +205,26 @@ tr th .btn {
 
 .project-back-text {
   font-weight: 600;
+}
+
+.pipeline-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.pipeline-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.pipeline-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .project {
