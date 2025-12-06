@@ -100,6 +100,11 @@ def callbacks(app):
 
         qc_data = pqc.get_qc_data(data_range=None).set_index("RawFile")
 
+        # Check if the entire column is None/NaN
+        if qc_data["Use Downstream"].isna().all():
+            print('Column "Use Downstream" is entirely NaN, setting all to True to avoid issues.')
+            qc_data["Use Downstream"] = True
+
         logging.info(f"Run anomaly detection ({algorithm}).")
 
         if algorithm == "iforest":
@@ -154,11 +159,30 @@ def callbacks(app):
 
         fig = T.px_heatmap(
             df_shap.T,
-            layout_kws=dict(
-                title="Anomaly feature score (shapley values)", height=1200
-            ),
+            layout_kws=dict(title="Anomaly feature score (Shapley values)", height=1200),
         )
+
+        # identify heatmap trace
+        heatmap = [t for t in fig.data if t.type == "heatmap"][0]
+
+        # Calculate symmetric bounds
+        zmin = float(df_shap.values.min())
+        zmax = float(df_shap.values.max())
+        zlimit = max(abs(zmin), abs(zmax))
+
+        # Apply diverging SHAP scale
+        heatmap.zmin = -zlimit
+        heatmap.zmax =  zlimit
+        heatmap.zmid = 0
+        heatmap.colorscale = "RdBu"
+
+        # Colorbar labeling
+        # heatmap.colorbar.title = "SHAP value\n(- normal | + anomalous)"
+        heatmap.colorbar.tickvals = [-zlimit, 0, zlimit]
+        heatmap.colorbar.ticktext = ["More normal", "0", "More anomalous"]
+
         fig.update_layout(font=C.figure_font)
+
 
         config = T.gen_figure_config(filename="Anomaly-Detection-Shapley-values")
         return fig, config
