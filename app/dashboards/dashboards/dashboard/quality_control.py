@@ -16,6 +16,7 @@ except Exception as e:
     import tools as T
     import config as C
 
+GRAPH_STYLE = {"max-width": "100%", "minHeight": "400px"}
 
 x_options = [
     dict(label=x, value=x)
@@ -37,7 +38,23 @@ layout = html.Div(
             style={"width": "100%", "margin": "auto"},
         ),
         html.Div(
-            [html.Button("Refresh Plots", id="refresh-plots", className="btn")],
+            [
+                html.Button(
+                    "Refresh Plots",
+                    id="refresh-plots",
+                    className="btn",
+                    style={
+                        "padding": "6px 14px",
+                        "backgroundColor": "#1c6dd0",
+                        "color": "white",
+                        "border": "1px solid #1c6dd0",
+                        "borderRadius": "4px",
+                        "cursor": "pointer",
+                        "fontWeight": 600,
+                        "display": "inline-block",
+                    },
+                )
+            ],
             style={"margin-bottom": 100},
         ),
         dcc.Loading(
@@ -46,7 +63,7 @@ layout = html.Div(
                     [
                         dcc.Graph(
                             id="qc-figure",
-                            style={"max-width": "100%", "minHeight": "400px"},
+                            style={**GRAPH_STYLE, "display": "none"},
                         ),
                     ],
                     style={"textAlign": "center"},
@@ -61,6 +78,7 @@ def callbacks(app):
     @app.callback(
         Output("qc-figure", "figure"),
         Output("qc-figure", "config"),
+        Output("qc-figure", "style"),
         Input("refresh-plots", "n_clicks"),
         State("qc-table", "selected_rows"),
         State("qc-table", "derived_virtual_indices"),
@@ -157,14 +175,21 @@ def callbacks(app):
         fig.update_xaxes(matches="x")
 
         if x == "RawFile":
+            xaxis_id = "xaxis" if len(numeric_columns) == 1 else f"xaxis{len(numeric_columns)}"
             fig.update_layout(
-                xaxis5=dict(
-                    tickmode="array",
-                    tickvals=tuple(range(len(df))),
-                    ticktext=tuple(df[x]),
-                )
+                **{
+                    xaxis_id: dict(
+                        tickmode="array",
+                        tickvals=tuple(range(len(df))),
+                        ticktext=tuple(df[x]),
+                    )
+                }
             )
+
+        fig.update_xaxes(title_text=x, row=len(numeric_columns), col=1)
 
         config = T.gen_figure_config(filename="QC-barplot", editable=False)
 
-        return fig, config
+        graph_style = {**GRAPH_STYLE, "display": "block"}
+
+        return fig, config, graph_style
