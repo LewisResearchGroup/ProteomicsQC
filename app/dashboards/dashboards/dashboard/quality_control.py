@@ -165,6 +165,6 @@ def callbacks(app):
                 )
             )
 
-        config = T.gen_figure_config(filename="QC-barplot")
+        config = T.gen_figure_config(filename="QC-barplot", editable=False)
 
         return fig, config

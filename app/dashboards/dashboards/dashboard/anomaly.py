@@ -78,7 +78,16 @@ layout = html.Div(
             type="circle",
             children=[
                 html.Div(
-                    dcc.Graph(id="anomaly-figure", figure={}, style={"display": "none"}),  # start hidden/empty
+                    dcc.Graph(
+                        id="anomaly-figure",
+                        figure={},
+                        style={
+                            "display": "none",  # start hidden/empty
+                            "width": "100%",
+                            "maxWidth": "1200px",
+                            "margin": "0 auto",
+                        },
+                    ),
                     style={
                         "display": "flex",
                         "justifyContent": "center",
@@ -238,4 +247,4 @@ def callbacks(app):
             editable=False
         )
 
-        return fig, config, {"display": "block", "width": "100%", "maxWidth": "1200px"}
+        return fig, config, {"display": "block", "width": "100%", "maxWidth": "1200px", "margin": "0 auto"}
