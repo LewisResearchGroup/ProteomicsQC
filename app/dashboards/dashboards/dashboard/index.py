@@ -73,7 +73,7 @@ layout = html.Div(
                 dbc.Col(
                     [
                         html.Button(
-                            "Load projects and pipelines",
+                            "",
                             id="B_update",
                             className="btn",
                         ),
