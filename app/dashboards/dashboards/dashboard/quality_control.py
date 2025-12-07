@@ -27,6 +27,17 @@ x_options = [
     ]
 ]
 
+BUTTON_STYLE = {
+    "padding": "6px 16px",
+    "backgroundColor": "#e9f3fe",
+    "color": "#2994ff",
+    "border": "1px solid #2994ff",
+    "borderRadius": "1px",
+    "cursor": "pointer",
+    "fontWeight": 500,
+    "fontSize": "14px",
+}
+
 layout = html.Div(
     [
         html.Div(
@@ -43,16 +54,7 @@ layout = html.Div(
                     "Refresh Plots",
                     id="refresh-plots",
                     className="btn",
-                    style={
-                        "padding": "6px 14px",
-                        "backgroundColor": "#1c6dd0",
-                        "color": "white",
-                        "border": "1px solid #1c6dd0",
-                        "borderRadius": "4px",
-                        "cursor": "pointer",
-                        "fontWeight": 600,
-                        "display": "inline-block",
-                    },
+                    style=BUTTON_STYLE,
                 )
             ],
             style={"margin-bottom": 100},

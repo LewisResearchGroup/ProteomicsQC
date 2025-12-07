@@ -24,17 +24,17 @@ checklist_options = [
 
 algorithm_options = [
     {"label": "Isolation Forest", "value": "iforest"},
-    {"label": "Angle-base Outlier Detection", "value": "abod"},
-    {"label": "Clustering-Based Local Outlier", "value": "cluster"},
-    {"label": "Connectivity-Based Outlier Factor", "value": "cof"},
-    {"label": "Histogram-based Outlier Detection", "value": "histogram"},
-    {"label": "k-Nearest Neighbors Detector", "value": "knn"},
-    {"label": "Local Outlier Factor", "value": "lof"},
-    {"label": "One-class SVM detector", "value": "svm"},
-    {"label": "Principal Component Analysis", "value": "pca"},
-    {"label": "Minimum Covariance Determinant", "value": "mcd"},
-    {"label": "Subspace Outlier Detection", "value": "sod"},
-    {"label": "Stochastic Outlier Selection", "value": "sos"},
+    # {"label": "Angle-base Outlier Detection", "value": "abod"},
+    # {"label": "Clustering-Based Local Outlier", "value": "cluster"},
+    # {"label": "Connectivity-Based Outlier Factor", "value": "cof"},
+    # {"label": "Histogram-based Outlier Detection", "value": "histogram"},
+    # {"label": "k-Nearest Neighbors Detector", "value": "knn"},
+    # {"label": "Local Outlier Factor", "value": "lof"},
+    # {"label": "One-class SVM detector", "value": "svm"},
+    # {"label": "Principal Component Analysis", "value": "pca"},
+    # {"label": "Minimum Covariance Determinant", "value": "mcd"},
+    # {"label": "Subspace Outlier Detection", "value": "sod"},
+    # {"label": "Stochastic Outlier Selection", "value": "sos"},
 ]
 
 layout = html.Div(
@@ -45,10 +45,10 @@ layout = html.Div(
         dcc.Dropdown(
             id="anomaly-algorithm",
             options=algorithm_options,
-            value="iforest"
+            value="iforest",
         ),
 
-        html.Label("Estimated outlier fraction"),
+        html.Label("Estimated outlier fraction (5% default)", style=dict(marginTop="15px")),
         dcc.Slider(
             id="anomaly-fraction",
             value=5,
@@ -56,6 +56,7 @@ layout = html.Div(
             max=100,
             step=1,
             marks={i: {"label": f"{i}%"} for i in range(10, 110, 10)},
+            tooltip={"placement": "bottom", "always_visible": False},
         ),
 
         dcc.Checklist(
@@ -65,11 +66,20 @@ layout = html.Div(
             style=dict(padding="15px"),
         ),
 
-        dbc.Button(
+        html.Button(
             "Predict Anomalies",
             id="anomaly-btn",
             className="btn",
-            color="primary"
+            style={
+                "padding": "6px 16px",
+                "backgroundColor": "#e9f3fe",
+                "color": "#2994ff",
+                "border": "1px solid #2994ff",
+                "borderRadius": "1px",
+                "cursor": "pointer",
+                "fontWeight": 500,
+                "fontSize": "14px",
+            },
         ),
 
         # Spinner wrapper (entire graph)
@@ -192,12 +202,16 @@ def callbacks(app):
         fns = qc_data["RawFile"]
         df_shap = df_shap.loc[fns]
 
+        # Size the plot based on number of features to avoid huge white space
+        n_features = df_shap.shape[1]
+        dynamic_height = max(400, min(60 * n_features, 900))
+
         # Build heatmap
         fig = T.px_heatmap(
             df_shap.T,
             layout_kws=dict(
                 title="Anomaly feature score (Shapley values)",
-                height=1200,
+                height=dynamic_height,
             ),
         )
 
@@ -208,8 +222,8 @@ def callbacks(app):
 
         # Size & spacing
         fig.update_layout(
-            width=1200,
-            margin=dict(l=40, r=40, t=80, b=20),
+            width=None,
+            margin=dict(l=40, r=40, t=60, b=40),
             xaxis=dict(domain=[0.05, 0.75]),
             coloraxis_colorbar=dict(
                 x=0.80,
