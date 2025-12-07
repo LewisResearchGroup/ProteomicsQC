@@ -68,6 +68,7 @@ def get_projects():
     except:
         return []
     output = [{"label": i["name"], "value": i["slug"]} for i in _json]
+    output.sort(key=lambda o: o["label"].lower())
     return output
 
 
