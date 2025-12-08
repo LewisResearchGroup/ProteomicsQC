@@ -1,22 +1,33 @@
 <div class='block'>
-  <h1 class='pipeline'>{{ project.name }} - {{ pipeline.name }} ({{pipeline.id}})</h1>
-  <p>{{ pipeline.description }}</p>
-  <a href="{% url 'project:detail' project.slug %}">
-    <button class='btn' title='Back to underlying project.'>
-      <i class="fas fa-arrow-left"></i>
-    </button>
-  </a>
-  <a href="{% url 'maxquant:upload_raw' pipeline.pk %}">
-    <button class="btn" title='Upload new RAW file to a pipeline.'>
-      <i class="fas fa-upload"></i>
-      Upload RAW
-    </button>
-  </a>
-  <a href="{{ pipeline.path }}"><button class='btn'>Browse</button></a>
+  <!-- <h1 class='pipeline'>{{ project.name }} - {{ pipeline.name }} ({{pipeline.id}})</h1> -->
+  <div class="pipeline-header-row">
+    <div class="pipeline-header-text">
+      <h1 class='pipeline' style="font-size: 24px; color: #333;"><strong>Project:</strong> {{ project.name }}</h1>
+      <h2 class='name' style="font-size: 18px; color: #666;"><strong>Pipeline:</strong> {{ pipeline.name }}</h2>
+      <h3 class='description' style="font-size: 16px; color: #888;"><strong>Description:</strong> {{ pipeline.description }}</h3>
+    </div>
+    <div class="pipeline-actions">
+      <a href="{% url 'project:detail' project.slug %}">
+        <button class='btn project-back-btn'  
+                style="display:inline-flex; gap:6px; align-items:center; justify-content:center;"
+                title='Back to pipelines overview.'>
+          <i class="fas fa-arrow-left"></i>
+          <span class="project-back-text">Back to pipelines</span>
+        </button>
+      </a>
+      <!-- <a href="#upload-raw">
+        <button class="btn" title='Upload new RAW file to this pipeline.'>
+          <i class="fas fa-upload"></i>
+          Upload RAW
+        </button>
+      </a> -->
+    </div>
+  </div>
+  <!-- <a href="{{ pipeline.path }}"><button class='btn'>Browse</button></a> -->
 </div>
 
 
-<div class='block'>
+<!-- <div class='block'>
    <h2>MaxQuant Bulk Downloads</h2>
    <p> This will download all MaxQuant results in the current pipeline. <br> That may take a long time, depending on how many files there are.</p>
    <a href="{% url 'maxquant:pipeline-download-file' pipeline.pk %}?file=evidence.txt"><button class='btn'>Evidence</button></a>
@@ -26,4 +37,4 @@
    <a href="{% url 'maxquant:pipeline-download-file' pipeline.pk %}?file=ms3Scans.txt"><button class='btn'>MS3Scans</button></a>
    <a href="{% url 'maxquant:pipeline-download-file' pipeline.pk %}?file=matchedFeatures.txt"><button class='btn'>Matched Features</button></a>
    <a href="{% url 'maxquant:pipeline-download-file' pipeline.pk %}?file=summary.txt"><button class='btn'>Summary</button></a>
-</div>
+</div> -->

@@ -27,14 +27,16 @@ class ProjectListView(LoginRequiredMixin, FormMixin, ListView):
         return context
 
     def get_queryset(self, *args, **kwargs):
-        return Project.objects.all()
+        return Project.objects.all().order_by("name")
 
     def post(self, request, *args, **kwargs):
         self.object_list = self.get_queryset(*args, **kwargs)
         form = SearchProject(request.POST)
         request.session["search-projects"] = request.POST
         if form.is_valid():
-            projects = Project.objects.filter(name__iregex=form.cleaned_data["regex"])
+            projects = Project.objects.filter(
+                name__iregex=form.cleaned_data["regex"]
+            ).order_by("name")
         self.object_list = projects
         context = self.get_context_data(object_list=projects, form=form)
         return self.render_to_response(context)

@@ -63,6 +63,16 @@ else:
 timeout = 360
 
 protein_table_default_cols = []
+BUTTON_STYLE = {
+    "padding": "6px 16px",
+    "backgroundColor": "#e9f3fe",
+    "color": "#2994ff",
+    "border": "1px solid #2994ff",
+    "borderRadius": "1px",
+    "cursor": "pointer",
+    "fontWeight": 500,
+    "fontSize": "14px",
+}
 
 layout = html.Div(
     [
@@ -73,7 +83,7 @@ layout = html.Div(
                 dbc.Col(
                     [
                         html.Button(
-                            "Load projects and pipelines",
+                            "",
                             id="B_update",
                             className="btn",
                         ),
@@ -143,31 +153,48 @@ layout = html.Div(
                                 "Load Data",
                                 id="qc-update-table",
                                 className="btn",
+                                style=BUTTON_STYLE,
                             ),
                             # Hint: after loading, choose a few numeric columns and click Refresh Plots
                             html.Div(
                                 "Tip: pick a few numeric metrics (e.g. N_peptides) before refreshing plots.",
                                 style={"fontSize": "12px", "color": "#555"},
                             ),
-                            html.Button(
-                                "Clear Selection",
-                                id="qc-clear-selection",
-                                className="btn",
-                            ),
-                            html.Button(
-                                "Remove unselected",
-                                id="qc-remove-unselected",
-                                className="btn",
-                            ),
-                            html.Button(
-                                "Use downstream",
-                                id="accept",
-                                className="btn",
-                            ),
-                            html.Button(
-                                "Prevent downstream",
-                                id="reject",
-                                className="btn",
+                            html.Div(
+                                [
+                                    html.Button(
+                                        "Clear Selection",
+                                        id="qc-clear-selection",
+                                        className="btn",
+                                        style={**BUTTON_STYLE, "marginRight": "8px"},
+                                    ),
+                                    html.Button(
+                                        "Remove unselected",
+                                        id="qc-remove-unselected",
+                                        className="btn",
+                                        style={**BUTTON_STYLE, "marginRight": "8px"},
+                                    ),
+                                    html.Button(
+                                        "Use downstream",
+                                        id="accept",
+                                        className="btn",
+                                        style={**BUTTON_STYLE, "marginRight": "8px"},
+                                    ),
+                                    html.Button(
+                                        "Prevent downstream",
+                                        id="reject",
+                                        className="btn",
+                                        style=BUTTON_STYLE,
+                                    ),
+                                ],
+                                style={
+                                    "display": "flex",
+                                    "alignItems": "center",
+                                    "gap": "8px",
+                                    "marginTop": "8px",
+                                    "flexWrap": "wrap",
+                                    "padding": "6px 0",
+                                },
                             ),
                             html.Div(
                                 id="accept-reject-output",
@@ -280,7 +307,7 @@ def refresh_qc_table(n_clicks, pipeline, project, optional_columns, data_range):
 
     if "DateAcquired" in df.columns:
         df["DateAcquired"] = pd.to_datetime(df["DateAcquired"], errors="coerce")
-    df = df.replace("not detected", np.NaN)
+    df = df.replace("not detected", np.nan)
     if len(available_cols) > 0:
         df = df[available_cols]
 

@@ -16,6 +16,8 @@ except Exception as e:
     import tools as T
     import config as C
 
+# Keep the graph responsive without forcing a tall container up front
+GRAPH_STYLE = {"maxWidth": "100%"}
 
 x_options = [
     dict(label=x, value=x)
@@ -25,6 +27,17 @@ x_options = [
         "DateAcquired",
     ]
 ]
+
+BUTTON_STYLE = {
+    "padding": "6px 16px",
+    "backgroundColor": "#e9f3fe",
+    "color": "#2994ff",
+    "border": "1px solid #2994ff",
+    "borderRadius": "1px",
+    "cursor": "pointer",
+    "fontWeight": 500,
+    "fontSize": "14px",
+}
 
 layout = html.Div(
     [
@@ -37,7 +50,14 @@ layout = html.Div(
             style={"width": "100%", "margin": "auto"},
         ),
         html.Div(
-            [html.Button("Refresh Plots", id="refresh-plots", className="btn")],
+            [
+                html.Button(
+                    "Refresh Plots",
+                    id="refresh-plots",
+                    className="btn",
+                    style=BUTTON_STYLE,
+                )
+            ],
             style={"margin-bottom": 100},
         ),
         dcc.Loading(
@@ -46,7 +66,7 @@ layout = html.Div(
                     [
                         dcc.Graph(
                             id="qc-figure",
-                            style={"max-width": "100%", "minHeight": "400px"},
+                            style={**GRAPH_STYLE, "display": "none"},
                         ),
                     ],
                     style={"textAlign": "center"},
@@ -61,6 +81,7 @@ def callbacks(app):
     @app.callback(
         Output("qc-figure", "figure"),
         Output("qc-figure", "config"),
+        Output("qc-figure", "style"),
         Input("refresh-plots", "n_clicks"),
         State("qc-table", "selected_rows"),
         State("qc-table", "derived_virtual_indices"),
@@ -126,10 +147,14 @@ def callbacks(app):
             )
             fig.add_trace(trace, row=1 + i, col=1)
 
+        # Size per subplot to leave room for titles/axes without excessive blank space
+        per_plot_height = 300
+        base_height = 160
+        total_height = per_plot_height * (i + 1) + base_height
         fig.update_layout(
             hovermode="closest",
             hoverlabel_namelength=-1,
-            height=min(1600, max(400, 250 * (i + 1))),
+            height=max(500, min(1200, total_height)),
             showlegend=False,
             margin=dict(l=40, r=40, b=120, t=40, pad=0),
             font=C.figure_font,
@@ -157,14 +182,21 @@ def callbacks(app):
         fig.update_xaxes(matches="x")
 
         if x == "RawFile":
+            xaxis_id = "xaxis" if len(numeric_columns) == 1 else f"xaxis{len(numeric_columns)}"
             fig.update_layout(
-                xaxis5=dict(
-                    tickmode="array",
-                    tickvals=tuple(range(len(df))),
-                    ticktext=tuple(df[x]),
-                )
+                **{
+                    xaxis_id: dict(
+                        tickmode="array",
+                        tickvals=tuple(range(len(df))),
+                        ticktext=tuple(df[x]),
+                    )
+                }
             )
 
-        config = T.gen_figure_config(filename="QC-barplot")
+        fig.update_xaxes(title_text=x, row=len(numeric_columns), col=1)
 
-        return fig, config
+        config = T.gen_figure_config(filename="QC-barplot", editable=False)
+
+        graph_style = {**GRAPH_STYLE, "display": "block"}
+
+        return fig, config, graph_style

@@ -2,29 +2,18 @@
 
 {% block content %}
   <div class='block'>
-    <div style="display: flex; justify-content: space-between; align-items: center; gap: 20px;">
-      <div style="display: grid; gap: 8px;">
-        <div style="display: flex; align-items: baseline; gap: 8px;">
-          <span style="font-size: 15px; color: #004050; font-weight: 700;">Project:</span>
-          <span style="font-size: 18px; font-weight: 700; color: #005050;">{{ object.name }}</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 15px; color: #004050; font-weight: 700;">Slug:</span>
-          <span style="color: #004050; padding: 0px 0px; font-weight: 700; font-size: 14px;">{{ object.slug }}</span>
-        </div>
-        <div style="display: flex; align-items: baseline; gap: 8px;">
-          <span style="font-size: 15px; color: #004050; font-weight: 700;">Description:</span>
-          <span style="font-size: 14px;">{{ object.description }}</span>
-        </div>
+    <div class="project-header" style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
+      <div class="project-text">
+        <h1 class='project' style="font-size: 24px; color: #333;"><strong>Project:</strong> {{ object.name }}</h1>
+        <h2 class='slug' style="font-size: 18px; color: #666;"><strong>Slug:</strong> {{ object.slug }}</h2>
+        <h3 class='description' style="font-size: 16px; color: #888;"><strong>Description:</strong> {{ object.description }}</h3>
       </div>
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <a href="{% url 'project:list' %}">
-          <button class='btn' title='Back to projects overview.' style="display: inline-flex; align-items: center; gap: 12px; padding: 0 32px;">
-            <i class="fas fa-arrow-left"></i>
-            <span>Back to projects</span>
-          </button>
-        </a>
-      </div>
+      <a href="{% url 'project:list' %}" class="project-back-link">
+        <button class='btn project-back-btn' style="width: auto; min-width: 44px; margin: 0;" title='Back to projects overview.'>
+          <i class="fas fa-arrow-left"></i>
+          <span class="project-back-text">Return to Projects</span>
+        </button>
+      </a>
     </div>
   </div>
 
@@ -38,7 +27,7 @@
     </form>
   </div> -->
   
-  <div class='block' style="background-color: #fafafa;">
+  <div class='block pipeline-block'>
     <h3>Pipelines</h3>
     {% include 'proteomics/include/list_pipelines.html' with project=object.slug %}
   </div>

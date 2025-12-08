@@ -157,6 +157,160 @@ tr th .btn {
   margin-bottom: 20px;
 }
 
+.pipeline-block {
+  background-color: #fafafa !important;
+}
+
+.pipeline-table {
+  background-color: #fafafa !important;
+}
+
+.pipeline-upload {
+  background-color: transparent !important;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  padding: 10px 0;
+  margin: 0 auto 20px auto;
+}
+
+.raw-files-block {
+  background-color: #fafafa !important;
+}
+
+.raw-files-pagination {
+  background-color: #fafafa !important;
+}
+
+.upload-dropzone {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 24px;
+  border: 1px dashed #c8c8c8;
+  border-radius: 8px;
+  background-color: #fafafa;
+  margin: 0 auto 10px auto;
+}
+
+.upload-dropzone h4 {
+  margin: 0;
+  color: #666;
+}
+
+.upload-divider {
+  font-size: 12px;
+  color: #888;
+  letter-spacing: 0.5px;
+}
+
+.project-header {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.project-text h1 {
+  margin: 0;
+}
+
+.project-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.project-header .project {
+  flex: 1;
+}
+
+.project-header .btn {
+  width: auto;
+  min-width: 44px;
+}
+
+.project-back-btn {
+  padding: 10px 16px;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.project-back-text {
+  font-weight: 600;
+}
+
+.pipeline-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.pipeline-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.pipeline-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+}
+
+.run-actions-column {
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 16px;
+}
+
+.run-actions-column .download-btn {
+  align-self: flex-end;
+}
+
+.run-actions-column .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0px;
+  width: 220px;
+  text-align: center;
+}
+
+.run-actions {
+  margin-top: 10px;
+}
+
+.run-actions .pipeline-actions {
+  justify-content: flex-start;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.download-status {
+  color: #666;
+  font-size: 14px;
+  margin: 0 0 8px 0;
+}
+
+.download-btn.is-downloading {
+  opacity: 0.8;
+}
+
+.raw-file-title {
+  margin: 0;
+}
+
 .project {
   font-weight: bold;
 }
@@ -173,6 +327,10 @@ table thead th { border-bottom: 1px solid #000; }
 
 table tr th {
   vertical-align: middle;
+}
+
+table tbody td {
+  font-weight: normal;
 }
 
 #CookielawBanner {
