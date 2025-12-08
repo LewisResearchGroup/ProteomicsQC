@@ -16,7 +16,8 @@ except Exception as e:
     import tools as T
     import config as C
 
-GRAPH_STYLE = {"max-width": "100%", "minHeight": "400px"}
+# Keep the graph responsive without forcing a tall container up front
+GRAPH_STYLE = {"maxWidth": "100%"}
 
 x_options = [
     dict(label=x, value=x)
@@ -146,10 +147,14 @@ def callbacks(app):
             )
             fig.add_trace(trace, row=1 + i, col=1)
 
+        # Size per subplot to leave room for titles/axes without excessive blank space
+        per_plot_height = 220
+        base_height = 160
+        total_height = per_plot_height * (i + 1) + base_height
         fig.update_layout(
             hovermode="closest",
             hoverlabel_namelength=-1,
-            height=min(1600, max(400, 250 * (i + 1))),
+            height=max(500, min(1200, total_height)),
             showlegend=False,
             margin=dict(l=40, r=40, b=120, t=40, pad=0),
             font=C.figure_font,

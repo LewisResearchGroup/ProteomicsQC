@@ -5,7 +5,8 @@
 {% block app %}
   <div class="container" style="min-width: 100%;">
     <div class='dashapp'>
-      {% plotly_app name="dashboard" ratio=10%}
+      {# Simple iframe embed (may show inner scrollbar, but stable) #}
+      {% plotly_app name="dashboard" ratio=0.8 %}
     </div>
   </div>
 {% endblock %}
