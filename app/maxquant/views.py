@@ -13,6 +13,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from django.conf import settings
 
+import plotly.graph_objects as go
 from .forms import BasicUploadForm, SearchResult
 from .models import RawFile, Result, Pipeline
 from project.models import Project
@@ -134,10 +135,8 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
                 .set_index("Retention time")
             )
             summary_stats.append({"label": "MS scans", "value": len(df_ms)})
-            fig = lines_plot(df_ms, cols=["Intensity"], title="Ms TIC chromatogram")
+            fig = lines_plot(df_ms, cols=["Intensity"], title="MS TIC chromatogram")
             figures.append(plotly_fig_to_div(fig))
-            # fig = histograms(df_ms, cols=["Intensity"], title="Ms TIC histogram")
-            # figures.append(plotly_fig_to_div(fig))
 
         fn = f"{path_rt}/{raw_fn}_Ms2_TIC_chromatogram.txt"
         if isfile(fn):
@@ -146,67 +145,114 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
                 .rename(columns={"RetentionTime": "Retention time"})
                 .set_index("Retention time")
             )
-            summary_stats.append({"label": "MS/MS scans", "value": len(df_ms2)})
-            fig = lines_plot(df_ms2, cols=["Intensity"], title="Ms2 TIC chromatogram")
+
+            fig = lines_plot(df_ms2, cols=["Intensity"], title="MS2 TIC chromatogram")
             figures.append(plotly_fig_to_div(fig))
-            # fig = histograms(df_ms2, cols=["Intensity"], title="Ms2 TIC histogram")
-            # figures.append(plotly_fig_to_div(fig))
+
+        fn = f"{path}/summary.txt"
+        if isfile(fn):
+            summary = pd.read_csv(fn, sep="\t")
+            summary_stats.append({"label": "MS/MS scans", "value": summary.loc[0, "MS/MS submitted"]})
+            summary_stats.append({"label": "MS/MS identified", "value": summary.loc[0, "MS/MS identified"]})
+            summary_stats.append({"label": "MS/MS identified [%]", "value": summary.loc[0, "MS/MS identified [%]"]})
 
         fn = f"{path}/evidence.txt"
         if isfile(fn):
             msms = pd.read_csv(fn, sep="\t").set_index("Retention time").sort_index()
-            cols = [
-                "Length",
-                #'Oxidation (M)', 'Missed cleavages', 'MS/MS m/z',
-                # "Charge",
-                # "m/z",
-                # "Mass",
-            ]
-            for col in cols:
-                fig = lines_plot(msms, cols=[col], title=f"Evidence: {col}")
-                figures.append(plotly_fig_to_div(fig))
-                # fig = histograms(msms, cols=[col], title=f"Evidence: {col} (histogram)")
-                # figures.append(plotly_fig_to_div(fig))
+            
+            if "Missed cleavages" in msms.columns:
+                missed = msms["Missed cleavages"].fillna(0).astype(int).clip(lower=0)
+                buckets = [0, 1, 2]
+                counts = []
+                labels = []
+                # Palette aligned with site teal/greens
+                colors = ["#1B9AAA", "#0F5F66", "#5CC8AF", "#B2DFDB"]
+                for val in buckets:
+                    labels.append(str(val))
+                    counts.append(int((missed == val).sum()))
+                labels.append("3+")
+                counts.append(int((missed >= 3).sum()))
 
-        fn = f"{path}/msmsScans.txt"
-        if isfile(fn):
-            msms = pd.read_csv(fn, sep="\t").set_index("Retention time")
-            # summary_stats.append({"label": "MS/MS scans (msmsScans)", "value": len(msms)})
-            # cols = [
-            #       'Total ion current',
-            #       'm/z', 'Base peak intensity'
-            # ]
-            # for col in cols:
-            #     fig = lines_plot(msms, cols=[col], title=f"MSMS: {col}")
-            #     figures.append(plotly_fig_to_div(fig))
-
-        fn = f"{path}/peptides.txt"
-        if isfile(fn):
-            peptides = pd.read_csv(fn, sep="\t")
-            summary_stats.append({"label": "Peptides", "value": len(peptides)})
-            cols = ["Length", 
-                    # "Mass"
-                    ]
-            for col in cols:
-                # fig = lines_plot(peptides, cols=[col], title=f'Peptide: {col}')
-                # figures.append( plotly_fig_to_div(fig) )
-                fig = histograms(
-                    peptides, cols=[col], title=f"Peptide: {col} (histogram)"
+                fig = go.Figure()
+                for idx, (label, count) in enumerate(zip(labels, counts)):
+                    bar_value = count if count > 0 else 0.0001  # keep legend entry visible
+                    fig.add_trace(
+                        go.Bar(
+                            x=[bar_value],
+                            y=["Missed cleavages"],
+                            name=label,
+                            showlegend=True,
+                            orientation="h",
+                            marker_color=colors[idx % len(colors)],
+                            text=[count],
+                            textposition="inside",
+                        )
+                    )
+                fig.update_layout(
+                    barmode="stack",
+                    showlegend=True,
+                    legend_traceorder="normal",
+                    title="Missed cleavages",
+                    margin=dict(l=0, r=0, t=24, b=0),
+                    height=80,
                 )
+                fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=False)
+                fig.update_xaxes(visible=False, showgrid=False, zeroline=False)
+                fig.update_traces(marker_line_width=0, selector=dict(type="bar"))
                 figures.append(plotly_fig_to_div(fig))
+
+        # fn = f"{path}/msmsScans.txt"
+        # if isfile(fn):
+        #     msms = pd.read_csv(fn, sep="\t").set_index("Retention time")
+        #     summary_stats.append({"label": "MS/MS scans (msmsScans)", "value": len(msms)})
+        #     cols = [
+        #           'Total ion current',
+        #           'm/z', 'Base peak intensity'
+        #     ]
+        #     for col in cols:
+        #         fig = lines_plot(msms, cols=[col], title=f"MSMS: {col}")
+        #         figures.append(plotly_fig_to_div(fig))
+
+        # fn = f"{path}/peptides.txt"
+        # if isfile(fn):
+        #     peptides = pd.read_csv(fn, sep="\t")
+        #     summary_stats.append({"label": "Peptides", "value": len(peptides)})
+        #     cols = ["Length", 
+        #             # "Mass"
+        #             ]
+        #     for col in cols:
+        #         # fig = lines_plot(peptides, cols=[col], title=f'Peptide: {col}')
+        #         # figures.append( plotly_fig_to_div(fig) )
+        #         fig = histograms(
+        #             peptides, cols=[col], title=f"Peptide: {col} (histogram)"
+        #         )
+        #         figures.append(plotly_fig_to_div(fig))
 
         fn = f"{path}/proteinGroups.txt"
         if isfile(fn):
             proteins = pd.read_csv(fn, sep="\t")
             summary_stats.append({"label": "Protein groups", "value": len(proteins)})
-            cols = ["Mol. weight [kDa]", 
-                    # "Unique sequence coverage [%]"
-                    ]
-            for col in cols:
-                # fig = lines_plot(proteins, cols=[col], title=f'Protein: {col}')
-                # figures.append( plotly_fig_to_div(fig) )
+
+            if "Peptides" in proteins.columns:
+                peptides_capped = proteins["Peptides"].fillna(0).clip(upper=25)
+                proteins_binned = proteins.copy()
+                proteins_binned[f"Peptides (<=25, 25+)"] = peptides_capped
+
                 fig = histograms(
-                    proteins, cols=[col], title=f"Protein: {col} (histogram)"
+                    proteins_binned,
+                    cols=[f"Peptides (<=25, 25+)"],
+                    title=f"Number of Peptides identified per Protein",
+                    xbins={"start": 0.5, "end": 25.5, "size": 1},
+                )
+                figures.append(plotly_fig_to_div(fig))
+                
+
+            if "Score" in proteins.columns:
+                fig = histograms(
+                    proteins,
+                    cols=["Score"],
+                    title="Andromeda Scores",
+                    nbinsx=50,
                 )
                 figures.append(plotly_fig_to_div(fig))
 
