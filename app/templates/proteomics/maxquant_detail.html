@@ -35,6 +35,20 @@
 
   <p id="download-status" class="download-status" aria-live="polite"></p>
 
+  {% if summary_stats %}
+    <div class="card" style="padding:12px 16px; margin-bottom:12px;">
+      <h4 style="margin:0 0 8px 0; color:#444;">Run summary</h4>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        {% for stat in summary_stats %}
+          <div style="flex: 1 1 160px; min-width:140px; border:1px solid #e6e6e6; border-radius:6px; padding:8px 10px; background:#fafafa;">
+            <div style="font-size:12px; color:#666; margin-bottom:4px;">{{ stat.label }}</div>
+            <div style="font-size:16px; font-weight:700; color:#333;">{{ stat.value }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
   <hr />
 
   {% for figure in figures %}

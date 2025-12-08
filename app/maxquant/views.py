@@ -124,30 +124,33 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
         context["raw_file"] = raw_fn
 
         figures = []
+        summary_stats = []
 
         fn = f"{path_rt}/{raw_fn}_Ms_TIC_chromatogram.txt"
         if isfile(fn):
-            df = (
+            df_ms = (
                 pd.read_csv(fn, sep="\t")
                 .rename(columns={"RetentionTime": "Retention time"})
                 .set_index("Retention time")
             )
-            fig = lines_plot(df, cols=["Intensity"], title="Ms TIC chromatogram")
+            summary_stats.append({"label": "MS scans", "value": len(df_ms)})
+            fig = lines_plot(df_ms, cols=["Intensity"], title="Ms TIC chromatogram")
             figures.append(plotly_fig_to_div(fig))
-            fig = histograms(df, cols=["Intensity"], title="Ms TIC histogram")
-            figures.append(plotly_fig_to_div(fig))
+            # fig = histograms(df_ms, cols=["Intensity"], title="Ms TIC histogram")
+            # figures.append(plotly_fig_to_div(fig))
 
         fn = f"{path_rt}/{raw_fn}_Ms2_TIC_chromatogram.txt"
         if isfile(fn):
-            df = (
+            df_ms2 = (
                 pd.read_csv(fn, sep="\t")
                 .rename(columns={"RetentionTime": "Retention time"})
                 .set_index("Retention time")
             )
-            fig = lines_plot(df, cols=["Intensity"], title="Ms2 TIC chromatogram")
+            summary_stats.append({"label": "MS/MS scans", "value": len(df_ms2)})
+            fig = lines_plot(df_ms2, cols=["Intensity"], title="Ms2 TIC chromatogram")
             figures.append(plotly_fig_to_div(fig))
-            fig = histograms(df, cols=["Intensity"], title="Ms2 TIC histogram")
-            figures.append(plotly_fig_to_div(fig))
+            # fig = histograms(df_ms2, cols=["Intensity"], title="Ms2 TIC histogram")
+            # figures.append(plotly_fig_to_div(fig))
 
         fn = f"{path}/evidence.txt"
         if isfile(fn):
@@ -155,31 +158,35 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
             cols = [
                 "Length",
                 #'Oxidation (M)', 'Missed cleavages', 'MS/MS m/z',
-                "Charge",
-                "m/z",
-                "Mass",
+                # "Charge",
+                # "m/z",
+                # "Mass",
             ]
             for col in cols:
                 fig = lines_plot(msms, cols=[col], title=f"Evidence: {col}")
                 figures.append(plotly_fig_to_div(fig))
-                fig = histograms(msms, cols=[col], title=f"Evidence: {col} (histogram)")
-                figures.append(plotly_fig_to_div(fig))
+                # fig = histograms(msms, cols=[col], title=f"Evidence: {col} (histogram)")
+                # figures.append(plotly_fig_to_div(fig))
 
         fn = f"{path}/msmsScans.txt"
         if isfile(fn):
             msms = pd.read_csv(fn, sep="\t").set_index("Retention time")
-            cols = [
-                #'Total ion current',
-                #'m/z', 'Base peak intensity'
-            ]
-            for col in cols:
-                fig = lines_plot(msms, cols=[col], title=f"MSMS: {col}")
-                figures.append(plotly_fig_to_div(fig))
+            # summary_stats.append({"label": "MS/MS scans (msmsScans)", "value": len(msms)})
+            # cols = [
+            #       'Total ion current',
+            #       'm/z', 'Base peak intensity'
+            # ]
+            # for col in cols:
+            #     fig = lines_plot(msms, cols=[col], title=f"MSMS: {col}")
+            #     figures.append(plotly_fig_to_div(fig))
 
         fn = f"{path}/peptides.txt"
         if isfile(fn):
             peptides = pd.read_csv(fn, sep="\t")
-            cols = ["Length", "Mass"]
+            summary_stats.append({"label": "Peptides", "value": len(peptides)})
+            cols = ["Length", 
+                    # "Mass"
+                    ]
             for col in cols:
                 # fig = lines_plot(peptides, cols=[col], title=f'Peptide: {col}')
                 # figures.append( plotly_fig_to_div(fig) )
@@ -191,7 +198,10 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
         fn = f"{path}/proteinGroups.txt"
         if isfile(fn):
             proteins = pd.read_csv(fn, sep="\t")
-            cols = ["Mol. weight [kDa]", "Unique sequence coverage [%]"]
+            summary_stats.append({"label": "Protein groups", "value": len(proteins)})
+            cols = ["Mol. weight [kDa]", 
+                    # "Unique sequence coverage [%]"
+                    ]
             for col in cols:
                 # fig = lines_plot(proteins, cols=[col], title=f'Protein: {col}')
                 # figures.append( plotly_fig_to_div(fig) )
@@ -201,6 +211,7 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
                 figures.append(plotly_fig_to_div(fig))
 
         context["figures"] = figures
+        context["summary_stats"] = summary_stats
         context["home_title"] = settings.HOME_TITLE
         return context
 
