@@ -1,5 +1,4 @@
 from django.views.generic import ListView
-from django.views.generic.edit import FormMixin
 
 from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -8,18 +7,15 @@ from django.http import Http404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from .models import Project
-from .forms import SearchProject, SearchPipeline
+from .forms import SearchPipeline
 
 from maxquant.models import Pipeline
 
 
-class ProjectListView(LoginRequiredMixin, FormMixin, ListView):
+class ProjectListView(LoginRequiredMixin, ListView):
     model = Project
     login_url = "/accounts/login/"
     paginate_by = settings.PAGINATE
-
-    def get_form(self):
-        return SearchProject()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -28,25 +24,6 @@ class ProjectListView(LoginRequiredMixin, FormMixin, ListView):
 
     def get_queryset(self, *args, **kwargs):
         return Project.objects.all().order_by("name")
-
-    def post(self, request, *args, **kwargs):
-        self.object_list = self.get_queryset(*args, **kwargs)
-        form = SearchProject(request.POST)
-        request.session["search-projects"] = request.POST
-        if form.is_valid():
-            projects = Project.objects.filter(
-                name__iregex=form.cleaned_data["regex"]
-            ).order_by("name")
-        self.object_list = projects
-        context = self.get_context_data(object_list=projects, form=form)
-        return self.render_to_response(context)
-
-    def get(self, request, *args, **kwargs):
-        if "search-projects" in request.session:
-            request.POST = request.session["search-projects"]
-            request.method = "POST"
-            return self.post(request, *args, **kwargs)
-        return super().get(request, *args, **kwargs)
 
     def paginate_queryset(self, queryset, page_size):
         try:
