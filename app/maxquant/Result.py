@@ -374,6 +374,10 @@ class Result(models.Model):
 def run_maxquant_after_save(sender, instance, created, *args, **kwargs):
     if created:
         instance.run()
+        # Default new processed samples to be usable downstream; users can unmark later.
+        if instance.raw_file.use_downstream is not True:
+            instance.raw_file.use_downstream = True
+            instance.raw_file.save(update_fields=["use_downstream"])
 
 
 @receiver(models.signals.post_delete, sender=Result)

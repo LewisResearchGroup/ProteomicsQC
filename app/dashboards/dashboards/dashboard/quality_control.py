@@ -148,7 +148,7 @@ def callbacks(app):
             fig.add_trace(trace, row=1 + i, col=1)
 
         # Size per subplot to leave room for titles/axes without excessive blank space
-        per_plot_height = 220
+        per_plot_height = 300
         base_height = 160
         total_height = per_plot_height * (i + 1) + base_height
         fig.update_layout(
