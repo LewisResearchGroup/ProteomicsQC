@@ -31,6 +31,22 @@
 
   <h3 class='name' style="font-size: 18px; color: #666;"><strong>Results for file:</strong> {{ object.raw_file }}</h3>
 
+  <div class="processing-status-card">
+    <div class="processing-status-header">
+      <strong>Processing status:</strong>
+      <span class="status-pill status-{{ object.overall_status }}">{{ object.overall_status|upper }}</span>
+    </div>
+    <div class="processing-status-stages">
+      <div class="status-chip">RawTools metrics: <span class="status-pill status-{{ object.stage_statuses.rawtools_metrics }}">{{ object.stage_statuses.rawtools_metrics }}</span></div>
+      <div class="status-chip">RawTools QC: <span class="status-pill status-{{ object.stage_statuses.rawtools_qc }}">{{ object.stage_statuses.rawtools_qc }}</span></div>
+      <div class="status-chip">MaxQuant: <span class="status-pill status-{{ object.stage_statuses.maxquant }}">{{ object.stage_statuses.maxquant }}</span></div>
+    </div>
+    <p class="processing-status-message">{{ object.processing_message }}</p>
+    {% if object.is_processing %}
+      <p class="processing-status-note">This page auto-refreshes every 20 seconds while processing.</p>
+    {% endif %}
+  </div>
+
   <!-- <p>MaxQuant output from {{object.raw_file}} in pipeline {{ pipeline.project.name }} - {{ pipeline.name }}.</p> -->
 
   <p id="download-status" class="download-status" aria-live="polite"></p>
@@ -91,6 +107,13 @@
 
       if (window.jQuery && window.jQuery.fn && window.jQuery.fn.tooltip) {
         window.jQuery('[data-toggle="tooltip"]').tooltip();
+      }
+
+      const isProcessing = "{{ object.is_processing|yesno:'true,false' }}" === "true";
+      if (isProcessing) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 20000);
       }
     })();
   </script>

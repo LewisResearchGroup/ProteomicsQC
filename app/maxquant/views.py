@@ -1,4 +1,5 @@
 from os.path import isfile
+from pathlib import Path as P
 import pandas as pd
 import logging
 import numpy as np
@@ -469,6 +470,11 @@ def maxquant_download(request, pk):
 
 
 class UploadRaw(LoginRequiredMixin, View):
+    def _resolve_existing_raw_file(self, pipeline, uploaded_name):
+        # Raw files are stored as upload/<filename> in the FileField.
+        candidate = f"upload/{P(uploaded_name).name}"
+        return RawFile.objects.filter(pipeline=pipeline, orig_file=candidate).first()
+
     def get(self, request, pk=None):
         pipeline = Pipeline.objects.get(pk=pk)
         project = pipeline.project
@@ -494,12 +500,48 @@ class UploadRaw(LoginRequiredMixin, View):
         logging.warning(f"Upload to: {project.name} / {pipeline.name}")
 
         if form.is_valid():
-            _file = form.cleaned_data["orig_file"]
-            _file = RawFile.objects.create(orig_file=_file, pipeline=pipeline)
+            uploaded_file = form.cleaned_data["orig_file"]
+            existing = self._resolve_existing_raw_file(pipeline, uploaded_file.name)
 
-            if str(_file.name).lower().endswith(".raw"):
-                _file.save()
-            data = {"is_valid": True, "name": str(_file.name), "url": str(_file.path)}
+            if existing is not None:
+                result, created = Result.objects.get_or_create(raw_file=existing)
+                data = {
+                    "is_valid": True,
+                    "name": str(existing.name),
+                    "url": str(existing.path),
+                    "already_exists": True,
+                    "restored_result": created,
+                    "result_url": result.url,
+                }
+                return JsonResponse(data)
+
+            try:
+                with transaction.atomic():
+                    raw_file = RawFile.objects.create(
+                        orig_file=uploaded_file,
+                        pipeline=pipeline,
+                    )
+            except IntegrityError:
+                # Handle rare races where the same file is uploaded concurrently.
+                existing = self._resolve_existing_raw_file(pipeline, uploaded_file.name)
+                if existing is None:
+                    data = {
+                        "is_valid": False,
+                        "error": "Could not save file because of a duplicate entry.",
+                    }
+                    return JsonResponse(data, status=409)
+                result, created = Result.objects.get_or_create(raw_file=existing)
+                data = {
+                    "is_valid": True,
+                    "name": str(existing.name),
+                    "url": str(existing.path),
+                    "already_exists": True,
+                    "restored_result": created,
+                    "result_url": result.url,
+                }
+                return JsonResponse(data)
+
+            data = {"is_valid": True, "name": str(raw_file.name), "url": str(raw_file.path)}
         else:
             data = {"is_valid": False}
         return JsonResponse(data)

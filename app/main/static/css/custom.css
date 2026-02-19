@@ -311,6 +311,76 @@ tr th .btn {
   margin: 0;
 }
 
+.processing-status-card {
+  border: 1px solid #e3e6ea;
+  border-radius: 8px;
+  background: #f8fbfc;
+  padding: 12px 14px;
+  margin: 8px 0 10px 0;
+}
+
+.processing-status-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.processing-status-stages {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.status-chip {
+  color: #404040;
+  font-size: 13px;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 70px;
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-queued {
+  background: #eef1f5;
+  color: #4a5565;
+}
+
+.status-running {
+  background: #e8f4ff;
+  color: #14528a;
+}
+
+.status-done {
+  background: #e8f7ef;
+  color: #1f6b3a;
+}
+
+.status-failed {
+  background: #fdecec;
+  color: #992222;
+}
+
+.processing-status-message {
+  margin: 0;
+  color: #444;
+}
+
+.processing-status-note {
+  margin: 4px 0 0 0;
+  color: #6b7280;
+  font-size: 12px;
+}
+
 .project {
   font-weight: bold;
 }

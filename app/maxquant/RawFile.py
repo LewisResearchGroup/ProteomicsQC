@@ -1,11 +1,10 @@
 import os
 import hashlib
 import shutil
-import logging
 
 from pathlib import Path as P
 
-from django.db import models, IntegrityError
+from django.db import models
 from django_currentuser.db.models import CurrentUserField
 from django.template.defaultfilters import slugify
 from django.dispatch import receiver
@@ -73,12 +72,7 @@ class RawFile(models.Model):
         if not self.id:
             self.created = timezone.now()
 
-        try:
-            super(RawFile, self).save(*args, **kwargs)
-
-        except IntegrityError as e:
-            logging.warning(e)
-            pass
+        super(RawFile, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(self.name)

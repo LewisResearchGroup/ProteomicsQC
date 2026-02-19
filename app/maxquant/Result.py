@@ -320,6 +320,88 @@ class Result(models.Model):
     def n_files_rawtools_qc(self):
         return len(glob(f'{self.output_dir_rawtools_qc/"*.*"}'))
 
+    @staticmethod
+    def _has_error_text(fn):
+        if not fn.is_file():
+            return False
+        try:
+            return fn.stat().st_size > 0
+        except OSError:
+            return False
+
+    @staticmethod
+    def _dir_has_files(path):
+        return path.is_dir() and any(path.iterdir())
+
+    @property
+    def maxquant_status(self):
+        err_fn = self.output_dir_maxquant / "maxquant.err"
+        if self._has_error_text(err_fn):
+            return "failed"
+        if (self.output_dir_maxquant / "time.txt").is_file():
+            return "done"
+        if self._dir_has_files(self.output_dir_maxquant):
+            return "running"
+        return "queued"
+
+    @property
+    def rawtools_metrics_status(self):
+        err_fn = self.output_dir_rawtools / "rawtools_metrics.err"
+        if self._has_error_text(err_fn):
+            return "failed"
+        if self.n_files_rawtools_metrics > 0:
+            return "done"
+        if self._dir_has_files(self.output_dir_rawtools):
+            return "running"
+        return "queued"
+
+    @property
+    def rawtools_qc_status(self):
+        err_fn = self.output_dir_rawtools_qc / "rawtools_qc.err"
+        if self._has_error_text(err_fn):
+            return "failed"
+        if self.n_files_rawtools_qc > 0:
+            return "done"
+        if self._dir_has_files(self.output_dir_rawtools_qc):
+            return "running"
+        return "queued"
+
+    @property
+    def stage_statuses(self):
+        return {
+            "maxquant": self.maxquant_status,
+            "rawtools_metrics": self.rawtools_metrics_status,
+            "rawtools_qc": self.rawtools_qc_status,
+        }
+
+    @property
+    def overall_status(self):
+        statuses = self.stage_statuses.values()
+        if "failed" in statuses:
+            return "failed"
+        if all(status == "done" for status in statuses):
+            return "done"
+        if any(status in {"running", "done"} for status in statuses):
+            return "running"
+        return "queued"
+
+    @property
+    def is_processing(self):
+        return self.overall_status in {"queued", "running"}
+
+    @property
+    def processing_message(self):
+        if self.overall_status == "failed":
+            return "One or more jobs failed. Open the admin Result entry to inspect error logs."
+        if self.overall_status == "done":
+            return "All processing stages completed."
+
+        completed = sum(1 for s in self.stage_statuses.values() if s == "done")
+        total = len(self.stage_statuses)
+        if completed == 0:
+            return "Jobs are queued. Results will appear as each stage finishes."
+        return f"Processing in progress ({completed}/{total} stages completed)."
+
     @property
     def status_protein_quant_parquet(self):
         fn = self.protein_quant_fn
