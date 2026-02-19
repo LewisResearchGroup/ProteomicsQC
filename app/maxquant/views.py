@@ -1,6 +1,8 @@
 from os.path import isfile
 import pandas as pd
 import logging
+import numpy as np
+import re
 
 from io import BytesIO
 
@@ -126,6 +128,131 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
 
         figures = []
         summary_stats = []
+        plot_help_by_title = {
+            "MS TIC chromatogram": "Total ion current over retention time for MS1 scans.",
+            "MS2 TIC chromatogram": "Total ion current over retention time for MS2 scans.",
+            "Missed cleavages": "Number of missed enzymatic cleavages in identified peptides.",
+            "Charge states": "Charge state distribution of identified precursor ions.",
+            "Uncalibrated - Calibrated m/z [ppm]": (
+                "Difference between uncalibrated and recalibrated precursor m/z in ppm; "
+                "indicates mass drift corrected by MaxQuant."
+            ),
+            "Retention time calibration": (
+                "Difference between uncalibrated and recalibrated retention time in minutes; "
+                "indicates retention-time drift corrected by MaxQuant."
+            ),
+            "Peptide length distribution": "Length distribution of identified peptide sequences.",
+            "Channel intensity distribution (peptides)": (
+                "Distribution of channel reporter intensities from peptides "
+                "(log2-transformed as log(1+intensity))."
+            ),
+            "Channel intensity distribution (protein groups)": (
+                "Distribution of channel reporter intensities from protein groups "
+                "(log2-transformed as log(1+intensity))."
+            ),
+            "Number of Peptides identified per Protein": (
+                "Distribution of peptide counts per protein group. Values above 25 are grouped into the top bin."
+            ),
+            "Andromeda Scores": "Distribution of protein-group Andromeda scores.",
+        }
+
+        def add_figure(fig, help_text=None):
+            title_text = ""
+            if hasattr(fig, "layout") and hasattr(fig.layout, "title"):
+                title_text = fig.layout.title.text or ""
+            resolved_help = help_text if help_text is not None else plot_help_by_title.get(title_text)
+            figures.append({"html": plotly_fig_to_div(fig), "help": resolved_help})
+
+        def channel_sort_key(col_name):
+            base = col_name
+            if col_name.startswith("Reporter intensity corrected "):
+                base = col_name.replace("Reporter intensity corrected ", "")
+            elif col_name.startswith("Reporter intensity "):
+                base = col_name.replace("Reporter intensity ", "")
+            elif col_name.startswith("Intensity "):
+                base = col_name.replace("Intensity ", "")
+            match = re.search(r"\b(\d+)\b", base)
+            if match:
+                return (0, int(match.group(1)), base)
+            return (1, 10**9, base)
+
+        def short_channel_name(col_name):
+            if col_name.startswith("Reporter intensity corrected "):
+                base = col_name.replace("Reporter intensity corrected ", "")
+            elif col_name.startswith("Reporter intensity "):
+                base = col_name.replace("Reporter intensity ", "")
+            elif col_name.startswith("Intensity "):
+                base = col_name.replace("Intensity ", "")
+            else:
+                base = col_name
+            match = re.match(r"^(\d+)\b", base)
+            if match:
+                return f"Ch {int(match.group(1)):02d}"
+            return base
+
+        def add_channel_intensity_boxplot(df, title):
+            reporter_corrected_cols = [
+                col for col in df.columns if col.startswith("Reporter intensity corrected ")
+            ]
+            reporter_cols = [col for col in df.columns if col.startswith("Reporter intensity ")]
+            intensity_channel_cols = [col for col in df.columns if col.startswith("Intensity ") and col != "Intensity"]
+            channel_cols = reporter_corrected_cols or reporter_cols or intensity_channel_cols
+            if not channel_cols:
+                return
+
+            intensity_long = (
+                df[channel_cols]
+                .apply(pd.to_numeric, errors="coerce")
+                .melt(var_name="Channel", value_name="Intensity")
+                .dropna()
+            )
+            intensity_long = intensity_long[intensity_long["Intensity"] > 0]
+            if intensity_long.empty:
+                return
+
+            channel_order = sorted(channel_cols, key=channel_sort_key)
+            intensity_long["Channel"] = pd.Categorical(
+                intensity_long["Channel"], categories=channel_order, ordered=True
+            )
+            intensity_long = intensity_long.sort_values("Channel")
+            intensity_long["Channel label"] = intensity_long["Channel"].apply(short_channel_name)
+            channel_label_order = [short_channel_name(col) for col in channel_order]
+            intensity_long["Channel label"] = pd.Categorical(
+                intensity_long["Channel label"],
+                categories=channel_label_order,
+                ordered=True,
+            )
+            intensity_long["log2(Intensity)"] = np.log1p(intensity_long["Intensity"])
+
+            fig = go.Figure()
+            fig.add_trace(
+                go.Box(
+                    x=intensity_long["Channel label"],
+                    y=intensity_long["log2(Intensity)"],
+                    boxpoints="outliers",
+                    jitter=0.3,
+                    pointpos=0,
+                    marker=dict(size=3, opacity=0, color="#B58E8E"),
+                    line=dict(width=1, color="#B58E8E"),
+                    fillcolor="rgba(181, 142, 142, 0.65)",
+                )
+            )
+            fig.update_layout(
+                title=title,
+                xaxis_title="Channel",
+                yaxis_title="log2(Intensity)",
+                showlegend=False,
+                height=420,
+                margin=dict(l=60, r=20, t=50, b=80),
+            )
+            fig.update_xaxes(
+                tickangle=0,
+                automargin=True,
+                categoryorder="array",
+                categoryarray=channel_label_order,
+            )
+            fig.update_yaxes(automargin=True, rangemode="tozero")
+            add_figure(fig)
 
         fn = f"{path_rt}/{raw_fn}_Ms_TIC_chromatogram.txt"
         if isfile(fn):
@@ -136,7 +263,7 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
             )
             summary_stats.append({"label": "MS scans", "value": len(df_ms)})
             fig = lines_plot(df_ms, cols=["Intensity"], title="MS TIC chromatogram")
-            figures.append(plotly_fig_to_div(fig))
+            add_figure(fig)
 
         fn = f"{path_rt}/{raw_fn}_Ms2_TIC_chromatogram.txt"
         if isfile(fn):
@@ -147,7 +274,7 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
             )
 
             fig = lines_plot(df_ms2, cols=["Intensity"], title="MS2 TIC chromatogram")
-            figures.append(plotly_fig_to_div(fig))
+            add_figure(fig)
 
         fn = f"{path}/summary.txt"
         if isfile(fn):
@@ -165,8 +292,8 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
                 buckets = [0, 1, 2]
                 counts = []
                 labels = []
-                # Palette aligned with site teal/greens
-                colors = ["#1B9AAA", "#0F5F66", "#5CC8AF", "#B2DFDB"]
+                # Palette aligned with the rose color used in the other distribution plots
+                colors = ["#B58E8E", "#A87F7F", "#C6A3A3", "#D8BFBF"]
                 for val in buckets:
                     labels.append(str(val))
                     counts.append(int((missed == val).sum()))
@@ -194,12 +321,78 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
                     legend_traceorder="normal",
                     title="Missed cleavages",
                     margin=dict(l=0, r=0, t=24, b=0),
-                    height=80,
+                    height=120,
                 )
                 fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=False)
                 fig.update_xaxes(visible=False, showgrid=False, zeroline=False)
                 fig.update_traces(marker_line_width=0, selector=dict(type="bar"))
-                figures.append(plotly_fig_to_div(fig))
+                add_figure(fig)
+
+            mz_delta_col = "Uncalibrated - Calibrated m/z [ppm]"
+            if mz_delta_col in msms.columns:
+                mz_delta = pd.to_numeric(msms[mz_delta_col], errors="coerce").dropna()
+                if not mz_delta.empty:
+                    mz_delta_df = pd.DataFrame({mz_delta_col: mz_delta})
+                    fig = histograms(
+                        mz_delta_df,
+                        cols=[mz_delta_col],
+                        title="Uncalibrated - Calibrated m/z [ppm]",
+                        nbinsx=80,
+                    )
+                    add_figure(fig)
+
+            rt_cal_col = "Retention time calibration"
+            if rt_cal_col in msms.columns:
+                rt_cal = pd.to_numeric(msms[rt_cal_col], errors="coerce").dropna()
+                if not rt_cal.empty:
+                    rt_cal_df = pd.DataFrame({rt_cal_col: rt_cal})
+                    fig = histograms(
+                        rt_cal_df,
+                        cols=[rt_cal_col],
+                        title="Retention time calibration",
+                        nbinsx=80,
+                    )
+                    add_figure(fig)
+
+            if "Charge" in msms.columns:
+                charge = pd.to_numeric(msms["Charge"], errors="coerce").fillna(0).astype(int).clip(lower=0)
+                buckets = [1, 2, 3]
+                counts = []
+                labels = []
+                colors = ["#B58E8E", "#A87F7F", "#C6A3A3", "#D8BFBF"]
+                for val in buckets:
+                    labels.append(str(val))
+                    counts.append(int((charge == val).sum()))
+                labels.append("4+")
+                counts.append(int((charge >= 4).sum()))
+
+                fig = go.Figure()
+                for idx, (label, count) in enumerate(zip(labels, counts)):
+                    bar_value = count if count > 0 else 0.0001  # keep legend entry visible
+                    fig.add_trace(
+                        go.Bar(
+                            x=[bar_value],
+                            y=["Charge states"],
+                            name=label,
+                            showlegend=True,
+                            orientation="h",
+                            marker_color=colors[idx % len(colors)],
+                            text=[count],
+                            textposition="inside",
+                        )
+                    )
+                fig.update_layout(
+                    barmode="stack",
+                    showlegend=True,
+                    legend_traceorder="normal",
+                    title="Charge states",
+                    margin=dict(l=0, r=0, t=24, b=0),
+                    height=120,
+                )
+                fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=False)
+                fig.update_xaxes(visible=False, showgrid=False, zeroline=False)
+                fig.update_traces(marker_line_width=0, selector=dict(type="bar"))
+                add_figure(fig)
 
         # fn = f"{path}/msmsScans.txt"
         # if isfile(fn):
@@ -213,25 +406,30 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
         #         fig = lines_plot(msms, cols=[col], title=f"MSMS: {col}")
         #         figures.append(plotly_fig_to_div(fig))
 
-        # fn = f"{path}/peptides.txt"
-        # if isfile(fn):
-        #     peptides = pd.read_csv(fn, sep="\t")
-        #     summary_stats.append({"label": "Peptides", "value": len(peptides)})
-        #     cols = ["Length", 
-        #             # "Mass"
-        #             ]
-        #     for col in cols:
-        #         # fig = lines_plot(peptides, cols=[col], title=f'Peptide: {col}')
-        #         # figures.append( plotly_fig_to_div(fig) )
-        #         fig = histograms(
-        #             peptides, cols=[col], title=f"Peptide: {col} (histogram)"
-        #         )
-        #         figures.append(plotly_fig_to_div(fig))
+        fn = f"{path}/peptides.txt"
+        if isfile(fn):
+            peptides = pd.read_csv(fn, sep="\t")
+
+            if "Length" in peptides.columns:
+                peptide_lengths = pd.to_numeric(peptides["Length"], errors="coerce").dropna()
+                if not peptide_lengths.empty:
+                    peptides_binned = pd.DataFrame({"Length": peptide_lengths})
+                    fig = histograms(
+                        peptides_binned,
+                        cols=["Length"],
+                        title="Peptide length distribution",
+                        xbins={"start": 0.5, "end": float(peptide_lengths.max()) + 0.5, "size": 1},
+                    )
+                    add_figure(fig)
+
+            add_channel_intensity_boxplot(peptides, "Channel intensity distribution (peptides)")
 
         fn = f"{path}/proteinGroups.txt"
         if isfile(fn):
             proteins = pd.read_csv(fn, sep="\t")
             summary_stats.append({"label": "Protein groups", "value": len(proteins)})
+
+            add_channel_intensity_boxplot(proteins, "Channel intensity distribution (protein groups)")
 
             if "Peptides" in proteins.columns:
                 peptides_capped = proteins["Peptides"].fillna(0).clip(upper=25)
@@ -244,7 +442,7 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
                     title=f"Number of Peptides identified per Protein",
                     xbins={"start": 0.5, "end": 25.5, "size": 1},
                 )
-                figures.append(plotly_fig_to_div(fig))
+                add_figure(fig)
                 
 
             if "Score" in proteins.columns:
@@ -254,7 +452,7 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
                     title="Andromeda Scores",
                     nbinsx=50,
                 )
-                figures.append(plotly_fig_to_div(fig))
+                add_figure(fig)
 
         context["figures"] = figures
         context["summary_stats"] = summary_stats
