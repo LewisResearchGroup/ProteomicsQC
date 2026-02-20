@@ -1,19 +1,51 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class='block'>
-    <div class="project-header" style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
-      <div class="project-text">
-        <h1 class='project' style="font-size: 24px; color: #333;"><strong>Project:</strong> {{ object.name }}</h1>
-        <h2 class='slug' style="font-size: 18px; color: #666;"><strong>Slug:</strong> {{ object.slug }}</h2>
-        <h3 class='description' style="font-size: 16px; color: #888;"><strong>Description:</strong> {{ object.description }}</h3>
+  <div class='block run-header-card pipeline-page-header-card'>
+    <div class="pipeline-header-row">
+      <div class="pipeline-header-text">
+        <div class="run-meta-grid pipeline-meta-grid">
+          <div class="run-meta-tile">
+            <div class="run-meta-tile-label">Project</div>
+            <div class="run-meta-tile-value">{{ object.name }}</div>
+          </div>
+          <div class="run-meta-tile">
+            <div class="run-meta-tile-label">Slug</div>
+            <div class="run-meta-tile-value">{{ object.slug }}</div>
+          </div>
+          <div class="run-meta-tile">
+            <div class="run-meta-tile-label">Description</div>
+            <div class="run-meta-tile-value">{{ object.description }}</div>
+          </div>
+          <div class="run-meta-tile run-meta-tile-ghost" aria-hidden="true">
+            <div class="run-meta-tile-label">Slug</div>
+            <div class="run-meta-tile-value">-</div>
+          </div>
+        </div>
       </div>
-      <a href="{% url 'project:list' %}" class="project-back-link">
-        <button class='btn project-back-btn' style="width: auto; min-width: 44px; margin: 0;" title='Back to projects overview.'>
-          <i class="fas fa-arrow-left"></i>
-          <span class="project-back-text">Return to Projects</span>
-        </button>
-      </a>
+      <div class="pipeline-actions run-actions-column">
+        <a href="{% url 'project:list' %}" class="project-back-link">
+          <button class='btn run-btn run-btn-primary' title='Back to projects overview.'>
+            <span class="run-btn-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" focusable="false">
+                <path
+                  d="M15.5 5.5a1 1 0 0 1 0 1.4L10.4 12l5.1 5.1a1 1 0 0 1-1.4 1.4l-5.8-5.8a1 1 0 0 1 0-1.4l5.8-5.8a1 1 0 0 1 1.4 0Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            <span class="project-back-text">Return to projects</span>
+          </button>
+        </a>
+        <a href="{% url 'project:download_pipelines' object.slug %}">
+          <button
+            class='btn run-btn run-btn-secondary'
+            title='Download pipelines summary for this project.'
+          >
+            Download summary CSV
+          </button>
+        </a>
+      </div>
     </div>
   </div>
 
