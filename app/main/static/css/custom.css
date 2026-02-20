@@ -350,13 +350,69 @@ tr th .btn {
   align-self: flex-end;
 }
 
-.run-actions-column .btn {
+.run-actions-column .btn.run-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0px;
-  width: 220px;
+  gap: 9px;
+  width: 224px;
+  min-height: 46px;
   text-align: center;
+  margin: 0 !important;
+  padding: 0 14px !important;
+  border-radius: 12px !important;
+  border: 1px solid transparent !important;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.15px;
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease, border-color 120ms ease;
+}
+
+.run-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.run-actions-column .run-btn-primary {
+  background: linear-gradient(135deg, #0f8f8f 0%, #0a7c88 100%) !important;
+  border-color: #0b7f87 !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 18px rgba(10, 124, 136, 0.28);
+}
+
+.run-actions-column .run-btn-primary:hover {
+  background: linear-gradient(135deg, #0c8080 0%, #086d77 100%) !important;
+  border-color: #086d77 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(8, 109, 119, 0.34);
+}
+
+.run-actions-column .run-btn-secondary {
+  background: #f7fbfc !important;
+  border-color: #8cc4c8 !important;
+  color: #0b6f73 !important;
+  box-shadow: 0 6px 14px rgba(6, 88, 97, 0.12);
+}
+
+.run-actions-column .run-btn-secondary:hover {
+  background: #e9f7f8 !important;
+  border-color: #64aeb5 !important;
+  color: #085d60 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(6, 88, 97, 0.2);
+}
+
+.run-actions-column .btn.run-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(13, 143, 143, 0.25);
+}
+
+.run-actions-column .btn.run-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
 }
 
 .run-actions {
@@ -394,7 +450,7 @@ tr th .btn {
     align-items: stretch;
   }
 
-  .run-actions-column .btn {
+  .run-actions-column .btn.run-btn {
     width: 100%;
   }
 

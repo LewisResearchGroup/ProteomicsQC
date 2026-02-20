@@ -26,14 +26,21 @@
       </div>
       <div class="pipeline-actions run-actions-column">
         <a href="{% url 'maxquant:detail' project=project.slug pipeline=pipeline.slug %}">
-          <button class='btn project-back-btn'
+          <button class='btn run-btn run-btn-primary'
                   title='Back to pipeline overview.'>
-            <i class="fas fa-arrow-left"></i>
+            <span class="run-btn-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" focusable="false">
+                <path
+                  d="M15.5 5.5a1 1 0 0 1 0 1.4L10.4 12l5.1 5.1a1 1 0 0 1-1.4 1.4l-5.8-5.8a1 1 0 0 1 0-1.4l5.8-5.8a1 1 0 0 1 1.4 0Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
             <span class="project-back-text">Back to pipeline</span>
           </button>
         </a>
         <a href="{% url 'maxquant:download_run' object.pk %}" download id="download-run-link">
-          <button class='btn download-btn' id="download-run-btn" title='Download all MaxQuant files for this particular run'>Download all results</button>
+          <button class='btn run-btn run-btn-secondary' id="download-run-btn" title='Download all MaxQuant files for this particular run'>Download all results</button>
         </a>
       </div>
     </div>
