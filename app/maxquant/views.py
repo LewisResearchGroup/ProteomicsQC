@@ -9,9 +9,11 @@ from io import BytesIO
 
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound, Http404
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.views import generic, View
+from django.views.decorators.http import require_POST
 from django.db import transaction, IntegrityError
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from django.conf import settings
@@ -565,6 +567,7 @@ class UploadRaw(LoginRequiredMixin, View):
                     "already_exists": True,
                     "restored_result": created,
                     "result_url": result.url,
+                    "result_pk": result.pk,
                 }
                 return JsonResponse(data)
 
@@ -591,6 +594,7 @@ class UploadRaw(LoginRequiredMixin, View):
                     "already_exists": True,
                     "restored_result": created,
                     "result_url": result.url,
+                    "result_pk": result.pk,
                 }
                 return JsonResponse(data)
 
@@ -600,9 +604,46 @@ class UploadRaw(LoginRequiredMixin, View):
                 "name": str(raw_file.name),
                 "url": str(raw_file.path),
                 "result_url": result.url,
+                "result_pk": result.pk,
                 "already_exists": False,
                 "restored_result": False,
             }
         else:
             data = {"is_valid": False}
         return JsonResponse(data)
+
+
+@login_required
+@require_POST
+def cancel_run_jobs(request, pk):
+    result = get_object_or_404(Result, pk=pk)
+    revoked = result.cancel_active_jobs()
+    return JsonResponse(
+        {
+            "is_valid": True,
+            "revoked_tasks": revoked,
+            "status": result.overall_status,
+            "run": result.name,
+        }
+    )
+
+
+@login_required
+@require_POST
+def cancel_pipeline_jobs(request, pk):
+    pipeline = get_object_or_404(Pipeline, pk=pk)
+    runs_canceled = 0
+    tasks_revoked = 0
+
+    for result in Result.objects.filter(raw_file__pipeline=pipeline):
+        if result.has_active_stage:
+            tasks_revoked += result.cancel_active_jobs()
+            runs_canceled += 1
+
+    return JsonResponse(
+        {
+            "is_valid": True,
+            "runs_canceled": runs_canceled,
+            "revoked_tasks": tasks_revoked,
+        }
+    )

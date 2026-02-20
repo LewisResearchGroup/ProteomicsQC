@@ -2,6 +2,7 @@ import os
 import logging
 from os.path import isdir, join, isfile, basename
 from celery import shared_task
+from django.apps import apps
 
 from lrg_omics.proteomics.maxquant import MaxquantRunner
 
@@ -77,8 +78,20 @@ def _defer_if_busy(task, kind, min_free_mem_gb, max_load_per_cpu):
     raise task.retry(countdown=retry_seconds)
 
 
+def _is_canceled_result(result_id):
+    if not result_id:
+        return False
+    Result = apps.get_model("maxquant", "Result")
+    return Result.objects.filter(pk=result_id, cancel_requested_at__isnull=False).exists()
+
+
 @shared_task(bind=True, max_retries=None)
-def rawtools_metrics(self, raw, output_dir, arguments=None, rerun=False):
+def rawtools_metrics(
+    self, raw, output_dir, arguments=None, rerun=False, result_id=None
+):
+    if _is_canceled_result(result_id):
+        logging.info("[rawtools_metrics] canceled before start (result_id=%s)", result_id)
+        return
     _defer_if_busy(
         task=self,
         kind="rawtools_metrics",
@@ -89,13 +102,22 @@ def rawtools_metrics(self, raw, output_dir, arguments=None, rerun=False):
         raw=raw, output_dir=output_dir, rerun=rerun, arguments=arguments
     )
     if cmd is not None:
+        if _is_canceled_result(result_id):
+            logging.info(
+                "[rawtools_metrics] canceled before execution (result_id=%s)",
+                result_id,
+            )
+            return
         logging.info(f"[rawtools_metrics] {cmd}")
         print(f"[rawtools_metrics] {cmd}")
         os.system(cmd)
 
 
 @shared_task(bind=True, max_retries=None)
-def rawtools_qc(self, input_dir, output_dir, rerun=False):
+def rawtools_qc(self, input_dir, output_dir, rerun=False, result_id=None):
+    if _is_canceled_result(result_id):
+        logging.info("[rawtools_qc] canceled before start (result_id=%s)", result_id)
+        return
     _defer_if_busy(
         task=self,
         kind="rawtools_qc",
@@ -104,19 +126,32 @@ def rawtools_qc(self, input_dir, output_dir, rerun=False):
     )
     cmd = rawtools_qc_cmd(input_dir=input_dir, output_dir=output_dir, rerun=rerun)
     if cmd is not None:
+        if _is_canceled_result(result_id):
+            logging.info(
+                "[rawtools_qc] canceled before execution (result_id=%s)", result_id
+            )
+            return
         logging.info(f"[rawtools_qc] {cmd}")
         print(f"[rawtools_qc] {cmd}")
         os.system(cmd)
 
 
 @shared_task(bind=True, max_retries=None)
-def run_maxquant(self, raw_file, params, rerun=False):
+def run_maxquant(self, raw_file, params, rerun=False, result_id=None):
+    if _is_canceled_result(result_id):
+        logging.info("[run_maxquant] canceled before start (result_id=%s)", result_id)
+        return
     _defer_if_busy(
         task=self,
         kind="run_maxquant",
         min_free_mem_gb=_safe_float("MIN_FREE_MEM_GB_MAXQUANT", 8),
         max_load_per_cpu=_safe_float("MAX_LOAD_PER_CPU_MAXQUANT", 0.85),
     )
+    if _is_canceled_result(result_id):
+        logging.info(
+            "[run_maxquant] canceled before execution (result_id=%s)", result_id
+        )
+        return
     mq = MaxquantRunner(verbose=True, **params)
     logging.info(f"[run_maxquant] raw_file={raw_file} params={params} rerun={rerun}")
     print(f"[run_maxquant] raw_file={raw_file} params={params} rerun={rerun}")

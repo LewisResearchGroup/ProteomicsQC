@@ -190,6 +190,12 @@ tr th .btn {
   margin-bottom: 10px;
 }
 
+.mq-runs-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 #mq-runs-search {
   flex: 1;
   max-width: 360px;
@@ -278,6 +284,34 @@ tr th .btn {
   color: #085d60;
   background: #e9f7f8;
   border-color: #64aeb5;
+}
+
+.mq-cancel-btn,
+.mq-cancel-all-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  padding: 4px 10px;
+  border: 1px solid #e3a1a1;
+  border-radius: 999px;
+  color: #8b1e2b;
+  font-weight: 700;
+  font-size: 12px;
+  background: #fff4f4;
+}
+
+.mq-cancel-btn:hover,
+.mq-cancel-all-btn:hover {
+  background: #fde6e7;
+  border-color: #d77e84;
+  color: #7a1823;
+}
+
+.mq-cancel-btn:disabled,
+.mq-cancel-all-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 #mq-runs-empty.warning {
@@ -782,6 +816,11 @@ tr th .btn {
 .status-failed {
   background: #fdecec;
   color: #992222;
+}
+
+.status-canceled {
+  background: #fff2e8;
+  color: #9a4e1b;
 }
 
 .processing-status-message {

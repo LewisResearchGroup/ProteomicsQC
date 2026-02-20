@@ -3,6 +3,7 @@ import re
 import hashlib
 import shutil
 import zipfile
+import subprocess
 import pandas as pd
 import logging
 import datetime
@@ -22,6 +23,7 @@ from django.conf import settings
 from django.shortcuts import reverse
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import mark_safe
+from celery import current_app
 
 from lrg_omics.proteomics.tools import load_rawtools_data_from, load_maxquant_data_from
 from lrg_omics.proteomics.maxquant.MaxquantReader import MaxquantReader
@@ -49,6 +51,10 @@ class Result(models.Model):
     created = models.DateTimeField(default=timezone.now)
 
     raw_file = models.OneToOneField("RawFile", on_delete=models.CASCADE)
+    maxquant_task_id = models.CharField(max_length=255, null=True, blank=True)
+    rawtools_metrics_task_id = models.CharField(max_length=255, null=True, blank=True)
+    rawtools_qc_task_id = models.CharField(max_length=255, null=True, blank=True)
+    cancel_requested_at = models.DateTimeField(null=True, blank=True)
 
     @property
     def pipeline(self):
@@ -183,7 +189,12 @@ class Result(models.Model):
         if self.pipeline.has_maxquant_config:
             raw_file = str(self.raw_fn)
             params = self.maxquant_parameters()
-            run_maxquant.delay(raw_file, params, rerun=rerun)
+            async_result = run_maxquant.delay(
+                raw_file, params, rerun=rerun, result_id=self.pk
+            )
+            self.maxquant_task_id = async_result.id
+            self.cancel_requested_at = None
+            self.save(update_fields=["maxquant_task_id", "cancel_requested_at"])
             logging.info("Submitted MaxQuant.")
 
     @property
@@ -203,7 +214,10 @@ class Result(models.Model):
         if rerun and os.path.isdir(out_dir):
             shutil.rmtree(out_dir)
         if rerun or (self.n_files_rawtools_qc == 0):
-            rawtools_qc.delay(inp_dir, out_dir)
+            async_result = rawtools_qc.delay(inp_dir, out_dir, result_id=self.pk)
+            self.rawtools_qc_task_id = async_result.id
+            self.cancel_requested_at = None
+            self.save(update_fields=["rawtools_qc_task_id", "cancel_requested_at"])
             logging.info("Submitted RawTools QC.")
 
     def run_rawtools_metrics(self, rerun=False):
@@ -215,7 +229,14 @@ class Result(models.Model):
         if rerun and os.path.isdir(out_dir):
             shutil.rmtree(out_dir)
         if rerun or (self.n_files_rawtools_metrics == 0):
-            rawtools_metrics.delay(raw_fn, out_dir, args)
+            async_result = rawtools_metrics.delay(
+                raw_fn, out_dir, args, result_id=self.pk
+            )
+            self.rawtools_metrics_task_id = async_result.id
+            self.cancel_requested_at = None
+            self.save(
+                update_fields=["rawtools_metrics_task_id", "cancel_requested_at"]
+            )
             logging.info("Submitted RawTools metrics.")
 
     def run(self):
@@ -388,6 +409,8 @@ class Result(models.Model):
             return "failed"
         if (self.output_dir_maxquant / "time.txt").is_file():
             return "done"
+        if self.cancel_requested_at is not None:
+            return "canceled"
         if self._dir_has_files(self.output_dir_maxquant):
             return "running"
         if self.maxquant_run_dir_candidates:
@@ -401,6 +424,8 @@ class Result(models.Model):
             return "failed"
         if all(fn.is_file() for fn in self.rawtools_metrics_expected_files):
             return "done"
+        if self.cancel_requested_at is not None:
+            return "canceled"
         if self._dir_has_files(self.output_dir_rawtools):
             return "running"
         return "queued"
@@ -412,6 +437,8 @@ class Result(models.Model):
             return "failed"
         if any(fn.is_file() for fn in self.rawtools_qc_expected_files):
             return "done"
+        if self.cancel_requested_at is not None:
+            return "canceled"
         if self._dir_has_files(self.output_dir_rawtools_qc):
             return "running"
         if (self.raw_file.path.parent / "rawtools.txt").is_file():
@@ -431,6 +458,8 @@ class Result(models.Model):
         statuses = self.stage_statuses.values()
         if "failed" in statuses:
             return "failed"
+        if "canceled" in statuses:
+            return "canceled"
         if all(status == "done" for status in statuses):
             return "done"
         if any(status in {"running", "done"} for status in statuses):
@@ -442,9 +471,17 @@ class Result(models.Model):
         return self.overall_status in {"queued", "running"}
 
     @property
+    def has_active_stage(self):
+        return any(
+            status in {"queued", "running"} for status in self.stage_statuses.values()
+        )
+
+    @property
     def processing_message(self):
         if self.overall_status == "failed":
             return "One or more jobs failed. Open the admin Result entry to inspect error logs."
+        if self.overall_status == "canceled":
+            return "Jobs were canceled before completion."
         if self.overall_status == "done":
             return "All processing stages completed."
 
@@ -502,6 +539,85 @@ class Result(models.Model):
     @property
     def link(self):
         return mark_safe(f"<a href='{self.href}'>Browse</a>")
+
+    @property
+    def task_ids(self):
+        return [
+            self.maxquant_task_id,
+            self.rawtools_metrics_task_id,
+            self.rawtools_qc_task_id,
+        ]
+
+    def cancel_active_jobs(self):
+        if not self.has_active_stage:
+            return 0
+
+        revoked = 0
+        for task_id in self.task_ids:
+            if not task_id:
+                continue
+            try:
+                current_app.control.revoke(task_id, terminate=True, signal="SIGTERM")
+                revoked += 1
+            except Exception as exc:
+                logging.warning(
+                    "Could not revoke task %s for result %s: %s",
+                    task_id,
+                    self.pk,
+                    exc,
+                )
+
+        killed = self._kill_local_processes_for_run()
+        if killed > 0:
+            logging.info(
+                "Killed %s local process(es) for result %s (%s).",
+                killed,
+                self.pk,
+                self.basename,
+            )
+
+        self.cancel_requested_at = timezone.now()
+        self.save(update_fields=["cancel_requested_at"])
+        return revoked
+
+    def _kill_local_processes_for_run(self):
+        # Celery revoke(terminate=True) can leave child mono/sh processes alive.
+        # As a fallback, terminate processes whose command line references this run.
+        patterns = [
+            self.basename,
+            str(self.raw_fn),
+            str(self.output_dir_maxquant),
+            str(self.output_dir_rawtools),
+            str(self.output_dir_rawtools_qc),
+        ]
+        killed = 0
+        for pattern in patterns:
+            if not pattern:
+                continue
+            for signal in ("TERM", "KILL"):
+                try:
+                    proc = subprocess.run(
+                        ["pkill", f"-{signal}", "-f", pattern],
+                        capture_output=True,
+                        text=True,
+                        check=False,
+                    )
+                except FileNotFoundError:
+                    logging.warning("pkill command not found; skipping process cleanup.")
+                    return killed
+                # pkill return code:
+                # 0 => matched and signaled, 1 => no processes matched, >1 => error.
+                if proc.returncode == 0:
+                    killed += 1
+                elif proc.returncode > 1:
+                    logging.warning(
+                        "pkill -%s -f %s failed (rc=%s): %s",
+                        signal,
+                        pattern,
+                        proc.returncode,
+                        (proc.stderr or "").strip(),
+                    )
+        return killed
 
 
 @receiver(models.signals.post_save, sender=Result)

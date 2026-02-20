@@ -1,12 +1,24 @@
 <div class='block raw-files-block'>
+  <form id="mq-cancel-csrf-form" style="display:none;">{% csrf_token %}</form>
   <h2 class='name' style="font-size: 18px; color: #666;"><strong>Explore .raw files processed with this pipeline</strong></h2>
   <div class="mq-runs-toolbar">
     <input id="mq-runs-search" type="text" placeholder="Filter by file name..." aria-label="Filter raw files">
-    <span id="mq-runs-count" class="mq-runs-count"></span>
+    <div class="mq-runs-toolbar-actions">
+      <button
+        id="mq-cancel-all-btn"
+        class="mq-cancel-all-btn"
+        type="button"
+        data-url="{% url 'maxquant:cancel_pipeline_jobs' pipeline.pk %}"
+      >
+        Cancel all active jobs
+      </button>
+      <span id="mq-runs-count" class="mq-runs-count"></span>
+    </div>
   </div>
   <p id="mq-runs-refresh-note" class="processing-status-note" style="display:none; margin: 0 0 8px 0;">
     This page auto-refreshes every 20 seconds while jobs are queued or running.
   </p>
+  <p id="mq-runs-action-note" class="processing-status-note" style="display:none; margin: 0 0 8px 0;"></p>
   <div class="mq-runs-table-wrap">
     <table class="mq-runs-table">
       <thead>
@@ -17,9 +29,14 @@
           <th>RawTools metrics</th>
           <th>RawTools QC</th>
           <th>Open</th>
+          <th>Cancel</th>
         </tr>
       </thead>
-      <tbody id="mq-runs-list">
+      <tbody
+        id="mq-runs-list"
+        data-cancel-run-base="{% url 'maxquant:cancel_run_jobs' 0 %}"
+        data-csrf-token="{{ csrf_token }}"
+      >
         {% for maxquant_run in maxquant_runs %}
           <tr data-run-name="{{ maxquant_run.raw_file|lower }}">
             <td title="{{ maxquant_run.raw_file }}"><span class="mq-run-name">{{ maxquant_run.raw_file }}</span></td>
@@ -28,10 +45,21 @@
             <td><span class="status-pill status-{{ maxquant_run.rawtools_metrics_status }}">{{ maxquant_run.rawtools_metrics_status }}</span></td>
             <td><span class="status-pill status-{{ maxquant_run.rawtools_qc_status }}">{{ maxquant_run.rawtools_qc_status }}</span></td>
             <td><a class="mq-open-link" href="{{ maxquant_run.url }}">Open</a></td>
+            <td>
+              {% if maxquant_run.has_active_stage %}
+                <button class="mq-cancel-btn" type="button" data-url="{% url 'maxquant:cancel_run_jobs' maxquant_run.pk %}">
+                  Cancel
+                </button>
+              {% else %}
+                <button class="mq-cancel-btn" type="button" disabled>
+                  Cancel
+                </button>
+              {% endif %}
+            </td>
           </tr>
         {% empty %}
           <tr id="mq-runs-empty-row">
-            <td id="mq-runs-empty" class="warning" colspan="6">No .raw files processed yet for this pipeline.</td>
+            <td id="mq-runs-empty" class="warning" colspan="7">No .raw files processed yet for this pipeline.</td>
           </tr>
         {% endfor %}
       </tbody>
@@ -44,12 +72,97 @@
     const search = document.getElementById("mq-runs-search");
     const tbody = document.getElementById("mq-runs-list");
     const count = document.getElementById("mq-runs-count");
+    const cancelAllBtn = document.getElementById("mq-cancel-all-btn");
+    const actionNote = document.getElementById("mq-runs-action-note");
     if (!search || !tbody || !count) return;
+
+    const getCookie = (name) => {
+      const cookieValue = document.cookie
+        .split(";")
+        .map((c) => c.trim())
+        .find((c) => c.startsWith(`${name}=`));
+      if (!cookieValue) return "";
+      return decodeURIComponent(cookieValue.split("=")[1] || "");
+    };
+
+    const getCsrfToken = () => {
+      const tokenInput = document.querySelector("#mq-cancel-csrf-form input[name='csrfmiddlewaretoken']");
+      if (tokenInput) {
+        const tokenFromForm = String(tokenInput.value || "").trim();
+        if (tokenFromForm && tokenFromForm !== "NOTPROVIDED") {
+          return tokenFromForm;
+        }
+      }
+
+      const fileUpload = document.getElementById("fileupload");
+      if (fileUpload) {
+        const rawFormData = fileUpload.getAttribute("data-form-data") || "";
+        if (rawFormData) {
+          try {
+            const parsed = JSON.parse(rawFormData);
+            const tokenFromUpload = String(parsed.csrfmiddlewaretoken || "").trim();
+            if (tokenFromUpload && tokenFromUpload !== "NOTPROVIDED") {
+              return tokenFromUpload;
+            }
+          } catch (_err) {
+            // Ignore malformed data-form-data and continue with other sources.
+          }
+        }
+      }
+
+      const fromCookie = getCookie("csrftoken");
+      if (fromCookie && (fromCookie.length === 32 || fromCookie.length === 64)) {
+        return fromCookie;
+      }
+      const fromDataAttr = (tbody.dataset.csrfToken || "").trim();
+      if (fromDataAttr && fromDataAttr !== "NOTPROVIDED") {
+        return fromDataAttr;
+      }
+      return "";
+    };
+
+    const setActionNote = (message, isError = false) => {
+      if (!actionNote) return;
+      actionNote.style.display = "block";
+      actionNote.textContent = message;
+      actionNote.style.color = isError ? "#992222" : "#14528a";
+    };
 
     const updateCount = () => {
       const rows = Array.from(tbody.querySelectorAll("tr[data-run-name]"));
       const visible = rows.filter((row) => row.style.display !== "none").length;
       count.textContent = `${visible} file${visible === 1 ? "" : "s"}`;
+    };
+
+    const hasActiveRuns = () => {
+      return tbody.querySelectorAll(".status-pill.status-running, .status-pill.status-queued").length > 0;
+    };
+
+    const updateCancelAllState = () => {
+      if (!cancelAllBtn) return;
+      cancelAllBtn.disabled = !hasActiveRuns();
+    };
+
+    const postJson = async (url) => {
+      const csrfToken = getCsrfToken();
+      if (!csrfToken) {
+        throw new Error("Missing CSRF token");
+      }
+      const payload = new URLSearchParams();
+      payload.append("csrfmiddlewaretoken", csrfToken);
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        body: payload.toString(),
+        credentials: "same-origin",
+      });
+      if (!response.ok) {
+        throw new Error(`Request failed with ${response.status}`);
+      }
+      return response.json();
     };
 
     search.addEventListener("input", () => {
@@ -62,14 +175,56 @@
       updateCount();
     });
 
-    updateCount();
+    tbody.addEventListener("click", async (event) => {
+      const btn = event.target.closest(".mq-cancel-btn");
+      if (!btn || btn.disabled) return;
 
-    const hasActiveRuns = () => {
-      const activeStatuses = tbody.querySelectorAll(
-        ".status-pill.status-running, .status-pill.status-queued"
-      );
-      return activeStatuses.length > 0;
-    };
+      const url = btn.dataset.url;
+      if (!url) return;
+      btn.disabled = true;
+      btn.textContent = "Canceling...";
+      try {
+        const data = await postJson(url);
+        if (data && data.is_valid) {
+          setActionNote(`Canceled jobs for ${data.run}. Refreshing...`);
+          setTimeout(() => window.location.reload(), 900);
+          return;
+        }
+        throw new Error("Invalid response");
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = "Cancel";
+        setActionNote("Could not cancel this run. Please try again.", true);
+      }
+    });
+
+    if (cancelAllBtn) {
+      cancelAllBtn.addEventListener("click", async () => {
+        const url = cancelAllBtn.dataset.url;
+        if (!url || cancelAllBtn.disabled) return;
+        cancelAllBtn.disabled = true;
+        const originalText = cancelAllBtn.textContent;
+        cancelAllBtn.textContent = "Canceling...";
+        try {
+          const data = await postJson(url);
+          if (data && data.is_valid) {
+            setActionNote(
+              `Canceled ${data.runs_canceled} run(s), revoked ${data.revoked_tasks} task(s). Refreshing...`
+            );
+            setTimeout(() => window.location.reload(), 900);
+            return;
+          }
+          throw new Error("Invalid response");
+        } catch (err) {
+          cancelAllBtn.disabled = false;
+          cancelAllBtn.textContent = originalText;
+          setActionNote("Could not cancel active jobs. Please try again.", true);
+        }
+      });
+    }
+
+    updateCount();
+    updateCancelAllState();
 
     if (hasActiveRuns()) {
       const note = document.getElementById("mq-runs-refresh-note");

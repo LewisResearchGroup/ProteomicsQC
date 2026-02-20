@@ -70,7 +70,7 @@ $(function () {
     $status.text(text);
   }
 
-  function prependRunButton(name, resultUrl) {
+  function prependRunButton(name, resultUrl, resultPk) {
     const $list = $("#mq-runs-list");
     if (!$list.length || !resultUrl) return false;
     const normalized = String(name).toLowerCase();
@@ -88,6 +88,21 @@ $(function () {
         $("<a></a>").attr("href", resultUrl).addClass("mq-open-link").text("Open")
       )
     );
+    const cancelBase = String($list.data("cancelRunBase") || "");
+    let cancelUrl = "";
+    if (cancelBase && resultPk) {
+      cancelUrl = cancelBase.replace(/\/0\/?$/, "/" + String(resultPk));
+    }
+    const $cancelBtn = $("<button></button>")
+      .attr("type", "button")
+      .addClass("mq-cancel-btn")
+      .text("Cancel");
+    if (cancelUrl) {
+      $cancelBtn.attr("data-url", cancelUrl);
+    } else {
+      $cancelBtn.prop("disabled", true);
+    }
+    $row.append($("<td></td>").append($cancelBtn));
 
     $list.prepend($row);
     $("#mq-runs-empty-row").remove();
@@ -132,7 +147,7 @@ $(function () {
     },
     done: function (e, data) {
       if (data.result.is_valid) {
-        const inserted = prependRunButton(data.result.name, data.result.result_url);
+        const inserted = prependRunButton(data.result.name, data.result.result_url, data.result.result_pk);
         shouldRefreshAfterUpload = true;
         if (data.uploadId) {
           setQueueProgress(data.uploadId, 100);
