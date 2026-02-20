@@ -20,19 +20,24 @@ $(function () {
   function prependRunButton(name, resultUrl) {
     const $list = $("#mq-runs-list");
     if (!$list.length || !resultUrl) return false;
-    const alreadyExists = $list.find("button").filter(function () {
-      return $(this).attr("data-run-name") === name;
-    }).length > 0;
+    const normalized = String(name).toLowerCase();
+    const alreadyExists = $list.find("tr[data-run-name='" + normalized + "']").length > 0;
     if (alreadyExists) return false;
 
-    const $button = $("<button></button>")
-      .addClass("btn full_width upload-new-run")
-      .attr("data-run-name", name)
-      .text(name);
-    const $anchor = $("<a></a>").attr("href", resultUrl).append($button);
+    const $row = $("<tr></tr>").attr("data-run-name", normalized);
+    $row.append($("<td></td>").append($("<span></span>").addClass("mq-run-name").text(name)));
+    $row.append($("<td></td>").append($("<span></span>").addClass("status-pill status-queued").text("queued")));
+    $row.append($("<td></td>").append($("<span></span>").addClass("status-pill status-queued").text("queued")));
+    $row.append($("<td></td>").append($("<span></span>").addClass("status-pill status-queued").text("queued")));
+    $row.append($("<td></td>").append($("<span></span>").addClass("status-pill status-queued").text("queued")));
+    $row.append(
+      $("<td></td>").append(
+        $("<a></a>").attr("href", resultUrl).addClass("mq-open-link").text("Open")
+      )
+    );
 
-    $list.prepend($anchor);
-    $("#mq-runs-empty").remove();
+    $list.prepend($row);
+    $("#mq-runs-empty-row").remove();
     return true;
   }
 

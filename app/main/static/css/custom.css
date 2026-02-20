@@ -182,6 +182,111 @@ tr th .btn {
   background-color: #fafafa !important;
 }
 
+.mq-runs-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+#mq-runs-search {
+  flex: 1;
+  max-width: 360px;
+  border: 1px solid #d6dbe3;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+  background: #ffffff;
+}
+
+#mq-runs-search:focus {
+  outline: none;
+  border-color: #86bdc8;
+  box-shadow: 0 0 0 3px rgba(13, 143, 143, 0.12);
+}
+
+.mq-runs-count {
+  color: #5d6a7b;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.mq-runs-table-wrap {
+  border: 1px solid #e3e6ea;
+  border-radius: 8px;
+  overflow: auto;
+  max-height: 560px;
+  background: #fff;
+}
+
+.mq-runs-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.mq-runs-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f6f8fb;
+  color: #5a6575;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  border-bottom: 1px solid #e3e6ea;
+  padding: 10px 12px;
+}
+
+.mq-runs-table tbody td {
+  border-bottom: 1px solid #edf1f6;
+  padding: 10px 12px;
+  vertical-align: middle;
+  font-size: 14px;
+}
+
+.mq-runs-table tbody tr:hover {
+  background: #f9fcfd;
+}
+
+.mq-run-name {
+  display: inline-block;
+  max-width: 540px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  color: #27364a;
+}
+
+.mq-open-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  padding: 4px 10px;
+  border: 1px solid #8cc4c8;
+  border-radius: 999px;
+  color: #0b6f73;
+  font-weight: 700;
+  font-size: 12px;
+  background: #f7fbfc;
+}
+
+.mq-open-link:hover {
+  color: #085d60;
+  background: #e9f7f8;
+  border-color: #64aeb5;
+}
+
+#mq-runs-empty.warning {
+  color: #9f2230;
+  background: #fff0f1;
+  border-radius: 6px;
+  padding: 8px;
+}
+
 .upload-dropzone {
   display: inline-flex;
   flex-direction: column;

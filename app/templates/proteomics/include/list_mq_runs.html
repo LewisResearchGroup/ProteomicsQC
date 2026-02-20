@@ -1,10 +1,64 @@
 <div class='block raw-files-block'>
   <h2 class='name' style="font-size: 18px; color: #666;"><strong>Explore .raw files processed with this pipeline</strong></h2>
-  <div id="mq-runs-list">
-    {% for maxquant_run in maxquant_runs %}
-      <a href="{{ maxquant_run.url }}"><button class='btn full_width'> {{ maxquant_run.raw_file  }}</button></a>
-    {% empty %}
-      <p id="mq-runs-empty" class="warning">No .raw files processed yet for this pipeline.</p>
-    {% endfor %}
+  <div class="mq-runs-toolbar">
+    <input id="mq-runs-search" type="text" placeholder="Filter by file name..." aria-label="Filter raw files">
+    <span id="mq-runs-count" class="mq-runs-count"></span>
+  </div>
+  <div class="mq-runs-table-wrap">
+    <table class="mq-runs-table">
+      <thead>
+        <tr>
+          <th>Raw file</th>
+          <th>Overall</th>
+          <th>MaxQuant</th>
+          <th>RawTools metrics</th>
+          <th>RawTools QC</th>
+          <th>Open</th>
+        </tr>
+      </thead>
+      <tbody id="mq-runs-list">
+        {% for maxquant_run in maxquant_runs %}
+          <tr data-run-name="{{ maxquant_run.raw_file|lower }}">
+            <td title="{{ maxquant_run.raw_file }}"><span class="mq-run-name">{{ maxquant_run.raw_file }}</span></td>
+            <td><span class="status-pill status-{{ maxquant_run.overall_status }}">{{ maxquant_run.overall_status }}</span></td>
+            <td><span class="status-pill status-{{ maxquant_run.maxquant_status }}">{{ maxquant_run.maxquant_status }}</span></td>
+            <td><span class="status-pill status-{{ maxquant_run.rawtools_metrics_status }}">{{ maxquant_run.rawtools_metrics_status }}</span></td>
+            <td><span class="status-pill status-{{ maxquant_run.rawtools_qc_status }}">{{ maxquant_run.rawtools_qc_status }}</span></td>
+            <td><a class="mq-open-link" href="{{ maxquant_run.url }}">Open</a></td>
+          </tr>
+        {% empty %}
+          <tr id="mq-runs-empty-row">
+            <td id="mq-runs-empty" class="warning" colspan="6">No .raw files processed yet for this pipeline.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
+
+<script>
+  (function () {
+    const search = document.getElementById("mq-runs-search");
+    const tbody = document.getElementById("mq-runs-list");
+    const count = document.getElementById("mq-runs-count");
+    if (!search || !tbody || !count) return;
+
+    const updateCount = () => {
+      const rows = Array.from(tbody.querySelectorAll("tr[data-run-name]"));
+      const visible = rows.filter((row) => row.style.display !== "none").length;
+      count.textContent = `${visible} file${visible === 1 ? "" : "s"}`;
+    };
+
+    search.addEventListener("input", () => {
+      const needle = search.value.trim().toLowerCase();
+      const rows = Array.from(tbody.querySelectorAll("tr[data-run-name]"));
+      rows.forEach((row) => {
+        const hay = row.getAttribute("data-run-name") || "";
+        row.style.display = hay.includes(needle) ? "" : "none";
+      });
+      updateCount();
+    });
+
+    updateCount();
+  })();
+</script>
