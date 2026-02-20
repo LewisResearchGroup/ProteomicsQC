@@ -46,7 +46,7 @@
             <td><span class="status-pill status-{{ maxquant_run.rawtools_qc_status }}">{{ maxquant_run.rawtools_qc_status }}</span></td>
             <td><a class="mq-open-link" href="{{ maxquant_run.url }}">Open</a></td>
             <td>
-              {% if maxquant_run.has_active_stage %}
+              {% if maxquant_run.has_active_stage and request.user.is_superuser or maxquant_run.has_active_stage and request.user.is_staff or maxquant_run.has_active_stage and maxquant_run.raw_file.created_by_id == request.user.id %}
                 <button class="mq-cancel-btn" type="button" data-url="{% url 'maxquant:cancel_run_jobs' maxquant_run.pk %}">
                   Cancel
                 </button>
@@ -140,7 +140,8 @@
 
     const updateCancelAllState = () => {
       if (!cancelAllBtn) return;
-      cancelAllBtn.disabled = !hasActiveRuns();
+      const hasCancelable = tbody.querySelectorAll(".mq-cancel-btn:not([disabled])").length > 0;
+      cancelAllBtn.disabled = !hasCancelable;
     };
 
     const postJson = async (url) => {

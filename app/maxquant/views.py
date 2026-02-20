@@ -7,7 +7,13 @@ import re
 
 from io import BytesIO
 
-from django.http import HttpResponse, JsonResponse, HttpResponseNotFound, Http404
+from django.http import (
+    HttpResponse,
+    JsonResponse,
+    HttpResponseNotFound,
+    Http404,
+    HttpResponseForbidden,
+)
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.views import generic, View
@@ -617,6 +623,13 @@ class UploadRaw(LoginRequiredMixin, View):
 @require_POST
 def cancel_run_jobs(request, pk):
     result = get_object_or_404(Result, pk=pk)
+    can_cancel = (
+        request.user.is_superuser
+        or request.user.is_staff
+        or result.raw_file.created_by_id == request.user.id
+    )
+    if not can_cancel:
+        return HttpResponseForbidden("You cannot cancel jobs started by another user.")
     revoked = result.cancel_active_jobs()
     return JsonResponse(
         {
@@ -635,7 +648,11 @@ def cancel_pipeline_jobs(request, pk):
     runs_canceled = 0
     tasks_revoked = 0
 
-    for result in Result.objects.filter(raw_file__pipeline=pipeline):
+    queryset = Result.objects.filter(raw_file__pipeline=pipeline)
+    if not (request.user.is_superuser or request.user.is_staff):
+        queryset = queryset.filter(raw_file__created_by_id=request.user.id)
+
+    for result in queryset:
         if result.has_active_stage:
             tasks_revoked += result.cancel_active_jobs()
             runs_canceled += 1

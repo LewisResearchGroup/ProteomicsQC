@@ -50,16 +50,15 @@
 
 
 <body>
-  <header >
-    <div style='background-color: darkcyan; color: white; width:100%;'>
-      
-      <div style="float: right; padding: 20px; color: white;">
-        {% if user.is_authenticated %}
-            <div id='username'>{{ user.get_username }}</div>
-        {% endif %}
-      </div>
-      <h1 id="title"><a href="{% url 'home' %}" style='color: white'>{{ home_title }}</a></h1>
-    </div>     
+  <header class="app-header">
+    <div class="app-header-inner">
+      <h1 id="title" class="app-title">
+        <a href="{% url 'home' %}" class="app-title-link">{{ home_title }}</a>
+      </h1>
+      {% if user.is_authenticated %}
+        <div id='username' class="app-user">{{ user.get_username }}</div>
+      {% endif %}
+    </div>
   </header>
 
   {% include 'nav.html' %}
@@ -75,7 +74,7 @@
       {% endif %}
 
       {% if user.is_authenticated %}
-      <div style="height: 40px;"></div>
+      <div style="height: 20px;"></div>
       {% endif %}
 
       <div class="container">
