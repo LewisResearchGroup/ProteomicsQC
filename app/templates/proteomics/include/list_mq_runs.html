@@ -4,6 +4,9 @@
     <input id="mq-runs-search" type="text" placeholder="Filter by file name..." aria-label="Filter raw files">
     <span id="mq-runs-count" class="mq-runs-count"></span>
   </div>
+  <p id="mq-runs-refresh-note" class="processing-status-note" style="display:none; margin: 0 0 8px 0;">
+    This page auto-refreshes every 20 seconds while jobs are queued or running.
+  </p>
   <div class="mq-runs-table-wrap">
     <table class="mq-runs-table">
       <thead>
@@ -60,5 +63,20 @@
     });
 
     updateCount();
+
+    const hasActiveRuns = () => {
+      const activeStatuses = tbody.querySelectorAll(
+        ".status-pill.status-running, .status-pill.status-queued"
+      );
+      return activeStatuses.length > 0;
+    };
+
+    if (hasActiveRuns()) {
+      const note = document.getElementById("mq-runs-refresh-note");
+      if (note) note.style.display = "block";
+      setTimeout(() => {
+        window.location.reload();
+      }, 20000);
+    }
   })();
 </script>

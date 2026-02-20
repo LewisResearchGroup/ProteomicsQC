@@ -18,6 +18,29 @@
              data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}", "pipeline": "{{ pipeline.pk }}"}'>
 
       <div id="upload-feedback" class="upload-feedback" aria-live="polite"></div>
+      <div class="upload-queue" id="upload-queue">
+        <div class="upload-queue-head">
+          <strong>Upload queue</strong>
+          <span id="upload-queue-count">0 files</span>
+        </div>
+        <div class="upload-queue-table-wrap">
+          <table class="upload-queue-table">
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>Size</th>
+                <th>Progress</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="upload-queue-body">
+              <tr id="upload-queue-empty">
+                <td colspan="4">No active uploads.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
     <div class="modal fade" id="modal-progress" data-backdrop="static" data-keyboard="false">

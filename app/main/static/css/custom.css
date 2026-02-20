@@ -334,6 +334,100 @@ tr th .btn {
   color: #992222;
 }
 
+.upload-queue {
+  width: 100%;
+  max-width: 960px;
+  margin: 10px auto 0 auto;
+  border: 1px solid #e3e6ea;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.upload-queue-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid #edf1f6;
+  color: #4a5568;
+  font-size: 14px;
+}
+
+.upload-queue-table-wrap {
+  max-height: 240px;
+  overflow: auto;
+}
+
+.upload-queue-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.upload-queue-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f6f8fb;
+  color: #5a6575;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  border-bottom: 1px solid #e3e6ea;
+  padding: 8px 10px;
+}
+
+.upload-queue-table tbody td {
+  border-bottom: 1px solid #edf1f6;
+  padding: 8px 10px;
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.upload-queue-name {
+  display: inline-block;
+  max-width: 360px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  color: #27364a;
+}
+
+.upload-queue-progress {
+  display: inline-block;
+  width: 130px;
+  height: 8px;
+  border-radius: 999px;
+  background: #e8edf3;
+  margin-right: 8px;
+  vertical-align: middle;
+  overflow: hidden;
+}
+
+.upload-queue-progress-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #0f8f8f 0%, #0a7c88 100%);
+}
+
+.upload-queue-progress-text {
+  font-size: 12px;
+  color: #5d6a7b;
+}
+
+.upload-queue-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 92px;
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: lowercase;
+}
+
 .upload-new-run {
   animation: uploadPulse 1.2s ease-out;
 }
