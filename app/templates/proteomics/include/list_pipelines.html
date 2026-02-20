@@ -1,37 +1,28 @@
-  
-<div class='block pipeline-table'>
-  {% if maxquant_pipelines %}
-  <table style="background-color: #fafafa; border-collapse: separate;">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Description</th>
-        <th># Raw Files</th>
-        <th>Link</th>
-      </tr>
-   </thead>
-    {% for pipeline in maxquant_pipelines %}
-    <tr>
-      <td>
-        {{ pipeline.id }}
-      </td>
-      <td>
-        {{ pipeline.name }}</a>           
-      </td>
-      <td>
-        {{ pipeline.description }}
-      </td>
-      <td>
-        {{ pipeline.n_files }}</a>           
-      </td>
-      <td>
-        <a href="{{ pipeline.url }}"><button class='btn full_width'>Open</button></a>   
-      </td>
-    </tr>
-    {% endfor %}
-  </table>
-  {% else %}
-    <p class='warning'>No pipeline found for this project.</p>
-  {% endif %}
-</div>
+{% if maxquant_pipelines %}
+  <div class="pipelines-table-wrap">
+    <table class="pipelines-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th># Raw files</th>
+          <th>Open</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pipeline in maxquant_pipelines %}
+          <tr>
+            <td>{{ pipeline.id }}</td>
+            <td>{{ pipeline.name }}</td>
+            <td>{{ pipeline.description }}</td>
+            <td>{{ pipeline.n_files }}</td>
+            <td><a class="mq-open-link" href="{{ pipeline.url }}">Open</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <p class='warning'>No pipeline found for this project.</p>
+{% endif %}

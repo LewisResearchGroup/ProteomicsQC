@@ -256,6 +256,40 @@ tr th .btn {
   background: #f9fcfd;
 }
 
+.pipelines-table-wrap {
+  border: 1px solid #e3e6ea;
+  border-radius: 8px;
+  overflow: auto;
+  background: #fff;
+}
+
+.pipelines-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.pipelines-table thead th {
+  background: #f6f8fb;
+  color: #5a6575;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  border-bottom: 1px solid #e3e6ea;
+  padding: 10px 12px;
+}
+
+.pipelines-table tbody td {
+  border-bottom: 1px solid #edf1f6;
+  padding: 10px 12px;
+  vertical-align: middle;
+  font-size: 14px;
+}
+
+.pipelines-table tbody tr:hover {
+  background: #f9fcfd;
+}
+
 .mq-run-name {
   display: inline-block;
   max-width: 540px;
