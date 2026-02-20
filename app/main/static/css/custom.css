@@ -205,6 +205,43 @@ tr th .btn {
   letter-spacing: 0.5px;
 }
 
+.upload-feedback {
+  width: 100%;
+  max-width: 960px;
+  margin: 10px auto 0 auto;
+}
+
+.upload-feedback-message {
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.upload-feedback-success {
+  background: #e8f7ef;
+  border: 1px solid #c7e8d3;
+  color: #1f6b3a;
+}
+
+.upload-feedback-error {
+  background: #fdecec;
+  border: 1px solid #f3c6c6;
+  color: #992222;
+}
+
+.upload-new-run {
+  animation: uploadPulse 1.2s ease-out;
+}
+
+@keyframes uploadPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 128, 128, 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 12px rgba(0, 128, 128, 0);
+  }
+}
+
 .project-header {
   display: flex !important;
   flex-direction: row !important;

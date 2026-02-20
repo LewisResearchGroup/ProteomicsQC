@@ -342,18 +342,18 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
                     )
                     add_figure(fig)
 
-            rt_cal_col = "Retention time calibration"
-            if rt_cal_col in msms.columns:
-                rt_cal = pd.to_numeric(msms[rt_cal_col], errors="coerce").dropna()
-                if not rt_cal.empty:
-                    rt_cal_df = pd.DataFrame({rt_cal_col: rt_cal})
-                    fig = histograms(
-                        rt_cal_df,
-                        cols=[rt_cal_col],
-                        title="Retention time calibration",
-                        nbinsx=80,
-                    )
-                    add_figure(fig)
+            # rt_cal_col = "Retention time calibration"
+            # if rt_cal_col in msms.columns:
+            #     rt_cal = pd.to_numeric(msms[rt_cal_col], errors="coerce").dropna()
+            #     if not rt_cal.empty:
+            #         rt_cal_df = pd.DataFrame({rt_cal_col: rt_cal})
+            #         fig = histograms(
+            #             rt_cal_df,
+            #             cols=[rt_cal_col],
+            #             title="Retention time calibration",
+            #             nbinsx=80,
+            #         )
+            #         add_figure(fig)
 
             if "Charge" in msms.columns:
                 charge = pd.to_numeric(msms["Charge"], errors="coerce").fillna(0).astype(int).clip(lower=0)
@@ -541,7 +541,15 @@ class UploadRaw(LoginRequiredMixin, View):
                 }
                 return JsonResponse(data)
 
-            data = {"is_valid": True, "name": str(raw_file.name), "url": str(raw_file.path)}
+            result, _ = Result.objects.get_or_create(raw_file=raw_file)
+            data = {
+                "is_valid": True,
+                "name": str(raw_file.name),
+                "url": str(raw_file.path),
+                "result_url": result.url,
+                "already_exists": False,
+                "restored_result": False,
+            }
         else:
             data = {"is_valid": False}
         return JsonResponse(data)

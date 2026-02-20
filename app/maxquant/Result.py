@@ -334,6 +334,22 @@ class Result(models.Model):
         return path.is_dir() and any(path.iterdir())
 
     @property
+    def rawtools_metrics_expected_files(self):
+        raw_name = self.raw_file.name
+        return [
+            self.output_dir_rawtools / f"{raw_name}_Ms_TIC_chromatogram.txt",
+            self.output_dir_rawtools / f"{raw_name}_Ms2_TIC_chromatogram.txt",
+        ]
+
+    @property
+    def rawtools_qc_expected_files(self):
+        # Older and newer RawTools QC layouts have used different output locations.
+        return [
+            self.output_dir_rawtools_qc / "QcDataTable.csv",
+            self.raw_file.path.parent / "QcDataTable.csv",
+        ]
+
+    @property
     def maxquant_status(self):
         err_fn = self.output_dir_maxquant / "maxquant.err"
         if self._has_error_text(err_fn):
@@ -349,7 +365,7 @@ class Result(models.Model):
         err_fn = self.output_dir_rawtools / "rawtools_metrics.err"
         if self._has_error_text(err_fn):
             return "failed"
-        if self.n_files_rawtools_metrics > 0:
+        if all(fn.is_file() for fn in self.rawtools_metrics_expected_files):
             return "done"
         if self._dir_has_files(self.output_dir_rawtools):
             return "running"
@@ -360,9 +376,11 @@ class Result(models.Model):
         err_fn = self.output_dir_rawtools_qc / "rawtools_qc.err"
         if self._has_error_text(err_fn):
             return "failed"
-        if self.n_files_rawtools_qc > 0:
+        if any(fn.is_file() for fn in self.rawtools_qc_expected_files):
             return "done"
         if self._dir_has_files(self.output_dir_rawtools_qc):
+            return "running"
+        if (self.raw_file.path.parent / "rawtools.txt").is_file():
             return "running"
         return "queued"
 

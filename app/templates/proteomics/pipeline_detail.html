@@ -17,13 +17,7 @@
              data-url="{% url 'maxquant:basic_upload' %}"
              data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}", "pipeline": "{{ pipeline.pk }}"}'>
 
-      <table id="gallery" class="table table-bordered" style="margin-top: 10px;">
-        <!-- <thead>
-          <tr><th>RawFile Uploaded</th></tr>
-        </thead> -->
-        <tbody>
-        </tbody>
-      </table>
+      <div id="upload-feedback" class="upload-feedback" aria-live="polite"></div>
     </div>
 
     <div class="modal fade" id="modal-progress" data-backdrop="static" data-keyboard="false">
