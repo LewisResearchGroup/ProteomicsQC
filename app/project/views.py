@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
 from django.http import Http404, HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Count, Q
 
 from .models import Project
 from .forms import SearchPipeline
@@ -24,7 +25,15 @@ class ProjectListView(LoginRequiredMixin, ListView):
         return context
 
     def get_queryset(self, *args, **kwargs):
-        return Project.objects.all().order_by("name")
+        return (
+            Project.objects
+            .annotate(
+                n_pipelines=Count("pipeline", distinct=True),
+                n_raw_files=Count("pipeline__rawfile", distinct=True),
+                n_members=Count("users", distinct=True),
+            )
+            .order_by("name")
+        )
 
     def paginate_queryset(self, queryset, page_size):
         try:
@@ -32,6 +41,29 @@ class ProjectListView(LoginRequiredMixin, ListView):
         except Http404:
             self.kwargs["page"] = 1  # return page 1 instead
             return super(ProjectListView, self).paginate_queryset(queryset, page_size)
+
+
+def _pipelines_queryset_for_project(slug, regex=None):
+    queryset = (
+        Pipeline.objects.filter(project__slug=slug)
+        .annotate(
+            n_raw_files=Count("rawfile", distinct=True),
+            n_downstream=Count(
+                "rawfile",
+                filter=Q(rawfile__use_downstream=True),
+                distinct=True,
+            ),
+            n_flagged=Count(
+                "rawfile",
+                filter=Q(rawfile__flagged=True),
+                distinct=True,
+            ),
+        )
+        .order_by("name")
+    )
+    if regex:
+        queryset = queryset.filter(name__iregex=regex)
+    return queryset
 
 
 def project_detail_view(request, slug):
@@ -44,15 +76,15 @@ def project_detail_view(request, slug):
             request.method = "POST"
         else:
             form = SearchPipeline(request.POST)
-            maxquant_pipelines = Pipeline.objects.filter(project__slug=slug)
+            maxquant_pipelines = _pipelines_queryset_for_project(slug)
 
     if request.method == "POST":
         request.session["search-pipelines"] = request.POST
         form = SearchPipeline(request.POST)
         if form.is_valid():
-            maxquant_pipelines = Pipeline.objects.filter(
-                project__slug=slug,
-                name__iregex=form.cleaned_data["regex"],
+            maxquant_pipelines = _pipelines_queryset_for_project(
+                slug,
+                regex=form.cleaned_data["regex"],
             )
 
     page = request.GET.get("page", 1)

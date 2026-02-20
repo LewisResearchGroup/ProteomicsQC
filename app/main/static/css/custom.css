@@ -528,6 +528,19 @@ tr th .btn {
   background: #f9fcfd;
 }
 
+.metric-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #eef4f8;
+  color: #35506d;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .mq-run-name {
   display: inline-block;
   max-width: 540px;

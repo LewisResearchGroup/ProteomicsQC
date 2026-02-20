@@ -6,7 +6,10 @@
           <th>ID</th>
           <th>Name</th>
           <th>Description</th>
-          <th># Raw files</th>
+          <th>Raw files</th>
+          <th>Downstream</th>
+          <th>Flagged</th>
+          <th>Created</th>
           <th>Open</th>
         </tr>
       </thead>
@@ -16,7 +19,10 @@
             <td>{{ pipeline.id }}</td>
             <td>{{ pipeline.name }}</td>
             <td>{{ pipeline.description }}</td>
-            <td>{{ pipeline.n_files }}</td>
+            <td><span class="metric-pill">{{ pipeline.n_raw_files }}</span></td>
+            <td><span class="metric-pill">{{ pipeline.n_downstream }}</span></td>
+            <td><span class="metric-pill">{{ pipeline.n_flagged }}</span></td>
+            <td>{{ pipeline.created|date:"Y-m-d" }}</td>
             <td><a class="mq-open-link" href="{{ pipeline.url }}">Open</a></td>
           </tr>
         {% endfor %}
