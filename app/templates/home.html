@@ -1,13 +1,22 @@
 {% extends 'base.html' %}
 
 {% block free_content %}
-
-  <h1>Welcome to {{ home_title }}</h1>
-  <p>This is the automated storage and processing platform for proteomics data from the <a href='https://www.lewisresearchgroup.org/'> Lewis Research Group</a>.<br> 
-     Check out the documentation on how to use this tool or get in touch via GitHub:
-  <p> 
-    <a href='https://lewisresearchgroup.github.io/ProteomicsQC/'><button class='btn'>Documentation</button></a>
-    <a href='https://github.com/LewisResearchGroup/ProteomicsQC/issues'><button class='btn'>Contact</button></a>    
-  </p>  
-    
+  <section class="home-hero block">
+    <p class="home-hero-kicker">Proteomics platform</p>
+    <h1 class="home-hero-title">Welcome to {{ home_title }}</h1>
+    <p class="home-hero-copy">
+      This is the automated storage and processing platform for proteomics data.
+    </p>
+    <p class="home-hero-copy">
+      Read the documentation to get started, or open an issue if you need support.
+    </p>
+    <div class="home-hero-actions">
+      <a href="https://lewisresearchgroup.github.io/ProteomicsQC/" target="_blank" rel="noopener">
+        <button class="btn run-btn run-btn-primary">Documentation</button>
+      </a>
+      <a href="https://github.com/LewisResearchGroup/ProteomicsQC/issues" target="_blank" rel="noopener">
+        <button class="btn run-btn run-btn-secondary">Contact</button>
+      </a>
+    </div>
+  </section>
 {% endblock %}
