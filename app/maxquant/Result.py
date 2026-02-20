@@ -350,6 +350,38 @@ class Result(models.Model):
         ]
 
     @property
+    def maxquant_run_root(self):
+        return COMPUTE_ROOT / "tmp" / "MaxQuant"
+
+    @property
+    def maxquant_run_dir_candidates(self):
+        # MaxquantRunner uses add_uuid_to_rundir=True, yielding directories like:
+        # <compute>/tmp/MaxQuant/<uuid>-<raw_basename>
+        raw_base = self.basename
+        run_root = self.maxquant_run_root
+        if not run_root.is_dir():
+            return []
+        candidates = []
+        candidates.extend(run_root.glob(f"*-{raw_base}"))
+        # keep backward-compatibility if add_uuid_to_rundir is disabled
+        candidates.extend(
+            [
+                run_root / raw_base,
+                run_root / self.name,
+            ]
+        )
+        # return only existing unique directories
+        uniq = []
+        seen = set()
+        for path in candidates:
+            if path in seen:
+                continue
+            seen.add(path)
+            if path.is_dir():
+                uniq.append(path)
+        return uniq
+
+    @property
     def maxquant_status(self):
         err_fn = self.output_dir_maxquant / "maxquant.err"
         if self._has_error_text(err_fn):
@@ -357,6 +389,8 @@ class Result(models.Model):
         if (self.output_dir_maxquant / "time.txt").is_file():
             return "done"
         if self._dir_has_files(self.output_dir_maxquant):
+            return "running"
+        if self.maxquant_run_dir_candidates:
             return "running"
         return "queued"
 

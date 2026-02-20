@@ -49,6 +49,11 @@ This will create the `.env` file in the root directory of ProteomicsQC.
     
     ## CELERY
     CONCURRENCY=8
+    RESOURCE_RETRY_SECONDS=60
+    MIN_FREE_MEM_GB_MAXQUANT=8
+    MAX_LOAD_PER_CPU_MAXQUANT=0.85
+    MIN_FREE_MEM_GB_RAWTOOLS=2
+    MAX_LOAD_PER_CPU_RAWTOOLS=0.95
     
     ##USERID
     UID=1000:1000
@@ -74,6 +79,11 @@ You can start the server with the following commands:
     make devel  # starts a development server on port 8000
     
     make serve  # starts the production server on port 8080
+
+Resource-aware scheduling for Celery tasks is enabled by default. Each task checks
+current host load and free memory before starting; if resources are tight, it is retried
+after `RESOURCE_RETRY_SECONDS`. Thresholds can be tuned in `.env` using the
+`MIN_FREE_MEM_GB_*` and `MAX_LOAD_PER_CPU_*` variables above.
 
 
 ## Limitations

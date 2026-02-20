@@ -301,7 +301,42 @@ tr th .btn {
 .pipeline-header-text {
   display: flex;
   flex-direction: column;
-  gap: 0px;
+  gap: 8px;
+}
+
+.run-header-card {
+  border: 1px solid #e3e6ea;
+  border-radius: 8px;
+  background: #fafafa !important;
+}
+
+.run-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.run-meta-tile {
+  border: 1px solid #e6e6e6;
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: #fafafa;
+}
+
+.run-meta-tile-label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+}
+
+.run-meta-tile-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+  line-height: 1.25;
+  word-break: break-word;
 }
 
 .run-actions-column {
@@ -346,6 +381,26 @@ tr th .btn {
 
 .raw-file-title {
   margin: 0;
+}
+
+@media (max-width: 900px) {
+  .pipeline-header-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .run-actions-column {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .run-actions-column .btn {
+    width: 100%;
+  }
+
+  .run-meta-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .processing-status-card {

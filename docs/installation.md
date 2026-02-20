@@ -49,11 +49,20 @@ DEFAULT_FROM_EMAIL=noreply@example.com
 
 ## CELERY
 CONCURRENCY=8  # Change this to control how many CPU's can be used for jobs
+RESOURCE_RETRY_SECONDS=60
+MIN_FREE_MEM_GB_MAXQUANT=8
+MAX_LOAD_PER_CPU_MAXQUANT=0.85
+MIN_FREE_MEM_GB_RAWTOOLS=2
+MAX_LOAD_PER_CPU_RAWTOOLS=0.95
 
 ## SECURITY KEYS
 SECRET_KEY=...
 
 ```
+
+The queue is resource-aware. Before each task starts, the worker checks current
+machine load and available memory. If thresholds are exceeded, the task is deferred
+and retried after `RESOURCE_RETRY_SECONDS`.
 
 ## 4) Initiate database
 
@@ -81,5 +90,4 @@ You can now navigate to [http://localhost:8080/admin](http://localhost:8080/admi
 admin account with the credentials you provided in step 5. To make this work you have to 
 configure a remote server that exposes forwards traffic to ports 80 (http) or 443 (https)
 to port 8080 and back. We recommend using NGINX for this purpose.
-
 
