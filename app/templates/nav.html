@@ -15,15 +15,6 @@
           <span>Admin</span>
         </a>
       </div>
-      <div class="app-nav-right">
-        <form action="{% url 'logout' %}" method="post" class="app-nav-logout-form">
-          {% csrf_token %}
-          <button type="submit" class="app-nav-btn app-nav-btn-logout" title="Logout">
-            <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
-            <span>Logout</span>
-          </button>
-        </form>
-      </div>
     </div>
   {% elif request.get_full_path|slice:":16" != "/accounts/login/" %}
     <div class="app-nav-inner">

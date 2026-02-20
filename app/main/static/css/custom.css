@@ -61,6 +61,84 @@ body {
   font-size: 15px;
 }
 
+.app-user-menu {
+  position: relative;
+}
+
+.app-user-menu summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.app-user-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.app-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+.app-user-caret {
+  font-size: 12px;
+  opacity: 0.9;
+  margin-left: 2px;
+}
+
+.app-user-menu[open] .app-user-caret {
+  transform: rotate(180deg);
+}
+
+.app-user-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 260px;
+  border: 1px solid #d7e2ec;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 14px 28px rgba(8, 38, 44, 0.22);
+  padding: 8px;
+  z-index: 40;
+}
+
+.app-user-item {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: #24415d;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  background: transparent;
+  text-align: left;
+}
+
+.app-user-item:hover {
+  background: #f0f7fa;
+  color: #0a6170;
+  text-decoration: none;
+}
+
+.app-user-logout-form {
+  margin: 0;
+}
+
+.app-user-item-logout {
+  color: #8b1e2b;
+}
+
+.app-user-item-logout:hover {
+  background: #fde6e7;
+  color: #7a1823;
+}
+
 .app-nav {
   background: #f4f7fb;
   border-bottom: 1px solid #dbe4ef;

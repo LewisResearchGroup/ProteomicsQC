@@ -56,7 +56,35 @@
         <a href="{% url 'home' %}" class="app-title-link">{{ home_title }}</a>
       </h1>
       {% if user.is_authenticated %}
-        <div id='username' class="app-user">{{ user.get_username }}</div>
+        <details class="app-user-menu">
+          <summary id="username" class="app-user" title="User menu">
+            <span class="app-user-name">{{ user.get_username }}</span>
+            <span class="app-user-caret" aria-hidden="true">▾</span>
+          </summary>
+          <div class="app-user-dropdown">
+            <a href="{% url 'dash:dashboard' %}" class="app-user-item">
+              <i class="fas fa-chart-bar" aria-hidden="true"></i>
+              <span>Dashboard</span>
+            </a>
+            {% if user.is_staff or user.is_superuser %}
+              <a href="{% url 'admin:index' %}" class="app-user-item">
+                <i class="fas fa-user-cog" aria-hidden="true"></i>
+                <span>Admin</span>
+              </a>
+            {% endif %}
+            <a href="{% url 'password_change' %}" class="app-user-item">
+              <i class="fas fa-key" aria-hidden="true"></i>
+              <span>Change password</span>
+            </a>
+            <form action="{% url 'logout' %}" method="post" class="app-user-logout-form">
+              {% csrf_token %}
+              <button type="submit" class="app-user-item app-user-item-logout">
+                <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                <span>Logout</span>
+              </button>
+            </form>
+          </div>
+        </details>
       {% endif %}
     </div>
   </header>
