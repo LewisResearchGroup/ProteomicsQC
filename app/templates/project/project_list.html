@@ -3,34 +3,30 @@
 {% block content %}
   <h1 class='project'>Projects</h1>
 
-  <div class='block' style="background-color: #fafafa !important;">
+  <div class='block pipeline-block'>
     {% if project_list %}
-      <table style="background-color: #fafafa; border-collapse: separate;">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Link</th>
-          </tr>
-       </thead>
-      {% for project in project_list %}
-      <tr>
-        <td>
-          {{ project.id }}
-        </td>
-        <td>
-          {{ project.name }}</a>
-        </td>
-        <td>
-          {{ project.description }}
-        </td>
-        <td>
-          <a href="{% url 'project:detail' slug=project.slug %}"><button class='btn full_width'> Open</button></a>   
-        </td>
-      </tr>
-      {% endfor %}
-    </table>
+      <div class="projects-table-wrap">
+        <table class="projects-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Open</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for project in project_list %}
+              <tr>
+                <td>{{ project.id }}</td>
+                <td>{{ project.name }}</td>
+                <td>{{ project.description }}</td>
+                <td><a class="mq-open-link" href="{% url 'project:detail' slug=project.slug %}">Open</a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     {% else %}
       <p>There were no project created yet.</p>
     {% endif %}
