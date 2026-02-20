@@ -529,6 +529,13 @@ tr th .btn {
   font-size: 12px;
 }
 
+.figure-section-title {
+  margin: 8px 0 12px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #4a5568;
+}
+
 .project {
   font-weight: bold;
 }

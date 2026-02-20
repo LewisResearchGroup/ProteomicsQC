@@ -129,6 +129,7 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
 
         figures = []
         summary_stats = []
+        figure_sections = []
         plot_help_by_title = {
             "MS TIC chromatogram": "Total ion current over retention time for MS1 scans.",
             "MS2 TIC chromatogram": "Total ion current over retention time for MS2 scans.",
@@ -157,12 +158,48 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
             "Andromeda Scores": "Distribution of protein-group Andromeda scores.",
         }
 
+        section_order = [
+            "Chromatography",
+            "Identification Quality",
+            "Calibration",
+            "Quantification",
+            "Other",
+        ]
+        section_labels = {
+            "Chromatography": "Chromatography",
+            "Identification Quality": "Identification quality",
+            "Calibration": "Mass and retention-time calibration",
+            "Quantification": "Quantification and channel intensity",
+            "Other": "Other metrics",
+        }
+        section_by_title = {
+            "MS TIC chromatogram": "Chromatography",
+            "MS2 TIC chromatogram": "Chromatography",
+            "Missed cleavages": "Identification Quality",
+            "Charge states": "Identification Quality",
+            "Peptide length distribution": "Identification Quality",
+            "Andromeda Scores": "Identification Quality",
+            "Number of Peptides identified per Protein": "Identification Quality",
+            "Uncalibrated - Calibrated m/z [ppm]": "Calibration",
+            "Retention time calibration": "Calibration",
+            "Channel intensity distribution (peptides)": "Quantification",
+            "Channel intensity distribution (protein groups)": "Quantification",
+        }
+
         def add_figure(fig, help_text=None):
             title_text = ""
             if hasattr(fig, "layout") and hasattr(fig.layout, "title"):
                 title_text = fig.layout.title.text or ""
             resolved_help = help_text if help_text is not None else plot_help_by_title.get(title_text)
-            figures.append({"html": plotly_fig_to_div(fig), "help": resolved_help})
+            section = section_by_title.get(title_text, "Other")
+            figures.append(
+                {
+                    "html": plotly_fig_to_div(fig),
+                    "help": resolved_help,
+                    "title": title_text,
+                    "section": section,
+                }
+            )
 
         def channel_sort_key(col_name):
             base = col_name
@@ -455,7 +492,23 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
                 )
                 add_figure(fig)
 
+        grouped = {section: [] for section in section_order}
+        for figure in figures:
+            grouped.setdefault(figure["section"], []).append(figure)
+
+        for section in section_order:
+            items = grouped.get(section, [])
+            if items:
+                figure_sections.append(
+                    {
+                        "key": section,
+                        "title": section_labels.get(section, section),
+                        "figures": items,
+                    }
+                )
+
         context["figures"] = figures
+        context["figure_sections"] = figure_sections
         context["summary_stats"] = summary_stats
         context["home_title"] = settings.HOME_TITLE
         return context

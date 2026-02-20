@@ -85,24 +85,25 @@
     </div>
   {% endif %}
 
-  <hr />
-
-  {% for figure in figures %}
-    <div style="width:100%; margin-bottom:20px;">
-    {% if figure.help %}
-      <div style="display:flex; justify-content:flex-end; margin:0 6px 6px 0;">
-        <span
-          data-toggle="tooltip"
-          data-placement="left"
-          title="{{ figure.help }}"
-          style="display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border:1px solid #bfbfbf; border-radius:50%; color:#666; font-size:12px; cursor:help; background:#fafafa;"
-          aria-label="Plot help"
-        >?</span>
-      </div>
-    {% endif %}
-    {{ figure.html|safe }}
-    </div>
+  {% for section in figure_sections %}
     <hr />
+    <h4 class="figure-section-title">{{ section.title }}</h4>
+    {% for figure in section.figures %}
+      <div style="width:100%; margin-bottom:20px;">
+      {% if figure.help %}
+        <div style="display:flex; justify-content:flex-end; margin:0 6px 6px 0;">
+          <span
+            data-toggle="tooltip"
+            data-placement="left"
+            title="{{ figure.help }}"
+            style="display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border:1px solid #bfbfbf; border-radius:50%; color:#666; font-size:12px; cursor:help; background:#fafafa;"
+            aria-label="Plot help"
+          >?</span>
+        </div>
+      {% endif %}
+      {{ figure.html|safe }}
+      </div>
+    {% endfor %}
   {% endfor %}
 
   <script>
