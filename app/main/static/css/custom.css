@@ -4,7 +4,12 @@
 body {
   font-family: 'Dongle', sans-serif;
   background: #fafafa;
-  margin-bottom: 10%;
+  margin-bottom: 0;
+}
+
+html, body {
+  width: 100%;
+  overflow-x: hidden;
 }
 
 
@@ -1321,7 +1326,16 @@ a:hover {
 
 .flex-wrapper {
   display: flex;
-  min-height: 90vh;
+  min-height: 100vh;
   flex-direction: column;
-  justify-content: space-between;
+}
+
+#content {
+  flex: 1 1 auto;
+}
+
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1360px;
+  }
 }
