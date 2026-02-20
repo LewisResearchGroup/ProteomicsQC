@@ -1,29 +1,48 @@
-<div class='block'>
-  <!-- <h1 class='pipeline'>{{ project.name }} - {{ pipeline.name }} ({{pipeline.id}})</h1> -->
+<div class='block run-header-card'>
   <div class="pipeline-header-row">
     <div class="pipeline-header-text">
-      <h1 class='pipeline' style="font-size: 24px; color: #333;"><strong>Project:</strong> {{ project.name }}</h1>
-      <h2 class='name' style="font-size: 18px; color: #666;"><strong>Pipeline:</strong> {{ pipeline.name }}</h2>
-      <h3 class='description' style="font-size: 16px; color: #888;"><strong>Description:</strong> {{ pipeline.description }}</h3>
+      <div class="run-meta-grid pipeline-meta-grid">
+        <div class="run-meta-tile">
+          <div class="run-meta-tile-label">Project</div>
+          <div class="run-meta-tile-value">{{ project.name }}</div>
+        </div>
+        <div class="run-meta-tile">
+          <div class="run-meta-tile-label">Pipeline</div>
+          <div class="run-meta-tile-value">{{ pipeline.name }}</div>
+        </div>
+        <div class="run-meta-tile">
+          <div class="run-meta-tile-label">Description</div>
+          <div class="run-meta-tile-value">{{ pipeline.description }}</div>
+        </div>
+        <div class="run-meta-tile run-meta-tile-ghost" aria-hidden="true">
+          <div class="run-meta-tile-label">Raw file</div>
+          <div class="run-meta-tile-value">-</div>
+        </div>
+      </div>
     </div>
-    <div class="pipeline-actions">
+    <div class="pipeline-actions run-actions-column">
       <a href="{% url 'project:detail' project.slug %}">
-        <button class='btn project-back-btn'  
-                style="display:inline-flex; gap:6px; align-items:center; justify-content:center;"
+        <button class='btn run-btn run-btn-primary'
                 title='Back to pipelines overview.'>
-          <i class="fas fa-arrow-left"></i>
+          <span class="run-btn-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" focusable="false">
+              <path
+                d="M15.5 5.5a1 1 0 0 1 0 1.4L10.4 12l5.1 5.1a1 1 0 0 1-1.4 1.4l-5.8-5.8a1 1 0 0 1 0-1.4l5.8-5.8a1 1 0 0 1 1.4 0Z"
+                fill="currentColor"
+              />
+            </svg>
+          </span>
           <span class="project-back-text">Back to pipelines</span>
         </button>
       </a>
-      <!-- <a href="#upload-raw">
-        <button class="btn" title='Upload new RAW file to this pipeline.'>
-          <i class="fas fa-upload"></i>
-          Upload RAW
+      <a href="{% url 'maxquant:pipeline-download-file' pipeline.pk %}?file=summary.txt">
+        <button class='btn run-btn run-btn-secondary'
+                title='Download combined Summary table (CSV) for this pipeline.'>
+          Download summary CSV
         </button>
-      </a> -->
+      </a>
     </div>
   </div>
-  <!-- <a href="{{ pipeline.path }}"><button class='btn'>Browse</button></a> -->
 </div>
 
 

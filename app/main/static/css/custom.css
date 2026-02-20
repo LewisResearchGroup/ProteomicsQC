@@ -295,13 +295,16 @@ tr th .btn {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 50px;
 }
 
 .pipeline-header-text {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 800px;
 }
 
 .run-header-card {
@@ -312,8 +315,17 @@ tr th .btn {
 
 .run-meta-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
+  width: 100%;
+}
+
+.pipeline-actions {
+  flex: 0 0 auto;
+}
+
+.pipeline-meta-grid .run-meta-tile-ghost {
+  visibility: hidden;
 }
 
 .run-meta-tile {
@@ -350,7 +362,7 @@ tr th .btn {
   align-self: flex-end;
 }
 
-.run-actions-column .btn.run-btn {
+.btn.run-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -375,14 +387,14 @@ tr th .btn {
   line-height: 0;
 }
 
-.run-actions-column .run-btn-primary {
+.btn.run-btn.run-btn-primary {
   background: linear-gradient(135deg, #0f8f8f 0%, #0a7c88 100%) !important;
   border-color: #0b7f87 !important;
   color: #ffffff !important;
   box-shadow: 0 8px 18px rgba(10, 124, 136, 0.28);
 }
 
-.run-actions-column .run-btn-primary:hover {
+.btn.run-btn.run-btn-primary:hover {
   background: linear-gradient(135deg, #0c8080 0%, #086d77 100%) !important;
   border-color: #086d77 !important;
   color: #ffffff !important;
@@ -390,14 +402,14 @@ tr th .btn {
   box-shadow: 0 12px 22px rgba(8, 109, 119, 0.34);
 }
 
-.run-actions-column .run-btn-secondary {
+.btn.run-btn.run-btn-secondary {
   background: #f7fbfc !important;
   border-color: #8cc4c8 !important;
   color: #0b6f73 !important;
   box-shadow: 0 6px 14px rgba(6, 88, 97, 0.12);
 }
 
-.run-actions-column .run-btn-secondary:hover {
+.btn.run-btn.run-btn-secondary:hover {
   background: #e9f7f8 !important;
   border-color: #64aeb5 !important;
   color: #085d60 !important;
@@ -405,12 +417,12 @@ tr th .btn {
   box-shadow: 0 10px 20px rgba(6, 88, 97, 0.2);
 }
 
-.run-actions-column .btn.run-btn:focus-visible {
+.btn.run-btn:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px rgba(13, 143, 143, 0.25);
 }
 
-.run-actions-column .btn.run-btn:active {
+.btn.run-btn:active {
   transform: translateY(0);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
 }
@@ -451,6 +463,10 @@ tr th .btn {
   }
 
   .run-actions-column .btn.run-btn {
+    width: 100%;
+  }
+
+  .pipeline-actions .btn.run-btn {
     width: 100%;
   }
 
