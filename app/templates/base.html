@@ -68,10 +68,15 @@
 
     <!-- Page Content -->
     <div id="content">
-      <div class='auth' style='max-width: 600px; margin: auto; margin-top: 10%;'>
-        {% block auth %}
-        {% endblock %}
+      {% if not user.is_authenticated %}
+      <div class="auth" style="max-width: 600px; margin: 24px auto 0 auto;">
+        {% block auth %}{% endblock %}
       </div>
+      {% endif %}
+
+      {% if user.is_authenticated %}
+      <div style="height: 40px;"></div>
+      {% endif %}
 
       <div class="container">
         {% block free_content %}
