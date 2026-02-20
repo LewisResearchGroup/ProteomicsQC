@@ -311,9 +311,9 @@ tr th .btn {
 }
 
 .upload-feedback {
-  width: 100%;
-  max-width: 960px;
-  margin: 10px auto 0 auto;
+  width: calc(100% - 40px);
+  max-width: none;
+  margin: 0 auto;
 }
 
 .upload-feedback-message {
@@ -335,12 +335,46 @@ tr th .btn {
 }
 
 .upload-queue {
-  width: 100%;
-  max-width: 960px;
+  width: calc(100% - 40px);
+  max-width: none;
   margin: 10px auto 0 auto;
   border: 1px solid #e3e6ea;
   border-radius: 8px;
   background: #fff;
+}
+
+.upload-queue-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 1px solid #edf1f6;
+  background: #f8fbfd;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.upload-queue-cta-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.upload-queue-cta-text strong {
+  color: #334155;
+  font-size: 15px;
+}
+
+.upload-queue-cta-text span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.upload-queue-add-btn {
+  min-width: 170px;
+  min-height: 40px;
+  border-radius: 10px !important;
 }
 
 .upload-queue-head {
@@ -428,6 +462,17 @@ tr th .btn {
   text-transform: lowercase;
 }
 
+@media (max-width: 900px) {
+  .upload-queue-cta {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .upload-queue-add-btn {
+    width: 100%;
+  }
+}
+
 .upload-new-run {
   animation: uploadPulse 1.2s ease-out;
 }
@@ -510,6 +555,12 @@ tr th .btn {
   border: 1px solid #e3e6ea;
   border-radius: 8px;
   background: #fafafa !important;
+}
+
+.pipeline-page-header-card {
+  width: calc(100% - 40px);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .run-meta-grid {

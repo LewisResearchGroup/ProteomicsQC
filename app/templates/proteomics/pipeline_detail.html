@@ -4,21 +4,22 @@
     {% include 'proteomics/include/pipeline_head.html' with project=project %}
 
     <div id="upload-raw" class="pipeline-upload">
-      <div class="upload-dropzone text-muted text-center">
-        <h4>drop .raw files here to upload</h4>
-        <div class="upload-divider">or</div>
-        <button type="button" class="btn btn-primary js-upload-photos">
-          <span class="glyphicon glyphicon-cloud-upload"></span> upload .raw
-        </button>
-      </div>
-
       <input id="fileupload" type="file" name="orig_file" multiple
              style="display: none;"
              data-url="{% url 'maxquant:basic_upload' %}"
              data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}", "pipeline": "{{ pipeline.pk }}"}'>
 
-      <div id="upload-feedback" class="upload-feedback" aria-live="polite"></div>
       <div class="upload-queue" id="upload-queue">
+        <div class="upload-queue-cta">
+          <div class="upload-queue-cta-text">
+            <strong>Add .raw files</strong>
+            <span>Drop files here or use the button to add them to the queue.</span>
+          </div>
+          <button type="button" class="btn run-btn run-btn-primary js-upload-photos upload-queue-add-btn">
+            upload .raw
+          </button>
+        </div>
+        <div id="upload-feedback" class="upload-feedback" aria-live="polite"></div>
         <div class="upload-queue-head">
           <strong>Upload queue</strong>
           <span id="upload-queue-count">0 files</span>
