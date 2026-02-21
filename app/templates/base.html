@@ -96,13 +96,13 @@
     <!-- Page Content -->
     <div id="content">
       {% if not user.is_authenticated %}
-      <div class="auth" style="max-width: 600px; margin: 24px auto 0 auto;">
+      <div class="auth auth-shell">
         {% block auth %}{% endblock %}
       </div>
       {% endif %}
 
       {% if user.is_authenticated %}
-      <div style="height: 20px;"></div>
+      <div class="content-spacer-sm"></div>
       {% endif %}
 
       <div class="container">

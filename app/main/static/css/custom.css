@@ -1,248 +1,38 @@
-@import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
+/*
+ * UI CSS freeze orchestrator.
+ * Temporary policy: no visual redesign in this layer during refactor; only regression fixes.
+ * Layering order: reset -> base -> layout -> components -> pages -> utilities.
+ */
+@import "reset.css";
+@import "typography.css";
+@import "containers.css";
+@import "header.css";
+@import "nav.css";
+@import "buttons.css";
+@import "forms.css";
+@import "tables.css";
+@import "cards.css";
+@import "status.css";
+@import "home.css";
+@import "project.css";
+@import "pipeline.css";
+@import "run-detail.css";
 
-
-body {
-  font-family: 'Dongle', sans-serif;
-  background: #fafafa;
-  margin-bottom: 0;
-}
-
-html, body {
-  width: 100%;
-  overflow-x: hidden;
-}
-
-
-#title{
-  color:rgb(240, 240, 240);
-  font-size: 30;
-  font-weight: bold;
-  text-align: left;
-  padding: 20;
-}
-
-.app-header {
-  background: linear-gradient(135deg, #0f8f8f 0%, #0a7c88 100%);
-  color: #fff;
-  width: 100%;
-  box-shadow: 0 10px 22px rgba(6, 88, 97, 0.22);
-}
-
-.app-header-inner {
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 14px 22px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-}
-
-.app-title {
-  margin: 0;
-  padding: 0;
-  color: #ffffff;
-  font-size: 40px;
-  line-height: 1.1;
-}
-
-.app-title-link {
-  color: #ffffff;
-  text-decoration: none;
-}
-
-.app-title-link:hover {
-  color: #ecfeff;
-  text-decoration: none;
-}
-
-.app-user {
-  padding: 8px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.12);
-  color: #ecfeff;
-  font-weight: 700;
-  font-size: 15px;
-}
-
-.app-user-menu {
-  position: relative;
-}
-
-.app-user-menu summary {
-  list-style: none;
-  cursor: pointer;
-}
-
-.app-user-menu summary::-webkit-details-marker {
-  display: none;
-}
-
-.app-user {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  justify-content: flex-start;
-}
-
-.app-user-caret {
-  font-size: 12px;
-  opacity: 0.9;
-  margin-left: 2px;
-}
-
-.app-user-menu[open] .app-user-caret {
-  transform: rotate(180deg);
-}
-
-.app-user-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  min-width: 260px;
-  border: 1px solid #d7e2ec;
-  border-radius: 10px;
-  background: #ffffff;
-  box-shadow: 0 14px 28px rgba(8, 38, 44, 0.22);
-  padding: 8px;
-  z-index: 40;
-}
-
-.app-user-item {
-  width: 100%;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  color: #24415d;
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  border: none;
-  background: transparent;
-  text-align: left;
-}
-
-.app-user-item:hover {
-  background: #f0f7fa;
-  color: #0a6170;
-  text-decoration: none;
-}
-
-.app-user-logout-form {
-  margin: 0;
-}
-
-.app-user-item-logout {
-  color: #8b1e2b;
-}
-
-.app-user-item-logout:hover {
-  background: #fde6e7;
-  color: #7a1823;
-}
-
-.app-nav {
-  background: #f4f7fb;
-  border-bottom: 1px solid #dbe4ef;
-}
-
-.app-nav-inner {
-  width: 100%;
-  padding: 10px 40px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.app-nav-left,
-.app-nav-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.app-nav-logout-form {
-  margin: 0;
-}
-
-.app-nav-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-width: 175px;
-  min-height: 42px;
-  padding: 0 16px;
-  border-radius: 10px;
-  border: 1px solid #8cc4c8;
-  background: #f7fbfc;
-  color: #0b6f73;
-  font-weight: 600;
-  font-size: 17px;
-  text-decoration: none;
-  box-shadow: 0 6px 14px rgba(6, 88, 97, 0.12);
-  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease, border-color 120ms ease;
-}
-
-.app-nav-btn:hover {
-  color: #085d60;
-  text-decoration: none;
-  background: #e9f7f8;
-  border-color: #64aeb5;
-  transform: translateY(-1px);
-  box-shadow: 0 10px 20px rgba(6, 88, 97, 0.2);
-}
-
-.app-nav-btn:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(13, 143, 143, 0.25);
-}
-
-.app-nav-btn-logout {
-  border-color: #e3a1a1;
-  background: #fff4f4;
-  color: #8b1e2b;
-  box-shadow: 0 6px 14px rgba(139, 30, 43, 0.14);
-}
-
-.app-nav-btn-logout:hover {
-  background: #fde6e7;
-  border-color: #d77e84;
-  color: #7a1823;
-  box-shadow: 0 10px 18px rgba(122, 24, 35, 0.2);
-}
-
-.app-nav-btn-login {
-  min-width: 120px;
-}
-
-.header {
-  width: 70%;
-  align-content: left;
-}
-
-
+/*
+ * Compatibility layer during migration.
+ * Keep only legacy selectors not yet moved.
+ */
 #CookielawBanner { 
-  background-color: lightgray !important;
+  background: #fff;
   border: 2px solid red;
   border-radius: 5px;
   max-width: 100%;
   margin: auto;
+  padding: 15px 0;
 }
 
 
-#LoginButton:hover {
-  background-color: blue;
-}
 
-hr {
-  margin-top: 20px;
-  margin-bottom: 20px;
-}
 
 .nobull {
   list-style-type: none !important;
@@ -256,83 +46,13 @@ hr {
   padding-top: 10px;
 }
 
-.btn{
-  width: 220px;
-  min-height: 40px;
-  margin: 5px 5px 5px 5px;
-  background-color: darkcyan;
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  padding: 5px;
-}
 
-#logout {
-  background:darkred;
-  float: right;
-}
 
-.right{
-  float: right !important;
-}
-
-.full_width {
-  width: 100%;
-  margin: 5px;
-}
-
-.btn:hover {
-  background-color: blue;
-  color: white !important;
-}
-
-nav ul a:hover {
-  background-color: lightcyan;
-}
-
-h1 {
-  font-size: 30;
-  color: rgb(0, 80, 80);
-  font-weight: bold;
-
-}
 
 iframe {
   overflow: hidden;
 }
 
-.button {
-  background-color: #27a69a !important;
-}
-
-input[type=text] {
-  width:100%;
-  font-size: large;
-}
-
-tr th label {
-  font-size: large;
-}
-
-
-input[type=submit] {
-  width: 220px;
-  min-height: 40px;
-  margin: 5px 5px 5px 5px;
-  background-color: darkcyan;
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  padding: 5px;
-  border: none;
-  border-radius: 5px;
-}
-
-
-tr th .btn {
-  height: 30px;
-  font-weight: normal;
-}
 
 #sortnsearch {
   padding-bottom: 50px; 
@@ -852,6 +572,7 @@ tr th .btn {
   gap: 12px;
   align-items: center;
   justify-content: flex-end;
+  flex: 0 0 auto;
 }
 
 .pipeline-header-row {
@@ -887,10 +608,6 @@ tr th .btn {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   width: 100%;
-}
-
-.pipeline-actions {
-  flex: 0 0 auto;
 }
 
 .pipeline-meta-grid .run-meta-tile-ghost {
@@ -1185,17 +902,12 @@ table tbody td {
   font-weight: normal;
 }
 
-#CookielawBanner {
-  background: #fff;
-  padding: 15px 0;
-}
-
 #CookielawBanner .container {
   position: relative;
 }
 
 
-#CookielawBanner #CookielawCross {
+#CookielawCross {
   background: url('../img/close.png') no-repeat 0 0;
   cursor: pointer;
   display: block;
@@ -1247,17 +959,6 @@ ul .disabled {
 }
 
 
-@media (max-width: 1000px) {
-  #logout {
-    float: None;
-  }
-}
-
-@media (max-width: 500px) {
-  .btn {
-    width: 100%;
-  }
-}
 
 
 a[data-toggle="collapse"] {
@@ -1302,40 +1003,6 @@ a:hover {
   text-decoration: None;
 }
 
-#username {
-  font-weight: bold;
-  padding: 5px;
-}
-
-@media (max-width: 900px) {
-  .app-header-inner {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .app-nav-inner {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .app-nav-left,
-  .app-nav-right {
-    width: 100%;
-  }
-
-  .app-nav-left {
-    flex-wrap: wrap;
-  }
-
-  .app-nav-btn {
-    flex: 1 1 160px;
-  }
-
-  .app-nav-right .app-nav-btn {
-    width: 100%;
-  }
-}
 
 .flex-wrapper {
   display: flex;

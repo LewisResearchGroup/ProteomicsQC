@@ -1,0 +1,31 @@
+/*
+ * Scope: typography primitives and shared design tokens.
+ * Do not place component geometry, page spacing systems, or utility overrides here.
+ */
+
+@import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
+
+:root {
+  --color-bg-page: #fafafa;
+  --color-brand-strong: #0a7c88;
+  --color-brand-soft: #0f8f8f;
+  --color-brand-ink: #0b6f73;
+  --color-danger-ink: #8b1e2b;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --shadow-brand-sm: 0 6px 14px rgba(6, 88, 97, 0.12);
+  --shadow-brand-md: 0 10px 20px rgba(6, 88, 97, 0.2);
+}
+
+body {
+  font-family: 'Dongle', sans-serif;
+  background: var(--color-bg-page);
+  margin-bottom: 0;
+}
+
+h1 {
+  font-size: 30;
+  color: rgb(0, 80, 80);
+  font-weight: bold;
+}

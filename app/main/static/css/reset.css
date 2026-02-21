@@ -1,0 +1,21 @@
+/*
+ * Scope: browser-level reset and low-level element defaults.
+ * Do not place component classes, page-specific layout, or theme variants here.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+hr {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}

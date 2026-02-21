@@ -1,0 +1,59 @@
+/*
+ * Scope: shared button primitives and legacy compatibility button selectors.
+ * Do not place header/nav container layouts, table structure, or page-specific sections here.
+ */
+
+.btn {
+  width: 220px;
+  min-height: 40px;
+  margin: 5px;
+  background-color: darkcyan;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  padding: 5px;
+}
+
+#logout {
+  background: darkred;
+  float: right;
+}
+
+.btn:hover {
+  background-color: blue;
+  color: white !important;
+}
+
+.button {
+  background-color: #27a69a !important;
+}
+
+input[type=submit] {
+  width: 220px;
+  min-height: 40px;
+  margin: 5px;
+  background-color: darkcyan;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  padding: 5px;
+  border: none;
+  border-radius: 5px;
+}
+
+tr th .btn {
+  height: 30px;
+  font-weight: normal;
+}
+
+@media (max-width: 1000px) {
+  #logout {
+    float: None;
+  }
+}
+
+@media (max-width: 500px) {
+  .btn {
+    width: 100%;
+  }
+}

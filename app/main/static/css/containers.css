@@ -1,0 +1,34 @@
+/*
+ * Scope: structural wrappers and generic layout containers.
+ * Do not place button/table/status visuals or page-only component skins here.
+ */
+
+.header {
+  width: 70%;
+  align-content: left;
+}
+
+.flex-wrapper {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+#content {
+  flex: 1 1 auto;
+}
+
+.auth-shell {
+  max-width: 600px;
+  margin: 24px auto 0 auto;
+}
+
+.content-spacer-sm {
+  height: 20px;
+}
+
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1360px;
+  }
+}
