@@ -1,9 +1,10 @@
 from django.views.generic import ListView
 
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.conf import settings
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Count, Q
 
@@ -25,7 +26,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
         return context
 
     def get_queryset(self, *args, **kwargs):
-        return (
+        queryset = (
             Project.objects
             .annotate(
                 n_pipelines=Count("pipeline", distinct=True),
@@ -34,6 +35,12 @@ class ProjectListView(LoginRequiredMixin, ListView):
             )
             .order_by("name")
         )
+        user = self.request.user
+        if user.is_staff or user.is_superuser:
+            return queryset
+        return queryset.filter(
+            Q(created_by_id=user.id) | Q(users=user)
+        ).distinct()
 
     def paginate_queryset(self, queryset, page_size):
         try:
@@ -66,6 +73,15 @@ def _pipelines_queryset_for_project(slug, regex=None):
     return queryset
 
 
+def _user_can_access_project(user, project):
+    if user.is_staff or user.is_superuser:
+        return True
+    if project.created_by_id == user.id:
+        return True
+    return project.users.filter(pk=user.id).exists()
+
+
+@login_required
 def project_detail_view(request, slug):
 
     # Pattern to store form data in session
@@ -97,8 +113,12 @@ def project_detail_view(request, slug):
     except EmptyPage:
         maxquant_pipelines = paginator.page(paginator.num_pages)
 
+    project = get_object_or_404(Project, slug=slug)
+    if not _user_can_access_project(request.user, project):
+        return HttpResponseForbidden("You do not have access to this project.")
+
     context = {
-        "object": Project.objects.get(slug=slug),
+        "object": project,
         "home_title": settings.HOME_TITLE,
         "form": form,
         "maxquant_pipelines": maxquant_pipelines,
@@ -106,8 +126,11 @@ def project_detail_view(request, slug):
     return render(request, "project/project_detail.html", context)
 
 
+@login_required
 def project_pipelines_download(request, slug):
-    project = Project.objects.get(slug=slug)
+    project = get_object_or_404(Project, slug=slug)
+    if not _user_can_access_project(request.user, project):
+        return HttpResponseForbidden("You do not have access to this project.")
     pipelines = Pipeline.objects.filter(project=project).order_by("name")
 
     response = HttpResponse(content_type="text/csv")

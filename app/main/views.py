@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.conf import settings as conf_settings
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.urls import reverse, NoReverseMatch
 
 from project.models import Project
@@ -10,21 +10,31 @@ from maxquant.models import Result, Pipeline
 def home(request):
     context = {"home_title": conf_settings.HOME_TITLE}
     if request.user.is_authenticated:
-        project_count = Project.objects.count()
+        projects_qs = Project.objects.all()
+        if not (request.user.is_staff or request.user.is_superuser):
+            projects_qs = projects_qs.filter(
+                Q(created_by_id=request.user.id) | Q(users=request.user)
+            ).distinct()
+
+        project_count = projects_qs.count()
         pipeline_count = (
-            Project.objects.aggregate(total=Count("pipeline", distinct=True)).get("total", 0)
+            projects_qs.aggregate(total=Count("pipeline", distinct=True)).get("total", 0)
             or 0
         )
 
         recent_runs_qs = (
             Result.objects.select_related("raw_file__pipeline__project")
+            .filter(raw_file__pipeline__project__in=projects_qs)
             .order_by("-created")[:3]
         )
         latest_run = recent_runs_qs[0] if recent_runs_qs else None
         latest_pipeline = (
-            Pipeline.objects.select_related("project").order_by("-created").first()
+            Pipeline.objects.select_related("project")
+            .filter(project__in=projects_qs)
+            .order_by("-created")
+            .first()
         )
-        latest_project = Project.objects.order_by("-created").first()
+        latest_project = projects_qs.order_by("-created").first()
         recent_runs = []
         for run in recent_runs_qs:
             pipeline = run.raw_file.pipeline

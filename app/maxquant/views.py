@@ -10,7 +10,6 @@ from io import BytesIO
 from django.http import (
     HttpResponse,
     JsonResponse,
-    HttpResponseNotFound,
     Http404,
     HttpResponseForbidden,
 )
@@ -21,6 +20,7 @@ from django.views.decorators.http import require_POST
 from django.db import transaction, IntegrityError
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Q
 
 from django.conf import settings
 
@@ -31,17 +31,37 @@ from project.models import Project
 
 from lrg_omics.common import today
 from lrg_omics.proteomics.rawtools.plotly import histograms, lines_plot
-from lrg_omics.plotly_tools import (
-    plotly_heatmap,
-    plotly_fig_to_div,
-    plotly_dendrogram,
-    plotly_bar,
-    plotly_table,
-    plotly_histogram,
-)
+from lrg_omics.plotly_tools import plotly_fig_to_div
 
 
 # Create your views here.
+def _projects_for_user(user):
+    queryset = Project.objects.all()
+    if user.is_staff or user.is_superuser:
+        return queryset
+    return queryset.filter(Q(created_by_id=user.id) | Q(users=user)).distinct()
+
+
+def _pipelines_for_user(user):
+    queryset = Pipeline.objects.select_related("project")
+    if user.is_staff or user.is_superuser:
+        return queryset
+    return queryset.filter(
+        Q(project__created_by_id=user.id) | Q(project__users=user)
+    ).distinct()
+
+
+def _results_for_user(user):
+    queryset = Result.objects.select_related("raw_file__pipeline__project")
+    if user.is_staff or user.is_superuser:
+        return queryset
+    return queryset.filter(
+        Q(raw_file__pipeline__project__created_by_id=user.id)
+        | Q(raw_file__pipeline__project__users=user)
+    ).distinct()
+
+
+@login_required
 def maxquant_pipeline_view(request, project, pipeline):
 
     # Pattern to store form data in session
@@ -52,14 +72,18 @@ def maxquant_pipeline_view(request, project, pipeline):
             request.method = "POST"
         else:
             form = SearchResult(request.POST)
-            maxquant_runs = Result.objects.filter(raw_file__pipeline__slug=pipeline)
+            maxquant_runs = _results_for_user(request.user).filter(
+                raw_file__pipeline__slug=pipeline,
+                raw_file__pipeline__project__slug=project,
+            )
 
     if request.method == "POST":
         request.session["search-files"] = request.POST
         form = SearchResult(request.POST)
         if form.is_valid():
-            maxquant_runs = Result.objects.filter(
+            maxquant_runs = _results_for_user(request.user).filter(
                 raw_file__pipeline__slug=pipeline,
+                raw_file__pipeline__project__slug=project,
                 raw_file__orig_file__iregex=form.cleaned_data["raw_file"],
             )
 
@@ -73,27 +97,33 @@ def maxquant_pipeline_view(request, project, pipeline):
     except EmptyPage:
         maxquant_runs = paginator.page(paginator.num_pages)
 
-    project = Project.objects.get(slug=project)
-    pipeline = Pipeline.objects.get(project=project, slug=pipeline)
-    context = dict(maxquant_runs=maxquant_runs, project=project, pipeline=pipeline)
+    project = get_object_or_404(_projects_for_user(request.user), slug=project)
+    pipeline = get_object_or_404(
+        _pipelines_for_user(request.user), project=project, slug=pipeline
+    )
+    context = dict(
+        maxquant_runs=maxquant_runs, project=project, pipeline=pipeline
+    )
     context["home_title"] = settings.HOME_TITLE
     context["form"] = form
     return render(request, "proteomics/pipeline_detail.html", context)
 
 
+@login_required
 def pipeline_download_file(request, pk):
 
     pipeline_pk = pk
 
-    maxquant_runs = Result.objects.filter(
+    maxquant_runs = _results_for_user(request.user).filter(
         raw_file__pipeline__pk=pipeline_pk, raw_file__use_downstream=True
     )
 
     fn = request.GET.get("file")
 
-    pipeline = Pipeline.objects.get(pk=pipeline_pk)
+    pipeline = get_object_or_404(
+        _pipelines_for_user(request.user), pk=pipeline_pk
+    )
     project = pipeline.project
-    project_name = project.name
 
     stream = BytesIO()
     dfs = []
@@ -123,6 +153,9 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
     model = Result
     template_name = "proteomics/maxquant_detail.html"
 
+    def get_queryset(self):
+        return _results_for_user(self.request.user)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         mq_run = context["object"]
@@ -139,31 +172,39 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
         summary_stats = []
         figure_sections = []
         plot_help_by_title = {
-            "MS TIC chromatogram": "Total ion current over retention time for MS1 scans.",
-            "MS2 TIC chromatogram": "Total ion current over retention time for MS2 scans.",
-            "Missed cleavages": "Number of missed enzymatic cleavages in identified peptides.",
-            "Charge states": "Charge state distribution of identified precursor ions.",
+            "MS TIC chromatogram": "Total ion current over retention time "
+            "for MS1 scans.",
+            "MS2 TIC chromatogram": "Total ion current over retention time "
+            "for MS2 scans.",
+            "Missed cleavages": "Number of missed enzymatic cleavages "
+            "in identified peptides.",
+            "Charge states": "Charge state distribution of identified "
+            "precursor ions.",
             "Uncalibrated - Calibrated m/z [ppm]": (
-                "Difference between uncalibrated and recalibrated precursor m/z in ppm; "
-                "indicates mass drift corrected by MaxQuant."
+                "Difference between uncalibrated and recalibrated precursor "
+                "m/z in ppm; indicates mass drift corrected by MaxQuant."
             ),
             "Retention time calibration": (
-                "Difference between uncalibrated and recalibrated retention time in minutes; "
-                "indicates retention-time drift corrected by MaxQuant."
+                "Difference between uncalibrated and recalibrated retention "
+                "time in minutes; indicates retention-time drift corrected "
+                "by MaxQuant."
             ),
-            "Peptide length distribution": "Length distribution of identified peptide sequences.",
+            "Peptide length distribution": "Length distribution of identified "
+            "peptide sequences.",
             "Channel intensity distribution (peptides)": (
                 "Distribution of channel reporter intensities from peptides "
                 "(log2-transformed as log(1+intensity))."
             ),
             "Channel intensity distribution (protein groups)": (
-                "Distribution of channel reporter intensities from protein groups "
-                "(log2-transformed as log(1+intensity))."
+                "Distribution of channel reporter intensities from protein "
+                "groups (log2-transformed as log(1+intensity))."
             ),
             "Number of Peptides identified per Protein": (
-                "Distribution of peptide counts per protein group. Values above 25 are grouped into the top bin."
+                "Distribution of peptide counts per protein group. "
+                "Values above 25 are grouped into the top bin."
             ),
-            "Andromeda Scores": "Distribution of protein-group Andromeda scores.",
+            "Andromeda Scores": "Distribution of protein-group "
+            "Andromeda scores.",
         }
 
         section_order = [
@@ -187,18 +228,25 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
             "Charge states": "Identification Quality",
             "Peptide length distribution": "Identification Quality",
             "Andromeda Scores": "Identification Quality",
-            "Number of Peptides identified per Protein": "Identification Quality",
+            "Number of Peptides identified per Protein": "Identification "
+            "Quality",
             "Uncalibrated - Calibrated m/z [ppm]": "Calibration",
             "Retention time calibration": "Calibration",
             "Channel intensity distribution (peptides)": "Quantification",
-            "Channel intensity distribution (protein groups)": "Quantification",
+            "Channel intensity distribution (protein groups)": (
+                "Quantification"
+            ),
         }
 
         def add_figure(fig, help_text=None):
             title_text = ""
             if hasattr(fig, "layout") and hasattr(fig.layout, "title"):
                 title_text = fig.layout.title.text or ""
-            resolved_help = help_text if help_text is not None else plot_help_by_title.get(title_text)
+            resolved_help = (
+                help_text
+                if help_text is not None
+                else plot_help_by_title.get(title_text)
+            )
             section = section_by_title.get(title_text, "Other")
             figures.append(
                 {
@@ -238,14 +286,29 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
 
         def add_channel_intensity_boxplot(df, title):
             reporter_corrected_cols = [
-                col for col in df.columns if col.startswith("Reporter intensity corrected ")
+                col
+                for col in df.columns
+                if col.startswith("Reporter intensity corrected ")
             ]
-            reporter_cols = [col for col in df.columns if col.startswith("Reporter intensity ")]
-            intensity_channel_cols = [col for col in df.columns if col.startswith("Intensity ") and col != "Intensity"]
-            channel_cols = reporter_corrected_cols or reporter_cols or intensity_channel_cols
-            # Some exports include both generic and experiment-scoped channel columns
-            # (e.g. "Reporter intensity corrected 1" and "... 1 <experiment>").
-            # Keep one column per numeric channel and prefer experiment-scoped names.
+            reporter_cols = [
+                col
+                for col in df.columns
+                if col.startswith("Reporter intensity ")
+            ]
+            intensity_channel_cols = [
+                col
+                for col in df.columns
+                if col.startswith("Intensity ") and col != "Intensity"
+            ]
+            channel_cols = (
+                reporter_corrected_cols
+                or reporter_cols
+                or intensity_channel_cols
+            )
+            # Some exports include both generic and experiment-scoped
+            # channel columns (e.g. "Reporter intensity corrected 1" and
+            # "... 1 <experiment>"). Keep one column per numeric channel
+            # and prefer experiment-scoped names.
             if channel_cols:
                 channel_by_number = {}
                 for col in channel_cols:
@@ -257,12 +320,18 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
                     if current is None:
                         channel_by_number[number] = col
                         continue
-                    current_has_suffix = bool(re.search(rf"\b{number}\b\s+\S+", current))
-                    new_has_suffix = bool(re.search(rf"\b{number}\b\s+\S+", col))
+                    current_has_suffix = bool(
+                        re.search(rf"\b{number}\b\s+\S+", current)
+                    )
+                    new_has_suffix = bool(
+                        re.search(rf"\b{number}\b\s+\S+", col)
+                    )
                     if new_has_suffix and not current_has_suffix:
                         channel_by_number[number] = col
                 if channel_by_number:
-                    channel_cols = [channel_by_number[n] for n in sorted(channel_by_number)]
+                    channel_cols = [
+                        channel_by_number[n] for n in sorted(channel_by_number)
+                    ]
             if not channel_cols:
                 return
 
@@ -278,7 +347,9 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
 
             channel_order = sorted(channel_cols, key=channel_sort_key)
             intensity_long["Channel"] = pd.Categorical(
-                intensity_long["Channel"], categories=channel_order, ordered=True
+                intensity_long["Channel"],
+                categories=channel_order,
+                ordered=True,
             )
             intensity_long = intensity_long.sort_values("Channel")
             base_labels = [short_channel_name(col) for col in channel_order]
@@ -290,7 +361,9 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
                     unique_labels.append(label)
                 else:
                     unique_labels.append(f"{label} ({label_counts[label]})")
-            intensity_long["log2(Intensity)"] = np.log1p(intensity_long["Intensity"])
+            intensity_long["log2(Intensity)"] = np.log1p(
+                intensity_long["Intensity"]
+            )
 
             fig = go.Figure()
             fig.add_trace(
@@ -326,13 +399,16 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
             add_figure(fig)
 
         def summary_value(summary_df, *candidates):
-            """Return first matching summary value using tolerant column matching."""
+            """Return first matching summary value using tolerant
+            column matching."""
             if summary_df.empty:
                 return None
             for candidate in candidates:
                 if candidate in summary_df.columns:
                     return summary_df.loc[0, candidate]
-            normalized = {str(col).strip().casefold(): col for col in summary_df.columns}
+            normalized = {
+                str(col).strip().casefold(): col for col in summary_df.columns
+            }
             for candidate in candidates:
                 key = str(candidate).strip().casefold()
                 if key in normalized:
@@ -347,7 +423,9 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
                 .set_index("Retention time")
             )
             summary_stats.append({"label": "MS scans", "value": len(df_ms)})
-            fig = lines_plot(df_ms, cols=["Intensity"], title="MS TIC chromatogram")
+            fig = lines_plot(
+                df_ms, cols=["Intensity"], title="MS TIC chromatogram"
+            )
             add_figure(fig)
 
         fn = f"{path_rt}/{raw_fn}_Ms2_TIC_chromatogram.txt"
@@ -358,14 +436,20 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
                 .set_index("Retention time")
             )
 
-            fig = lines_plot(df_ms2, cols=["Intensity"], title="MS2 TIC chromatogram")
+            fig = lines_plot(
+                df_ms2, cols=["Intensity"], title="MS2 TIC chromatogram"
+            )
             add_figure(fig)
 
         fn = f"{path}/summary.txt"
         if isfile(fn):
             summary = pd.read_csv(fn, sep="\t")
-            msms_submitted = summary_value(summary, "MS/MS submitted", "MS/MS Submitted")
-            msms_identified = summary_value(summary, "MS/MS identified", "MS/MS Identified")
+            msms_submitted = summary_value(
+                summary, "MS/MS submitted", "MS/MS Submitted"
+            )
+            msms_identified = summary_value(
+                summary, "MS/MS identified", "MS/MS Identified"
+            )
             msms_identified_pct = summary_value(
                 summary,
                 "MS/MS identified [%]",
@@ -374,22 +458,41 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
             )
 
             if msms_submitted is not None:
-                summary_stats.append({"label": "MS/MS scans", "value": msms_submitted})
+                summary_stats.append(
+                    {"label": "MS/MS scans", "value": msms_submitted}
+                )
             if msms_identified is not None:
-                summary_stats.append({"label": "MS/MS identified", "value": msms_identified})
+                summary_stats.append(
+                    {"label": "MS/MS identified", "value": msms_identified}
+                )
             if msms_identified_pct is not None:
-                summary_stats.append({"label": "MS/MS identified [%]", "value": msms_identified_pct})
+                summary_stats.append(
+                    {
+                        "label": "MS/MS identified [%]",
+                        "value": msms_identified_pct,
+                    }
+                )
 
         fn = f"{path}/evidence.txt"
         if isfile(fn):
-            msms = pd.read_csv(fn, sep="\t").set_index("Retention time").sort_index()
-            
+            msms = (
+                pd.read_csv(fn, sep="\t")
+                .set_index("Retention time")
+                .sort_index()
+            )
+
             if "Missed cleavages" in msms.columns:
-                missed = msms["Missed cleavages"].fillna(0).astype(int).clip(lower=0)
+                missed = (
+                    msms["Missed cleavages"]
+                    .fillna(0)
+                    .astype(int)
+                    .clip(lower=0)
+                )
                 buckets = [0, 1, 2]
                 counts = []
                 labels = []
-                # Palette aligned with the rose color used in the other distribution plots
+                # Palette aligned with the rose color used in the other
+                # distribution plots
                 colors = ["#B58E8E", "#A87F7F", "#C6A3A3", "#D8BFBF"]
                 for val in buckets:
                     labels.append(str(val))
@@ -399,7 +502,9 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
 
                 fig = go.Figure()
                 for idx, (label, count) in enumerate(zip(labels, counts)):
-                    bar_value = count if count > 0 else 0.0001  # keep legend entry visible
+                    bar_value = (
+                        count if count > 0 else 0.0001
+                    )  # keep legend entry visible
                     fig.add_trace(
                         go.Bar(
                             x=[bar_value],
@@ -420,14 +525,20 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
                     margin=dict(l=0, r=0, t=24, b=0),
                     height=120,
                 )
-                fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=False)
+                fig.update_yaxes(
+                    showticklabels=False, showgrid=False, zeroline=False
+                )
                 fig.update_xaxes(visible=False, showgrid=False, zeroline=False)
-                fig.update_traces(marker_line_width=0, selector=dict(type="bar"))
+                fig.update_traces(
+                    marker_line_width=0, selector=dict(type="bar")
+                )
                 add_figure(fig)
 
             mz_delta_col = "Uncalibrated - Calibrated m/z [ppm]"
             if mz_delta_col in msms.columns:
-                mz_delta = pd.to_numeric(msms[mz_delta_col], errors="coerce").dropna()
+                mz_delta = pd.to_numeric(
+                    msms[mz_delta_col], errors="coerce"
+                ).dropna()
                 if not mz_delta.empty:
                     mz_delta_df = pd.DataFrame({mz_delta_col: mz_delta})
                     fig = histograms(
@@ -440,7 +551,9 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
 
             # rt_cal_col = "Retention time calibration"
             # if rt_cal_col in msms.columns:
-            #     rt_cal = pd.to_numeric(msms[rt_cal_col], errors="coerce").dropna()
+            #     rt_cal = pd.to_numeric(
+            #         msms[rt_cal_col], errors="coerce"
+            #     ).dropna()
             #     if not rt_cal.empty:
             #         rt_cal_df = pd.DataFrame({rt_cal_col: rt_cal})
             #         fig = histograms(
@@ -452,7 +565,12 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
             #         add_figure(fig)
 
             if "Charge" in msms.columns:
-                charge = pd.to_numeric(msms["Charge"], errors="coerce").fillna(0).astype(int).clip(lower=0)
+                charge = (
+                    pd.to_numeric(msms["Charge"], errors="coerce")
+                    .fillna(0)
+                    .astype(int)
+                    .clip(lower=0)
+                )
                 buckets = [1, 2, 3]
                 counts = []
                 labels = []
@@ -465,7 +583,9 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
 
                 fig = go.Figure()
                 for idx, (label, count) in enumerate(zip(labels, counts)):
-                    bar_value = count if count > 0 else 0.0001  # keep legend entry visible
+                    bar_value = (
+                        count if count > 0 else 0.0001
+                    )  # keep legend entry visible
                     fig.add_trace(
                         go.Bar(
                             x=[bar_value],
@@ -486,15 +606,21 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
                     margin=dict(l=0, r=0, t=24, b=0),
                     height=120,
                 )
-                fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=False)
+                fig.update_yaxes(
+                    showticklabels=False, showgrid=False, zeroline=False
+                )
                 fig.update_xaxes(visible=False, showgrid=False, zeroline=False)
-                fig.update_traces(marker_line_width=0, selector=dict(type="bar"))
+                fig.update_traces(
+                    marker_line_width=0, selector=dict(type="bar")
+                )
                 add_figure(fig)
 
         # fn = f"{path}/msmsScans.txt"
         # if isfile(fn):
         #     msms = pd.read_csv(fn, sep="\t").set_index("Retention time")
-        #     summary_stats.append({"label": "MS/MS scans (msmsScans)", "value": len(msms)})
+        #     summary_stats.append(
+        #         {"label": "MS/MS scans (msmsScans)", "value": len(msms)}
+        #     )
         #     cols = [
         #           'Total ion current',
         #           'm/z', 'Base peak intensity'
@@ -508,39 +634,50 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
             peptides = pd.read_csv(fn, sep="\t")
 
             if "Length" in peptides.columns:
-                peptide_lengths = pd.to_numeric(peptides["Length"], errors="coerce").dropna()
+                peptide_lengths = pd.to_numeric(
+                    peptides["Length"], errors="coerce"
+                ).dropna()
                 if not peptide_lengths.empty:
                     peptides_binned = pd.DataFrame({"Length": peptide_lengths})
                     fig = histograms(
                         peptides_binned,
                         cols=["Length"],
                         title="Peptide length distribution",
-                        xbins={"start": 0.5, "end": float(peptide_lengths.max()) + 0.5, "size": 1},
+                        xbins={
+                            "start": 0.5,
+                            "end": float(peptide_lengths.max()) + 0.5,
+                            "size": 1,
+                        },
                     )
                     add_figure(fig)
 
-            add_channel_intensity_boxplot(peptides, "Channel intensity distribution (peptides)")
+            add_channel_intensity_boxplot(
+                peptides, "Channel intensity distribution (peptides)"
+            )
 
         fn = f"{path}/proteinGroups.txt"
         if isfile(fn):
             proteins = pd.read_csv(fn, sep="\t")
-            summary_stats.append({"label": "Protein groups", "value": len(proteins)})
+            summary_stats.append(
+                {"label": "Protein groups", "value": len(proteins)}
+            )
 
-            add_channel_intensity_boxplot(proteins, "Channel intensity distribution (protein groups)")
+            add_channel_intensity_boxplot(
+                proteins, "Channel intensity distribution (protein groups)"
+            )
 
             if "Peptides" in proteins.columns:
                 peptides_capped = proteins["Peptides"].fillna(0).clip(upper=25)
                 proteins_binned = proteins.copy()
-                proteins_binned[f"Peptides (<=25, 25+)"] = peptides_capped
+                proteins_binned["Peptides (<=25, 25+)"] = peptides_capped
 
                 fig = histograms(
                     proteins_binned,
-                    cols=[f"Peptides (<=25, 25+)"],
-                    title=f"Number of Peptides identified per Protein",
+                    cols=["Peptides (<=25, 25+)"],
+                    title="Number of Peptides identified per Protein",
                     xbins={"start": 0.5, "end": 25.5, "size": 1},
                 )
                 add_figure(fig)
-                
 
             if "Score" in proteins.columns:
                 fig = histograms(
@@ -573,8 +710,9 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
         return context
 
 
+@login_required
 def maxquant_download(request, pk):
-    mq_run = Result.objects.get(pk=pk)
+    mq_run = get_object_or_404(_results_for_user(request.user), pk=pk)
     response = HttpResponse(mq_run.download, content_type="application/zip")
     fn = f"{mq_run.name}.zip"
     response["Content-Disposition"] = 'attachment; filename="{}"'.format(fn)
@@ -585,10 +723,12 @@ class UploadRaw(LoginRequiredMixin, View):
     def _resolve_existing_raw_file(self, pipeline, uploaded_name):
         # Raw files are stored as upload/<filename> in the FileField.
         candidate = f"upload/{P(uploaded_name).name}"
-        return RawFile.objects.filter(pipeline=pipeline, orig_file=candidate).first()
+        return RawFile.objects.filter(
+            pipeline=pipeline, orig_file=candidate
+        ).first()
 
     def get(self, request, pk=None):
-        pipeline = Pipeline.objects.get(pk=pk)
+        pipeline = get_object_or_404(_pipelines_for_user(request.user), pk=pk)
         project = pipeline.project
         context = {
             "project": project,
@@ -606,17 +746,23 @@ class UploadRaw(LoginRequiredMixin, View):
 
         logging.warning(f"Upload to: {project_id} / {pipeline_id}")
 
-        pipeline = Pipeline.objects.get(pk=pipeline_id)
+        pipeline = get_object_or_404(
+            _pipelines_for_user(request.user), pk=pipeline_id
+        )
         project = pipeline.project
 
         logging.warning(f"Upload to: {project.name} / {pipeline.name}")
 
         if form.is_valid():
             uploaded_file = form.cleaned_data["orig_file"]
-            existing = self._resolve_existing_raw_file(pipeline, uploaded_file.name)
+            existing = self._resolve_existing_raw_file(
+                pipeline, uploaded_file.name
+            )
 
             if existing is not None:
-                result, created = Result.objects.get_or_create(raw_file=existing)
+                result, created = Result.objects.get_or_create(
+                    raw_file=existing
+                )
                 data = {
                     "is_valid": True,
                     "name": str(existing.name),
@@ -635,15 +781,21 @@ class UploadRaw(LoginRequiredMixin, View):
                         pipeline=pipeline,
                     )
             except IntegrityError:
-                # Handle rare races where the same file is uploaded concurrently.
-                existing = self._resolve_existing_raw_file(pipeline, uploaded_file.name)
+                # Handle rare races where the same file is uploaded
+                # concurrently.
+                existing = self._resolve_existing_raw_file(
+                    pipeline, uploaded_file.name
+                )
                 if existing is None:
                     data = {
                         "is_valid": False,
-                        "error": "Could not save file because of a duplicate entry.",
+                        "error": "Could not save file because of a "
+                        "duplicate entry.",
                     }
                     return JsonResponse(data, status=409)
-                result, created = Result.objects.get_or_create(raw_file=existing)
+                result, created = Result.objects.get_or_create(
+                    raw_file=existing
+                )
                 data = {
                     "is_valid": True,
                     "name": str(existing.name),
@@ -680,7 +832,9 @@ def cancel_run_jobs(request, pk):
         or result.raw_file.created_by_id == request.user.id
     )
     if not can_cancel:
-        return HttpResponseForbidden("You cannot cancel jobs started by another user.")
+        return HttpResponseForbidden(
+            "You cannot cancel jobs started by another user."
+        )
     revoked = result.cancel_active_jobs()
     return JsonResponse(
         {
@@ -695,7 +849,7 @@ def cancel_run_jobs(request, pk):
 @login_required
 @require_POST
 def cancel_pipeline_jobs(request, pk):
-    pipeline = get_object_or_404(Pipeline, pk=pk)
+    pipeline = get_object_or_404(_pipelines_for_user(request.user), pk=pk)
     runs_canceled = 0
     tasks_revoked = 0
 
