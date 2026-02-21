@@ -16,4 +16,4 @@ jobs:
 
     - name: Run Pytest via Docker Compose
       run: |
-        docker-compose -f docker-compose-test.yml run web pytest tests/
+        docker compose -f docker-compose-test.yml run web pytest tests/
