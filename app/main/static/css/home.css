@@ -4,7 +4,7 @@
  */
 
 :root {
-  --home-shell-width: min(1240px, calc(100% - 48px));
+  --home-shell-width: 100%;
 }
 
 .home-top-grid {
@@ -245,10 +245,6 @@
 }
 
 @media (max-width: 650px) {
-  :root {
-    --home-shell-width: calc(100% - 20px);
-  }
-
   .home-top-grid {
     margin-top: 8px;
   }

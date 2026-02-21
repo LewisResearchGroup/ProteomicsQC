@@ -4,6 +4,28 @@
   <h1 class='project'>Projects</h1>
 
   <div class='block pipeline-block'>
+    <form method="get" class="project-list-controls" aria-label="Project search and filters">
+      <input
+        type="search"
+        name="q"
+        class="project-filter-input"
+        value="{{ search_query }}"
+        placeholder="Search by name, description, or slug"
+      >
+      <select name="activity" class="project-filter-select" aria-label="Activity filter">
+        <option value="all" {% if activity_filter == "all" %}selected{% endif %}>All activity</option>
+        <option value="recent" {% if activity_filter == "recent" %}selected{% endif %}>Active in last 30 days</option>
+        <option value="stale" {% if activity_filter == "stale" %}selected{% endif %}>No activity in 30+ days</option>
+      </select>
+      <select name="pipeline" class="project-filter-select" aria-label="Pipeline filter">
+        <option value="all" {% if pipeline_filter == "all" %}selected{% endif %}>All projects</option>
+        <option value="with" {% if pipeline_filter == "with" %}selected{% endif %}>With pipelines</option>
+        <option value="without" {% if pipeline_filter == "without" %}selected{% endif %}>No pipelines yet</option>
+      </select>
+      <button type="submit" class="project-filter-btn">Apply</button>
+      <a href="{% url 'project:list' %}" class="project-filter-reset">Reset</a>
+    </form>
+
     {% if project_list %}
       <div class="projects-table-wrap">
         <table class="projects-table">
@@ -15,7 +37,8 @@
               <th>Pipelines</th>
               <th>Raw files</th>
               <th>Members</th>
-              <th>Created</th>
+              <th>Active runs</th>
+              <th>Last activity</th>
               <th>Open</th>
             </tr>
           </thead>
@@ -28,7 +51,8 @@
                 <td><span class="metric-pill">{{ project.n_pipelines }}</span></td>
                 <td><span class="metric-pill">{{ project.n_raw_files }}</span></td>
                 <td><span class="metric-pill">{{ project.n_members }}</span></td>
-                <td>{{ project.created|date:"Y-m-d" }}</td>
+                <td><span class="metric-pill">{{ project.active_runs_count }}</span></td>
+                <td>{{ project.last_activity|date:"Y-m-d H:i" }}</td>
                 <td><a class="mq-open-link" href="{% url 'project:detail' slug=project.slug %}">Open</a></td>
               </tr>
             {% endfor %}
@@ -36,7 +60,8 @@
         </table>
       </div>
     {% else %}
-      <p>There were no project created yet.</p>
+      <p>There are no projects matching your current filters.</p>
     {% endif %}
   </div>
+
 {% endblock %}
