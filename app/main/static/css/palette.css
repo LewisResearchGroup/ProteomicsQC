@@ -5,26 +5,26 @@
 
 :root {
   /* Core palette */
-  --color-bg-page: #f5fbfd;
+  --color-bg-page: #eef6fa;
   --color-surface: #ffffff;
-  --color-surface-soft: #edf7fa;
-  --color-surface-selected: #e1f0f4;
-  --color-border-soft: #dbe5ef;
+  --color-surface-soft: #e4f1f6;
+  --color-surface-selected: #d6e8ef;
+  --color-border-soft: #c9dbe6;
 
   /* Brand (mint) */
-  --color-mint-accent: #3b8fa3;
-  --color-mint-accent-hover: #4a9db0;
-  --color-mint-accent-soft: #e1f0f4;
-  --color-mint-accent-shadow: rgba(59, 143, 163, 0.42);
+  --color-mint-accent: #0f9d93;
+  --color-mint-accent-hover: #2b8fd3;
+  --color-mint-accent-soft: #d8edf3;
+  --color-mint-accent-shadow: rgba(17, 126, 176, 0.42);
 
   /* Compatibility aliases used across the app */
   --color-brand-strong: var(--color-mint-accent);
   --color-brand-soft: var(--color-mint-accent-hover);
-  --color-brand-ink: #2f6f83;
+  --color-brand-ink: #1f5e73;
 
   /* Text */
-  --color-text-strong: #24415d;
-  --color-text-muted: #5d6a7b;
+  --color-text-strong: #1f3e59;
+  --color-text-muted: #536579;
 
   /* Semantic */
   --color-danger-ink: #8b1e2b;
@@ -33,6 +33,6 @@
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 10px;
-  --shadow-brand-sm: 0 6px 14px rgba(59, 143, 163, 0.14);
-  --shadow-brand-md: 0 10px 20px rgba(59, 143, 163, 0.22);
+  --shadow-brand-sm: 0 6px 14px rgba(17, 126, 176, 0.18);
+  --shadow-brand-md: 0 10px 20px rgba(17, 126, 176, 0.26);
 }

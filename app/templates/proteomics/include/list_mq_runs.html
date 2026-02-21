@@ -28,8 +28,8 @@
         <col class="mq-col-rawtools-metrics">
         <col class="mq-col-rawtools-qc">
         <col class="mq-col-open">
-        <col class="mq-col-cancel">
         <col class="mq-col-queue">
+        <col class="mq-col-cancel">
         <col class="mq-col-delete">
       </colgroup>
       <thead>
@@ -40,8 +40,8 @@
           <th>RawTools metrics</th>
           <th>RawTools QC</th>
           <th>Open</th>
-          <th>Cancel</th>
           <th>Queue</th>
+          <th>Cancel</th>
           <th>Delete</th>
         </tr>
       </thead>
@@ -59,17 +59,6 @@
             <td><span class="status-pill status-{{ maxquant_run.rawtools_qc_status }}">{{ maxquant_run.rawtools_qc_status }}</span></td>
             <td><a class="mq-open-link" href="{{ maxquant_run.url }}">Open</a></td>
             <td>
-              {% if maxquant_run.has_active_stage and request.user.is_superuser or maxquant_run.has_active_stage and request.user.is_staff or maxquant_run.has_active_stage and maxquant_run.raw_file.created_by_id == request.user.id %}
-                <button class="mq-cancel-btn" type="button" data-url="{% url 'maxquant:cancel_run_jobs' maxquant_run.pk %}">
-                  Cancel
-                </button>
-              {% else %}
-                <button class="mq-cancel-btn" type="button" disabled>
-                  Cancel
-                </button>
-              {% endif %}
-            </td>
-            <td>
               {% if maxquant_run.has_active_stage %}
                 <button class="mq-open-link" type="button" disabled title="Already queued/running">
                   Queued
@@ -85,6 +74,17 @@
               {% else %}
                 <button class="mq-open-link" type="button" disabled title="Only uploader can requeue this file">
                   Queued
+                </button>
+              {% endif %}
+            </td>
+            <td>
+              {% if maxquant_run.has_active_stage and request.user.is_superuser or maxquant_run.has_active_stage and request.user.is_staff or maxquant_run.has_active_stage and maxquant_run.raw_file.created_by_id == request.user.id %}
+                <button class="mq-cancel-btn" type="button" data-url="{% url 'maxquant:cancel_run_jobs' maxquant_run.pk %}">
+                  Cancel
+                </button>
+              {% else %}
+                <button class="mq-cancel-btn" type="button" disabled>
+                  Cancel
                 </button>
               {% endif %}
             </td>
@@ -113,7 +113,6 @@
             <td><span class="status-pill status-missing">missing</span></td>
             <td><span class="status-pill status-missing">missing</span></td>
             <td><span class="mq-runs-count">-</span></td>
-            <td><button class="mq-cancel-btn" type="button" disabled>Cancel</button></td>
             <td>
               <button
                 class="mq-open-link mq-queue-btn"
@@ -123,6 +122,7 @@
                 Queue
               </button>
             </td>
+            <td><button class="mq-cancel-btn" type="button" disabled>Cancel</button></td>
             <td>
               {% if request.user.is_superuser or request.user.is_staff or missing_raw_file.created_by_id == request.user.id %}
                 <button

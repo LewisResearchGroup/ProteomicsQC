@@ -10,8 +10,8 @@
   min-width: 34px;
   padding: 2px 8px;
   border-radius: 999px;
-  background: #eef4f8;
-  color: #35506d;
+  background: var(--color-surface-selected);
+  color: var(--color-brand-ink);
   font-size: 12px;
   font-weight: 700;
 }
@@ -58,7 +58,7 @@
 }
 
 .status-chip {
-  color: #404040;
+  color: var(--color-text-strong);
   font-size: 13px;
 }
 
@@ -75,18 +75,18 @@
 }
 
 .status-queued {
-  background: #eef1f5;
-  color: #4a5565;
+  background: var(--color-surface-selected);
+  color: var(--color-brand-ink);
 }
 
 .status-running {
-  background: #e8f4ff;
-  color: #14528a;
+  background: #dff0f6;
+  color: var(--color-brand-ink);
 }
 
 .status-done {
-  background: #e8f7ef;
-  color: #1f6b3a;
+  background: var(--color-mint-accent-soft);
+  color: var(--color-brand-ink);
 }
 
 .status-failed {

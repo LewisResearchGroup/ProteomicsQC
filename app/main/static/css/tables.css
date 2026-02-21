@@ -211,9 +211,9 @@
 }
 
 .upload-queue {
-  width: calc(100% - 40px);
+  width: 100%;
   max-width: none;
-  margin: 10px auto 0;
+  margin: 10px 0 0;
   border: 1px solid #e3e6ea;
   border-radius: 8px;
   background: #fff;

@@ -64,9 +64,8 @@
 }
 
 .pipeline-page-header-card {
-  width: calc(100% - 40px);
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
+  max-width: none;
 }
 
 .run-meta-grid {

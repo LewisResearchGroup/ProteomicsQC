@@ -84,11 +84,18 @@
   padding: 10px;
   background: #f8fbfd;
   color: var(--color-text-strong);
+  text-decoration: none;
+}
+
+.home-step-card:visited {
+  color: var(--color-text-strong);
 }
 
 .home-step-card:hover {
-  background: #eef8fc;
-  border-color: #b9d6e6;
+  background: var(--color-surface-selected);
+  border-color: var(--color-brand-soft);
+  color: var(--color-text-strong);
+  text-decoration: none;
 }
 
 .home-step-card strong {
@@ -99,6 +106,7 @@
 
 .home-step-card span {
   font-size: 13px;
+  color: var(--color-text-strong);
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -110,8 +118,9 @@
   width: 24px;
   height: 24px;
   border-radius: 999px;
-  background: var(--color-brand-strong);
-  color: #fff;
+  background: #e8f3f7;
+  border: 1px solid var(--color-border-soft);
+  color: #2d6b7c;
   font-weight: 700;
   font-size: 12px;
 }
