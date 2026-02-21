@@ -2,3 +2,98 @@
  * Scope: reusable card shells and metadata tile components.
  * Do not place table selectors, nav/header styles, or page-only layout hacks here.
  */
+
+.block {
+  background-color: #fff !important;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.pipeline-block,
+.pipeline-table,
+.raw-files-block,
+.raw-files-pagination {
+  background-color: #fafafa !important;
+}
+
+.upload-dropzone {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 24px;
+  border: 1px dashed #c8c8c8;
+  border-radius: 8px;
+  background-color: #fafafa;
+  margin: 0 auto 10px;
+}
+
+.upload-dropzone h4 {
+  margin: 0;
+  color: #666;
+}
+
+.upload-divider {
+  font-size: 12px;
+  color: #888;
+  letter-spacing: 0.5px;
+}
+
+.upload-feedback {
+  width: calc(100% - 40px);
+  max-width: none;
+  margin: 0 auto;
+}
+
+.upload-feedback-message {
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.upload-feedback-success {
+  background: #e8f7ef;
+  border: 1px solid #c7e8d3;
+  color: #1f6b3a;
+}
+
+.upload-feedback-error {
+  background: #fdecec;
+  border: 1px solid #f3c6c6;
+  color: #992222;
+}
+
+.run-header-card {
+  border: 1px solid #e3e6ea;
+  border-radius: 8px;
+  background: #fafafa !important;
+}
+
+.run-meta-tile {
+  border: 1px solid #e6e6e6;
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: #fafafa;
+}
+
+.run-meta-tile-label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+}
+
+.run-meta-tile-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.pipeline-meta-grid .run-meta-tile-ghost {
+  visibility: hidden;
+}

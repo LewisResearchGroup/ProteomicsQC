@@ -2,3 +2,284 @@
  * Scope: shared table primitives and reusable table components.
  * Do not place page-level wrappers, button skins, or status badge palettes here.
  */
+
+.mq-runs-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.mq-runs-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#mq-runs-search {
+  flex: 1;
+  max-width: 360px;
+  border: 1px solid #d6dbe3;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+  background: #fff;
+}
+
+#mq-runs-search:focus {
+  outline: none;
+  border-color: #86bdc8;
+  box-shadow: 0 0 0 3px rgba(13, 143, 143, 0.12);
+}
+
+.mq-runs-count {
+  color: #5d6a7b;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.mq-runs-table-wrap,
+.pipelines-table-wrap,
+.projects-table-wrap {
+  border: 1px solid #e3e6ea;
+  border-radius: 8px;
+  overflow: auto;
+  background: #fff;
+}
+
+.mq-runs-table-wrap {
+  max-height: 560px;
+}
+
+.mq-runs-table,
+.pipelines-table,
+.projects-table,
+.upload-queue-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.mq-runs-table thead th,
+.pipelines-table thead th,
+.projects-table thead th,
+.upload-queue-table thead th {
+  background: #f6f8fb;
+  color: #5a6575;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  border-bottom: 1px solid #e3e6ea;
+  padding: 10px 12px;
+}
+
+.mq-runs-table thead th,
+.upload-queue-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.upload-queue-table thead th,
+.upload-queue-table tbody td {
+  padding: 8px 10px;
+}
+
+.mq-runs-table tbody td,
+.pipelines-table tbody td,
+.projects-table tbody td,
+.upload-queue-table tbody td {
+  border-bottom: 1px solid #edf1f6;
+  vertical-align: middle;
+  font-size: 14px;
+  padding: 10px 12px;
+}
+
+.upload-queue-table tbody td {
+  font-size: 13px;
+}
+
+.mq-runs-table tbody tr:hover,
+.pipelines-table tbody tr:hover,
+.projects-table tbody tr:hover {
+  background: #f9fcfd;
+}
+
+.mq-run-name,
+.upload-queue-name {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  color: #27364a;
+}
+
+.mq-run-name {
+  max-width: 540px;
+}
+
+.upload-queue-name {
+  max-width: 360px;
+}
+
+.mq-open-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  padding: 4px 10px;
+  border: 1px solid #8cc4c8;
+  border-radius: 999px;
+  color: #0b6f73;
+  font-weight: 700;
+  font-size: 12px;
+  background: #f7fbfc;
+}
+
+.mq-open-link:hover {
+  color: #085d60;
+  background: #e9f7f8;
+  border-color: #64aeb5;
+}
+
+.mq-cancel-btn,
+.mq-cancel-all-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  padding: 4px 10px;
+  border: 1px solid #e3a1a1;
+  border-radius: 999px;
+  color: #8b1e2b;
+  font-weight: 700;
+  font-size: 12px;
+  background: #fff4f4;
+}
+
+.mq-cancel-btn:hover,
+.mq-cancel-all-btn:hover {
+  background: #fde6e7;
+  border-color: #d77e84;
+  color: #7a1823;
+}
+
+.mq-cancel-btn:disabled,
+.mq-cancel-all-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.upload-queue {
+  width: calc(100% - 40px);
+  max-width: none;
+  margin: 10px auto 0;
+  border: 1px solid #e3e6ea;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.upload-queue-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 1px solid #edf1f6;
+  background: #f8fbfd;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.upload-queue-cta-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.upload-queue-cta-text strong {
+  color: #334155;
+  font-size: 15px;
+}
+
+.upload-queue-cta-text span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.upload-queue-add-btn {
+  min-width: 170px;
+  min-height: 40px;
+  border-radius: 10px !important;
+}
+
+.upload-queue-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid #edf1f6;
+  color: #4a5568;
+  font-size: 14px;
+}
+
+.upload-queue-table-wrap {
+  max-height: 240px;
+  overflow: auto;
+}
+
+.upload-queue-progress {
+  display: inline-block;
+  width: 130px;
+  height: 8px;
+  border-radius: 999px;
+  background: #e8edf3;
+  margin-right: 8px;
+  vertical-align: middle;
+  overflow: hidden;
+}
+
+.upload-queue-progress-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #0f8f8f 0%, #0a7c88 100%);
+}
+
+.upload-queue-progress-text {
+  font-size: 12px;
+  color: #5d6a7b;
+}
+
+table {
+  width: 100%;
+}
+
+th,
+td {
+  padding: auto;
+}
+
+table thead th {
+  border-bottom: 1px solid #000;
+}
+
+table tr th {
+  vertical-align: middle;
+}
+
+table tbody td {
+  font-weight: normal;
+}
+
+@media (max-width: 900px) {
+  .upload-queue-cta {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .upload-queue-add-btn {
+    width: 100%;
+  }
+}
