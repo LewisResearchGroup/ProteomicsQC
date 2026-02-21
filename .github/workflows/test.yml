@@ -15,5 +15,9 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Run Pytest via Docker Compose
+      env:
+        UID: 1000
+        CONCURRENCY: 1
       run: |
+        touch .env
         docker compose -f docker-compose-test.yml run web pytest tests/
