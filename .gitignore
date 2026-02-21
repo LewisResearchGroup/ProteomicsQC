@@ -17,3 +17,4 @@ data
 node_modules/
 logs.log
 venv/
+!.github/
