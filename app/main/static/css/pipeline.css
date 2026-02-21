@@ -2,3 +2,91 @@
  * Scope: pipeline list/detail/upload page-specific styles.
  * Do not place shared status tokens, generic table primitives, or nav/header rules here.
  */
+
+.pipeline-upload {
+  background-color: transparent !important;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  padding: 10px 0;
+  margin: 0 auto 20px auto;
+}
+
+.upload-new-run {
+  animation: uploadPulse 1.2s ease-out;
+}
+
+@keyframes uploadPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 128, 128, 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 12px rgba(0, 128, 128, 0);
+  }
+}
+
+.project-back-btn {
+  padding: 10px 16px;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.project-back-text {
+  font-weight: 600;
+}
+
+.pipeline-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+}
+
+.pipeline-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 50px;
+}
+
+.pipeline-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 800px;
+}
+
+.pipeline-page-header-card {
+  width: calc(100% - 40px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.run-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .pipeline-header-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pipeline-actions .btn.run-btn {
+    width: 100%;
+  }
+
+  .run-meta-grid {
+    grid-template-columns: 1fr;
+  }
+}

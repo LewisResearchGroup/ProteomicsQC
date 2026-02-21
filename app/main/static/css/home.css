@@ -2,3 +2,40 @@
  * Scope: home page-only sections and hero presentation.
  * Do not place shared components, global typography, or reusable utilities here.
  */
+
+.home-hero {
+  max-width: 940px;
+  margin: 8px auto 0 auto;
+  padding: 28px;
+  border: 1px solid #e3e6ea;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fff 0%, #f8fbfd 100%) !important;
+}
+
+.home-hero-kicker {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: #5f7085;
+}
+
+.home-hero-title {
+  margin: 0 0 12px 0;
+  color: #0b5b65;
+}
+
+.home-hero-copy {
+  margin: 0 0 8px 0;
+  font-size: 17px;
+  line-height: 1.4;
+  color: #334155;
+}
+
+.home-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}

@@ -2,3 +2,121 @@
  * Scope: run detail page-specific controls, metadata, and actions.
  * Do not place global component defaults, nav/header styles, or utility-only helpers here.
  */
+
+.run-actions-column {
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 16px;
+}
+
+.run-actions-column .download-btn {
+  align-self: flex-end;
+}
+
+.btn.run-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 224px;
+  min-height: 46px;
+  text-align: center;
+  margin: 0 !important;
+  padding: 0 14px !important;
+  border-radius: 12px !important;
+  border: 1px solid transparent !important;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.15px;
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease, border-color 120ms ease;
+}
+
+.run-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.btn.run-btn.run-btn-primary {
+  background: linear-gradient(135deg, #0f8f8f 0%, #0a7c88 100%) !important;
+  border-color: #0b7f87 !important;
+  color: #fff !important;
+  box-shadow: 0 8px 18px rgba(10, 124, 136, 0.28);
+}
+
+.btn.run-btn.run-btn-primary:hover {
+  background: linear-gradient(135deg, #0c8080 0%, #086d77 100%) !important;
+  border-color: #086d77 !important;
+  color: #fff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(8, 109, 119, 0.34);
+}
+
+.btn.run-btn.run-btn-secondary {
+  background: #f7fbfc !important;
+  border-color: #8cc4c8 !important;
+  color: #0b6f73 !important;
+  box-shadow: 0 6px 14px rgba(6, 88, 97, 0.12);
+}
+
+.btn.run-btn.run-btn-secondary:hover {
+  background: #e9f7f8 !important;
+  border-color: #64aeb5 !important;
+  color: #085d60 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(6, 88, 97, 0.2);
+}
+
+.btn.run-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(13, 143, 143, 0.25);
+}
+
+.btn.run-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.run-actions {
+  margin-top: 10px;
+}
+
+.run-actions .pipeline-actions {
+  justify-content: flex-start;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.download-status {
+  color: #666;
+  font-size: 14px;
+  margin: 0 0 8px 0;
+}
+
+.download-btn.is-downloading {
+  opacity: 0.8;
+}
+
+.raw-file-title {
+  margin: 0;
+}
+
+.figure-section-title {
+  margin: 8px 0 12px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #4a5568;
+}
+
+@media (max-width: 900px) {
+  .run-actions-column {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .run-actions-column .btn.run-btn {
+    width: 100%;
+  }
+}
