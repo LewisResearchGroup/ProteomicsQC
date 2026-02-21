@@ -1,22 +1,104 @@
 {% extends 'base.html' %}
 
 {% block free_content %}
-  <section class="home-hero block">
-    <p class="home-hero-kicker">Proteomics platform</p>
-    <h1 class="home-hero-title">Welcome to {{ home_title }}</h1>
-    <p class="home-hero-copy">
-      This is the automated storage and processing platform for proteomics data.
-    </p>
-    <p class="home-hero-copy">
-      Read the documentation to get started, or open an issue if you need support.
-    </p>
-    <div class="home-hero-actions">
-      <a href="https://lewisresearchgroup.github.io/ProteomicsQC/" target="_blank" rel="noopener">
-        <button class="btn run-btn run-btn-primary">Documentation</button>
-      </a>
-      <a href="https://github.com/LewisResearchGroup/ProteomicsQC/issues" target="_blank" rel="noopener">
-        <button class="btn run-btn run-btn-secondary">Contact</button>
-      </a>
-    </div>
-  </section>
+  {% if user.is_authenticated %}
+    <section class="home-top-grid">
+      <section class="home-hero block">
+        <p class="home-hero-kicker">Proteomics platform</p>
+        <h1 class="home-hero-title">Welcome to {{ home_title }}</h1>
+        <p class="home-hero-copy">
+          This is the automated storage and processing platform for proteomics data.
+        </p>
+        <p class="home-hero-copy">
+          Read the documentation to get started, or open an issue if you need support.
+        </p>
+        <div class="home-hero-actions">
+          <a href="https://lewisresearchgroup.github.io/ProteomicsQC/" target="_blank" rel="noopener">
+            <button class="btn run-btn run-btn-primary">Documentation</button>
+          </a>
+          <a href="https://github.com/LewisResearchGroup/ProteomicsQC/issues" target="_blank" rel="noopener">
+            <button class="btn run-btn run-btn-secondary">Contact</button>
+          </a>
+        </div>
+      </section>
+
+      <section class="home-quickstart block">
+        <h2 class="home-section-title">Quick start</h2>
+        <div class="home-step-grid">
+          {% for step in quick_steps %}
+            <a href="{{ step.url }}" class="home-step-card">
+              <span class="home-step-index">{{ step.index }}</span>
+              <strong>{{ step.title }}</strong>
+              <span>{{ step.note }}</span>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
+    </section>
+
+    <section class="home-hub-grid">
+      <article class="home-hub-card block">
+        <h2 class="home-section-title">Workspace</h2>
+        <div class="home-kpi-grid">
+          <div class="home-kpi">
+            <span class="home-kpi-label">Projects</span>
+            <strong class="home-kpi-value">{{ project_count }}</strong>
+          </div>
+          <div class="home-kpi">
+            <span class="home-kpi-label">Pipelines</span>
+            <strong class="home-kpi-value">{{ pipeline_count }}</strong>
+          </div>
+          <div class="home-kpi">
+            <span class="home-kpi-label">Active runs</span>
+            <strong class="home-kpi-value">{{ active_runs }}</strong>
+          </div>
+        </div>
+        <div class="home-shortcuts">
+          <a href="{% url 'project:list' %}" class="home-shortcut-link">Projects</a>
+          <a href="{% url 'dash:dashboard' %}" class="home-shortcut-link">Dashboard</a>
+          {% if user.is_staff or user.is_superuser %}
+            <a href="{% url 'admin:index' %}" class="home-shortcut-link">Admin</a>
+          {% endif %}
+        </div>
+      </article>
+
+      <article class="home-hub-card block">
+        <h2 class="home-section-title">Recent runs</h2>
+        {% if recent_runs %}
+          <ul class="home-recent-list">
+            {% for run in recent_runs %}
+              <li class="home-recent-item">
+                <a href="{{ run.url }}" class="home-recent-main">
+                  <strong>{{ run.name }}</strong>
+                  <span>{{ run.project_name }} / {{ run.pipeline_name }}</span>
+                </a>
+                <span class="status-pill status-{{ run.status }}">{{ run.status|upper }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="home-empty">No recent runs yet.</p>
+        {% endif %}
+      </article>
+    </section>
+  {% else %}
+    <section class="home-hero block">
+      <p class="home-hero-kicker">Proteomics platform</p>
+      <h1 class="home-hero-title">Welcome to {{ home_title }}</h1>
+      <p class="home-hero-copy">
+        This is the automated storage and processing platform for proteomics data.
+      </p>
+      <p class="home-hero-copy">
+        Read the documentation to get started, or open an issue if you need support.
+      </p>
+      <div class="home-hero-actions">
+        <a href="https://lewisresearchgroup.github.io/ProteomicsQC/" target="_blank" rel="noopener">
+          <button class="btn run-btn run-btn-primary">Documentation</button>
+        </a>
+        <a href="https://github.com/LewisResearchGroup/ProteomicsQC/issues" target="_blank" rel="noopener">
+          <button class="btn run-btn run-btn-secondary">Contact</button>
+        </a>
+      </div>
+    </section>
+  {% endif %}
 {% endblock %}

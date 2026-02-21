@@ -3,8 +3,22 @@
  * Do not place shared components, global typography, or reusable utilities here.
  */
 
+:root {
+  --home-shell-width: min(1240px, calc(100% - 48px));
+}
+
+.home-top-grid {
+  width: var(--home-shell-width);
+  margin: 8px auto 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
 .home-hero {
-  max-width: 940px;
+  width: var(--home-shell-width);
+  max-width: none;
   margin: 8px auto 0 auto;
   padding: 28px;
   border: 1px solid #e3e6ea;
@@ -38,4 +52,209 @@
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 16px;
+}
+
+.home-quickstart {
+  width: var(--home-shell-width);
+  max-width: none;
+  margin: 14px auto 0 auto;
+  border: 1px solid #e3e6ea;
+}
+
+.home-section-title {
+  margin: 0 0 12px 0;
+  color: #34506c;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.home-step-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.home-step-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  border: 1px solid #dbe5f0;
+  border-radius: 10px;
+  padding: 10px;
+  background: #f8fbfd;
+  color: #27415d;
+}
+
+.home-step-card:hover {
+  background: #eef8fc;
+  border-color: #b9d6e6;
+}
+
+.home-step-card strong {
+  color: #0b5b65;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.home-step-card span {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.home-step-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: #0f8f8f;
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.home-hub-grid {
+  width: var(--home-shell-width);
+  max-width: none;
+  margin: 14px auto 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.home-hub-card {
+  margin: 0;
+  border: 1px solid #e3e6ea;
+}
+
+.home-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.home-kpi {
+  border: 1px solid #e1e9f1;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fafcff;
+}
+
+.home-kpi-label {
+  display: block;
+  font-size: 12px;
+  color: #5d6d80;
+  text-transform: uppercase;
+}
+
+.home-kpi-value {
+  display: block;
+  font-size: 26px;
+  color: #0d6270;
+  line-height: 1.1;
+}
+
+.home-shortcuts {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.home-shortcut-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  min-height: 38px;
+  border-radius: 8px;
+  border: 1px solid #8cc4c8;
+  background: #f7fbfc;
+  color: #0b6f73;
+  font-weight: 700;
+}
+
+.home-shortcut-link:hover {
+  background: #e9f7f8;
+  border-color: #64aeb5;
+  color: #085d60;
+}
+
+.home-recent-list {
+  margin: 0;
+  padding: 0;
+}
+
+.home-recent-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-top: 1px solid #edf1f5;
+  padding: 10px 0;
+}
+
+.home-recent-item:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.home-recent-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.home-recent-main strong {
+  color: #21384f;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.home-recent-main span {
+  color: #5f6f82;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.home-empty {
+  margin: 0;
+  color: #6b7a8d;
+}
+
+/* When hero + quickstart share the top row, let cards size to the grid columns. */
+.home-top-grid .home-hero,
+.home-top-grid .home-quickstart {
+  width: auto;
+  margin: 0;
+}
+
+@media (max-width: 1100px) {
+  .home-top-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-hub-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 650px) {
+  :root {
+    --home-shell-width: calc(100% - 20px);
+  }
+
+  .home-top-grid {
+    margin-top: 8px;
+  }
+
+  .home-step-grid,
+  .home-kpi-grid {
+    grid-template-columns: 1fr;
+  }
 }
