@@ -130,18 +130,18 @@
   justify-content: center;
   min-width: 64px;
   padding: 4px 10px;
-  border: 1px solid #8cc4c8;
+  border: 1px solid #9fc2cf;
   border-radius: 999px;
-  color: #0b6f73;
+  color: var(--color-brand-ink);
   font-weight: 700;
   font-size: 12px;
-  background: #f7fbfc;
+  background: var(--color-surface-soft);
 }
 
 .mq-open-link:hover {
-  color: #085d60;
-  background: #e9f7f8;
-  border-color: #64aeb5;
+  color: #2a6172;
+  background: var(--color-surface-selected);
+  border-color: var(--color-brand-soft);
 }
 
 .mq-cancel-btn,
@@ -244,7 +244,7 @@
 .upload-queue-progress-fill {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, #0f8f8f 0%, #0a7c88 100%);
+  background: linear-gradient(90deg, var(--color-brand-soft) 0%, var(--color-brand-strong) 100%);
 }
 
 .upload-queue-progress-text {

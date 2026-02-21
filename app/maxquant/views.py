@@ -242,6 +242,25 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
             title_text = ""
             if hasattr(fig, "layout") and hasattr(fig.layout, "title"):
                 title_text = fig.layout.title.text or ""
+
+            # Normalize figure heights server-side to avoid excessive
+            # whitespace and inconsistent client-side resizing behavior.
+            raw_height = getattr(fig.layout, "height", None)
+            try:
+                height = int(raw_height) if raw_height is not None else None
+            except (TypeError, ValueError):
+                height = None
+
+            if height is None:
+                fig.update_layout(height=420, autosize=True)
+            elif height > 560:
+                fig.update_layout(height=520, autosize=True)
+            elif height < 140:
+                # Keep compact spark/bar strips as configured.
+                pass
+            else:
+                fig.update_layout(autosize=True)
+
             resolved_help = (
                 help_text
                 if help_text is not None

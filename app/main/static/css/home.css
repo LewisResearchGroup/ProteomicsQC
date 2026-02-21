@@ -32,19 +32,19 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  color: #5f7085;
+  color: var(--color-text-muted);
 }
 
 .home-hero-title {
   margin: 0 0 12px 0;
-  color: #0b5b65;
+  color: var(--color-brand-ink);
 }
 
 .home-hero-copy {
   margin: 0 0 8px 0;
   font-size: 17px;
   line-height: 1.4;
-  color: #334155;
+  color: var(--color-text-strong);
 }
 
 .home-hero-actions {
@@ -63,7 +63,7 @@
 
 .home-section-title {
   margin: 0 0 12px 0;
-  color: #34506c;
+  color: var(--color-text-strong);
   font-size: 20px;
   font-weight: 700;
 }
@@ -83,7 +83,7 @@
   border-radius: 10px;
   padding: 10px;
   background: #f8fbfd;
-  color: #27415d;
+  color: var(--color-text-strong);
 }
 
 .home-step-card:hover {
@@ -92,7 +92,7 @@
 }
 
 .home-step-card strong {
-  color: #0b5b65;
+  color: var(--color-brand-ink);
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -110,7 +110,7 @@
   width: 24px;
   height: 24px;
   border-radius: 999px;
-  background: #0f8f8f;
+  background: var(--color-brand-strong);
   color: #fff;
   font-weight: 700;
   font-size: 12px;
@@ -146,14 +146,14 @@
 .home-kpi-label {
   display: block;
   font-size: 12px;
-  color: #5d6d80;
+  color: var(--color-text-muted);
   text-transform: uppercase;
 }
 
 .home-kpi-value {
   display: block;
   font-size: 26px;
-  color: #0d6270;
+  color: var(--color-brand-ink);
   line-height: 1.1;
 }
 
@@ -171,16 +171,16 @@
   min-width: 120px;
   min-height: 38px;
   border-radius: 8px;
-  border: 1px solid #8cc4c8;
-  background: #f7fbfc;
-  color: #0b6f73;
+  border: 1px solid #9fc2cf;
+  background: var(--color-surface-soft);
+  color: var(--color-brand-ink);
   font-weight: 700;
 }
 
 .home-shortcut-link:hover {
-  background: #e9f7f8;
-  border-color: #64aeb5;
-  color: #085d60;
+  background: var(--color-surface-selected);
+  border-color: var(--color-brand-soft);
+  color: #2a6172;
 }
 
 .home-recent-list {
@@ -210,13 +210,13 @@
 }
 
 .home-recent-main strong {
-  color: #21384f;
+  color: var(--color-text-strong);
   overflow-wrap: anywhere;
   word-break: break-word;
 }
 
 .home-recent-main span {
-  color: #5f6f82;
+  color: var(--color-text-muted);
   font-size: 13px;
   overflow-wrap: anywhere;
   word-break: break-word;
@@ -224,7 +224,7 @@
 
 .home-empty {
   margin: 0;
-  color: #6b7a8d;
+  color: var(--color-text-muted);
 }
 
 /* When hero + quickstart share the top row, let cards size to the grid columns. */

@@ -49,7 +49,7 @@
 
   <br> 
 
-  <h3 class='name' style="font-size: 18px; color: #666;"><strong>Results for file:</strong> {{ object.raw_file }}</h3>
+  <h3 class='name raw-file-title'><strong>Results for file:</strong> {{ object.raw_file }}</h3>
 
   <div class="processing-status-card">
     <div class="processing-status-header">
@@ -72,13 +72,13 @@
   <p id="download-status" class="download-status" aria-live="polite"></p>
 
   {% if summary_stats %}
-    <div class="card" style="padding:12px 16px; margin-bottom:12px;">
-      <h4 style="margin:0 0 8px 0; color:#444;">Run summary</h4>
-      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+    <div class="card run-summary-card">
+      <h4 class="run-summary-title">Run summary</h4>
+      <div class="run-summary-grid">
         {% for stat in summary_stats %}
-          <div style="flex: 1 1 160px; min-width:140px; border:1px solid #e6e6e6; border-radius:6px; padding:8px 10px; background:#fafafa;">
-            <div style="font-size:12px; color:#666; margin-bottom:4px;">{{ stat.label }}</div>
-            <div style="font-size:16px; font-weight:700; color:#333;">{{ stat.value }}</div>
+          <div class="run-summary-stat">
+            <div class="run-summary-stat-label">{{ stat.label }}</div>
+            <div class="run-summary-stat-value">{{ stat.value }}</div>
           </div>
         {% endfor %}
       </div>
@@ -89,14 +89,14 @@
     <hr />
     <h4 class="figure-section-title">{{ section.title }}</h4>
     {% for figure in section.figures %}
-      <div style="width:100%; margin-bottom:20px;">
+      <div class="result-figure">
       {% if figure.help %}
-        <div style="display:flex; justify-content:flex-end; margin:0 6px 6px 0;">
+        <div class="result-figure-help-wrap">
           <span
             data-toggle="tooltip"
             data-placement="left"
             title="{{ figure.help }}"
-            style="display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border:1px solid #bfbfbf; border-radius:50%; color:#666; font-size:12px; cursor:help; background:#fafafa;"
+            class="result-figure-help"
             aria-label="Plot help"
           >?</span>
         </div>
@@ -131,6 +131,7 @@
       }
 
       const isProcessing = "{{ object.is_processing|yesno:'true,false' }}" === "true";
+
       if (isProcessing) {
         setTimeout(() => {
           window.location.reload();
