@@ -243,6 +243,26 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
             reporter_cols = [col for col in df.columns if col.startswith("Reporter intensity ")]
             intensity_channel_cols = [col for col in df.columns if col.startswith("Intensity ") and col != "Intensity"]
             channel_cols = reporter_corrected_cols or reporter_cols or intensity_channel_cols
+            # Some exports include both generic and experiment-scoped channel columns
+            # (e.g. "Reporter intensity corrected 1" and "... 1 <experiment>").
+            # Keep one column per numeric channel and prefer experiment-scoped names.
+            if channel_cols:
+                channel_by_number = {}
+                for col in channel_cols:
+                    match = re.search(r"\b(\d+)\b", col)
+                    if match is None:
+                        continue
+                    number = int(match.group(1))
+                    current = channel_by_number.get(number)
+                    if current is None:
+                        channel_by_number[number] = col
+                        continue
+                    current_has_suffix = bool(re.search(rf"\b{number}\b\s+\S+", current))
+                    new_has_suffix = bool(re.search(rf"\b{number}\b\s+\S+", col))
+                    if new_has_suffix and not current_has_suffix:
+                        channel_by_number[number] = col
+                if channel_by_number:
+                    channel_cols = [channel_by_number[n] for n in sorted(channel_by_number)]
             if not channel_cols:
                 return
 
@@ -261,19 +281,21 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
                 intensity_long["Channel"], categories=channel_order, ordered=True
             )
             intensity_long = intensity_long.sort_values("Channel")
-            intensity_long["Channel label"] = intensity_long["Channel"].apply(short_channel_name)
-            channel_label_order = [short_channel_name(col) for col in channel_order]
-            intensity_long["Channel label"] = pd.Categorical(
-                intensity_long["Channel label"],
-                categories=channel_label_order,
-                ordered=True,
-            )
+            base_labels = [short_channel_name(col) for col in channel_order]
+            label_counts = {}
+            unique_labels = []
+            for label in base_labels:
+                label_counts[label] = label_counts.get(label, 0) + 1
+                if label_counts[label] == 1:
+                    unique_labels.append(label)
+                else:
+                    unique_labels.append(f"{label} ({label_counts[label]})")
             intensity_long["log2(Intensity)"] = np.log1p(intensity_long["Intensity"])
 
             fig = go.Figure()
             fig.add_trace(
                 go.Box(
-                    x=intensity_long["Channel label"],
+                    x=intensity_long["Channel"],
                     y=intensity_long["log2(Intensity)"],
                     boxpoints="outliers",
                     jitter=0.3,
@@ -295,10 +317,27 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
                 tickangle=0,
                 automargin=True,
                 categoryorder="array",
-                categoryarray=channel_label_order,
+                categoryarray=channel_order,
+                tickmode="array",
+                tickvals=channel_order,
+                ticktext=unique_labels,
             )
             fig.update_yaxes(automargin=True, rangemode="tozero")
             add_figure(fig)
+
+        def summary_value(summary_df, *candidates):
+            """Return first matching summary value using tolerant column matching."""
+            if summary_df.empty:
+                return None
+            for candidate in candidates:
+                if candidate in summary_df.columns:
+                    return summary_df.loc[0, candidate]
+            normalized = {str(col).strip().casefold(): col for col in summary_df.columns}
+            for candidate in candidates:
+                key = str(candidate).strip().casefold()
+                if key in normalized:
+                    return summary_df.loc[0, normalized[key]]
+            return None
 
         fn = f"{path_rt}/{raw_fn}_Ms_TIC_chromatogram.txt"
         if isfile(fn):
@@ -325,9 +364,21 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
         fn = f"{path}/summary.txt"
         if isfile(fn):
             summary = pd.read_csv(fn, sep="\t")
-            summary_stats.append({"label": "MS/MS scans", "value": summary.loc[0, "MS/MS submitted"]})
-            summary_stats.append({"label": "MS/MS identified", "value": summary.loc[0, "MS/MS identified"]})
-            summary_stats.append({"label": "MS/MS identified [%]", "value": summary.loc[0, "MS/MS identified [%]"]})
+            msms_submitted = summary_value(summary, "MS/MS submitted", "MS/MS Submitted")
+            msms_identified = summary_value(summary, "MS/MS identified", "MS/MS Identified")
+            msms_identified_pct = summary_value(
+                summary,
+                "MS/MS identified [%]",
+                "MS/MS Identified [%]",
+                "MS/MS identified [%] ",
+            )
+
+            if msms_submitted is not None:
+                summary_stats.append({"label": "MS/MS scans", "value": msms_submitted})
+            if msms_identified is not None:
+                summary_stats.append({"label": "MS/MS identified", "value": msms_identified})
+            if msms_identified_pct is not None:
+                summary_stats.append({"label": "MS/MS identified [%]", "value": msms_identified_pct})
 
         fn = f"{path}/evidence.txt"
         if isfile(fn):
