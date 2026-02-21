@@ -196,9 +196,13 @@ CELERY_RESULT_BACKEND = "redis://redis:6379"
 AUTH_USER_MODEL = "user.User"
 
 
-# Storage settings
-DATALAKE_ROOT = P("/datalake/")
-COMPUTE_ROOT = P("/compute/")
+import sys
+if "test" in sys.argv or any("pytest" in arg for arg in sys.argv):
+    DATALAKE_ROOT = P("/tmp/datalake/")
+    COMPUTE_ROOT = P("/tmp/compute/")
+else:
+    DATALAKE_ROOT = P(os.getenv("DATALAKE", "/datalake/"))
+    COMPUTE_ROOT = P(os.getenv("COMPUTE", "/compute/"))
 
 
 class MediaFileSystemStorage(FileSystemStorage):

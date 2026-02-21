@@ -8,10 +8,10 @@ from project.models import Project
 class ProjectListViewTestCase(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
-            username="tester", email="tester@example.com", password="pass1234"
+            email="tester@example.com", password="pass1234"
         )
-        Project.objects.create(name="Project 1", description="First project")
-        Project.objects.create(name="Project 2", description="Second project")
+        Project.objects.create(name="Project 1", description="First project", created_by=self.user)
+        Project.objects.create(name="Project 2", description="Second project", created_by=self.user)
 
     def test_projects_render_on_list_page(self):
         self.client.force_login(self.user)

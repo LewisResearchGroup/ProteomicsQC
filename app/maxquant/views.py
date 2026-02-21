@@ -76,7 +76,7 @@ def maxquant_pipeline_view(request, project, pipeline):
             maxquant_runs = _results_for_user(request.user).filter(
                 raw_file__pipeline__slug=pipeline,
                 raw_file__pipeline__project__slug=project,
-            )
+            ).order_by("-created")
 
     if request.method == "POST":
         request.session["search-files"] = request.POST
@@ -86,7 +86,7 @@ def maxquant_pipeline_view(request, project, pipeline):
                 raw_file__pipeline__slug=pipeline,
                 raw_file__pipeline__project__slug=project,
                 raw_file__orig_file__iregex=form.cleaned_data["raw_file"],
-            )
+            ).order_by("-created")
 
     page = request.GET.get("page", 1)
     paginator = Paginator(maxquant_runs, settings.PAGINATE)

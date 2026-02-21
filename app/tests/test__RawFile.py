@@ -26,11 +26,8 @@ class RawFileTestCase(TestCase):
                 name="project", description="A test project"
             )
 
-            fn_mqpar = P("tests/data/TMT11.xml")
-            fn_fasta = P("tests/data/minimal.fasta")
-
-            contents_mqpar = fn_mqpar.read_bytes()
-            contents_fasta = fn_fasta.read_bytes()
+            contents_mqpar = b"<mqpar></mqpar>"
+            contents_fasta = b">protein\nSEQUENCE"
 
             self.pipeline = Pipeline.objects.create(
                 name="pipe",
@@ -66,11 +63,8 @@ class SameRawFileCanBeUploadedToMultiplePipelines(TestCase):
             name="project", description="A test project"
         )
 
-        fn_mqpar = P("tests/data/TMT11.xml")
-        fn_fasta = P("tests/data/minimal.fasta")
-
-        contents_mqpar = fn_mqpar.read_bytes()
-        contents_fasta = fn_fasta.read_bytes()
+        contents_mqpar = b"<mqpar></mqpar>"
+        contents_fasta = b">protein\nSEQUENCE"
 
         self.pipeline_A = Pipeline.objects.create(
             name="pipeA",
@@ -102,21 +96,19 @@ class SameRawFileCanBeUploadedToMultiplePipelines(TestCase):
 class ReuploadAfterResultDeletionRestoresResult(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
-            username="tester", email="tester@example.com", password="pass1234"
+            email="tester@example.com", password="pass1234"
         )
         self.project = Project.objects.create(
-            name="project", description="A test project"
+            name="project", description="A test project", created_by=self.user
         )
 
-        fn_mqpar = P("tests/data/TMT11.xml")
-        fn_fasta = P("tests/data/minimal.fasta")
-
-        contents_mqpar = fn_mqpar.read_bytes()
-        contents_fasta = fn_fasta.read_bytes()
+        contents_mqpar = b"<mqpar></mqpar>"
+        contents_fasta = b">protein\nSEQUENCE"
 
         self.pipeline = Pipeline.objects.create(
             name="pipe",
             project=self.project,
+            created_by=self.user,
             fasta_file=SimpleUploadedFile("my_fasta.fasta", contents_fasta),
             mqpar_file=SimpleUploadedFile("my_mqpar.xml", contents_mqpar),
             rawtools_args="-p -q -x -u -l -m -r TMT11 -chro 12TB",
@@ -136,6 +128,7 @@ class ReuploadAfterResultDeletionRestoresResult(TestCase):
         response = self.client.post(
             reverse("maxquant:basic_upload"),
             data={
+                "project": self.project.pk,
                 "pipeline": self.pipeline.pk,
                 "orig_file": SimpleUploadedFile("fake.raw", b"..."),
             },

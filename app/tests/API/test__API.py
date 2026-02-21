@@ -25,11 +25,8 @@ class ApiTestCase(TestCase):
                 name="project", description="A test project"
             )
 
-            fn_mqpar = P("tests/data/TMT11.xml")
-            fn_fasta = P("tests/data/minimal.fasta")
-
-            contents_mqpar = fn_mqpar.read_bytes()
-            contents_fasta = fn_fasta.read_bytes()
+            contents_mqpar = b"<mqpar></mqpar>"
+            contents_fasta = b">protein\nSEQUENCE"
 
             self.pipeline = Pipeline.objects.create(
                 name="pipe",
