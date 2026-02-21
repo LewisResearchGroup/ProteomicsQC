@@ -99,6 +99,11 @@
   color: #9a4e1b;
 }
 
+.status-missing {
+  background: #f4f6f9;
+  color: #66758a;
+}
+
 .processing-status-message {
   margin: 0;
   color: #444;

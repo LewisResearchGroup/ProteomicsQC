@@ -61,6 +61,10 @@
   border-spacing: 0;
 }
 
+.mq-runs-table {
+  table-layout: fixed;
+}
+
 .mq-runs-table thead th,
 .pipelines-table thead th,
 .projects-table thead th,
@@ -117,11 +121,33 @@
 }
 
 .mq-run-name {
-  max-width: 540px;
+  max-width: 360px;
 }
 
 .upload-queue-name {
   max-width: 360px;
+}
+
+.mq-runs-table .mq-col-raw-file { width: 36%; }
+.mq-runs-table .mq-col-overall { width: 7%; }
+.mq-runs-table .mq-col-maxquant { width: 7%; }
+.mq-runs-table .mq-col-rawtools-metrics { width: 7%; }
+.mq-runs-table .mq-col-rawtools-qc { width: 10%; }
+.mq-runs-table .mq-col-open { width: 7%; }
+.mq-runs-table .mq-col-cancel { width: 7%; }
+.mq-runs-table .mq-col-queue { width: 7%; }
+.mq-runs-table .mq-col-delete { width: 7%; }
+
+.mq-runs-table thead th,
+.mq-runs-table tbody td {
+  padding: 8px 8px;
+}
+
+.mq-runs-table td:nth-child(6),
+.mq-runs-table td:nth-child(7),
+.mq-runs-table td:nth-child(8),
+.mq-runs-table td:nth-child(9) {
+  text-align: center;
 }
 
 .mq-open-link {
@@ -145,7 +171,8 @@
 }
 
 .mq-cancel-btn,
-.mq-cancel-all-btn {
+.mq-cancel-all-btn,
+.mq-delete-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -160,16 +187,27 @@
 }
 
 .mq-cancel-btn:hover,
-.mq-cancel-all-btn:hover {
+.mq-cancel-all-btn:hover,
+.mq-delete-btn:hover {
   background: #fde6e7;
   border-color: #d77e84;
   color: #7a1823;
 }
 
 .mq-cancel-btn:disabled,
-.mq-cancel-all-btn:disabled {
+.mq-cancel-all-btn:disabled,
+.mq-delete-btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+.mq-runs-table .mq-open-link,
+.mq-runs-table .mq-cancel-btn,
+.mq-runs-table .mq-delete-btn {
+  min-width: 68px;
+  padding: 3px 8px;
+  font-size: 11px;
+  line-height: 1.1;
 }
 
 .upload-queue {

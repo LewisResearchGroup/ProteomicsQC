@@ -1,0 +1,38 @@
+/*
+ * Scope: design tokens for color, radius, and shadow palette.
+ * Do not place component selectors, layout rules, or page-specific overrides here.
+ */
+
+:root {
+  /* Core palette */
+  --color-bg-page: #f5fbfd;
+  --color-surface: #ffffff;
+  --color-surface-soft: #edf7fa;
+  --color-surface-selected: #e1f0f4;
+  --color-border-soft: #dbe5ef;
+
+  /* Brand (mint) */
+  --color-mint-accent: #3b8fa3;
+  --color-mint-accent-hover: #4a9db0;
+  --color-mint-accent-soft: #e1f0f4;
+  --color-mint-accent-shadow: rgba(59, 143, 163, 0.42);
+
+  /* Compatibility aliases used across the app */
+  --color-brand-strong: var(--color-mint-accent);
+  --color-brand-soft: var(--color-mint-accent-hover);
+  --color-brand-ink: #2f6f83;
+
+  /* Text */
+  --color-text-strong: #24415d;
+  --color-text-muted: #5d6a7b;
+
+  /* Semantic */
+  --color-danger-ink: #8b1e2b;
+
+  /* Shape & depth */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --shadow-brand-sm: 0 6px 14px rgba(59, 143, 163, 0.14);
+  --shadow-brand-md: 0 10px 20px rgba(59, 143, 163, 0.22);
+}

@@ -4,6 +4,7 @@
  * Layering order: reset -> base -> layout -> components -> pages -> utilities.
  */
 @import "reset.css";
+@import "palette.css";
 @import "typography.css";
 @import "containers.css";
 @import "header.css";

@@ -13,12 +13,13 @@ from django.http import (
     Http404,
     HttpResponseForbidden,
 )
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.views import generic, View
 from django.views.decorators.http import require_POST
 from django.db import transaction, IntegrityError
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 
@@ -101,11 +102,16 @@ def maxquant_pipeline_view(request, project, pipeline):
     pipeline = get_object_or_404(
         _pipelines_for_user(request.user), project=project, slug=pipeline
     )
+    missing_raw_files = RawFile.objects.filter(
+        pipeline=pipeline, result__isnull=True
+    ).order_by("-created")
     context = dict(
         maxquant_runs=maxquant_runs, project=project, pipeline=pipeline
     )
     context["home_title"] = settings.HOME_TITLE
     context["form"] = form
+    context["missing_raw_files_count"] = missing_raw_files.count()
+    context["missing_raw_files"] = missing_raw_files
     return render(request, "proteomics/pipeline_detail.html", context)
 
 
@@ -867,6 +873,43 @@ def cancel_run_jobs(request, pk):
 
 @login_required
 @require_POST
+def queue_existing_run(request, pk):
+    result = get_object_or_404(_results_for_user(request.user), pk=pk)
+    can_queue = (
+        request.user.is_superuser
+        or request.user.is_staff
+        or result.raw_file.created_by_id == request.user.id
+    )
+    if not can_queue:
+        return HttpResponseForbidden(
+            "You cannot queue jobs for files uploaded by another user."
+        )
+    if result.has_active_stage:
+        return JsonResponse(
+            {
+                "is_valid": False,
+                "error": "Run is already queued or running.",
+                "status": result.overall_status,
+                "run": result.name,
+            },
+            status=409,
+        )
+
+    # Force a full rerun by recreating stage outputs.
+    result.run_maxquant(rerun=True)
+    result.run_rawtools_metrics(rerun=True)
+    result.run_rawtools_qc(rerun=True)
+    return JsonResponse(
+        {
+            "is_valid": True,
+            "status": result.overall_status,
+            "run": result.name,
+        }
+    )
+
+
+@login_required
+@require_POST
 def cancel_pipeline_jobs(request, pk):
     pipeline = get_object_or_404(_pipelines_for_user(request.user), pk=pk)
     runs_canceled = 0
@@ -887,4 +930,94 @@ def cancel_pipeline_jobs(request, pk):
             "runs_canceled": runs_canceled,
             "revoked_tasks": tasks_revoked,
         }
+    )
+
+
+@login_required
+@require_POST
+def delete_raw_file(request, pk):
+    raw_file = get_object_or_404(
+        RawFile.objects.select_related("pipeline__project").filter(
+            pipeline__in=_pipelines_for_user(request.user)
+        ),
+        pk=pk,
+    )
+    can_delete = (
+        request.user.is_superuser
+        or request.user.is_staff
+        or raw_file.created_by_id == request.user.id
+    )
+    if not can_delete:
+        return HttpResponseForbidden(
+            "You cannot delete files uploaded by another user."
+        )
+
+    result = Result.objects.filter(raw_file=raw_file).first()
+    revoked = 0
+    if result is not None and result.has_active_stage:
+        revoked = result.cancel_active_jobs()
+
+    filename = raw_file.name
+    raw_file.delete()
+
+    return JsonResponse(
+        {
+            "is_valid": True,
+            "deleted": filename,
+            "revoked_tasks": revoked,
+        }
+    )
+
+
+@login_required
+@require_POST
+def queue_missing_raw_run(request, pk):
+    raw_file = get_object_or_404(
+        RawFile.objects.select_related("pipeline__project").filter(
+            pipeline__in=_pipelines_for_user(request.user)
+        ),
+        pk=pk,
+    )
+    result, created = Result.objects.get_or_create(raw_file=raw_file)
+    return JsonResponse(
+        {
+            "is_valid": True,
+            "created": created,
+            "run": raw_file.name,
+            "result_pk": result.pk,
+            "result_url": result.url,
+        }
+    )
+
+
+@login_required
+@require_POST
+def queue_missing_pipeline_runs(request, pk):
+    pipeline = get_object_or_404(_pipelines_for_user(request.user), pk=pk)
+    missing_raw_files = list(
+        RawFile.objects.filter(pipeline=pipeline, result__isnull=True)
+    )
+    created_results = 0
+
+    with transaction.atomic():
+        for raw_file in missing_raw_files:
+            _, created = Result.objects.get_or_create(raw_file=raw_file)
+            if created:
+                created_results += 1
+
+    if created_results == 0:
+        messages.info(
+            request,
+            "No missing runs were found. This pipeline already has result entries for all .raw files.",
+        )
+    else:
+        messages.success(
+            request,
+            f"Queued {created_results} missing run(s) for pipeline {pipeline.name}.",
+        )
+
+    return redirect(
+        "maxquant:detail",
+        project=pipeline.project.slug,
+        pipeline=pipeline.slug,
     )

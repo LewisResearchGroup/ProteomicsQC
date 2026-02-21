@@ -21,6 +21,17 @@
   <p id="mq-runs-action-note" class="processing-status-note" style="display:none; margin: 0 0 8px 0;"></p>
   <div class="mq-runs-table-wrap">
     <table class="mq-runs-table">
+      <colgroup>
+        <col class="mq-col-raw-file">
+        <col class="mq-col-overall">
+        <col class="mq-col-maxquant">
+        <col class="mq-col-rawtools-metrics">
+        <col class="mq-col-rawtools-qc">
+        <col class="mq-col-open">
+        <col class="mq-col-cancel">
+        <col class="mq-col-queue">
+        <col class="mq-col-delete">
+      </colgroup>
       <thead>
         <tr>
           <th>Raw file</th>
@@ -30,6 +41,8 @@
           <th>RawTools QC</th>
           <th>Open</th>
           <th>Cancel</th>
+          <th>Queue</th>
+          <th>Delete</th>
         </tr>
       </thead>
       <tbody
@@ -56,12 +69,82 @@
                 </button>
               {% endif %}
             </td>
-          </tr>
-        {% empty %}
-          <tr id="mq-runs-empty-row">
-            <td id="mq-runs-empty" class="warning" colspan="7">No .raw files processed yet for this pipeline.</td>
+            <td>
+              {% if maxquant_run.has_active_stage %}
+                <button class="mq-open-link" type="button" disabled title="Already queued/running">
+                  Queued
+                </button>
+              {% elif request.user.is_superuser or request.user.is_staff or maxquant_run.raw_file.created_by_id == request.user.id %}
+                <button
+                  class="mq-open-link mq-queue-btn"
+                  type="button"
+                  data-url="{% url 'maxquant:queue_existing_run' maxquant_run.pk %}"
+                >
+                  Requeue
+                </button>
+              {% else %}
+                <button class="mq-open-link" type="button" disabled title="Only uploader can requeue this file">
+                  Queued
+                </button>
+              {% endif %}
+            </td>
+            <td>
+              {% if request.user.is_superuser or request.user.is_staff or maxquant_run.raw_file.created_by_id == request.user.id %}
+                <button
+                  class="mq-delete-btn"
+                  type="button"
+                  data-url="{% url 'maxquant:delete_raw_file' maxquant_run.raw_file.pk %}"
+                >
+                  Delete
+                </button>
+              {% else %}
+                <button class="mq-delete-btn" type="button" disabled title="Only uploader can delete this file">
+                  Delete
+                </button>
+              {% endif %}
+            </td>
           </tr>
         {% endfor %}
+        {% for missing_raw_file in missing_raw_files %}
+          <tr data-run-name="{{ missing_raw_file.name|lower }}">
+            <td title="{{ missing_raw_file.name }}"><span class="mq-run-name">{{ missing_raw_file.name }}</span></td>
+            <td><span class="status-pill status-missing">missing</span></td>
+            <td><span class="status-pill status-missing">missing</span></td>
+            <td><span class="status-pill status-missing">missing</span></td>
+            <td><span class="status-pill status-missing">missing</span></td>
+            <td><span class="mq-runs-count">-</span></td>
+            <td><button class="mq-cancel-btn" type="button" disabled>Cancel</button></td>
+            <td>
+              <button
+                class="mq-open-link mq-queue-btn"
+                type="button"
+                data-url="{% url 'maxquant:queue_missing_raw_run' missing_raw_file.pk %}"
+              >
+                Queue
+              </button>
+            </td>
+            <td>
+              {% if request.user.is_superuser or request.user.is_staff or missing_raw_file.created_by_id == request.user.id %}
+                <button
+                  class="mq-delete-btn"
+                  type="button"
+                  data-url="{% url 'maxquant:delete_raw_file' missing_raw_file.pk %}"
+                >
+                  Delete
+                </button>
+              {% else %}
+                <button class="mq-delete-btn" type="button" disabled title="Only uploader can delete this file">
+                  Delete
+                </button>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        {% if not maxquant_runs and not missing_raw_files_count %}
+          <tr id="mq-runs-empty-row">
+            <td id="mq-runs-empty" class="warning" colspan="9">No .raw files processed yet for this pipeline.</td>
+          </tr>
+        {% endif %}
       </tbody>
     </table>
   </div>
@@ -178,6 +261,53 @@
 
     tbody.addEventListener("click", async (event) => {
       const btn = event.target.closest(".mq-cancel-btn");
+      const queueBtn = event.target.closest(".mq-queue-btn");
+      if (queueBtn && !queueBtn.disabled) {
+        const queueUrl = queueBtn.dataset.url;
+        if (!queueUrl) return;
+        queueBtn.disabled = true;
+        queueBtn.textContent = "Queueing...";
+        try {
+          const data = await postJson(queueUrl);
+          if (data && data.is_valid) {
+            setActionNote(`Queued run for ${data.run}. Refreshing...`);
+            setTimeout(() => window.location.reload(), 900);
+            return;
+          }
+          throw new Error("Invalid response");
+        } catch (err) {
+          queueBtn.disabled = false;
+          queueBtn.textContent = "Queue";
+          setActionNote("Could not queue this missing run. Please try again.", true);
+        }
+        return;
+      }
+      const deleteBtn = event.target.closest(".mq-delete-btn");
+      if (deleteBtn && !deleteBtn.disabled) {
+        const deleteUrl = deleteBtn.dataset.url;
+        if (!deleteUrl) return;
+        const row = deleteBtn.closest("tr");
+        const fileName = row ? (row.getAttribute("data-run-name") || "this file") : "this file";
+        if (!window.confirm(`Delete ${fileName}? This will remove the raw file and related results.`)) {
+          return;
+        }
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = "Deleting...";
+        try {
+          const data = await postJson(deleteUrl);
+          if (data && data.is_valid) {
+            setActionNote(`Deleted ${data.deleted}. Refreshing...`);
+            setTimeout(() => window.location.reload(), 700);
+            return;
+          }
+          throw new Error("Invalid response");
+        } catch (err) {
+          deleteBtn.disabled = false;
+          deleteBtn.textContent = "Delete";
+          setActionNote("Could not delete this file. Please try again.", true);
+        }
+        return;
+      }
       if (!btn || btn.disabled) return;
 
       const url = btn.dataset.url;
