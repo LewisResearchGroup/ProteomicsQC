@@ -53,7 +53,17 @@ RESOURCE_RETRY_SECONDS=60
 MIN_FREE_MEM_GB_MAXQUANT=8
 MAX_LOAD_PER_CPU_MAXQUANT=0.85
 MIN_FREE_MEM_GB_RAWTOOLS=2
-MAX_LOAD_PER_CPU_RAWTOOLS=0.95
+MAX_LOAD_PER_CPU_RAWTOOLS=0.90
+
+## RESULT STATUS (web UI responsiveness vs strictness)
+RESULT_STATUS_INSPECT_TIMEOUT_SECONDS=10.0
+RESULT_STATUS_PENDING_STALLED_WARNING_SECONDS=7200
+RESULT_STATUS_DONE_MTIME_SKEW_SECONDS=300
+RESULT_STATUS_MAXQUANT_STALE_SECONDS=21600
+RESULT_STATUS_RAWTOOLS_STALE_SECONDS=3600
+RESULT_STATUS_ACTIVITY_FALLBACK_SECONDS=300
+RESULT_STATUS_INSPECT_MAX_VISIBLE_RUNS=25
+RESULT_STATUS_INSPECT_MAX_ACTIVE_RUNS=12
 
 ## SECURITY KEYS
 SECRET_KEY=...
@@ -63,6 +73,13 @@ SECRET_KEY=...
 The queue is resource-aware. Before each task starts, the worker checks current
 machine load and available memory. If thresholds are exceeded, the task is deferred
 and retried after `RESOURCE_RETRY_SECONDS`.
+
+For large pipelines, tune result-status responsiveness via:
+- `RESULT_STATUS_INSPECT_MAX_VISIBLE_RUNS`
+- `RESULT_STATUS_INSPECT_MAX_ACTIVE_RUNS`
+
+Lower values prioritize web responsiveness by avoiding expensive queue
+inspection on large run lists.
 
 ## 4) Initiate database
 
@@ -90,4 +107,3 @@ You can now navigate to [http://localhost:8080/admin](http://localhost:8080/admi
 admin account with the credentials you provided in step 5. To make this work you have to 
 configure a remote server that exposes forwards traffic to ports 80 (http) or 443 (https)
 to port 8080 and back. We recommend using NGINX for this purpose.
-

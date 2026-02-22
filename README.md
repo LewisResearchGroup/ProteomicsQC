@@ -49,11 +49,21 @@ This will create the `.env` file in the root directory of ProteomicsQC.
     
     ## CELERY
     CONCURRENCY=8
-    RESOURCE_RETRY_SECONDS=60
-    MIN_FREE_MEM_GB_MAXQUANT=8
-    MAX_LOAD_PER_CPU_MAXQUANT=0.85
-    MIN_FREE_MEM_GB_RAWTOOLS=2
-    MAX_LOAD_PER_CPU_RAWTOOLS=0.95
+RESOURCE_RETRY_SECONDS=60
+MIN_FREE_MEM_GB_MAXQUANT=8
+MAX_LOAD_PER_CPU_MAXQUANT=0.85
+MIN_FREE_MEM_GB_RAWTOOLS=2
+MAX_LOAD_PER_CPU_RAWTOOLS=0.90
+
+## RESULT STATUS (web UI responsiveness vs strictness)
+RESULT_STATUS_INSPECT_TIMEOUT_SECONDS=10.0
+RESULT_STATUS_PENDING_STALLED_WARNING_SECONDS=7200
+RESULT_STATUS_DONE_MTIME_SKEW_SECONDS=300
+RESULT_STATUS_MAXQUANT_STALE_SECONDS=21600
+RESULT_STATUS_RAWTOOLS_STALE_SECONDS=3600
+RESULT_STATUS_ACTIVITY_FALLBACK_SECONDS=300
+RESULT_STATUS_INSPECT_MAX_VISIBLE_RUNS=25
+RESULT_STATUS_INSPECT_MAX_ACTIVE_RUNS=12
     
     ##USERID
     UID=1000:1000
@@ -84,6 +94,13 @@ Resource-aware scheduling for Celery tasks is enabled by default. Each task chec
 current host load and free memory before starting; if resources are tight, it is retried
 after `RESOURCE_RETRY_SECONDS`. Thresholds can be tuned in `.env` using the
 `MIN_FREE_MEM_GB_*` and `MAX_LOAD_PER_CPU_*` variables above.
+
+Result-status rendering thresholds can also be tuned in `.env`:
+- `RESULT_STATUS_INSPECT_MAX_VISIBLE_RUNS`
+- `RESULT_STATUS_INSPECT_MAX_ACTIVE_RUNS`
+
+Lower values reduce web latency for large run lists by disabling expensive
+queue inspection earlier. Higher values increase strictness on smaller queues.
 
 
 ## Limitations
