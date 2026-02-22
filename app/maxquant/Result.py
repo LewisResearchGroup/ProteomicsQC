@@ -52,6 +52,7 @@ class Result(models.Model):
     created = models.DateTimeField(default=timezone.now)
 
     raw_file = models.OneToOneField("RawFile", on_delete=models.CASCADE)
+    input_source = models.CharField(max_length=32, default="upload")
     maxquant_task_id = models.CharField(max_length=255, null=True, blank=True)
     rawtools_metrics_task_id = models.CharField(max_length=255, null=True, blank=True)
     rawtools_qc_task_id = models.CharField(max_length=255, null=True, blank=True)

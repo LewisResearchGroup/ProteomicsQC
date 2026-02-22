@@ -185,7 +185,14 @@ $(function () {
       if (data && data.uploadId) {
         setQueueStatus(data.uploadId, "failed", "status-failed");
       }
-      showUploadFeedback("error", "Upload failed due to a server error.");
+      let message = "Upload failed due to a server error.";
+      const jqXHR = data && data.jqXHR ? data.jqXHR : null;
+      if (jqXHR && jqXHR.responseJSON && jqXHR.responseJSON.error) {
+        message = jqXHR.responseJSON.error;
+      } else if (jqXHR && jqXHR.status === 409) {
+        message = "Upload conflict detected. The file may already exist in this pipeline.";
+      }
+      showUploadFeedback("error", message);
     }
 
   });

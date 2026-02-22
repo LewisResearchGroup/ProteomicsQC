@@ -778,10 +778,17 @@ def maxquant_download(request, pk):
 
 class UploadRaw(LoginRequiredMixin, View):
     def _resolve_existing_raw_file(self, pipeline, uploaded_name):
-        # Raw files are stored as upload/<filename> in the FileField.
-        candidate = f"upload/{P(uploaded_name).name}"
-        return RawFile.objects.filter(
-            pipeline=pipeline, orig_file=candidate
+        # Raw files are usually stored as upload/<filename>, but historical
+        # entries may keep a variant path. Resolve by exact path first, then
+        # by basename inside the same pipeline.
+        basename = P(uploaded_name).name
+        candidate = f"upload/{basename}"
+        queryset = RawFile.objects.filter(pipeline=pipeline)
+        existing = queryset.filter(orig_file=candidate).first()
+        if existing is not None:
+            return existing
+        return queryset.filter(orig_file__iendswith=f"/{basename}").order_by(
+            "-created"
         ).first()
 
     def get(self, request, pk=None):
@@ -835,7 +842,11 @@ class UploadRaw(LoginRequiredMixin, View):
 
             if existing is not None:
                 result, created = Result.objects.get_or_create(
-                    raw_file=existing
+                    raw_file=existing,
+                    defaults={
+                        "created_by": request.user,
+                        "input_source": "upload",
+                    },
                 )
                 data = {
                     "is_valid": True,
@@ -853,8 +864,9 @@ class UploadRaw(LoginRequiredMixin, View):
                     raw_file = RawFile.objects.create(
                         orig_file=uploaded_file,
                         pipeline=pipeline,
+                        created_by=request.user,
                     )
-            except IntegrityError:
+            except IntegrityError as exc:
                 # Handle rare races where the same file is uploaded
                 # concurrently.
                 existing = self._resolve_existing_raw_file(
@@ -863,12 +875,15 @@ class UploadRaw(LoginRequiredMixin, View):
                 if existing is None:
                     data = {
                         "is_valid": False,
-                        "error": "Could not save file because of a "
-                        "duplicate entry.",
+                        "error": f"Could not save file: {exc}",
                     }
-                    return JsonResponse(data, status=409)
+                    return JsonResponse(data, status=500)
                 result, created = Result.objects.get_or_create(
-                    raw_file=existing
+                    raw_file=existing,
+                    defaults={
+                        "created_by": request.user,
+                        "input_source": "upload",
+                    },
                 )
                 data = {
                     "is_valid": True,
@@ -881,7 +896,13 @@ class UploadRaw(LoginRequiredMixin, View):
                 }
                 return JsonResponse(data)
 
-            result, _ = Result.objects.get_or_create(raw_file=raw_file)
+            result, _ = Result.objects.get_or_create(
+                raw_file=raw_file,
+                defaults={
+                    "created_by": request.user,
+                    "input_source": "upload",
+                },
+            )
             data = {
                 "is_valid": True,
                 "name": str(raw_file.name),
@@ -1027,7 +1048,9 @@ def queue_missing_raw_run(request, pk):
         ),
         pk=pk,
     )
-    result, created = Result.objects.get_or_create(raw_file=raw_file)
+    result, created = Result.objects.get_or_create(
+        raw_file=raw_file, defaults={"input_source": "upload"}
+    )
     return JsonResponse(
         {
             "is_valid": True,
@@ -1050,7 +1073,9 @@ def queue_missing_pipeline_runs(request, pk):
 
     with transaction.atomic():
         for raw_file in missing_raw_files:
-            _, created = Result.objects.get_or_create(raw_file=raw_file)
+            _, created = Result.objects.get_or_create(
+                raw_file=raw_file, defaults={"input_source": "upload"}
+            )
             if created:
                 created_results += 1
 

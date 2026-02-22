@@ -150,7 +150,7 @@ def move_rawfile_to_input_dir(sender, instance, created, *args, **kwargs):
     # Create Results only if not present yet
     if raw_file.pipeline.has_maxquant_config:
         if len(Result.objects.filter(raw_file=raw_file)) == 0:
-            Result.objects.create(raw_file=raw_file)
+            Result.objects.create(raw_file=raw_file, input_source="upload")
 
 
 @receiver(models.signals.post_delete, sender=RawFile)

@@ -2,10 +2,12 @@ from django.test import TestCase
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 import json
+from unittest.mock import patch
 
 from user.models import User
 from project.models import Project
 from maxquant.models import Pipeline, RawFile, Result
+from django.db import IntegrityError
 
 class UploadRawViewTestCase(TestCase):
     def setUp(self):
@@ -82,3 +84,55 @@ class UploadRawViewTestCase(TestCase):
         
         # Only 1 raw file should exist for that pipeline
         self.assertEqual(RawFile.objects.filter(pipeline=self.pipeline).count(), 1)
+
+    def test_upload_raw_post_duplicate_detects_nonstandard_stored_path(self):
+        self.client.force_login(self.user)
+        existing_raw = RawFile.objects.create(
+            pipeline=self.pipeline,
+            created_by=self.user,
+            orig_file=SimpleUploadedFile("duplicate_case.raw", b"dummy raw data"),
+        )
+        # Simulate a legacy/nonstandard DB path for the same basename.
+        RawFile.objects.filter(pk=existing_raw.pk).update(
+            orig_file="upload/legacy/duplicate_case.raw"
+        )
+
+        url = reverse("maxquant:basic_upload")
+        response = self.client.post(
+            url,
+            {
+                "pipeline": self.pipeline.pk,
+                "project": self.project.pk,
+                "orig_file": SimpleUploadedFile(
+                    "duplicate_case.raw", b"dummy raw data"
+                ),
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertTrue(data.get("is_valid"))
+        self.assertTrue(data.get("already_exists"))
+        self.assertEqual(RawFile.objects.filter(pipeline=self.pipeline).count(), 1)
+
+    @patch("maxquant.views.RawFile.objects.create")
+    def test_upload_raw_post_non_duplicate_integrity_error_returns_500(
+        self, mocked_create
+    ):
+        self.client.force_login(self.user)
+        mocked_create.side_effect = IntegrityError("NOT NULL constraint failed")
+
+        url = reverse("maxquant:basic_upload")
+        response = self.client.post(
+            url,
+            {
+                "pipeline": self.pipeline.pk,
+                "project": self.project.pk,
+                "orig_file": SimpleUploadedFile("broken.raw", b"dummy raw data"),
+            },
+        )
+
+        self.assertEqual(response.status_code, 500)
+        data = json.loads(response.content)
+        self.assertFalse(data.get("is_valid"))
+        self.assertIn("Could not save file", data.get("error", ""))
