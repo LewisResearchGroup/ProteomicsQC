@@ -1,9 +1,14 @@
 from os.path import isfile
 from pathlib import Path as P
+import hashlib
 import pandas as pd
 import logging
 import numpy as np
 import re
+try:
+    import polars as pl
+except Exception:  # pragma: no cover - fallback when dependency is unavailable
+    pl = None
 
 from io import BytesIO
 
@@ -21,6 +26,7 @@ from django.views.decorators.http import require_POST
 from django.db import transaction, IntegrityError
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.cache import cache
 from django.db.models import Q
 
 from django.conf import settings
@@ -197,6 +203,8 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         mq_run = context["object"]
+        # Detail rendering should not block on broker inspect calls.
+        mq_run._queue_check_mode = "off"
         path = mq_run.output_dir_maxquant
         path_rt = mq_run.output_dir_rawtools
 
@@ -205,6 +213,36 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
         context["pipeline"] = mq_run.raw_file.pipeline
         raw_fn = mq_run.raw_file
         context["raw_file"] = raw_fn
+
+        # Cache rendered summary/figures per run and source-file freshness.
+        source_files = [
+            f"{path_rt}/{raw_fn}_Ms_TIC_chromatogram.txt",
+            f"{path_rt}/{raw_fn}_Ms2_TIC_chromatogram.txt",
+            f"{path}/summary.txt",
+            f"{path}/evidence.txt",
+            f"{path}/peptides.txt",
+            f"{path}/proteinGroups.txt",
+        ]
+        freshness_parts = []
+        for fn in source_files:
+            if isfile(fn):
+                try:
+                    freshness_parts.append(f"{fn}:{int(P(fn).stat().st_mtime)}")
+                except OSError:
+                    freshness_parts.append(f"{fn}:0")
+            else:
+                freshness_parts.append(f"{fn}:missing")
+        freshness_token = hashlib.sha1(
+            "|".join(freshness_parts).encode("utf-8")
+        ).hexdigest()
+        cache_key = f"mq-detail-v2:{mq_run.pk}:{freshness_token}"
+        cached = cache.get(cache_key)
+        if cached:
+            context["figures"] = cached["figures"]
+            context["figure_sections"] = cached["figure_sections"]
+            context["summary_stats"] = cached["summary_stats"]
+            context["home_title"] = settings.HOME_TITLE
+            return context
 
         figures = []
         summary_stats = []
@@ -472,13 +510,68 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
                     return summary_df.loc[0, normalized[key]]
             return None
 
+        def read_tsv_selected(fn, exact_cols=None, prefix_cols=None):
+            exact_cols = exact_cols or []
+            prefix_cols = prefix_cols or []
+            available_cols = []
+            if pl is not None:
+                try:
+                    available_cols = list(
+                        pl.read_csv(fn, separator="\t", n_rows=0).columns
+                    )
+                except Exception:
+                    available_cols = []
+            if not available_cols:
+                try:
+                    header = pd.read_csv(fn, sep="\t", nrows=0)
+                    available_cols = list(header.columns)
+                except Exception:
+                    return pd.DataFrame()
+            selected = [col for col in exact_cols if col in available_cols]
+            if prefix_cols:
+                selected.extend(
+                    [
+                        col
+                        for col in available_cols
+                        if any(col.startswith(prefix) for prefix in prefix_cols)
+                    ]
+                )
+            # Preserve order and uniqueness
+            selected = list(dict.fromkeys(selected))
+            if not selected:
+                return pd.DataFrame()
+            if pl is not None:
+                try:
+                    pl_df = (
+                        pl.scan_csv(
+                            fn, separator="\t", has_header=True
+                        )
+                        .select([pl.col(col) for col in selected])
+                        .collect(streaming=True)
+                    )
+                    return pl_df.to_pandas()
+                except Exception:
+                    pass
+            try:
+                return pd.read_csv(
+                    fn,
+                    sep="\t",
+                    usecols=selected,
+                    low_memory=False,
+                )
+            except Exception:
+                return pd.DataFrame()
+
         fn = f"{path_rt}/{raw_fn}_Ms_TIC_chromatogram.txt"
         if isfile(fn):
-            df_ms = (
-                pd.read_csv(fn, sep="\t")
-                .rename(columns={"RetentionTime": "Retention time"})
-                .set_index("Retention time")
+            df_ms = read_tsv_selected(
+                fn, exact_cols=["RetentionTime", "Intensity"]
             )
+            if "RetentionTime" in df_ms.columns:
+                df_ms = (
+                    df_ms.rename(columns={"RetentionTime": "Retention time"})
+                    .set_index("Retention time")
+                )
             summary_stats.append({"label": "MS scans", "value": len(df_ms)})
             fig = lines_plot(
                 df_ms, cols=["Intensity"], title="MS TIC chromatogram"
@@ -487,11 +580,14 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
 
         fn = f"{path_rt}/{raw_fn}_Ms2_TIC_chromatogram.txt"
         if isfile(fn):
-            df_ms2 = (
-                pd.read_csv(fn, sep="\t")
-                .rename(columns={"RetentionTime": "Retention time"})
-                .set_index("Retention time")
+            df_ms2 = read_tsv_selected(
+                fn, exact_cols=["RetentionTime", "Intensity"]
             )
+            if "RetentionTime" in df_ms2.columns:
+                df_ms2 = (
+                    df_ms2.rename(columns={"RetentionTime": "Retention time"})
+                    .set_index("Retention time")
+                )
 
             fig = lines_plot(
                 df_ms2, cols=["Intensity"], title="MS2 TIC chromatogram"
@@ -532,11 +628,17 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
 
         fn = f"{path}/evidence.txt"
         if isfile(fn):
-            msms = (
-                pd.read_csv(fn, sep="\t")
-                .set_index("Retention time")
-                .sort_index()
+            msms = read_tsv_selected(
+                fn,
+                exact_cols=[
+                    "Retention time",
+                    "Missed cleavages",
+                    "Uncalibrated - Calibrated m/z [ppm]",
+                    "Charge",
+                ],
             )
+            if "Retention time" in msms.columns:
+                msms = msms.set_index("Retention time").sort_index()
 
             if "Missed cleavages" in msms.columns:
                 missed = (
@@ -688,7 +790,15 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
 
         fn = f"{path}/peptides.txt"
         if isfile(fn):
-            peptides = pd.read_csv(fn, sep="\t")
+            peptides = read_tsv_selected(
+                fn,
+                exact_cols=["Length"],
+                prefix_cols=[
+                    "Reporter intensity corrected ",
+                    "Reporter intensity ",
+                    "Intensity ",
+                ],
+            )
 
             if "Length" in peptides.columns:
                 peptide_lengths = pd.to_numeric(
@@ -714,10 +824,16 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
 
         fn = f"{path}/proteinGroups.txt"
         if isfile(fn):
-            proteins = pd.read_csv(fn, sep="\t")
-            summary_stats.append(
-                {"label": "Protein groups", "value": len(proteins)}
+            proteins = read_tsv_selected(
+                fn,
+                exact_cols=["Peptides", "Score"],
+                prefix_cols=[
+                    "Reporter intensity corrected ",
+                    "Reporter intensity ",
+                    "Intensity ",
+                ],
             )
+            summary_stats.append({"label": "Protein groups", "value": len(proteins)})
 
             add_channel_intensity_boxplot(
                 proteins, "Channel intensity distribution (protein groups)"
@@ -764,6 +880,15 @@ class ResultDetailView(LoginRequiredMixin, generic.DetailView):
         context["figure_sections"] = figure_sections
         context["summary_stats"] = summary_stats
         context["home_title"] = settings.HOME_TITLE
+        cache.set(
+            cache_key,
+            {
+                "figures": figures,
+                "figure_sections": figure_sections,
+                "summary_stats": summary_stats,
+            },
+            timeout=600,
+        )
         return context
 
 
