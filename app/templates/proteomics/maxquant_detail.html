@@ -62,6 +62,18 @@
       <div class="status-chip">MaxQuant: <span class="status-pill status-{{ object.stage_statuses.maxquant }}">{{ object.stage_statuses.maxquant }}</span></div>
     </div>
     <p class="processing-status-message">{{ object.processing_message }}</p>
+    {% if object.stage_error_details %}
+      <div class="processing-error-panel">
+        <div class="processing-error-title">Error details</div>
+        {% for stage_error in object.stage_error_details %}
+          <div class="processing-error-item">
+            <div class="processing-error-stage">{{ stage_error.label }}</div>
+            <pre class="processing-error-log">{{ stage_error.message }}</pre>
+          </div>
+        {% endfor %}
+        <p class="processing-status-note">Showing log excerpts from stage error files.</p>
+      </div>
+    {% endif %}
     {% if object.is_processing %}
       <p class="processing-status-note">This page auto-refreshes every 20 seconds while processing.</p>
     {% endif %}

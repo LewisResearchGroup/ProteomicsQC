@@ -505,6 +505,37 @@ class Result(models.Model):
             return False
         return self._has_error_text(err_fn)
 
+    @staticmethod
+    def _file_contains_text(fn, needle, chunk_size=65536):
+        if not fn.is_file():
+            return False
+        try:
+            with open(fn, "r", encoding="utf-8", errors="ignore") as handle:
+                tail = ""
+                while True:
+                    chunk = handle.read(chunk_size)
+                    if not chunk:
+                        return False
+                    haystack = tail + chunk
+                    if needle in haystack:
+                        return True
+                    tail = haystack[-(len(needle) - 1):] if len(needle) > 1 else ""
+        except OSError:
+            return False
+
+    def _has_fresh_success_text(self, fn, submitted_at, needle):
+        if not self._is_fresh_output_file(fn, submitted_at):
+            return False
+        return self._file_contains_text(fn, needle)
+
+    def _has_fresh_error_markers(self, fn, submitted_at, markers):
+        if not self._is_fresh_output_file(fn, submitted_at):
+            return False
+        for marker in markers:
+            if self._file_contains_text(fn, marker):
+                return True
+        return False
+
     @classmethod
     def _started_but_stale(
         cls, task_state, activity_paths, lookback_seconds=600
@@ -600,6 +631,9 @@ class Result(models.Model):
     @cached_property
     def maxquant_status(self):
         err_fn = self.output_dir_maxquant / "maxquant.err"
+        out_fn = self.output_dir_maxquant / "maxquant.out"
+        done_fn = self.output_dir_maxquant / "time.txt"
+        fatal_error_markers = ("Unhandled Exception", "System.Exception")
         started_stale_seconds = int(
             getattr(settings, "RESULT_STATUS_MAXQUANT_STALE_SECONDS", 21600)
         )
@@ -613,8 +647,12 @@ class Result(models.Model):
             if run_dir_candidates is None:
                 run_dir_candidates = self.maxquant_run_dir_candidates
             return run_dir_candidates
-        if self._is_fresh_output_file(
-            self.output_dir_maxquant / "time.txt", self.maxquant_task_submitted_at
+        if self._has_fresh_error_markers(
+            err_fn, self.maxquant_task_submitted_at, fatal_error_markers
+        ):
+            return "failed"
+        if self._has_fresh_success_text(
+            out_fn, self.maxquant_task_submitted_at, "Finish writing tables"
         ):
             return "done"
         if self.cancel_requested_at is not None:
@@ -643,8 +681,16 @@ class Result(models.Model):
         if self._is_task_failed(task_state):
             return "failed"
         if self._is_task_succeeded(task_state):
+            if self._has_fresh_error_text(err_fn, self.maxquant_task_submitted_at):
+                return "failed"
+            if self._is_fresh_output_file(done_fn, self.maxquant_task_submitted_at):
+                return "done"
             # Task backend says success but required marker/output is missing.
             return "failed"
+        if self._has_fresh_error_text(err_fn, self.maxquant_task_submitted_at):
+            return "failed"
+        if self._is_fresh_output_file(done_fn, self.maxquant_task_submitted_at):
+            return "done"
         # Celery inspect can miss transient task states. If the MaxQuant run dir
         # or output folder shows fresh filesystem activity, treat it as running.
         if any(
@@ -658,13 +704,12 @@ class Result(models.Model):
             self.output_dir_maxquant, lookback_seconds=fallback_activity_seconds
         ):
             return "running"
-        if self._has_fresh_error_text(err_fn, self.maxquant_task_submitted_at):
-            return "failed"
         return "missing"
 
     @cached_property
     def rawtools_metrics_status(self):
         err_fn = self.output_dir_rawtools / "rawtools_metrics.err"
+        done_fns = self.rawtools_metrics_expected_files
         started_stale_seconds = int(
             getattr(settings, "RESULT_STATUS_RAWTOOLS_STALE_SECONDS", 3600)
         )
@@ -672,18 +717,20 @@ class Result(models.Model):
             getattr(settings, "RESULT_STATUS_ACTIVITY_FALLBACK_SECONDS", 300)
         )
         rawtools_metrics_activity_paths = [self.output_dir_rawtools]
-        if all(
-            self._is_fresh_output_file(
-                fn, self.rawtools_metrics_task_submitted_at
-            )
-            for fn in self.rawtools_metrics_expected_files
-        ):
-            return "done"
         if self.cancel_requested_at is not None:
             return "canceled"
         task_state = self._task_state(self.rawtools_metrics_task_id)
         if self._is_task_canceled(task_state):
             return "canceled"
+        if self._has_fresh_error_text(
+            err_fn, self.rawtools_metrics_task_submitted_at
+        ):
+            return "failed"
+        if all(
+            self._is_fresh_output_file(fn, self.rawtools_metrics_task_submitted_at)
+            for fn in done_fns
+        ):
+            return "done"
         if self._is_task_running(task_state):
             if self._started_but_stale(
                 task_state,
@@ -708,15 +755,12 @@ class Result(models.Model):
             self.output_dir_rawtools, lookback_seconds=fallback_activity_seconds
         ):
             return "running"
-        if self._has_fresh_error_text(
-            err_fn, self.rawtools_metrics_task_submitted_at
-        ):
-            return "failed"
         return "missing"
 
     @cached_property
     def rawtools_qc_status(self):
         err_fn = self.output_dir_rawtools_qc / "rawtools_qc.err"
+        done_fns = self.rawtools_qc_expected_files
         started_stale_seconds = int(
             getattr(settings, "RESULT_STATUS_RAWTOOLS_STALE_SECONDS", 3600)
         )
@@ -724,16 +768,18 @@ class Result(models.Model):
             getattr(settings, "RESULT_STATUS_ACTIVITY_FALLBACK_SECONDS", 300)
         )
         rawtools_qc_activity_paths = [self.output_dir_rawtools_qc]
-        if any(
-            self._is_fresh_output_file(fn, self.rawtools_qc_task_submitted_at)
-            for fn in self.rawtools_qc_expected_files
-        ):
-            return "done"
         if self.cancel_requested_at is not None:
             return "canceled"
         task_state = self._task_state(self.rawtools_qc_task_id)
         if self._is_task_canceled(task_state):
             return "canceled"
+        if self._has_fresh_error_text(err_fn, self.rawtools_qc_task_submitted_at):
+            return "failed"
+        if any(
+            self._is_fresh_output_file(fn, self.rawtools_qc_task_submitted_at)
+            for fn in done_fns
+        ):
+            return "done"
         if self._is_task_running(task_state):
             if self._started_but_stale(
                 task_state,
@@ -756,8 +802,6 @@ class Result(models.Model):
             self.output_dir_rawtools_qc, lookback_seconds=fallback_activity_seconds
         ):
             return "running"
-        if self._has_fresh_error_text(err_fn, self.rawtools_qc_task_submitted_at):
-            return "failed"
         return "missing"
 
     @cached_property
@@ -817,9 +861,9 @@ class Result(models.Model):
         if self.has_active_stage and any(
             s in {"failed", "canceled"} for s in self.stage_statuses.values()
         ):
-            return "Some stages failed or were canceled while others are still running. Open this run to inspect per-stage status."
+            return "Some stages failed or were canceled while others are still running. Review per-stage details below."
         if self.overall_status == "failed":
-            return "One or more jobs failed. Open the admin Result entry to inspect error logs."
+            return "One or more jobs failed. Review per-stage error details below."
         if self.overall_status == "canceled":
             return "Jobs were canceled before completion."
         if self.overall_status == "done":
@@ -830,6 +874,78 @@ class Result(models.Model):
         if completed == 0:
             return "Jobs are queued. Results will appear as each stage finishes."
         return f"Processing in progress ({completed}/{total} stages completed)."
+
+    @staticmethod
+    def _read_text_excerpt(fn, max_chars=16000):
+        if not fn.is_file():
+            return ""
+        try:
+            with open(fn, "r", encoding="utf-8", errors="ignore") as file:
+                content = file.read(max_chars + 1)
+        except OSError:
+            return ""
+        if len(content) > max_chars:
+            content = content[:max_chars] + "\n... (truncated)"
+        return content
+
+    @staticmethod
+    def _compact_lines(text, max_lines=24):
+        lines = [line.rstrip() for line in text.splitlines() if line.strip()]
+        if not lines:
+            return ""
+        compact = lines[:max_lines]
+        suffix = "\n... (truncated)" if len(lines) > max_lines else ""
+        return "\n".join(compact) + suffix
+
+    @classmethod
+    def _extract_maxquant_error_excerpt(cls, text):
+        lines = [line.rstrip() for line in text.splitlines() if line.strip()]
+        if not lines:
+            return ""
+        markers = ("Unhandled Exception", "System.Exception")
+        for idx, line in enumerate(lines):
+            if any(marker in line for marker in markers):
+                start = max(0, idx - 1)
+                end = min(len(lines), idx + 16)
+                excerpt = "\n".join(lines[start:end])
+                if end < len(lines):
+                    excerpt += "\n... (truncated)"
+                return excerpt
+        return cls._compact_lines(text, max_lines=24)
+
+    @cached_property
+    def stage_error_details(self):
+        details = []
+        stage_specs = [
+            (
+                "maxquant",
+                "MaxQuant",
+                self.output_dir / "maxquant" / "maxquant.err",
+            ),
+            (
+                "rawtools_metrics",
+                "RawTools metrics",
+                self.output_dir / "rawtools" / "rawtools_metrics.err",
+            ),
+            (
+                "rawtools_qc",
+                "RawTools QC",
+                self.output_dir / "rawtools_qc" / "rawtools_qc.err",
+            ),
+        ]
+
+        for stage_key, label, err_fn in stage_specs:
+            if self.stage_statuses.get(stage_key) != "failed":
+                continue
+            raw_text = self._read_text_excerpt(err_fn)
+            if stage_key == "maxquant":
+                excerpt = self._extract_maxquant_error_excerpt(raw_text)
+            else:
+                excerpt = self._compact_lines(raw_text, max_lines=20)
+            if not excerpt:
+                excerpt = "No error details were captured in the stage error log."
+            details.append({"stage": stage_key, "label": label, "message": excerpt})
+        return details
 
     @property
     def status_protein_quant_parquet(self):

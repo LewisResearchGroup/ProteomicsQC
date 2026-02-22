@@ -115,6 +115,46 @@
   font-size: 12px;
 }
 
+.processing-error-panel {
+  margin-top: 10px;
+  border: 1px solid #e9d4d4;
+  border-radius: 8px;
+  background: #fff7f7;
+  padding: 10px 12px;
+}
+
+.processing-error-title {
+  font-weight: 700;
+  color: #8c2424;
+  margin-bottom: 8px;
+}
+
+.processing-error-item + .processing-error-item {
+  margin-top: 8px;
+}
+
+.processing-error-stage {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b2a2a;
+  margin-bottom: 4px;
+}
+
+.processing-error-log {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #edd9d9;
+  background: #fff;
+  color: #3f2a2a;
+  font-size: 12px;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 220px;
+  overflow: auto;
+}
+
 .warning {
   color: #fff;
   margin: auto;
