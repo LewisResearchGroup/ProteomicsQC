@@ -8,8 +8,9 @@ import pandas as pd
 import logging
 import datetime
 import shlex
+import time
 
-from functools import lru_cache
+from functools import lru_cache, cached_property
 
 from io import BytesIO
 from pathlib import Path as P
@@ -54,6 +55,9 @@ class Result(models.Model):
     maxquant_task_id = models.CharField(max_length=255, null=True, blank=True)
     rawtools_metrics_task_id = models.CharField(max_length=255, null=True, blank=True)
     rawtools_qc_task_id = models.CharField(max_length=255, null=True, blank=True)
+    maxquant_task_submitted_at = models.DateTimeField(null=True, blank=True)
+    rawtools_metrics_task_submitted_at = models.DateTimeField(null=True, blank=True)
+    rawtools_qc_task_submitted_at = models.DateTimeField(null=True, blank=True)
     cancel_requested_at = models.DateTimeField(null=True, blank=True)
 
     @property
@@ -187,14 +191,23 @@ class Result(models.Model):
 
     def run_maxquant(self, rerun=False):
         if self.pipeline.has_maxquant_config:
+            if not rerun and self.n_files_maxquant > 0:
+                return
             raw_file = str(self.raw_fn)
             params = self.maxquant_parameters()
             async_result = run_maxquant.delay(
                 raw_file, params, rerun=rerun, result_id=self.pk
             )
             self.maxquant_task_id = async_result.id
+            self.maxquant_task_submitted_at = timezone.now()
             self.cancel_requested_at = None
-            self.save(update_fields=["maxquant_task_id", "cancel_requested_at"])
+            self.save(
+                update_fields=[
+                    "maxquant_task_id",
+                    "maxquant_task_submitted_at",
+                    "cancel_requested_at",
+                ]
+            )
             logging.info("Submitted MaxQuant.")
 
     @property
@@ -211,13 +224,18 @@ class Result(models.Model):
         inp_dir, out_dir = str(self.raw_file.path.parent), str(
             self.output_dir_rawtools_qc
         )
-        if rerun and os.path.isdir(out_dir):
-            shutil.rmtree(out_dir)
         if rerun or (self.n_files_rawtools_qc == 0):
             async_result = rawtools_qc.delay(inp_dir, out_dir, result_id=self.pk)
             self.rawtools_qc_task_id = async_result.id
+            self.rawtools_qc_task_submitted_at = timezone.now()
             self.cancel_requested_at = None
-            self.save(update_fields=["rawtools_qc_task_id", "cancel_requested_at"])
+            self.save(
+                update_fields=[
+                    "rawtools_qc_task_id",
+                    "rawtools_qc_task_submitted_at",
+                    "cancel_requested_at",
+                ]
+            )
             logging.info("Submitted RawTools QC.")
 
     def run_rawtools_metrics(self, rerun=False):
@@ -226,16 +244,19 @@ class Result(models.Model):
             str(self.output_dir_rawtools),
             self.pipeline.rawtools_args,
         )
-        if rerun and os.path.isdir(out_dir):
-            shutil.rmtree(out_dir)
         if rerun or (self.n_files_rawtools_metrics == 0):
             async_result = rawtools_metrics.delay(
                 raw_fn, out_dir, args, result_id=self.pk
             )
             self.rawtools_metrics_task_id = async_result.id
+            self.rawtools_metrics_task_submitted_at = timezone.now()
             self.cancel_requested_at = None
             self.save(
-                update_fields=["rawtools_metrics_task_id", "cancel_requested_at"]
+                update_fields=[
+                    "rawtools_metrics_task_id",
+                    "rawtools_metrics_task_submitted_at",
+                    "cancel_requested_at",
+                ]
             )
             logging.info("Submitted RawTools metrics.")
 
@@ -354,6 +375,180 @@ class Result(models.Model):
     def _dir_has_files(path):
         return path.is_dir() and any(path.iterdir())
 
+    @staticmethod
+    def _task_state(task_id):
+        if not task_id:
+            return None
+        try:
+            return current_app.AsyncResult(task_id).state
+        except Exception:
+            return None
+
+    @staticmethod
+    def _is_task_running(task_state):
+        return task_state in {"STARTED"}
+
+    @staticmethod
+    def _is_task_queued(task_state):
+        return task_state in {"PENDING", "RECEIVED", "RETRY"}
+
+    @staticmethod
+    def _is_task_failed(task_state):
+        return task_state in {"FAILURE"}
+
+    @staticmethod
+    def _is_task_canceled(task_state):
+        return task_state in {"REVOKED"}
+
+    @staticmethod
+    def _is_task_succeeded(task_state):
+        return task_state in {"SUCCESS"}
+
+    @staticmethod
+    @lru_cache(maxsize=2)
+    def _known_enqueued_task_ids(cache_bucket):
+        # cache_bucket is an integer time window to keep inspect calls cheap
+        # while avoiding stale queue snapshots.
+        del cache_bucket
+        try:
+            inspect_timeout = float(
+                getattr(settings, "RESULT_STATUS_INSPECT_TIMEOUT_SECONDS", 10.0)
+            )
+            inspector = current_app.control.inspect(timeout=inspect_timeout)
+            if inspector is None:
+                return set()
+            snapshots = [
+                inspector.active() or {},
+                inspector.reserved() or {},
+                inspector.scheduled() or {},
+            ]
+        except Exception:
+            return set()
+
+        task_ids = set()
+        for snapshot in snapshots:
+            for worker_tasks in snapshot.values():
+                for task in worker_tasks or []:
+                    task_id = task.get("id")
+                    if task_id:
+                        task_ids.add(task_id)
+                    request_data = task.get("request") or {}
+                    request_id = request_data.get("id")
+                    if request_id:
+                        task_ids.add(request_id)
+        return task_ids
+
+    def _is_task_observed_in_queue(self, task_id):
+        if not task_id:
+            return False
+        if not self._queue_inspect_allowed():
+            return False
+        # 3-second windows keep UI responsive without hammering inspect.
+        bucket = int(time.time() / 3)
+        return task_id in self._known_enqueued_task_ids(bucket)
+
+    def _queue_inspect_allowed(self):
+        mode = getattr(self, "_queue_check_mode", "adaptive")
+        if mode == "off":
+            return False
+        if mode == "on":
+            return True
+        max_visible_runs = int(
+            getattr(settings, "RESULT_STATUS_INSPECT_MAX_VISIBLE_RUNS", 25)
+        )
+        max_active_runs = int(
+            getattr(settings, "RESULT_STATUS_INSPECT_MAX_ACTIVE_RUNS", 12)
+        )
+        visible_run_count = getattr(self, "_visible_run_count", None)
+        active_run_count = getattr(self, "_active_run_count", None)
+        if visible_run_count is not None and visible_run_count > max_visible_runs:
+            return False
+        if active_run_count is not None and active_run_count > max_active_runs:
+            return False
+        return True
+
+    @staticmethod
+    def _path_recently_modified(path, lookback_seconds=180):
+        path = P(path)
+        if not path.exists():
+            return False
+        now_ts = time.time()
+        try:
+            if path.is_file():
+                return (now_ts - path.stat().st_mtime) <= lookback_seconds
+            for entry in path.iterdir():
+                try:
+                    if (now_ts - entry.stat().st_mtime) <= lookback_seconds:
+                        return True
+                except OSError:
+                    continue
+        except OSError:
+            return False
+        return False
+
+    @staticmethod
+    def _is_fresh_output_file(fn, submitted_at):
+        if not fn.is_file():
+            return False
+        if submitted_at is None:
+            return True
+        skew_seconds = int(
+            getattr(settings, "RESULT_STATUS_DONE_MTIME_SKEW_SECONDS", 300)
+        )
+        try:
+            return fn.stat().st_mtime >= (submitted_at.timestamp() - skew_seconds)
+        except OSError:
+            return False
+
+    def _has_fresh_error_text(self, err_fn, submitted_at):
+        if not self._is_fresh_output_file(err_fn, submitted_at):
+            return False
+        return self._has_error_text(err_fn)
+
+    @classmethod
+    def _started_but_stale(
+        cls, task_state, activity_paths, lookback_seconds=600
+    ):
+        if not cls._is_task_running(task_state):
+            return False
+        return not any(
+            cls._path_recently_modified(path, lookback_seconds=lookback_seconds)
+            for path in activity_paths
+            if path is not None
+        )
+
+    def _stage_is_queued(self, task_id, task_state, submitted_at):
+        del submitted_at
+        if task_state in {"RECEIVED", "RETRY"}:
+            return True
+        if task_state == "PENDING":
+            # Keep PENDING as queued to avoid "missing" churn that can trigger
+            # duplicate re-submissions during normal broker backlogs.
+            return True
+        if task_state != "STARTED":
+            return False
+        # STARTED jobs are active if they are visible on a worker snapshot.
+        return self._is_task_observed_in_queue(task_id)
+
+    def _pending_stalled(self, task_id, submitted_at):
+        if not task_id or submitted_at is None:
+            return False
+        task_state = self._task_state(task_id)
+        if task_state != "PENDING":
+            return False
+        warning_after = int(
+            getattr(settings, "RESULT_STATUS_PENDING_STALLED_WARNING_SECONDS", 7200)
+        )
+        age_seconds = (timezone.now() - submitted_at).total_seconds()
+        # Fast path: most pending tasks are recent; avoid expensive inspect()
+        # calls on every page render.
+        if age_seconds <= warning_after:
+            return False
+        # If inspect sees it, it is not stalled from UX perspective.
+        if self._is_task_observed_in_queue(task_id):
+            return False
+        return True
+
     @property
     def rawtools_metrics_expected_files(self):
         raw_name = self.raw_file.name
@@ -374,7 +569,7 @@ class Result(models.Model):
     def maxquant_run_root(self):
         return COMPUTE_ROOT / "tmp" / "MaxQuant"
 
-    @property
+    @cached_property
     def maxquant_run_dir_candidates(self):
         # MaxquantRunner uses add_uuid_to_rundir=True, yielding directories like:
         # <compute>/tmp/MaxQuant/<uuid>-<raw_basename>
@@ -402,50 +597,170 @@ class Result(models.Model):
                 uniq.append(path)
         return uniq
 
-    @property
+    @cached_property
     def maxquant_status(self):
         err_fn = self.output_dir_maxquant / "maxquant.err"
-        if self._has_error_text(err_fn):
-            return "failed"
-        if (self.output_dir_maxquant / "time.txt").is_file():
+        started_stale_seconds = int(
+            getattr(settings, "RESULT_STATUS_MAXQUANT_STALE_SECONDS", 21600)
+        )
+        fallback_activity_seconds = int(
+            getattr(settings, "RESULT_STATUS_ACTIVITY_FALLBACK_SECONDS", 300)
+        )
+        run_dir_candidates = None
+
+        def get_run_dir_candidates():
+            nonlocal run_dir_candidates
+            if run_dir_candidates is None:
+                run_dir_candidates = self.maxquant_run_dir_candidates
+            return run_dir_candidates
+        if self._is_fresh_output_file(
+            self.output_dir_maxquant / "time.txt", self.maxquant_task_submitted_at
+        ):
             return "done"
         if self.cancel_requested_at is not None:
             return "canceled"
-        if self._dir_has_files(self.output_dir_maxquant):
+        task_state = self._task_state(self.maxquant_task_id)
+        if self._is_task_canceled(task_state):
+            return "canceled"
+        if self._is_task_running(task_state):
+            maxquant_activity_paths = [
+                *get_run_dir_candidates(),
+                self.output_dir_maxquant,
+            ]
+            if self._started_but_stale(
+                task_state,
+                maxquant_activity_paths,
+                lookback_seconds=started_stale_seconds,
+            ):
+                if self._is_task_observed_in_queue(self.maxquant_task_id):
+                    return "running"
+                return "missing"
             return "running"
-        if self.maxquant_run_dir_candidates:
+        if self._stage_is_queued(
+            self.maxquant_task_id, task_state, self.maxquant_task_submitted_at
+        ):
+            return "queued"
+        if self._is_task_failed(task_state):
+            return "failed"
+        if self._is_task_succeeded(task_state):
+            # Task backend says success but required marker/output is missing.
+            return "failed"
+        # Celery inspect can miss transient task states. If the MaxQuant run dir
+        # or output folder shows fresh filesystem activity, treat it as running.
+        if any(
+            self._path_recently_modified(
+                path, lookback_seconds=fallback_activity_seconds
+            )
+            for path in get_run_dir_candidates()
+        ):
             return "running"
-        return "queued"
+        if self._path_recently_modified(
+            self.output_dir_maxquant, lookback_seconds=fallback_activity_seconds
+        ):
+            return "running"
+        if self._has_fresh_error_text(err_fn, self.maxquant_task_submitted_at):
+            return "failed"
+        return "missing"
 
-    @property
+    @cached_property
     def rawtools_metrics_status(self):
         err_fn = self.output_dir_rawtools / "rawtools_metrics.err"
-        if self._has_error_text(err_fn):
-            return "failed"
-        if all(fn.is_file() for fn in self.rawtools_metrics_expected_files):
+        started_stale_seconds = int(
+            getattr(settings, "RESULT_STATUS_RAWTOOLS_STALE_SECONDS", 3600)
+        )
+        fallback_activity_seconds = int(
+            getattr(settings, "RESULT_STATUS_ACTIVITY_FALLBACK_SECONDS", 300)
+        )
+        rawtools_metrics_activity_paths = [self.output_dir_rawtools]
+        if all(
+            self._is_fresh_output_file(
+                fn, self.rawtools_metrics_task_submitted_at
+            )
+            for fn in self.rawtools_metrics_expected_files
+        ):
             return "done"
         if self.cancel_requested_at is not None:
             return "canceled"
-        if self._dir_has_files(self.output_dir_rawtools):
+        task_state = self._task_state(self.rawtools_metrics_task_id)
+        if self._is_task_canceled(task_state):
+            return "canceled"
+        if self._is_task_running(task_state):
+            if self._started_but_stale(
+                task_state,
+                rawtools_metrics_activity_paths,
+                lookback_seconds=started_stale_seconds,
+            ):
+                if self._is_task_observed_in_queue(self.rawtools_metrics_task_id):
+                    return "running"
+                return "missing"
             return "running"
-        return "queued"
+        if self._stage_is_queued(
+            self.rawtools_metrics_task_id,
+            task_state,
+            self.rawtools_metrics_task_submitted_at,
+        ):
+            return "queued"
+        if self._is_task_failed(task_state):
+            return "failed"
+        if self._is_task_succeeded(task_state):
+            return "failed"
+        if self._path_recently_modified(
+            self.output_dir_rawtools, lookback_seconds=fallback_activity_seconds
+        ):
+            return "running"
+        if self._has_fresh_error_text(
+            err_fn, self.rawtools_metrics_task_submitted_at
+        ):
+            return "failed"
+        return "missing"
 
-    @property
+    @cached_property
     def rawtools_qc_status(self):
         err_fn = self.output_dir_rawtools_qc / "rawtools_qc.err"
-        if self._has_error_text(err_fn):
-            return "failed"
-        if any(fn.is_file() for fn in self.rawtools_qc_expected_files):
+        started_stale_seconds = int(
+            getattr(settings, "RESULT_STATUS_RAWTOOLS_STALE_SECONDS", 3600)
+        )
+        fallback_activity_seconds = int(
+            getattr(settings, "RESULT_STATUS_ACTIVITY_FALLBACK_SECONDS", 300)
+        )
+        rawtools_qc_activity_paths = [self.output_dir_rawtools_qc]
+        if any(
+            self._is_fresh_output_file(fn, self.rawtools_qc_task_submitted_at)
+            for fn in self.rawtools_qc_expected_files
+        ):
             return "done"
         if self.cancel_requested_at is not None:
             return "canceled"
-        if self._dir_has_files(self.output_dir_rawtools_qc):
+        task_state = self._task_state(self.rawtools_qc_task_id)
+        if self._is_task_canceled(task_state):
+            return "canceled"
+        if self._is_task_running(task_state):
+            if self._started_but_stale(
+                task_state,
+                rawtools_qc_activity_paths,
+                lookback_seconds=started_stale_seconds,
+            ):
+                if self._is_task_observed_in_queue(self.rawtools_qc_task_id):
+                    return "running"
+                return "missing"
             return "running"
-        if (self.raw_file.path.parent / "rawtools.txt").is_file():
+        if self._stage_is_queued(
+            self.rawtools_qc_task_id, task_state, self.rawtools_qc_task_submitted_at
+        ):
+            return "queued"
+        if self._is_task_failed(task_state):
+            return "failed"
+        if self._is_task_succeeded(task_state):
+            return "failed"
+        if self._path_recently_modified(
+            self.output_dir_rawtools_qc, lookback_seconds=fallback_activity_seconds
+        ):
             return "running"
-        return "queued"
+        if self._has_fresh_error_text(err_fn, self.rawtools_qc_task_submitted_at):
+            return "failed"
+        return "missing"
 
-    @property
+    @cached_property
     def stage_statuses(self):
         return {
             "maxquant": self.maxquant_status,
@@ -453,31 +768,56 @@ class Result(models.Model):
             "rawtools_qc": self.rawtools_qc_status,
         }
 
-    @property
+    @cached_property
     def overall_status(self):
         statuses = self.stage_statuses.values()
+        # Active stages win precedence so UI/control flow cannot claim terminal
+        # failure while any backend worker is still running/queued.
+        if any(status == "running" for status in statuses):
+            return "running"
+        if any(status == "queued" for status in statuses):
+            return "queued"
         if "failed" in statuses:
             return "failed"
         if "canceled" in statuses:
             return "canceled"
         if all(status == "done" for status in statuses):
             return "done"
-        if any(status in {"running", "done"} for status in statuses):
-            return "running"
-        return "queued"
+        # No active stages remain, but outputs are incomplete.
+        # This includes combinations like {done, missing, missing}.
+        return "missing"
 
-    @property
+    @cached_property
     def is_processing(self):
-        return self.overall_status in {"queued", "running"}
+        return self.has_active_stage
 
-    @property
+    @cached_property
     def has_active_stage(self):
         return any(
             status in {"queued", "running"} for status in self.stage_statuses.values()
         )
 
-    @property
+    @cached_property
     def processing_message(self):
+        if any(
+            (
+                self._pending_stalled(
+                    self.maxquant_task_id, self.maxquant_task_submitted_at
+                ),
+                self._pending_stalled(
+                    self.rawtools_metrics_task_id,
+                    self.rawtools_metrics_task_submitted_at,
+                ),
+                self._pending_stalled(
+                    self.rawtools_qc_task_id, self.rawtools_qc_task_submitted_at
+                ),
+            )
+        ):
+            return "Some tasks have remained queued for a long time. Verify worker/broker health and then cancel/requeue if needed."
+        if self.has_active_stage and any(
+            s in {"failed", "canceled"} for s in self.stage_statuses.values()
+        ):
+            return "Some stages failed or were canceled while others are still running. Open this run to inspect per-stage status."
         if self.overall_status == "failed":
             return "One or more jobs failed. Open the admin Result entry to inspect error logs."
         if self.overall_status == "canceled":

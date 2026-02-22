@@ -105,6 +105,38 @@ def maxquant_pipeline_view(request, project, pipeline):
     missing_raw_files = RawFile.objects.filter(
         pipeline=pipeline, result__isnull=True
     ).order_by("-created")
+
+    # Adaptive queue-status strictness:
+    # for small pages we allow stricter queue inspection; for larger workloads
+    # we avoid expensive broker inspect calls in request/response path.
+    visible_run_count = len(maxquant_runs.object_list)
+    active_run_count = _results_for_user(request.user).filter(
+        raw_file__pipeline__slug=pipeline.slug,
+        raw_file__pipeline__project__slug=project.slug,
+    ).filter(
+        Q(maxquant_task_submitted_at__isnull=False)
+        | Q(rawtools_metrics_task_submitted_at__isnull=False)
+        | Q(rawtools_qc_task_submitted_at__isnull=False)
+    ).count()
+    max_visible_runs_for_inspect = int(
+        getattr(settings, "RESULT_STATUS_INSPECT_MAX_VISIBLE_RUNS", 25)
+    )
+    max_active_runs_for_inspect = int(
+        getattr(settings, "RESULT_STATUS_INSPECT_MAX_ACTIVE_RUNS", 12)
+    )
+    queue_check_mode = (
+        "on"
+        if (
+            visible_run_count <= max_visible_runs_for_inspect
+            and active_run_count <= max_active_runs_for_inspect
+        )
+        else "off"
+    )
+    for maxquant_run in maxquant_runs.object_list:
+        maxquant_run._visible_run_count = visible_run_count
+        maxquant_run._active_run_count = active_run_count
+        maxquant_run._queue_check_mode = queue_check_mode
+
     context = dict(
         maxquant_runs=maxquant_runs, project=project, pipeline=pipeline
     )
@@ -783,6 +815,23 @@ class UploadRaw(LoginRequiredMixin, View):
             existing = self._resolve_existing_raw_file(
                 pipeline, uploaded_file.name
             )
+
+            if existing is not None:
+                # A stale DB entry can remain even if the physical RAW file was
+                # removed manually from disk. In that case, recreate the RawFile
+                # instead of pretending upload succeeded.
+                existing_missing = (not existing.path.is_file()) or (
+                    existing.path.is_file() and existing.path.stat().st_size == 0
+                )
+                if existing_missing:
+                    logging.warning(
+                        "Replacing stale RawFile entry (pk=%s, name=%s): file missing/empty at %s",
+                        existing.pk,
+                        existing.name,
+                        existing.path,
+                    )
+                    existing.delete()
+                    existing = None
 
             if existing is not None:
                 result, created = Result.objects.get_or_create(

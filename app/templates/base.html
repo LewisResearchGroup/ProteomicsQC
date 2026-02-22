@@ -58,6 +58,9 @@
       {% if user.is_authenticated %}
         <details class="app-user-menu">
           <summary id="username" class="app-user" title="User menu">
+            <span class="app-user-icon" aria-hidden="true">
+              <i class="fas fa-user-circle"></i>
+            </span>
             <span class="app-user-name">{{ user.get_username }}</span>
             <span class="app-user-caret" aria-hidden="true">▾</span>
           </summary>

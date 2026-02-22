@@ -197,12 +197,34 @@ AUTH_USER_MODEL = "user.User"
 
 
 import sys
+
+
+def _resolve_storage_root(env_var, container_default):
+    value = os.getenv(env_var)
+    if not value:
+        return P(container_default)
+
+    path = P(value)
+    if path.is_absolute():
+        return path
+
+    # In docker-compose, host-relative env values (e.g. ./data/datalake)
+    # are used for bind mounts, while the app should write to container mount
+    # points (/datalake, /compute). Prefer the mounted container path when present.
+    container_path = P(container_default)
+    if container_path.exists():
+        return container_path
+
+    # Fallback for non-container local runs.
+    return (BASE_DIR / path).resolve()
+
+
 if "test" in sys.argv or any("pytest" in arg for arg in sys.argv):
     DATALAKE_ROOT = P("/tmp/datalake/")
     COMPUTE_ROOT = P("/tmp/compute/")
 else:
-    DATALAKE_ROOT = P(os.getenv("DATALAKE", "/datalake/"))
-    COMPUTE_ROOT = P(os.getenv("COMPUTE", "/compute/"))
+    DATALAKE_ROOT = _resolve_storage_root("DATALAKE", "/datalake/")
+    COMPUTE_ROOT = _resolve_storage_root("COMPUTE", "/compute/")
 
 
 class MediaFileSystemStorage(FileSystemStorage):
@@ -283,3 +305,47 @@ if EMAIL_HOST is not None:
 GANALYTICS = os.getenv("GANALYTICS")
 
 PAGINATE = 100
+
+
+def _env_int(name, default):
+    try:
+        return int(os.getenv(name, default))
+    except (TypeError, ValueError):
+        return int(default)
+
+
+def _env_float(name, default):
+    try:
+        return float(os.getenv(name, default))
+    except (TypeError, ValueError):
+        return float(default)
+
+
+# Result status evaluation tuning (web request path)
+RESULT_STATUS_INSPECT_TIMEOUT_SECONDS = _env_float(
+    "RESULT_STATUS_INSPECT_TIMEOUT_SECONDS", 10.0
+)
+RESULT_STATUS_PENDING_STALLED_WARNING_SECONDS = _env_int(
+    "RESULT_STATUS_PENDING_STALLED_WARNING_SECONDS", 7200
+)
+RESULT_STATUS_DONE_MTIME_SKEW_SECONDS = _env_int(
+    "RESULT_STATUS_DONE_MTIME_SKEW_SECONDS", 300
+)
+RESULT_STATUS_MAXQUANT_STALE_SECONDS = _env_int(
+    "RESULT_STATUS_MAXQUANT_STALE_SECONDS", 21600
+)
+RESULT_STATUS_RAWTOOLS_STALE_SECONDS = _env_int(
+    "RESULT_STATUS_RAWTOOLS_STALE_SECONDS", 3600
+)
+RESULT_STATUS_ACTIVITY_FALLBACK_SECONDS = _env_int(
+    "RESULT_STATUS_ACTIVITY_FALLBACK_SECONDS", 300
+)
+
+# Adaptive queue-inspect strictness:
+# small pages => stricter queue inspection, large pages => faster rendering.
+RESULT_STATUS_INSPECT_MAX_VISIBLE_RUNS = _env_int(
+    "RESULT_STATUS_INSPECT_MAX_VISIBLE_RUNS", 25
+)
+RESULT_STATUS_INSPECT_MAX_ACTIVE_RUNS = _env_int(
+    "RESULT_STATUS_INSPECT_MAX_ACTIVE_RUNS", 12
+)

@@ -1,7 +1,11 @@
+import datetime
+
 from django.shortcuts import render
 from django.conf import settings as conf_settings
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Max, DateTimeField, Value
+from django.db.models.functions import Cast, Coalesce, Greatest
 from django.urls import reverse, NoReverseMatch
+from django.utils import timezone
 
 from project.models import Project
 from maxquant.models import Result, Pipeline
@@ -22,19 +26,54 @@ def home(request):
             or 0
         )
 
+        epoch = timezone.make_aware(datetime.datetime(1970, 1, 1))
+        projects_with_activity_qs = projects_qs.annotate(
+            project_created_at=Cast("created", output_field=DateTimeField()),
+            last_pipeline_created_at=Cast(
+                Max("pipeline__created"), output_field=DateTimeField()
+            ),
+            last_rawfile_created_at=Cast(
+                Max("pipeline__rawfile__created"), output_field=DateTimeField()
+            ),
+            last_result_created_at=Max("pipeline__rawfile__result__created"),
+        ).annotate(
+            last_activity=Greatest(
+                Coalesce("project_created_at", Value(epoch)),
+                Coalesce("last_pipeline_created_at", Value(epoch)),
+                Coalesce("last_rawfile_created_at", Value(epoch)),
+                Coalesce("last_result_created_at", Value(epoch)),
+            )
+        )
+
+        pipelines_qs = Pipeline.objects.select_related("project").filter(
+            project__in=projects_qs
+        )
+        pipelines_with_activity_qs = pipelines_qs.annotate(
+            pipeline_created_at=Cast("created", output_field=DateTimeField()),
+            last_rawfile_created_at=Cast(
+                Max("rawfile__created"), output_field=DateTimeField()
+            ),
+            last_result_created_at=Max("rawfile__result__created"),
+        ).annotate(
+            last_activity=Greatest(
+                Coalesce("pipeline_created_at", Value(epoch)),
+                Coalesce("last_rawfile_created_at", Value(epoch)),
+                Coalesce("last_result_created_at", Value(epoch)),
+            )
+        )
+
         recent_runs_qs = (
             Result.objects.select_related("raw_file__pipeline__project")
             .filter(raw_file__pipeline__project__in=projects_qs)
             .order_by("-created")[:3]
         )
         latest_run = recent_runs_qs[0] if recent_runs_qs else None
-        latest_pipeline = (
-            Pipeline.objects.select_related("project")
-            .filter(project__in=projects_qs)
-            .order_by("-created")
-            .first()
-        )
-        latest_project = projects_qs.order_by("-created").first()
+        latest_pipeline = pipelines_with_activity_qs.order_by(
+            "-last_activity", "-created"
+        ).first()
+        latest_project = projects_with_activity_qs.order_by(
+            "-last_activity", "-created"
+        ).first()
         recent_runs = []
         for run in recent_runs_qs:
             pipeline = run.raw_file.pipeline

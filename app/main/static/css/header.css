@@ -50,17 +50,44 @@
 }
 
 .app-user {
+  min-height: 38px;
   padding: 7px 12px;
   border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.16);
-  color: #ecfeff;
+  border: 1px solid rgba(235, 252, 255, 0.4);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(218, 243, 248, 0.2) 100%);
+  color: #f4feff;
   font-weight: 700;
   font-size: 14px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   justify-content: flex-start;
+  box-shadow: 0 2px 8px rgba(12, 52, 72, 0.16);
+  transition: background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.app-user:hover {
+  border-color: rgba(255, 255, 255, 0.65);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.28) 0%, rgba(227, 247, 252, 0.26) 100%);
+  box-shadow: 0 5px 14px rgba(12, 52, 72, 0.22);
+}
+
+.app-user-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  font-size: 16px;
+  opacity: 0.95;
+}
+
+.app-user-name {
+  display: inline-block;
+  max-width: 210px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .app-user-menu {
@@ -70,6 +97,11 @@
 .app-user-menu summary {
   list-style: none;
   cursor: pointer;
+}
+
+.app-user-menu summary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(205, 244, 252, 0.5);
 }
 
 .app-user-menu summary::-webkit-details-marker {
@@ -91,9 +123,9 @@
   top: calc(100% + 8px);
   right: 0;
   min-width: 260px;
-  border: 1px solid #d7e2ec;
+  border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-lg);
-  background: #ffffff;
+  background: var(--color-surface);
   box-shadow: 0 14px 28px rgba(8, 38, 44, 0.22);
   padding: 8px;
   z-index: 40;
@@ -106,7 +138,7 @@
   gap: 8px;
   padding: 8px 10px;
   border-radius: var(--radius-md);
-  color: #24415d;
+  color: var(--color-text-strong);
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
@@ -116,8 +148,8 @@
 }
 
 .app-user-item:hover {
-  background: #f0f7fa;
-  color: #0a6170;
+  background: var(--color-surface-soft);
+  color: var(--color-brand-ink);
   text-decoration: none;
 }
 
@@ -135,8 +167,8 @@
 }
 
 #username {
-  font-weight: bold;
-  padding: 5px;
+  font-weight: inherit;
+  padding: 7px 12px;
 }
 
 @media (max-width: 900px) {
