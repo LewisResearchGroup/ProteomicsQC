@@ -86,3 +86,14 @@
   background: var(--color-surface-selected);
   border-color: var(--color-brand-soft);
 }
+
+.project-empty-notice {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border: 1px solid #c8ddea;
+  border-radius: 8px;
+  background: #eef6fb;
+  color: var(--color-brand-ink);
+  font-weight: 600;
+  text-align: center;
+}

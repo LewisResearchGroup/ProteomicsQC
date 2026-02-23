@@ -156,11 +156,12 @@
 }
 
 .warning {
-  color: #fff;
-  margin: auto;
-  background: darkred;
+  color: var(--color-text-strong);
+  margin: 10px 0 0;
+  background: #eef6fb;
   text-align: center;
-  padding: 5px;
-  border-radius: 5px;
-  font-weight: bold;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  border: 1px solid #c8ddea;
 }

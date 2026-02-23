@@ -116,3 +116,27 @@ class HomeViewTestCase(TestCase):
             quick_steps[2]["note"],
             f"Open {old_pipeline.project.name} / {old_pipeline.name} upload queue.",
         )
+
+    def test_active_runs_counts_all_visible_runs_not_only_recent_three(self):
+        self.client.force_login(self.user)
+        now = timezone.now()
+
+        self.result.maxquant_task_id = "task-0"
+        self.result.maxquant_task_submitted_at = now
+        self.result.save(update_fields=["maxquant_task_id", "maxquant_task_submitted_at"])
+
+        for idx in range(1, 7):
+            raw_file = RawFile.objects.create(
+                pipeline=self.pipeline,
+                orig_file=SimpleUploadedFile(f"fake-{idx}.raw", b"..."),
+                created_by=self.user,
+            )
+            result, _ = Result.objects.get_or_create(raw_file=raw_file)
+            result.maxquant_task_id = f"task-{idx}"
+            result.maxquant_task_submitted_at = now
+            result.save(update_fields=["maxquant_task_id", "maxquant_task_submitted_at"])
+
+        response = self.client.get(reverse("home"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["active_runs"], 7)
+        self.assertEqual(len(response.context["recent_runs"]), 3)

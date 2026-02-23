@@ -86,10 +86,12 @@ def home(request):
             )
         )
 
+        all_runs_qs = Result.objects.select_related("raw_file__pipeline__project").filter(
+            raw_file__pipeline__project__in=projects_qs
+        ).defer("input_source")
+
         recent_runs_qs = (
-            Result.objects.select_related("raw_file__pipeline__project")
-            .filter(raw_file__pipeline__project__in=projects_qs)
-            .defer("input_source")
+            all_runs_qs
             .order_by("-created")[:3]
         )
         latest_run = recent_runs_qs[0] if recent_runs_qs else None
@@ -114,7 +116,7 @@ def home(request):
             )
 
         active_runs = 0
-        for run in recent_runs_qs:
+        for run in all_runs_qs.iterator():
             if run.overall_status in {"queued", "running"}:
                 active_runs += 1
 
