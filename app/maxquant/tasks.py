@@ -1,5 +1,8 @@
 import os
 import logging
+import signal
+import subprocess
+import time
 from os.path import isdir, join, isfile, basename
 from celery import shared_task
 from django.apps import apps
@@ -85,6 +88,64 @@ def _is_canceled_result(result_id):
     return Result.objects.filter(pk=result_id, cancel_requested_at__isnull=False).exists()
 
 
+def _terminate_process_group(proc, grace_seconds=5):
+    if proc is None:
+        return
+    try:
+        os.killpg(proc.pid, signal.SIGTERM)
+    except ProcessLookupError:
+        return
+    except Exception as exc:
+        logging.warning("Failed to SIGTERM process group for pid=%s: %s", proc.pid, exc)
+        return
+
+    deadline = time.monotonic() + max(0, grace_seconds)
+    while time.monotonic() < deadline:
+        if proc.poll() is not None:
+            return
+        time.sleep(0.2)
+
+    try:
+        os.killpg(proc.pid, signal.SIGKILL)
+    except ProcessLookupError:
+        return
+    except Exception as exc:
+        logging.warning("Failed to SIGKILL process group for pid=%s: %s", proc.pid, exc)
+
+
+def _run_cancelable_shell_command(cmd, kind, result_id=None):
+    poll_seconds = max(0.2, _safe_float("CANCEL_POLL_SECONDS", 2.0))
+    kill_grace_seconds = _safe_int("CANCEL_KILL_GRACE_SECONDS", 5)
+    try:
+        proc = subprocess.Popen(
+            cmd,
+            shell=True,
+            executable="/bin/bash",
+            preexec_fn=os.setsid,
+        )
+    except Exception as exc:
+        logging.exception("[%s] Failed to start command: %s", kind, exc)
+        return 1
+
+    logging.info("[%s] started pid=%s", kind, proc.pid)
+    while True:
+        rc = proc.poll()
+        if rc is not None:
+            logging.info("[%s] finished pid=%s rc=%s", kind, proc.pid, rc)
+            return rc
+
+        if _is_canceled_result(result_id):
+            logging.info(
+                "[%s] cancel requested during execution; terminating pid=%s",
+                kind,
+                proc.pid,
+            )
+            _terminate_process_group(proc, grace_seconds=kill_grace_seconds)
+            return -1
+
+        time.sleep(poll_seconds)
+
+
 @shared_task(bind=True, max_retries=None)
 def rawtools_metrics(
     self, raw, output_dir, arguments=None, rerun=False, result_id=None
@@ -110,7 +171,9 @@ def rawtools_metrics(
             return
         logging.info(f"[rawtools_metrics] {cmd}")
         print(f"[rawtools_metrics] {cmd}")
-        os.system(cmd)
+        _run_cancelable_shell_command(
+            cmd, kind="rawtools_metrics", result_id=result_id
+        )
 
 
 @shared_task(bind=True, max_retries=None)
@@ -133,7 +196,7 @@ def rawtools_qc(self, input_dir, output_dir, rerun=False, result_id=None):
             return
         logging.info(f"[rawtools_qc] {cmd}")
         print(f"[rawtools_qc] {cmd}")
-        os.system(cmd)
+        _run_cancelable_shell_command(cmd, kind="rawtools_qc", result_id=result_id)
 
 
 @shared_task(bind=True, max_retries=None)

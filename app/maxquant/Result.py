@@ -4,6 +4,7 @@ import hashlib
 import shutil
 import zipfile
 import subprocess
+import signal
 import pandas as pd
 import logging
 import datetime
@@ -226,7 +227,9 @@ class Result(models.Model):
             self.output_dir_rawtools_qc
         )
         if rerun or (self.n_files_rawtools_qc == 0):
-            async_result = rawtools_qc.delay(inp_dir, out_dir, result_id=self.pk)
+            async_result = rawtools_qc.delay(
+                inp_dir, out_dir, rerun=rerun, result_id=self.pk
+            )
             self.rawtools_qc_task_id = async_result.id
             self.rawtools_qc_task_submitted_at = timezone.now()
             self.cancel_requested_at = None
@@ -247,7 +250,7 @@ class Result(models.Model):
         )
         if rerun or (self.n_files_rawtools_metrics == 0):
             async_result = rawtools_metrics.delay(
-                raw_fn, out_dir, args, result_id=self.pk
+                raw_fn, out_dir, args, rerun=rerun, result_id=self.pk
             )
             self.rawtools_metrics_task_id = async_result.id
             self.rawtools_metrics_task_submitted_at = timezone.now()
@@ -641,6 +644,9 @@ class Result(models.Model):
         fallback_activity_seconds = int(
             getattr(settings, "RESULT_STATUS_ACTIVITY_FALLBACK_SECONDS", 300)
         )
+        cancel_activity_seconds = int(
+            getattr(settings, "RESULT_STATUS_CANCEL_ACTIVITY_SECONDS", 180)
+        )
         run_dir_candidates = None
 
         def get_run_dir_candidates():
@@ -656,9 +662,20 @@ class Result(models.Model):
             out_fn, self.maxquant_task_submitted_at, "Finish writing tables"
         ):
             return "done"
-        if self.cancel_requested_at is not None:
-            return "canceled"
         task_state = self._task_state(self.maxquant_task_id)
+        if self.cancel_requested_at is not None:
+            # A cancel request can race with process teardown. Keep reporting
+            # running while there is clear task/filesystem activity.
+            if self._is_task_running(task_state):
+                return "running"
+            if any(
+                self._path_recently_modified(
+                    path, lookback_seconds=cancel_activity_seconds
+                )
+                for path in [*get_run_dir_candidates(), self.output_dir_maxquant]
+            ):
+                return "running"
+            return "canceled"
         if self._is_task_canceled(task_state):
             return "canceled"
         if self._is_task_running(task_state):
@@ -717,21 +734,39 @@ class Result(models.Model):
         fallback_activity_seconds = int(
             getattr(settings, "RESULT_STATUS_ACTIVITY_FALLBACK_SECONDS", 300)
         )
+        cancel_activity_seconds = int(
+            getattr(settings, "RESULT_STATUS_CANCEL_ACTIVITY_SECONDS", 180)
+        )
         rawtools_metrics_activity_paths = [self.output_dir_rawtools]
-        if self.cancel_requested_at is not None:
-            return "canceled"
         task_state = self._task_state(self.rawtools_metrics_task_id)
-        if self._is_task_canceled(task_state):
-            return "canceled"
         if self._has_fresh_error_text(
             err_fn, self.rawtools_metrics_task_submitted_at
         ):
             return "failed"
+        # Done should win over cancel when output markers are present.
+        # This avoids reporting a completed stage as canceled when a cancel
+        # request raced with the final file writes.
         if all(
             self._is_fresh_output_file(fn, self.rawtools_metrics_task_submitted_at)
             for fn in done_fns
         ):
             return "done"
+        # If all outputs exist and no process is running, treat as done.
+        if all(fn.is_file() for fn in done_fns) and not self._is_task_running(
+            task_state
+        ):
+            return "done"
+        if self.cancel_requested_at is not None:
+            if self._is_task_running(task_state):
+                return "running"
+            if self._path_recently_modified(
+                self.output_dir_rawtools,
+                lookback_seconds=cancel_activity_seconds,
+            ):
+                return "running"
+            return "canceled"
+        if self._is_task_canceled(task_state):
+            return "canceled"
         if self._is_task_running(task_state):
             if self._started_but_stale(
                 task_state,
@@ -751,7 +786,9 @@ class Result(models.Model):
         if self._is_task_failed(task_state):
             return "failed"
         if self._is_task_succeeded(task_state):
-            return "failed"
+            # Task says SUCCESS but we didn't return "done" from output-file check
+            # above → outputs missing or not fresh; report incomplete, not failed.
+            return "missing"
         if self._path_recently_modified(
             self.output_dir_rawtools, lookback_seconds=fallback_activity_seconds
         ):
@@ -768,19 +805,38 @@ class Result(models.Model):
         fallback_activity_seconds = int(
             getattr(settings, "RESULT_STATUS_ACTIVITY_FALLBACK_SECONDS", 300)
         )
+        cancel_activity_seconds = int(
+            getattr(settings, "RESULT_STATUS_CANCEL_ACTIVITY_SECONDS", 180)
+        )
         rawtools_qc_activity_paths = [self.output_dir_rawtools_qc]
-        if self.cancel_requested_at is not None:
-            return "canceled"
         task_state = self._task_state(self.rawtools_qc_task_id)
-        if self._is_task_canceled(task_state):
-            return "canceled"
         if self._has_fresh_error_text(err_fn, self.rawtools_qc_task_submitted_at):
             return "failed"
+        # Done should win over cancel when output markers are present.
+        # This avoids reporting a completed stage as canceled when a cancel
+        # request raced with the final file writes.
         if any(
             self._is_fresh_output_file(fn, self.rawtools_qc_task_submitted_at)
             for fn in done_fns
         ):
             return "done"
+        # If output exists and no process is running, treat as done (e.g. run
+        # finished but task is stale PENDING or freshness failed due to requeue).
+        if any(fn.is_file() for fn in done_fns) and not self._is_task_running(
+            task_state
+        ):
+            return "done"
+        if self.cancel_requested_at is not None:
+            if self._is_task_running(task_state):
+                return "running"
+            if self._path_recently_modified(
+                self.output_dir_rawtools_qc,
+                lookback_seconds=cancel_activity_seconds,
+            ):
+                return "running"
+            return "canceled"
+        if self._is_task_canceled(task_state):
+            return "canceled"
         if self._is_task_running(task_state):
             if self._started_but_stale(
                 task_state,
@@ -798,7 +854,9 @@ class Result(models.Model):
         if self._is_task_failed(task_state):
             return "failed"
         if self._is_task_succeeded(task_state):
-            return "failed"
+            # Task says SUCCESS but we didn't return "done" from output-file check
+            # above → outputs missing or not fresh; report incomplete, not failed.
+            return "missing"
         if self._path_recently_modified(
             self.output_dir_rawtools_qc, lookback_seconds=fallback_activity_seconds
         ):
@@ -820,10 +878,12 @@ class Result(models.Model):
         # failure while any backend worker is still running/queued.
         if any(status == "running" for status in statuses):
             return "running"
-        if any(status == "queued" for status in statuses):
-            return "queued"
+        # Failed takes precedence over queued: if any stage failed, the run has
+        # failed even if a downstream stage is still queued.
         if "failed" in statuses:
             return "failed"
+        if any(status == "queued" for status in statuses):
+            return "queued"
         if "canceled" in statuses:
             return "canceled"
         if all(status == "done" for status in statuses):
@@ -838,6 +898,11 @@ class Result(models.Model):
 
     @cached_property
     def has_active_stage(self):
+        # Don't treat run as active when it has already failed or been canceled;
+        # avoids showing "Queued" and auto-refresh when e.g. only a stuck
+        # downstream task is PENDING and no process is actually running.
+        if self.overall_status in {"failed", "canceled"}:
+            return False
         return any(
             status in {"queued", "running"} for status in self.stage_statuses.values()
         )
@@ -1006,9 +1071,6 @@ class Result(models.Model):
         ]
 
     def cancel_active_jobs(self):
-        if not self.has_active_stage:
-            return 0
-
         revoked = 0
         for task_id in self.task_ids:
             if not task_id:
@@ -1035,22 +1097,70 @@ class Result(models.Model):
 
         self.cancel_requested_at = timezone.now()
         self.save(update_fields=["cancel_requested_at"])
+        # Invalidate status caches so reused instances recompute with cancel state.
+        for key in (
+            "maxquant_status",
+            "rawtools_metrics_status",
+            "rawtools_qc_status",
+            "stage_statuses",
+            "overall_status",
+            "has_active_stage",
+            "is_processing",
+            "processing_message",
+        ):
+            self.__dict__.pop(key, None)
         return revoked
 
     def _kill_local_processes_for_run(self):
         # Celery revoke(terminate=True) can leave child mono/sh processes alive.
         # As a fallback, terminate processes whose command line references this run.
+        raw_name = self.raw_file.name
+        raw_stem = P(raw_name).stem
         patterns = [
             self.basename,
+            raw_name,
+            raw_stem,
             str(self.raw_fn),
+            str(self.raw_fn.parent),
             str(self.output_dir_maxquant),
             str(self.output_dir_rawtools),
             str(self.output_dir_rawtools_qc),
         ]
         killed = 0
+        matched_pids = set()
+
+        def _pids_for_pattern(pattern):
+            if not pattern:
+                return []
+            try:
+                proc = subprocess.run(
+                    ["pgrep", "-f", pattern],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+            except FileNotFoundError:
+                return []
+            if proc.returncode not in (0, 1):
+                return []
+            pids = []
+            for line in (proc.stdout or "").splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    pid = int(line)
+                except ValueError:
+                    continue
+                if pid != os.getpid():
+                    pids.append(pid)
+            return pids
+
         for pattern in patterns:
             if not pattern:
                 continue
+            for pid in _pids_for_pattern(pattern):
+                matched_pids.add(pid)
             for signal in ("TERM", "KILL"):
                 try:
                     proc = subprocess.run(
@@ -1074,6 +1184,19 @@ class Result(models.Model):
                         proc.returncode,
                         (proc.stderr or "").strip(),
                     )
+
+        # Explicit PID fallback in case pkill misses descendants.
+        for sig in (signal.SIGTERM, signal.SIGKILL):
+            for pid in sorted(matched_pids):
+                try:
+                    os.kill(pid, sig)
+                    killed += 1
+                except ProcessLookupError:
+                    continue
+                except PermissionError:
+                    continue
+                except OSError:
+                    continue
         return killed
 
 

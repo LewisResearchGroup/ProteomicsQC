@@ -1,5 +1,6 @@
 from pathlib import Path
 from unittest.mock import patch
+from types import SimpleNamespace
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
@@ -231,3 +232,19 @@ class ResultStatusTestCase(TestCase):
         self.assertEqual(len(details), 1)
         self.assertEqual(details[0]["stage"], "maxquant")
         self.assertIn("Unhandled Exception", details[0]["message"])
+
+    @patch("maxquant.Result.rawtools_qc.delay")
+    @patch("maxquant.Result.rawtools_metrics.delay")
+    def test_rawtools_rerun_flag_is_forwarded_to_tasks(
+        self, mock_metrics_delay, mock_qc_delay
+    ):
+        mock_metrics_delay.return_value = SimpleNamespace(id="metrics-task")
+        mock_qc_delay.return_value = SimpleNamespace(id="qc-task")
+
+        self.result.run_rawtools_metrics(rerun=True)
+        self.result.run_rawtools_qc(rerun=True)
+
+        self.assertEqual(mock_metrics_delay.call_count, 1)
+        self.assertEqual(mock_qc_delay.call_count, 1)
+        self.assertTrue(mock_metrics_delay.call_args.kwargs["rerun"])
+        self.assertTrue(mock_qc_delay.call_args.kwargs["rerun"])

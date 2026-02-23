@@ -51,7 +51,7 @@
         data-csrf-token="{{ csrf_token }}"
       >
         {% for maxquant_run in maxquant_runs %}
-          <tr data-run-name="{{ maxquant_run.raw_file|lower }}">
+          <tr data-run-name="{{ maxquant_run.raw_file|lower }}" data-overall-status="{{ maxquant_run.overall_status }}">
             <td title="{{ maxquant_run.raw_file }}"><span class="mq-run-name">{{ maxquant_run.raw_file }}</span></td>
             <td><span class="status-pill status-{{ maxquant_run.overall_status }}">{{ maxquant_run.overall_status }}</span></td>
             <td><span class="status-pill status-{{ maxquant_run.maxquant_status }}">{{ maxquant_run.maxquant_status }}</span></td>
@@ -220,7 +220,7 @@
     let autoRefreshTimer = null;
 
     const hasActiveRuns = () => {
-      return tbody.querySelectorAll(".status-pill.status-running, .status-pill.status-queued").length > 0;
+      return tbody.querySelectorAll("tr[data-overall-status='running'], tr[data-overall-status='queued']").length > 0;
     };
 
     const updateCancelAllState = () => {
