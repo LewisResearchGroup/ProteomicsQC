@@ -41,6 +41,7 @@ class HomeViewTestCase(TestCase):
         url = reverse("home")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+        self.assertIn("login_form", response.context)
 
     def test_home_renders_for_authenticated_user(self):
         self.client.force_login(self.user)
@@ -55,6 +56,21 @@ class HomeViewTestCase(TestCase):
         quick_steps = response.context["quick_steps"]
         self.assertEqual(len(quick_steps), 4)
         self.assertEqual(quick_steps[0]["title"], "Open projects")
+
+    def test_home_post_logs_in_anonymous_user(self):
+        url = reverse("home")
+        response = self.client.post(
+            url,
+            data={"username": self.user.email, "password": "pass1234", "next": "/"},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/")
+        self.assertTrue("_auth_user_id" in self.client.session)
+
+    def test_login_url_redirects_to_home_inline_login(self):
+        response = self.client.get(reverse("login"), {"next": "/dashboard/"})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/?next=%2Fdashboard%2F")
 
     def test_quick_steps_use_last_activity_for_project_and_pipeline(self):
         self.client.force_login(self.user)

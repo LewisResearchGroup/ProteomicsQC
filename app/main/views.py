@@ -1,19 +1,43 @@
 import datetime
+from urllib.parse import urlencode
 
+from django.contrib.auth import login as auth_login
+from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render
+from django.shortcuts import redirect
 from django.conf import settings as conf_settings
 from django.db.models import Count, Q, Max, DateTimeField, Value
 from django.db.models.functions import Cast, Coalesce, Greatest
 from django.urls import reverse, NoReverseMatch
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils import timezone
 
 from project.models import Project
 from maxquant.models import Result, Pipeline
 
 
+def login_redirect(request):
+    next_url = request.GET.get("next", "")
+    home_url = reverse("home")
+    if next_url:
+        return redirect(f"{home_url}?{urlencode({'next': next_url})}")
+    return redirect("home")
+
+
 def home(request):
     context = {"home_title": conf_settings.HOME_TITLE}
-    if request.user.is_authenticated:
+    if not request.user.is_authenticated:
+        login_form = AuthenticationForm(request, data=request.POST or None)
+        if request.method == "POST" and login_form.is_valid():
+            auth_login(request, login_form.get_user())
+            next_url = request.POST.get("next", "")
+            if next_url and url_has_allowed_host_and_scheme(
+                next_url, allowed_hosts={request.get_host()}
+            ):
+                return redirect(next_url)
+            return redirect("home")
+        context["login_form"] = login_form
+    else:
         projects_qs = Project.objects.all()
         if not (request.user.is_staff or request.user.is_superuser):
             projects_qs = projects_qs.filter(
@@ -65,6 +89,7 @@ def home(request):
         recent_runs_qs = (
             Result.objects.select_related("raw_file__pipeline__project")
             .filter(raw_file__pipeline__project__in=projects_qs)
+            .defer("input_source")
             .order_by("-created")[:3]
         )
         latest_run = recent_runs_qs[0] if recent_runs_qs else None

@@ -54,6 +54,62 @@
   margin-top: 16px;
 }
 
+.home-login-form {
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid #dbe5f0;
+  border-radius: 10px;
+  background: #f9fcff;
+}
+
+.home-login-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  align-items: end;
+}
+
+.home-login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+}
+
+.home-login-field span {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.home-login-field input {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid #b7cada;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.home-login-submit {
+  min-height: 40px;
+}
+
+.home-login-error {
+  margin-bottom: 10px;
+  border: 1px solid #efc5c5;
+  border-radius: 8px;
+  background: #fff5f5;
+  color: #9b2f2f;
+  padding: 8px 10px;
+}
+
+.home-login-error p {
+  margin: 0;
+  font-size: 13px;
+}
+
 .home-quickstart {
   width: var(--home-shell-width);
   max-width: none;
@@ -258,6 +314,7 @@
     margin-top: 8px;
   }
 
+  .home-login-grid,
   .home-step-grid,
   .home-kpi-grid {
     grid-template-columns: 1fr;

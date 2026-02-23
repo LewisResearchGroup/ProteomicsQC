@@ -10,6 +10,7 @@ from . import views
 urlpatterns = [
     path("", views.home, name="home"),
     path("admin/", admin.site.urls),
+    path("accounts/login/", views.login_redirect, name="login"),
     path("accounts/", include("django.contrib.auth.urls")),
     path("P/", include(("project.urls", "project"), namespace="project")),
     path("proteomics/", include(("maxquant.urls", "maxquant"), namespace="maxquant")),

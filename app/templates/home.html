@@ -91,6 +91,28 @@
       <p class="home-hero-copy">
         Read the documentation to get started, or open an issue if you need support.
       </p>
+      <form method="post" action="{% url 'home' %}" class="home-login-form">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.GET.next|default:'/' }}">
+        {% if login_form.non_field_errors %}
+          <div class="home-login-error">
+            {% for error in login_form.non_field_errors %}
+              <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+        <div class="home-login-grid">
+          <label class="home-login-field">
+            <span>Email</span>
+            {{ login_form.username }}
+          </label>
+          <label class="home-login-field">
+            <span>Password</span>
+            {{ login_form.password }}
+          </label>
+          <button type="submit" class="btn run-btn run-btn-primary home-login-submit">Login</button>
+        </div>
+      </form>
       <div class="home-hero-actions">
         <a href="https://lewisresearchgroup.github.io/ProteomicsQC/" target="_blank" rel="noopener">
           <button class="btn run-btn run-btn-primary">Documentation</button>

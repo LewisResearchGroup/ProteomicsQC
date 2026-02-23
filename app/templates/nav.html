@@ -24,9 +24,5 @@
       </div>
     </div>
     {% endwith %}
-  {% elif request.get_full_path|slice:":16" != "/accounts/login/" %}
-    <div class="app-nav-inner">
-      <a href="{% url 'login'%}" class="app-nav-btn app-nav-btn-login">Login</a>
-    </div>
   {% endif %}
 </nav>
