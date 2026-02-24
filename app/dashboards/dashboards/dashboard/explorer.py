@@ -24,8 +24,7 @@ all_columns = res
 
 layout = html.Div(
     [
-        dcc.Markdown("---"),
-        html.H2("Explorer"),
+        html.H3("Explorer", className="pqc-tab-title"),
         dbc.Row(
             [
                 dbc.Col(
@@ -36,7 +35,7 @@ layout = html.Div(
                                     "Refresh Plots",
                                     id="refresh-explorer-plot",
                                     className="btn",
-                                    style={"margin-bottom": 5},
+                                    style={"marginBottom": 8},
                                 ),
                                 dcc.Dropdown(
                                     id="explorer-x",
@@ -81,11 +80,10 @@ layout = html.Div(
                                     value=None,
                                 ),
                             ],
-                            style={"padding-top": 100, "margin": "auto"},
-                            className="center",
+                            className="pqc-tab-controls center",
                         ),
                     ],
-                    style={"width": 300, "min-width": 300, "max-width": 300},
+                    style={"width": 320, "min-width": 320, "max-width": 320},
                 ),
                 dbc.Col(
                     [
@@ -108,7 +106,7 @@ layout = html.Div(
                             "Refresh Scatter Matrix",
                             id="explorer-btn-scatter-matrix",
                             className="btn",
-                            style={"margin-bottom": 5},
+                            style={"marginBottom": 8},
                         ),
                         dcc.Dropdown(
                             id="explorer-scatter-matrix-options",
@@ -153,6 +151,9 @@ def callbacks(app):
     def explorer_plot(
         n_clicks, x, y, color, size, facet_row, facet_col, data, selected, ndxs
     ):
+        if data is None:
+            raise PreventUpdate
+        selected = selected or []
 
         columns = [
             x,
@@ -172,7 +173,12 @@ def callbacks(app):
         columns = [c for c in columns if (c is not None)]
 
         df = pd.DataFrame(data)
-        df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
+        if df.empty:
+            raise PreventUpdate
+        if "DateAcquired" in df.columns:
+            df["DateAcquired"] = pd.to_datetime(df["DateAcquired"], errors="coerce")
+        if (x not in df.columns) or (y not in df.columns):
+            raise PreventUpdate
         df["Selected"] = False
         df.loc[selected, "Selected"] = True
 
@@ -181,19 +187,26 @@ def callbacks(app):
         else:
             df = df.reindex(ndxs)
 
-        if facet_row is not None:
+        if (facet_row is not None) and (facet_row in df.columns):
             n_rows = len(df[facet_row].value_counts())
         else:
             n_rows = 2
 
         facet_col_wrap = 3
-        if facet_col is not None:
+        if (facet_col is not None) and (facet_col in df.columns):
             n_cols = len(df[facet_col].value_counts())
             n_rows = min(2, int(n_cols / facet_col_wrap) + 2)
+        else:
+            facet_col = None
 
-        if size is not None:
+        if (size is not None) and (size in df.columns):
             # Plotly crashes if size column has NaNs
             df[size] = df[size].fillna(0)
+        else:
+            size = None
+
+        if (color is not None) and (color not in df.columns):
+            color = None
 
         fig = px.scatter(
             data_frame=df,
@@ -259,7 +272,11 @@ def callbacks(app):
         Input("qc-table", "data"),
     )
     def update_dropdowns(data):
+        if data is None:
+            return [[]] * 6
         cols = pd.DataFrame(data).columns
+        if len(cols) == 0:
+            return [[]] * 6
         options = T.list_to_dropdown_options(cols)
         return [options] * 6
 
@@ -275,15 +292,26 @@ def callbacks(app):
     def plot_scatter_matrix(n_clicks, data, columns, selected, ndxs):
         if n_clicks is None:
             raise PreventUpdate
+        if data is None:
+            raise PreventUpdate
+        selected = selected or []
+        columns = columns or []
         df = pd.DataFrame(data)
-        df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
+        if df.empty:
+            raise PreventUpdate
+        if "DateAcquired" in df.columns:
+            df["DateAcquired"] = pd.to_datetime(df["DateAcquired"], errors="coerce")
 
         if ndxs is None:
             ndxs = list(df.index)
         else:
             df = df.reindex(ndxs)
 
-        fig = px.scatter_matrix(df, dimensions=columns)
+        valid_columns = [c for c in columns if c in df.columns]
+        if len(valid_columns) == 0:
+            raise PreventUpdate
+
+        fig = px.scatter_matrix(df, dimensions=valid_columns)
 
         fig.update_layout(
             autosize=True,
@@ -295,6 +323,9 @@ def callbacks(app):
         )
 
         config = T.gen_figure_config(filename="PQC-scatter-matrix")
+
+        if "Use Downstream" not in df.columns or "Flagged" not in df.columns:
+            raise PreventUpdate
 
         marker_color = df["Use Downstream"].replace(
             {
@@ -334,8 +365,13 @@ def callbacks(app):
     def populate_chk_scatter_matrix(tab, data):
         if tab != "explorer":
             raise PreventUpdate
+        if data is None:
+            return []
         df = pd.DataFrame(data)
-        df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
+        if df.empty:
+            return []
+        if "DateAcquired" in df.columns:
+            df["DateAcquired"] = pd.to_datetime(df["DateAcquired"], errors="coerce")
         numeric_columns = df.select_dtypes(include=np.number).columns
         options = T.list_to_dropdown_options(numeric_columns)
         return options

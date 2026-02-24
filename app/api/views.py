@@ -26,7 +26,6 @@ from project.models import Project
 from project.serializers import ProjectsNamesSerializer
 from user.models import User
 
-from tqdm import tqdm
 
 VERBOSE = settings.DEBUG
 
@@ -247,7 +246,7 @@ def get_protein_quant_fn(
             results = results.order_by("raw_file__created")[n_results - data_range :]
 
     fns = []
-    for res in tqdm(results):
+    for res in results:
         fn = res.create_protein_quant()
         if fn is None:
             continue
@@ -283,7 +282,7 @@ def get_qc_data(project_slug, pipeline_slug, data_range=None):
 
     flagged = pd.DataFrame()
     use_downstream = pd.DataFrame()
-    for result in tqdm(results):
+    for result in results:
         raw_fn = P(result.raw_file.name).with_suffix("").name
         raw_is_flagged = result.raw_file.flagged
         raw_use_downstream = result.raw_file.use_downstream

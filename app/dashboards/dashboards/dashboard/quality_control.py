@@ -2,11 +2,10 @@ import logging
 import pandas as pd
 from dash import dcc, html
 
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 try:
     from . import tools as T
@@ -19,46 +18,84 @@ except Exception as e:
 # Keep the graph responsive without forcing a tall container up front
 GRAPH_STYLE = {"maxWidth": "100%"}
 
-x_options = [
-    dict(label=x, value=x)
-    for x in [
-        "Index",
-        "RawFile",
-        "DateAcquired",
+METRIC_LABELS = {
+    "N_peptides": "Peptides Identified",
+    "N_protein_groups": "Protein Groups Identified",
+    "MS/MS Identified [%]": "MS/MS Identified (%)",
+    "Oxidations [%]": "Oxidations (%)",
+    "N_missed_cleavages_eq_1 [%]": "Missed Cleavages Eq1 (%)",
+    "Uncalibrated - Calibrated m/z [ppm] (ave)": "Delta m/z (ppm, avg)",
+    "calibrated_retention_time_qc1": "Calibrated RT QC1",
+    "calibrated_retention_time_qc2": "Calibrated RT QC2",
+}
+
+X_AXIS_LABELS = {
+    "Index": "Sample Index",
+    "RawFile": "Sample",
+    "DateAcquired": "Acquisition Date",
+}
+
+x_options = [dict(label=X_AXIS_LABELS[x], value=x) for x in X_AXIS_LABELS]
+
+metric_options = [
+    {"label": METRIC_LABELS[k], "value": k}
+    for k in [
+        "N_peptides",
+        "N_protein_groups",
+        "MS/MS Identified [%]",
+        "Oxidations [%]",
+        "N_missed_cleavages_eq_1 [%]",
+        "Uncalibrated - Calibrated m/z [ppm] (ave)",
+        "calibrated_retention_time_qc1",
+        "calibrated_retention_time_qc2",
     ]
 ]
 
 BUTTON_STYLE = {
-    "padding": "6px 16px",
-    "backgroundColor": "#e9f3fe",
-    "color": "#2994ff",
-    "border": "1px solid #2994ff",
-    "borderRadius": "1px",
-    "cursor": "pointer",
-    "fontWeight": 500,
+    "padding": "8px 14px",
+    "borderRadius": "8px",
+    "fontWeight": 600,
     "fontSize": "14px",
 }
 
 layout = html.Div(
     [
         html.Div(
-            [
-                html.P(
-                    ["x-Axis:", dcc.Dropdown(id="x", options=x_options, value="Index")]
-                )
+            className="pqc-qc-plot-toolbar",
+            children=[
+                html.Div(
+                    className="pqc-qc-metric-wrap",
+                    children=[
+                        html.Div("QC Metric", className="pqc-field-label"),
+                        dcc.Dropdown(
+                            id="qc-metric",
+                            multi=False,
+                            options=metric_options,
+                            value="N_peptides",
+                            className="pqc-metric-dropdown",
+                            clearable=False,
+                        ),
+                    ],
+                ),
+                html.Div(
+                    className="pqc-qc-xaxis-wrap",
+                    children=[
+                        html.Div("X-Axis", className="pqc-field-label"),
+                        dcc.Dropdown(
+                            id="x",
+                            options=x_options,
+                            value="Index",
+                            className="pqc-metric-dropdown",
+                            clearable=False,
+                        ),
+                    ],
+                ),
             ],
-            style={"width": "100%", "margin": "auto"},
         ),
         html.Div(
-            [
-                html.Button(
-                    "Refresh Plots",
-                    id="refresh-plots",
-                    className="btn",
-                    style=BUTTON_STYLE,
-                )
-            ],
-            style={"margin-bottom": 100},
+            "No QC plot data available for this scope.",
+            id="qc-empty-state",
+            className="pqc-empty-state",
         ),
         dcc.Loading(
             [
@@ -82,121 +119,111 @@ def callbacks(app):
         Output("qc-figure", "figure"),
         Output("qc-figure", "config"),
         Output("qc-figure", "style"),
-        Input("refresh-plots", "n_clicks"),
-        State("qc-table", "selected_rows"),
-        State("qc-table", "derived_virtual_indices"),
-        State("x", "value"),
-        State("qc-table", "data"),
-        State("qc-table-columns", "value"),
+        Output("qc-empty-state", "style"),
+        Input("qc-scope-data", "data"),
+        Input("qc-metric", "value"),
+        Input("x", "value"),
     )
-    def plot_qc_figure(refresh, selected, ndxs, x, data, optional_columns):
-        """Creates the bar-plot figure"""
+    def plot_qc_figure(data_in, metric_in, x_in):
+        """Creates the QC trend plot figure."""
+        data = data_in
         if data is None:
             raise PreventUpdate
-
-        if x is None:
-            x = "RawFile"
+        x = x_in or "RawFile"
+        selected_metric = metric_in or "N_peptides"
 
         df = pd.DataFrame(data)
+        if df.empty:
+            return (
+                go.Figure(),
+                T.gen_figure_config(filename="QC-barplot", editable=False),
+                {**GRAPH_STYLE, "display": "none"},
+                {"display": "flex"},
+            )
 
-        df["Selected"] = False
-        df.loc[selected, "Selected"] = True
-
-        if ndxs is None:
-            ndxs = list(df.index)
         assert pd.value_counts(df.columns).max() == 1, pd.value_counts(df.columns)
 
-        df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
+        if "DateAcquired" in df.columns:
+            df["DateAcquired"] = pd.to_datetime(df["DateAcquired"], errors="coerce")
+        else:
+            df["DateAcquired"] = pd.NaT
 
-        if ndxs is not None:
-            df = df.reindex(ndxs)
+        if x not in df.columns:
+            x = "Index" if "Index" in df.columns else "RawFile"
 
-        # keep only columns that exist and are numeric
-        available_cols = [c for c in optional_columns if c in df.columns]
-        if len(available_cols) == 0:
-            raise PreventUpdate
-        numeric_columns = (
-            df[available_cols].head(1)._get_numeric_data().columns.tolist()
-        )
-        if len(numeric_columns) == 0:
-            raise PreventUpdate
-        logging.info(f"QC plot columns (numeric, capped): {numeric_columns}")
-
-        # limit how many subplots we render to avoid huge figures
-        max_plots = 6
-        if len(numeric_columns) > max_plots:
-            numeric_columns = numeric_columns[:max_plots]
-            logging.info(f"QC plot columns truncated to first {max_plots}: {numeric_columns}")
-
-        fig = make_subplots(
-            cols=1,
-            rows=len(numeric_columns),
-            subplot_titles=numeric_columns,
-            shared_xaxes=True,
-            vertical_spacing=0.02,
-            print_grid=False,
-        )
-
-        for i, col in enumerate(numeric_columns):
-            trace = go.Bar(
-                x=df[x],
-                y=df[col],
-                name=col,
-                hovertext=df.RawFile + "<br>" + df.DateAcquired.astype(str),
-                text=None if x == "RawFile" else df["RawFile"],
+        if selected_metric not in df.columns:
+            return (
+                go.Figure(),
+                T.gen_figure_config(filename="QC-trends", editable=False),
+                {**GRAPH_STYLE, "display": "none"},
+                {"display": "flex"},
             )
-            fig.add_trace(trace, row=1 + i, col=1)
+        # Keep all samples visible by imputing missing points as zero.
+        y_series = pd.to_numeric(df[selected_metric], errors="coerce").fillna(0)
+        metric_label = METRIC_LABELS.get(selected_metric, selected_metric)
+        x_axis_label = X_AXIS_LABELS.get(x, x)
 
-        # Size per subplot to leave room for titles/axes without excessive blank space
-        per_plot_height = 300
-        base_height = 160
-        total_height = per_plot_height * (i + 1) + base_height
+        raw_labels = (
+            df["RawFile"].astype(str)
+            if "RawFile" in df.columns
+            else df.index.astype(str)
+        )
+        acquired = df["DateAcquired"].astype(str).replace("NaT", "N/A")
+        fig = go.Figure(
+            data=[
+                go.Scatter(
+                    x=df[x],
+                    y=y_series,
+                    name=metric_label,
+                    mode="lines+markers",
+                    line=dict(width=3, color="#1f6f8b", shape="linear"),
+                    marker=dict(size=8, color="#1f6f8b", line=dict(width=1, color="#ffffff")),
+                    hovertext=raw_labels + "<br>" + acquired,
+                    text=None if x == "RawFile" else raw_labels,
+                    hovertemplate=(
+                        "<b>%{hovertext}</b><br>"
+                        + f"{metric_label}: "
+                        + "%{y:.2f}<extra></extra>"
+                    ),
+                )
+            ]
+        )
+
         fig.update_layout(
             hovermode="closest",
             hoverlabel_namelength=-1,
-            height=max(500, min(1200, total_height)),
+            height=450,
             showlegend=False,
-            margin=dict(l=40, r=40, b=120, t=40, pad=0),
+            margin=dict(l=32, r=20, b=60, t=24, pad=0),
             font=C.figure_font,
+            plot_bgcolor="#fbfdff",
+            paper_bgcolor="#f7fbfe",
             yaxis={"automargin": True},
+            xaxis={"automargin": True},
         )
 
-        marker_color = df[["Use Downstream", "Flagged", "Selected"]].apply(
-            lambda row: T.get_marker_color(*row), axis=1
+        fig.update_traces(marker_line_width=1, opacity=0.95)
+
+        logging.info(f"QC plot built for metric {selected_metric} with height {fig.layout.height}")
+
+        fig.update_xaxes(
+            title_text=x_axis_label,
+            showgrid=False,
+            zeroline=False,
+            showline=True,
+            linecolor="#cddbe6",
         )
-        marker_line_color = (
-            df[["Use Downstream", "Flagged", "Selected"]]
-            .fillna("unknown")
-            .apply(lambda row: T.get_marker_line_color(*row), axis=1)
+        fig.update_yaxes(
+            title_text=metric_label,
+            showgrid=False,
+            zeroline=False,
+            showline=True,
+            linecolor="#cddbe6",
+            rangemode="tozero",
         )
 
-        fig.update_traces(
-            marker_color=marker_color,
-            marker_line_color=marker_line_color,
-            marker_line_width=1,
-            opacity=0.8,
-        )
-
-        logging.info(f"QC plot built with {len(fig.data)} traces and height {fig.layout.height}")
-
-        fig.update_xaxes(matches="x")
-
-        if x == "RawFile":
-            xaxis_id = "xaxis" if len(numeric_columns) == 1 else f"xaxis{len(numeric_columns)}"
-            fig.update_layout(
-                **{
-                    xaxis_id: dict(
-                        tickmode="array",
-                        tickvals=tuple(range(len(df))),
-                        ticktext=tuple(df[x]),
-                    )
-                }
-            )
-
-        fig.update_xaxes(title_text=x, row=len(numeric_columns), col=1)
-
-        config = T.gen_figure_config(filename="QC-barplot", editable=False)
+        config = T.gen_figure_config(filename="QC-trends", editable=False)
 
         graph_style = {**GRAPH_STYLE, "display": "block"}
 
-        return fig, config, graph_style
+        return fig, config, graph_style, {"display": "none"}

@@ -3,10 +3,10 @@
 {% load plotly_dash %}
 
 {% block app %}
-  <div class="container" style="min-width: 100%;">
-    <div class='dashapp'>
+  <div class="container-fluid" style="padding: 0;">
+    <div class='dashapp' style="padding-top: 0;">
       {# Simple iframe embed (may show inner scrollbar, but stable) #}
-      {% plotly_app name="dashboard" ratio=0.8 %}
+      {% plotly_app name="dashboard" ratio=0.34 %}
     </div>
   </div>
 {% endblock %}

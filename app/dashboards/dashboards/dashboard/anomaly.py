@@ -39,7 +39,7 @@ algorithm_options = [
 
 layout = html.Div(
     [
-        html.H1("Anomaly detection"),
+        html.H3("Anomaly detection", className="pqc-tab-title"),
 
         html.Label("Select Algorithm"),
         dcc.Dropdown(
@@ -70,16 +70,6 @@ layout = html.Div(
             "Predict Anomalies",
             id="anomaly-btn",
             className="btn",
-            style={
-                "padding": "6px 16px",
-                "backgroundColor": "#e9f3fe",
-                "color": "#2994ff",
-                "border": "1px solid #2994ff",
-                "borderRadius": "1px",
-                "cursor": "pointer",
-                "fontWeight": 500,
-                "fontSize": "14px",
-            },
         ),
 
         # Spinner wrapper (entire graph)
