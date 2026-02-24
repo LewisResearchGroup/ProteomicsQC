@@ -418,7 +418,7 @@ def detect_anomalies(
     algorithm=None,
     columns=None,
     max_features=None,
-    precentage=None,
+    percentage=None,
     **model_kws,
 ):
 

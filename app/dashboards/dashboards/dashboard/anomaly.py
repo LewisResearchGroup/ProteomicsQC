@@ -2,8 +2,7 @@ import os
 import logging
 import pandas as pd
 
-from dash import html, dcc, no_update
-import dash_bootstrap_components as dbc
+from dash import html, dcc
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
@@ -18,84 +17,52 @@ except Exception as e:
     import config as C
 
 
-checklist_options = [
-    {"label": "Hide rejected samples", "value": "hide_rejected"},
-]
-
-algorithm_options = [
-    {"label": "Isolation Forest", "value": "iforest"},
-    # {"label": "Angle-base Outlier Detection", "value": "abod"},
-    # {"label": "Clustering-Based Local Outlier", "value": "cluster"},
-    # {"label": "Connectivity-Based Outlier Factor", "value": "cof"},
-    # {"label": "Histogram-based Outlier Detection", "value": "histogram"},
-    # {"label": "k-Nearest Neighbors Detector", "value": "knn"},
-    # {"label": "Local Outlier Factor", "value": "lof"},
-    # {"label": "One-class SVM detector", "value": "svm"},
-    # {"label": "Principal Component Analysis", "value": "pca"},
-    # {"label": "Minimum Covariance Determinant", "value": "mcd"},
-    # {"label": "Subspace Outlier Detection", "value": "sod"},
-    # {"label": "Stochastic Outlier Selection", "value": "sos"},
-]
-
 layout = html.Div(
     [
-        html.H3("Anomaly detection", className="pqc-tab-title"),
-
-        html.Label("Select Algorithm"),
-        dcc.Dropdown(
-            id="anomaly-algorithm",
-            options=algorithm_options,
-            value="iforest",
-        ),
-
-        html.Label("Estimated outlier fraction (5% default)", style=dict(marginTop="15px")),
-        dcc.Slider(
-            id="anomaly-fraction",
-            value=5,
-            min=1,
-            max=100,
-            step=1,
-            marks={i: {"label": f"{i}%"} for i in range(10, 110, 10)},
-            tooltip={"placement": "bottom", "always_visible": False},
-        ),
-
-        dcc.Checklist(
-            id="anomaly-checklist",
-            options=checklist_options,
-            value=["hide_rejected"],
-            style=dict(padding="15px"),
-        ),
-
-        html.Button(
-            "Predict Anomalies",
-            id="anomaly-btn",
-            className="btn",
-        ),
-
-        # Spinner wrapper (entire graph)
-        dcc.Loading(
-            id="anomaly-loading",
-            type="circle",
+        html.Div(
+            className="pqc-anomaly-controls",
             children=[
+                html.Div("Outlier fraction", className="pqc-field-label"),
                 html.Div(
-                    dcc.Graph(
-                        id="anomaly-figure",
-                        figure={},
-                        style={
-                            "display": "none",  # start hidden/empty
-                            "width": "100%",
-                            "maxWidth": "1200px",
-                            "margin": "0 auto",
-                        },
+                    className="pqc-anomaly-slider-wrap",
+                    children=[
+                        dcc.Slider(
+                            id="anomaly-fraction",
+                            value=5,
+                            min=1,
+                            max=100,
+                            step=1,
+                            marks={i: {"label": f"{i}%"} for i in range(10, 110, 10)},
+                            tooltip={"placement": "bottom", "always_visible": False},
+                        )
+                    ],
+                ),
+            ],
+        ),
+        html.Div(
+            className="pqc-anomaly-plot-area",
+            children=[
+                dcc.Loading(
+                    id="anomaly-loading",
+                    type="circle",
+                    style={"height": "100%"},
+                    children=html.Div(
+                        className="pqc-anomaly-loading-scope",
+                        children=[
+                            html.Div(id="anomaly-progress-probe", className="pqc-hidden-trigger"),
+                            dcc.Graph(
+                                id="anomaly-figure",
+                                figure={},
+                                style={
+                                    "display": "block",
+                                    "width": "100%",
+                                    "height": "100%",
+                                },
+                            ),
+                        ],
                     ),
-                    style={
-                        "display": "flex",
-                        "justifyContent": "center",
-                        "width": "100%",
-                        "margin": "0 auto",
-                    },
                 )
-            ]
+            ],
         ),
     ]
 )
@@ -103,22 +70,43 @@ layout = html.Div(
 
 def callbacks(app):
 
+    def _short_label(value, max_len=26):
+        text = str(value)
+        if len(text) <= max_len:
+            return text
+        return f"{text[:max_len-1]}…"
+
+    def _pretty_metric_name(name):
+        text = str(name)
+        text = text.replace("_", " ")
+        text = text.replace(" [ppm] (ave)", " delta m/z (ppm)")
+        text = text.replace("[%]", "(%)")
+        text = text.replace("calibrated retention time qc1", "calibrated retention time qc1")
+        text = text.replace("Uncalibrated - Calibrated m/z", "delta m/z")
+        return text
+
     @app.callback(
         Output("shapley-values", "children"),
-        Input("anomaly-btn", "n_clicks"),
-        State("anomaly-algorithm", "value"),
-        State("project", "value"),
-        State("pipeline", "value"),
+        Output("anomaly-progress-probe", "children"),
+        Input("tabs", "value"),
+        Input("project", "value"),
+        Input("pipeline", "value"),
+        Input("anomaly-fraction", "value"),
+        Input("qc-scope-data", "data"),
         State("qc-table-columns", "value"),
-        State("anomaly-fraction", "value"),
     )
-    def run_anomaly_detection(
-        n_clicks, algorithm, project, pipeline, columns, fraction, **kwargs
-    ):
-        if n_clicks is None:
+    def run_anomaly_detection(tab, project, pipeline, fraction_in, scope_data, columns, **kwargs):
+        if tab != "anomaly":
+            raise PreventUpdate
+        if project is None or pipeline is None:
+            raise PreventUpdate
+        if not scope_data:
             raise PreventUpdate
 
-        fraction = fraction / 100.0
+        fraction = (fraction_in or 5) / 100.0
+        algorithm = "iforest"
+
+        columns = columns or []
 
         uid = kwargs["user"].uuid
 
@@ -135,10 +123,7 @@ def callbacks(app):
         if qc_data["Use Downstream"].isna().all():
             qc_data["Use Downstream"] = True
 
-        if algorithm == "iforest":
-            params = dict(n_estimators=1000, max_features=10)
-        else:
-            params = {}
+        params = dict(n_estimators=1000, max_features=10)
 
         predictions, df_shap = T.detect_anomalies(
             qc_data, algorithm=algorithm, columns=columns, fraction=fraction, **params
@@ -153,7 +138,8 @@ def callbacks(app):
         pqc.rawfile(files_to_flag, "flag")
         pqc.rawfile(files_to_unflag, "unflag")
 
-        return df_shap.to_json() if df_shap is not None else None
+        payload = df_shap.to_json() if df_shap is not None else None
+        return payload, f"updated-{project}-{pipeline}-{fraction_in}"
 
 
     @app.callback(
@@ -161,46 +147,37 @@ def callbacks(app):
         Output("anomaly-figure", "config"),
         Output("anomaly-figure", "style"),
         Input("shapley-values", "children"),
-        Input("qc-table", "data"),
-        Input("anomaly-checklist", "value"),
-        Input("qc-table", "derived_virtual_indices"),
+        Input("qc-scope-data", "data"),
         Input("tabs", "value"),
-        State("anomaly-btn", "n_clicks")
     )
-    def plot_shapley(shapley_values, qc_data, options, ndxs, tab, n_clicks):
-
-        # 1. Nothing clicked yet → keep hidden/empty
-        if n_clicks is None:
-            return {}, no_update, {"display": "none"}
-
-        # 2. Button clicked but SHAP not computed yet → clear figure and hide
+    def plot_shapley(shapley_values, qc_data, tab):
         if tab != "anomaly" or shapley_values is None:
-            return {}, no_update, {"display": "none"}
+            return {}, T.gen_figure_config(filename="Anomaly-Detection-Shapley-values", editable=False), {"display": "block", "width": "100%", "height": "100%", "margin": "0"}
 
-        # 3. SHAP available → build the heatmap
         df_shap = pd.read_json(shapley_values)
-        qc_data = pd.DataFrame(qc_data)
-
-        if ndxs is None:
-            ndxs = list(qc_data.index)
-        else:
-            qc_data = qc_data.iloc[ndxs]
-
-        if "hide_rejected" in options:
-            qc_data = qc_data[qc_data["Use Downstream"] != False]
+        qc_data = pd.DataFrame(qc_data or [])
+        if qc_data.empty:
+            return {}, T.gen_figure_config(filename="Anomaly-Detection-Shapley-values", editable=False), {"display": "block", "width": "100%", "height": "100%", "margin": "0"}
+        if "RawFile" not in qc_data.columns:
+            return {}, T.gen_figure_config(filename="Anomaly-Detection-Shapley-values", editable=False), {"display": "block", "width": "100%", "height": "100%", "margin": "0"}
 
         fns = qc_data["RawFile"]
         df_shap = df_shap.loc[fns]
 
-        # Size the plot based on number of features to avoid huge white space
-        n_features = df_shap.shape[1]
-        dynamic_height = max(400, min(60 * n_features, 900))
+        # samples on rows, QC metrics on columns
+        fns = qc_data["RawFile"].astype(str)
+        df_shap = df_shap.reindex(fns).fillna(0)
+        df_plot = df_shap.copy()
+        df_plot.index = [_short_label(v, max_len=34) for v in df_plot.index]
+        df_plot.columns = [_short_label(_pretty_metric_name(c), max_len=30) for c in df_plot.columns]
 
-        # Build heatmap
+        # Fit inside workspace canvas while remaining readable.
+        n_samples = max(1, df_shap.shape[0])
+        dynamic_height = max(380, min(620, 210 + (n_samples * 42)))
+
         fig = T.px_heatmap(
-            df_shap.T,
+            df_plot,
             layout_kws=dict(
-                title="Anomaly feature score (Shapley values)",
                 height=dynamic_height,
             ),
         )
@@ -213,26 +190,34 @@ def callbacks(app):
         # Size & spacing
         fig.update_layout(
             width=None,
-            margin=dict(l=40, r=40, t=60, b=40),
-            xaxis=dict(domain=[0.05, 0.75]),
+            margin=dict(l=24, r=20, t=12, b=26),
             coloraxis_colorbar=dict(
-                x=0.80,
-                thickness=20,
-                len=0.9,
+                x=1.02,
+                y=0.48,
+                yanchor="middle",
+                thickness=14,
+                len=0.76,
             ),
+            plot_bgcolor="#f7fbfe",
+            paper_bgcolor="#f7fbfe",
         )
 
         # X label rotation
         fig.update_xaxes(
-            tickangle=90,
+            tickangle=0,
             ticklabelposition="outside",
-            automargin=True
+            automargin=True,
+            title_text="QC metrics",
+            title_standoff=12,
+            showticklabels=False,
+            ticks="",
         )
+        fig.update_yaxes(title_text="Samples", title_standoff=36)
 
         # SHAP diverging scale
         heatmap = [t for t in fig.data if t.type == "heatmap"][0]
-        zmin = float(df_shap.values.min())
-        zmax = float(df_shap.values.max())
+        zmin = float(df_plot.values.min())
+        zmax = float(df_plot.values.max())
         rng  = max(abs(zmin), abs(zmax))
 
         heatmap.zmin = -rng
@@ -240,7 +225,10 @@ def callbacks(app):
         heatmap.zmid = 0
         heatmap.colorscale = "RdBu"
 
-        heatmap.colorbar.title = "SHAP\n(- normal | + anomalous)"
+        heatmap.colorbar.title = dict(
+            text="SHAP (- normal | + anomalous)",
+            side="right",
+        )
         heatmap.colorbar.tickvals = [-rng, 0, rng]
         heatmap.colorbar.ticktext = ["More normal", "0", "More anomalous"]
 
@@ -250,5 +238,6 @@ def callbacks(app):
             filename="Anomaly-Detection-Shapley-values",
             editable=False
         )
+        config["displayModeBar"] = False
 
-        return fig, config, {"display": "block", "width": "100%", "maxWidth": "1200px", "margin": "0 auto"}
+        return fig, config, {"display": "block", "width": "100%", "height": "100%", "margin": "0"}

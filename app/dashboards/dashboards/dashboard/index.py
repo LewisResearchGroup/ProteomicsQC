@@ -257,7 +257,7 @@ layout = html.Div(
         ),
         html.Div(id="selection-output"),
         html.Div(id="selected-raw-files", style={"display": "none"}),
-        dcc.Loading(html.Div(id="shapley-values", style={"display": "none"})),
+        html.Div(id="shapley-values", style={"display": "none"}),
         html.Div(
             [
                 dcc.Dropdown(
