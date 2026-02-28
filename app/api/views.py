@@ -227,8 +227,10 @@ def get_protein_quant_fn(
     only_use_downstream=False,
     raw_files=None,
 ):
-    pipeline = Pipeline.objects.get(project__slug=project_slug, slug=pipeline_slug)
-    results = Result.objects.filter(raw_file__pipeline=pipeline)
+    pipeline = Pipeline.objects.select_related('project').get(
+        project__slug=project_slug, slug=pipeline_slug
+    )
+    results = Result.objects.select_related('raw_file').filter(raw_file__pipeline=pipeline)
 
     if only_use_downstream:
         results = results.filter(raw_file__use_downstream=True)
@@ -267,7 +269,7 @@ def get_protein_groups_data(
 
 def get_qc_data(project_slug, pipeline_slug, data_range=None):
     pipeline = Pipeline.objects.get(slug=pipeline_slug)
-    results = Result.objects.filter(raw_file__pipeline=pipeline)
+    results = Result.objects.select_related('raw_file').filter(raw_file__pipeline=pipeline)
     n_results = len(results)
 
     if isinstance(data_range, int) and (n_results > data_range) and (n_results > 0):
@@ -349,7 +351,7 @@ class CreateFlag(generics.ListAPIView):
             return JsonResponse({"error": "Permission denied"}, status=403)
 
         pipeline = Pipeline.objects.get(project__slug=project_slug, slug=pipeline_slug)
-        results = Result.objects.filter(raw_file__pipeline=pipeline)
+        results = Result.objects.select_related('raw_file').filter(raw_file__pipeline=pipeline)
         for result in results:
             if result.raw_file.name in raw_files:
                 logging.warning(f"Flag {result.raw_file.name} in {pipeline.name}")
@@ -380,7 +382,7 @@ class DeleteFlag(generics.ListAPIView):
             return JsonResponse({"error": "Permission denied"}, status=403)
 
         pipeline = Pipeline.objects.get(project__slug=project_slug, slug=pipeline_slug)
-        results = Result.objects.filter(raw_file__pipeline=pipeline)
+        results = Result.objects.select_related('raw_file').filter(raw_file__pipeline=pipeline)
         for result in results:
             if result.raw_file.name in raw_files:
                 logging.warning(f"Un-flag {result.raw_file.name} in {pipeline.name}")
@@ -415,7 +417,7 @@ class RawFile(generics.ListAPIView):
 
         pipeline = Pipeline.objects.get(project__slug=project_slug, slug=pipeline_slug)
 
-        results = Result.objects.filter(raw_file__pipeline=pipeline)
+        results = Result.objects.select_related('raw_file').filter(raw_file__pipeline=pipeline)
         for result in results:
             if result.raw_file.name in raw_files:
                 logging.warning(f"{result.raw_file.name}: {action}")
