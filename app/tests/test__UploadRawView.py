@@ -17,10 +17,10 @@ class UploadRawViewTestCase(TestCase):
         self.project = Project.objects.create(
             name="Project 1", description="First project", created_by=self.user
         )
-        
+
         contents_mqpar = b"<mqpar></mqpar>"
         contents_fasta = b">protein\nSEQUENCE"
-        
+
         self.pipeline = Pipeline.objects.create(
             name="pipe1",
             project=self.project,
@@ -42,17 +42,17 @@ class UploadRawViewTestCase(TestCase):
 
         url = reverse("maxquant:basic_upload")
         fake_file = SimpleUploadedFile("test_file.raw", b"dummy raw data")
-        
+
         response = self.client.post(url, {
             "pipeline": self.pipeline.pk,
             "project": self.project.pk,
             "orig_file": fake_file
         })
-        
+
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
         self.assertTrue(data.get("is_valid"))
-        
+
         self.assertEqual(RawFile.objects.filter(pipeline=self.pipeline).count(), 1)
         # Should also create a result automatically
         self.assertEqual(Result.objects.count(), 1)
@@ -68,7 +68,7 @@ class UploadRawViewTestCase(TestCase):
             "orig_file": fake_file_1
         })
         self.assertEqual(response1.status_code, 200)
-        
+
         # Second upload with same name
         fake_file_2 = SimpleUploadedFile("duplicate.raw", b"dummy raw data")
         response2 = self.client.post(url, {
@@ -76,12 +76,12 @@ class UploadRawViewTestCase(TestCase):
             "project": self.project.pk,
             "orig_file": fake_file_2
         })
-        
+
         self.assertEqual(response2.status_code, 200)
         data = json.loads(response2.content)
         self.assertTrue(data.get("is_valid"))
         self.assertTrue(data.get("already_exists"))
-        
+
         # Only 1 raw file should exist for that pipeline
         self.assertEqual(RawFile.objects.filter(pipeline=self.pipeline).count(), 1)
 

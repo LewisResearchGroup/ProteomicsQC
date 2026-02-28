@@ -4,13 +4,9 @@ from maxquant.models import Pipeline
 
 from maxquant.models import RawFile
 
-from pathlib import Path as P
 
 from django.core.files.uploadedfile import SimpleUploadedFile
-from celery.contrib.testing.worker import start_worker
 
-from maxquant import tasks
-from main.celery import app
 
 from django.test import Client
 from user.models import User

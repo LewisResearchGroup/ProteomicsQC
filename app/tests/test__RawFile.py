@@ -1,4 +1,3 @@
-import time
 
 from django.test import TestCase
 from django.urls import reverse
@@ -8,13 +7,10 @@ from maxquant.models import Result
 
 from maxquant.models import RawFile
 
-from pathlib import Path as P
 from glob import glob
 
 from django.core.files.uploadedfile import SimpleUploadedFile
-from celery.contrib.testing.worker import start_worker
 
-from main.celery import app
 from user.models import User
 
 

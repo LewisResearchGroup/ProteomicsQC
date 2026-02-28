@@ -2,7 +2,6 @@ from django.test import TestCase
 from project.models import Project
 from maxquant.models import Pipeline
 
-from pathlib import Path as P
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 

@@ -8,7 +8,6 @@ from dash import html, dcc
 from dash import dash_table as dt
 import dash_bootstrap_components as dbc
 
-import plotly.express as px
 import panel as pn
 
 pn.extension("plotly")
@@ -17,15 +16,10 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 from lrg_omics.plotly_tools import (
-    plotly_heatmap,
-    plotly_bar,
-    plotly_histogram,
     set_template,
 )
 from lrg_omics.proteomics import ProteomicsQC
 
-from scipy.cluster.hierarchy import dendrogram
-from scipy.spatial.distance import squareform
 
 import logging
 
@@ -45,7 +39,10 @@ if __name__ == "__main__":
         __name__,
         external_stylesheets=["/static/css/dashboard.css"],
     )
-    import proteins, quality_control, explorer, anomaly
+    import proteins
+    import quality_control
+    import explorer
+    import anomaly
     import config as C
     import tools as T
 

@@ -25,7 +25,6 @@ from maxquant.models import Pipeline, Result
 from maxquant.serializers import PipelineSerializer, RawFileSerializer
 from project.models import Project
 from project.serializers import ProjectsNamesSerializer
-from user.models import User
 
 
 VERBOSE = settings.DEBUG

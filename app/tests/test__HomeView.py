@@ -17,10 +17,10 @@ class HomeViewTestCase(TestCase):
         self.project = Project.objects.create(
             name="Project 1", description="First project", created_by=self.user
         )
-        
+
         contents_mqpar = b"<mqpar></mqpar>"
         contents_fasta = b">protein\nSEQUENCE"
-        
+
         self.pipeline = Pipeline.objects.create(
             name="pipe1",
             project=self.project,
@@ -29,9 +29,9 @@ class HomeViewTestCase(TestCase):
             mqpar_file=SimpleUploadedFile("my_mqpar.xml", contents_mqpar),
             rawtools_args="-p -q -x",
         )
-        
+
         self.raw_file = RawFile.objects.create(
-            pipeline=self.pipeline, 
+            pipeline=self.pipeline,
             orig_file=SimpleUploadedFile("fake.raw", b"..."),
             created_by=self.user
         )
@@ -51,7 +51,7 @@ class HomeViewTestCase(TestCase):
         self.assertEqual(response.context["project_count"], 1)
         self.assertEqual(response.context["pipeline_count"], 1)
         self.assertIn("quick_steps", response.context)
-        
+
         # Verify quick steps are populated
         quick_steps = response.context["quick_steps"]
         self.assertEqual(len(quick_steps), 4)

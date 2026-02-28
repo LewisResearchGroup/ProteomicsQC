@@ -14,10 +14,10 @@ class MaxquantPipelineViewTestCase(TestCase):
         self.project = Project.objects.create(
             name="Project 1", description="First project", created_by=self.user
         )
-        
+
         contents_mqpar = b"<mqpar></mqpar>"
         contents_fasta = b">protein\nSEQUENCE"
-        
+
         self.pipeline = Pipeline.objects.create(
             name="pipe1",
             project=self.project,
@@ -33,6 +33,6 @@ class MaxquantPipelineViewTestCase(TestCase):
             "pipeline": self.pipeline.slug
         })
         response = self.client.get(url)
-        
+
         self.assertEqual(response.status_code, 200)
         self.assertIn("maxquant_runs", response.context)

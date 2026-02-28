@@ -1,5 +1,4 @@
 import os
-from select import select
 import sys
 import json
 import logging
@@ -65,7 +64,7 @@ def get_projects():
     url = f"{URL}/api/projects"
     try:
         _json = requests.post(url).json()
-    except:
+    except Exception:
         return []
     output = [{"label": i["name"], "value": i["slug"]} for i in _json]
     output.sort(key=lambda o: o["label"].lower())
@@ -198,7 +197,7 @@ def gen_tabulator_columns(
 def log2p1(x):
     try:
         return np.log2(x + 1)
-    except:
+    except (TypeError, ValueError):
         return x
 
 
@@ -237,7 +236,7 @@ class ShapAnalysis:
             for ch in ax.get_children():
                 try:
                     ch.set_color("0.3")
-                except:
+                except AttributeError:
                     break
 
 
@@ -441,7 +440,7 @@ def detect_anomalies(
     for c in log_cols:
         qc_data[c] = qc_data[c].apply(log2p1)
 
-    df_train = qc_data[qc_data["Use Downstream"] == True][selected_cols].fillna(0)
+    df_train = qc_data[qc_data["Use Downstream"].fillna(False)][selected_cols].fillna(0)
     df_all = qc_data[selected_cols].fillna(0)
 
     _ = setup(

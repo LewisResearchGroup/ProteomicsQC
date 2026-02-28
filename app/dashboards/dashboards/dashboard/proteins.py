@@ -1,4 +1,3 @@
-import logging
 import pandas as pd
 
 from dash import html, dcc
@@ -12,7 +11,7 @@ from dash_tabulator import DashTabulator
 try:
     from .tools import list_to_dropdown_options
     from . import tools as T
-except:
+except ImportError:
     from tools import list_to_dropdown_options
     import tools as T
 

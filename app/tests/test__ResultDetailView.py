@@ -16,10 +16,10 @@ class ResultDetailViewTestCase(TestCase):
         self.project = Project.objects.create(
             name="Project 1", description="First project", created_by=self.user
         )
-        
+
         contents_mqpar = b"<mqpar></mqpar>"
         contents_fasta = b">protein\nSEQUENCE"
-        
+
         self.pipeline = Pipeline.objects.create(
             name="pipe1",
             project=self.project,
@@ -27,9 +27,9 @@ class ResultDetailViewTestCase(TestCase):
             fasta_file=SimpleUploadedFile("my_fasta.fasta", contents_fasta),
             mqpar_file=SimpleUploadedFile("my_mqpar.xml", contents_mqpar),
         )
-        
+
         self.raw_file = RawFile.objects.create(
-            pipeline=self.pipeline, 
+            pipeline=self.pipeline,
             orig_file=SimpleUploadedFile("fake.raw", b"..."),
             created_by=self.user
         )
@@ -45,7 +45,7 @@ class ResultDetailViewTestCase(TestCase):
         self.client.force_login(self.user)
         url = reverse("maxquant:mq_detail", kwargs={"pk": self.result.pk})
         response = self.client.get(url)
-        
+
         self.assertEqual(response.status_code, 200)
         self.assertIn("figures", response.context)
         self.assertIn("summary_stats", response.context)

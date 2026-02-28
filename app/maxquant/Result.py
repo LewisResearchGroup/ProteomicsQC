@@ -1,10 +1,8 @@
 import os
 import re
-import hashlib
 import shutil
 import zipfile
 import subprocess
-import signal
 import pandas as pd
 import logging
 import datetime
@@ -1021,7 +1019,7 @@ class Result(models.Model):
         try:
             pd.read_parquet(fn)
             return "OK"
-        except:
+        except Exception:
             return "Not readable."
 
     @property
