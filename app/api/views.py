@@ -14,6 +14,7 @@ from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 from django.http import JsonResponse
 from django.conf import settings
@@ -188,11 +189,12 @@ class ProteinGroupsAPI(generics.ListAPIView):
 
 class RawFileUploadAPI(APIView):
     parser_classes = (MultiPartParser, FormParser)
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
 
         pipeline = get_pipeline(request)
-        user = get_user(request)
+        user = request.user
         orig_file = request.data["orig_file"]
 
         file_serializer = RawFileSerializer(
@@ -208,11 +210,6 @@ class RawFileUploadAPI(APIView):
             return Response(file_serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-def get_user(request):
-    uuid = request.data["uid"]
-    return get_instance_from_uuid(User, uuid)
 
 
 def get_pipeline(request):
@@ -332,23 +329,25 @@ def get_qc_data(project_slug, pipeline_slug, data_range=None):
 
 
 class CreateFlag(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         """Add flags to raw files."""
 
         data = request.data
 
-        user = get_user(request)
+        user = request.user
 
         project_slug = data["project"]
         pipeline_slug = data["pipeline"]
         raw_files = request.POST.getlist("raw_files")
 
         project = Project.objects.get(slug=project_slug)
-        if not user in project.users.all():
+        if user not in project.users.all():
             logging.warning(
                 f"User {user.email} does not belong to project {project.name}"
             )
-            return JsonResponse({})
+            return JsonResponse({"error": "Permission denied"}, status=403)
 
         pipeline = Pipeline.objects.get(project__slug=project_slug, slug=pipeline_slug)
         results = Result.objects.filter(raw_file__pipeline=pipeline)
@@ -362,22 +361,24 @@ class CreateFlag(generics.ListAPIView):
 
 
 class DeleteFlag(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         """Remove flags from raw files."""
         data = request.data
 
-        user = get_user(request)
+        user = request.user
 
         project_slug = data["project"]
         pipeline_slug = data["pipeline"]
         raw_files = request.POST.getlist("raw_files")
 
         project = Project.objects.get(slug=project_slug)
-        if not user in project.users.all():
+        if user not in project.users.all():
             logging.warning(
                 f"User {user.email} does not belong to project {project.name}"
             )
-            return JsonResponse({})
+            return JsonResponse({"error": "Permission denied"}, status=403)
 
         pipeline = Pipeline.objects.get(project__slug=project_slug, slug=pipeline_slug)
         results = Result.objects.filter(raw_file__pipeline=pipeline)
@@ -391,23 +392,25 @@ class DeleteFlag(generics.ListAPIView):
 
 
 class RawFile(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         """Add flags to raw files."""
 
         data = request.data
 
-        user = get_user(request)
+        user = request.user
 
         project_slug = data["project"]
         pipeline_slug = data["pipeline"]
         action = data["action"]
 
         project = Project.objects.get(slug=project_slug)
-        if not user in project.users.all():
+        if user not in project.users.all():
             logging.warning(
                 f"User {user.email} does not belong to project {project.name}"
             )
-            return JsonResponse({"status": "Missing permissions"})
+            return JsonResponse({"error": "Permission denied"}, status=403)
 
         raw_files = request.POST.getlist("raw_files")
 
