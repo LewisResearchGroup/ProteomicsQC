@@ -41,10 +41,6 @@ ENV MPLCONFIGDIR=/tmp/matplotlib
 ENV UV_HTTP_TIMEOUT=300
 RUN uv pip install --system --no-cache -r requirements.txt
 
-COPY ./lib/lrg-omics /lrg-omics
-
-RUN cd /lrg-omics && pip install -e .
-
 # Used for testing
 # COPY new_req.txt new_req.txt
 # RUN pip install -r new_req.txt

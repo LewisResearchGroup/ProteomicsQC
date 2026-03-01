@@ -15,10 +15,10 @@ pn.extension("plotly")
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from lrg_omics.plotly_tools import (
+from omics.plotly_tools import (
     set_template,
 )
-from lrg_omics.proteomics import ProteomicsQC
+from omics.proteomics import ProteomicsQC
 
 
 import logging

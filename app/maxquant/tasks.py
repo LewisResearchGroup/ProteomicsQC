@@ -6,9 +6,9 @@ import time
 from celery import shared_task
 from django.apps import apps
 
-from lrg_omics.proteomics.maxquant import MaxquantRunner
+from omics.proteomics.maxquant import MaxquantRunner
 
-from lrg_omics.proteomics.rawtools.quality_control import (
+from omics.proteomics.rawtools.quality_control import (
     rawtools_metrics_cmd,
     rawtools_qc_cmd,
 )

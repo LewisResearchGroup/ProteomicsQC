@@ -36,9 +36,9 @@ from .forms import BasicUploadForm, SearchResult
 from .models import RawFile, Result, Pipeline
 from project.models import Project
 
-from lrg_omics.common import today
-from lrg_omics.proteomics.rawtools.plotly import histograms, lines_plot
-from lrg_omics.plotly_tools import plotly_fig_to_div
+from omics.common import today
+from omics.proteomics.rawtools.plotly import histograms, lines_plot
+from omics.plotly_tools import plotly_fig_to_div
 
 
 # Create your views here.

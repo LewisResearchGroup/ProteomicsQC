@@ -25,8 +25,8 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.html import mark_safe
 from celery import current_app
 
-from lrg_omics.proteomics.tools import load_rawtools_data_from, load_maxquant_data_from
-from lrg_omics.proteomics.maxquant.MaxquantReader import MaxquantReader
+from omics.proteomics.tools import load_rawtools_data_from, load_maxquant_data_from
+from omics.proteomics.maxquant.MaxquantReader import MaxquantReader
 
 from .tasks import rawtools_metrics, rawtools_qc, run_maxquant
 

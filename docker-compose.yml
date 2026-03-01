@@ -15,7 +15,6 @@ services:
     command: python server.py
     volumes:
       - ./app/:/app/
-      - ./lib/lrg-omics/:/lrg-omics/
       - ${DATALAKE}:/datalake/
       - ${MEDIA}:/appmedia/
       - ${STATIC}:/static/
@@ -56,11 +55,10 @@ services:
       dockerfile: dockerfiles/Dockerfile
     command: bash -c "celery -A main worker -l info --concurrency ${CONCURRENCY}"
     env_file:
-      - ./.env    
+      - ./.env
     volumes:
       - ./app/:/app/
-      - ./lib/lrg-omics/:/lrg-omics/
-      - ${DATALAKE}:/datalake/      
+      - ${DATALAKE}:/datalake/
       - ${COMPUTE}:/compute/
     environment:
       - DB_HOST=db

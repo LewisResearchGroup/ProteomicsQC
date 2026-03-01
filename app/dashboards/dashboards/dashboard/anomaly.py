@@ -6,7 +6,7 @@ from dash import html, dcc
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from lrg_omics.proteomics import ProteomicsQC
+from omics.proteomics import ProteomicsQC
 
 try:
     from . import tools as T

@@ -1,4 +1,0 @@
-[submodule "lib/lrg-omics"]
-	path = lib/lrg-omics
-	url = https://github.com/LewisResearchGroup/lrg-omics.git
-	branch = develop

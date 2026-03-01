@@ -47,7 +47,6 @@ services:
       - ./.env    
     volumes:
       - ./app/:/app/
-      - ./lib/lrg_omics/:/lrg-omics/
     environment:
       - DB_HOST=db
       - DB_NAME=app
