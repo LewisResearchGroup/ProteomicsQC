@@ -25,11 +25,11 @@ joblib==1.2.0
 pyarrow
 redis
 celery
-scikit-learn>=1.5.0
-scipy==1.9.3
+scikit-learn>=1.2.0,<1.5.0
+scipy>=1.9.3
 scikit-plot
 shap
-pycaret==3.0.0
+pycaret>=3.0.0,<3.4.0
 psycopg2-binary
 panel
 polars

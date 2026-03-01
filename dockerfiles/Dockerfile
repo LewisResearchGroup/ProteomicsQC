@@ -27,15 +27,19 @@ RUN curl -SL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh \
     && rm /tmp/dotnet-install.sh
 
 # add uv package really fast for installations; override channels to avoid TOS prompts
-RUN conda install --override-channels -c conda-forge -c bioconda pip rawtools mono=5 uv
+# Note: mono may not be available on ARM64, install what's available
+RUN conda install --override-channels -c conda-forge -c bioconda pip uv || true
+RUN conda install --override-channels -c conda-forge -c bioconda rawtools || true
+RUN conda install --override-channels -c conda-forge -c bioconda mono || true
 
 COPY requirements.txt requirements.txt
 
 # add this to avoid issues with matplotlib installation
 ENV MPLCONFIGDIR=/tmp/matplotlib
 
-# add uv to install
-RUN uv pip install --system -r requirements.txt
+# add uv to install with increased timeout for large packages
+ENV UV_HTTP_TIMEOUT=300
+RUN uv pip install --system --no-cache -r requirements.txt
 
 COPY ./lib/lrg-omics /lrg-omics
 
