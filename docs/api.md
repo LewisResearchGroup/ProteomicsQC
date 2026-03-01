@@ -67,13 +67,6 @@ Example:
     
     curl -v -i -F orig_file="@</your/file.raw>" -F pid=xxx-yyy-zzz -F uid=xxx-yyy-zzz https://example.com/api/upload/raw
 
-Alternatively, the python script `lrg_upload_raw_file_to_qc_pipeline.py` that is part of the [lrg_omics](https://github.com/LSARP/lrg-omics) packages can be used:
-    
-```
-python lrg_upload_raw_file_to_qc_pipeline.py --raw your/file.raw --host https://example.com --uid xxx-yyy-zzz --pid xxx-yyy-zzz
-```
-
-
 ## `/api/qc-data`
 
 This route can be used to download the quality control data from a certain pipeline.
