@@ -64,6 +64,8 @@ def get_projects():
     url = f"{URL}/api/projects"
     try:
         _json = requests.post(url).json()
+        if not isinstance(_json, list):
+            return []
     except Exception:
         return []
     output = [{"label": i["name"], "value": i["slug"]} for i in _json]
