@@ -47,7 +47,7 @@ ENV MPLCONFIGDIR=/tmp/matplotlib
 
 # add uv to install with increased timeout for large packages
 ENV UV_HTTP_TIMEOUT=300
-RUN /opt/conda/bin/uv pip install --system --no-cache -r requirements.txt
+RUN /opt/conda/bin/uv pip install --python /opt/conda/bin/python --no-cache -r requirements.txt
 
 RUN chown 1000:1000 /data /compute /static /appmedia /datalake
 
