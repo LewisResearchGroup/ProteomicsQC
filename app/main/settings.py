@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path as P
 from django.core.files.storage import FileSystemStorage
 
@@ -216,9 +217,6 @@ CELERY_RESULT_BACKEND = "redis://redis:6379"
 
 
 AUTH_USER_MODEL = "user.User"
-
-
-import sys
 
 
 def _resolve_storage_root(env_var, container_default):
