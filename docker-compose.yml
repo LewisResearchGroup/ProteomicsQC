@@ -5,9 +5,7 @@ services:
     container_name: proteomicsqc_web
     restart: always
     user: ${UID}
-    build: 
-      context: .
-      dockerfile: dockerfiles/Dockerfile
+    image: ghcr.io/lewisresearchgroup/proteomicsqc:${IMAGE_TAG:-latest}
     env_file:
       - ./.env
     command: /miniforge/bin/mamba run -p /miniforge python server.py
@@ -48,9 +46,7 @@ services:
     container_name: proteomicsqc_celery
     restart: always
     user: ${UID}
-    build:
-      context: .
-      dockerfile: dockerfiles/Dockerfile
+    image: ghcr.io/lewisresearchgroup/proteomicsqc:${IMAGE_TAG:-latest}
     command:  /miniforge/bin/mamba run -p /miniforge celery -A main worker -l info --concurrency ${CONCURRENCY}
     env_file:
       - ./.env
