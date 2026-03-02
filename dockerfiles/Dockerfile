@@ -12,7 +12,7 @@ RUN cat /etc/os-release
 RUN apt-get update && apt-get install -y wget
 
 # Download Microsoft signing key and repository
-RUN wget https://packages.microsoft.com/config/ubuntu/23.10/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+RUN wget https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 
 # Install Microsoft signing key and repository
 RUN dpkg -i packages-microsoft-prod.deb
@@ -21,13 +21,13 @@ RUN dpkg -i packages-microsoft-prod.deb
 RUN rm packages-microsoft-prod.deb
 
 RUN apt-get update && \
-    apt-get install -y build-essential time dotnet-sdk-7.0 aspnetcore-runtime-7.0\
+    apt-get install -y build-essential time dotnet-sdk-8.0 aspnetcore-runtime-8.0\
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh 
+RUN wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
 
-RUN chmod +x Mambaforge-Linux-x86_64.sh && bash Mambaforge-Linux-x86_64.sh -b -p miniforge\
+RUN chmod +x Miniforge3-Linux-x86_64.sh && bash Miniforge3-Linux-x86_64.sh -b -p miniforge\
     && rm -f Miniforge3-Linux-x86_64.sh 
 
 # Initialize Mamba
