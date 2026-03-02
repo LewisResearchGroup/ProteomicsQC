@@ -2,17 +2,14 @@ version: "3.3"
    
 services:
   web:
-    container_name: web
-    #restart: no
+    container_name: proteomicsqc_web
     user: ${UID}
     build:
       context: .
       dockerfile: dockerfiles/Dockerfile
     env_file:
       - ./.env
-    environment:
-      - ENVIRONMENT=develop
-    command: python manage.py runserver 0.0.0.0:8000
+    command: /miniforge/bin/mamba run -p /miniforge python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./app/:/app/
       - ${DATALAKE}:/datalake/
@@ -28,7 +25,7 @@ services:
       - redis:redis
   
   db:
-    container_name: db_pqc
+    container_name: proteomicsqc_db
     #restart: never
     #image: postgres:13.4
     image: postgres:14
@@ -40,20 +37,20 @@ services:
       - POSTGRES_PASSWORD=postgres
 
   redis:
-    container_name: redis
+    container_name: proteomicsqc_redis
     #restart: no
     image: redis:alpine
     ports:
       - "6379:6379"
 
   celery:
-    container_name: celery
+    container_name: proteomicsqc_celery
     #restart: no
     user: ${UID}
     build:
       context: .
       dockerfile: dockerfiles/Dockerfile
-    command: bash -c "celery -A main worker -l info --concurrency ${CONCURRENCY}"
+    command: /miniforge/bin/mamba run -p /miniforge celery -A main worker -l info --concurrency ${CONCURRENCY}
     env_file:
       - ./.env
     volumes:

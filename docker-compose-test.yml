@@ -2,6 +2,7 @@ version: "3.3"
    
 services:
   web:
+    container_name: proteomicsqc_web
     user: ${UID}
     build: 
       context: .
@@ -25,7 +26,7 @@ services:
       - redis:redis
   
   db:
-    #image: postgres:13.4
+    container_name: proteomicsqc_db
     image: postgres:14
     environment:
       - POSTGRES_DB=postgres
@@ -33,16 +34,18 @@ services:
       - POSTGRES_PASSWORD=postgres
 
   redis:
+    container_name: proteomicsqc_redis
     image: redis:alpine
     ports:
       - "6379:6379"
 
   celery:
+    container_name: proteomicsqc_celery
     user: ${UID}
     build:
       context: .
       dockerfile: dockerfiles/Dockerfile
-    command: bash -c "celery -A main worker -l info --concurrency ${CONCURRENCY}"
+    command:  /miniforge/bin/mamba run -p /miniforge celery -A main worker -l info --concurrency ${CONCURRENCY}
     env_file:
       - ./.env    
     volumes:

@@ -2,12 +2,18 @@ import os
 from pathlib import Path as P
 from django.core.files.storage import FileSystemStorage
 
+import logging
+logger = logging.getLogger(__name__)
+logger.debug("MY LOGGER: DEBUG")
+logger.info("MY LOGGER: INFO")
+logger.warning("MY LOGGER: WARNING")
+logger.error("MY LOGGER: ERROR")
+logger.critical("MY LOGGER: CRITICAL")
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = P(__file__).resolve().parent.parent
 
-
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -17,21 +23,21 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 HOME_TITLE = os.getenv("HOME_TITLE", "Django-3 Omics Pipelines")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("ENVIRONMENT") == "develop"
+ENVIRONMENT = os.getenv("ENVIRONMENT", "production")
+DEBUG = (ENVIRONMENT == "develop")
 
 HOSTNAME = os.getenv("HOSTNAME", "localhost")
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
 CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS").split(",")
 
+print("ENVIRONMENT:", ENVIRONMENT)
 print("DEBUG:", DEBUG)
-print("ENVIRONMENT:", os.getenv("ENVIRONMENT"))
 print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
 print("CSRF_TRUSTED_ORIGINS:", CSRF_TRUSTED_ORIGINS)
 
 # Security settings
 if DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-
 
 ## X-Frame-Options
 # X_FRAME_OPTIONS = 'DENY'

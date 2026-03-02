@@ -13,6 +13,7 @@ nav:
     - MaxQuant: maxquant.md
     - API: api.md
     - About: about.md
+    - Contributing: contributing.md
     - Help/Issues: issues.md
 extra:
   analytics:
