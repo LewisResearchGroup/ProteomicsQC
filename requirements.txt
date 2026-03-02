@@ -37,3 +37,4 @@ pytest-django
 pytest-celery
 waitress
 plotly-resampler
+whitenoise
