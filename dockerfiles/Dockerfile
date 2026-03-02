@@ -14,10 +14,10 @@ RUN apt-get update && \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh
+RUN wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
 
-RUN chmod +x Mambaforge-Linux-x86_64.sh && bash Mambaforge-Linux-x86_64.sh -b -p /opt/conda \
-    && rm -f Mambaforge-Linux-x86_64.sh
+RUN chmod +x Miniforge3-Linux-x86_64.sh && bash Miniforge3-Linux-x86_64.sh -b -p /opt/conda \
+    && rm -f Miniforge3-Linux-x86_64.sh
 
 # Downgrade conda python to python 3.10
 RUN /opt/conda/bin/conda install -y python=3.10
