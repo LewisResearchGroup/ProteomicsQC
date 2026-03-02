@@ -97,6 +97,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     # 'corsheaders.middleware.CorsMiddleware', # oauth2
     "django.middleware.common.CommonMiddleware",
@@ -193,6 +194,16 @@ STATIC_ROOT = "/static/"
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "main", "static"),
 ]
+
+# Whitenoise for serving static files in production
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 
 CELERY_BROKER_URL = "redis://redis:6379"
