@@ -1,43 +1,35 @@
-@import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
+/*
+ * UI CSS freeze orchestrator.
+ * Temporary policy: no visual redesign in this layer during refactor; only regression fixes.
+ * Layering order: reset -> base -> layout -> components -> pages -> utilities.
+ */
+@import "reset.css";
+@import "palette.css";
+@import "typography.css";
+@import "containers.css";
+@import "header.css";
+@import "nav.css";
+@import "buttons.css";
+@import "forms.css";
+@import "tables.css";
+@import "cards.css";
+@import "status.css";
+@import "home.css";
+@import "project.css";
+@import "pipeline.css";
+@import "run-detail.css";
 
-
-body {
-  font-family: 'Dongle', sans-serif;
-  background: #fafafa;
-  margin-bottom: 10%;
-}
-
-
-#title{
-  color:rgb(240, 240, 240);
-  font-size: 30;
-  font-weight: bold;
-  text-align: left;
-  padding: 20;
-}
-
-.header {
-  width: 70%;
-  align-content: left;
-}
-
-
+/*
+ * Compatibility layer during migration.
+ * Keep only legacy selectors not yet moved.
+ */
 #CookielawBanner { 
-  background-color: lightgray !important;
+  background: #fff;
   border: 2px solid red;
   border-radius: 5px;
   max-width: 100%;
   margin: auto;
-}
-
-
-#LoginButton:hover {
-  background-color: blue;
-}
-
-hr {
-  margin-top: 20px;
-  margin-bottom: 20px;
+  padding: 15px 0;
 }
 
 .nobull {
@@ -52,82 +44,8 @@ hr {
   padding-top: 10px;
 }
 
-.btn{
-  width: 220px;
-  min-height: 40px;
-  margin: 5px 5px 5px 5px;
-  background-color: darkcyan;
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  padding: 5px;
-}
-
-#logout {
-  background:darkred;
-  float: right;
-}
-
-.right{
-  float: right !important;
-}
-
-.full_width {
-  width: 100%;
-  margin: 5px;
-}
-
-.btn:hover {
-  background-color: blue;
-  color: white !important;
-}
-
-nav ul a:hover {
-  background-color: lightcyan;
-}
-
-h1 {
-  font-size: 30;
-  color: rgb(0, 80, 80);
-  font-weight: bold;
-
-}
-
 iframe {
   overflow: hidden;
-}
-
-.button {
-  background-color: #27a69a !important;
-}
-
-input[type=text] {
-  width:100%;
-  font-size: large;
-}
-
-tr th label {
-  font-size: large;
-}
-
-
-input[type=submit] {
-  width: 220px;
-  min-height: 40px;
-  margin: 5px 5px 5px 5px;
-  background-color: darkcyan;
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  padding: 5px;
-  border: none;
-  border-radius: 5px;
-}
-
-
-tr th .btn {
-  height: 30px;
-  font-weight: normal;
 }
 
 #sortnsearch {
@@ -139,7 +57,6 @@ tr th .btn {
   height:400;
 }
 
-
 .figure_large_quare {
   max-width:1200; 
   height:120;
@@ -149,43 +66,11 @@ tr th .btn {
   max-width:1200; 
 }
 
-.block {
-  background-color: lightgrey;
-  padding: 20px;
-  border-radius: 10px;
-  margin-top: 10px;
-  margin-bottom: 20px;
-}
-
-.project {
-  font-weight: bold;
-}
-
-table {
-  width: 100%;
-}
-
-th, td {
-  padding: auto;
-  }
-
-table thead th { border-bottom: 1px solid #000; }
-
-table tr th {
-  vertical-align: middle;
-}
-
-#CookielawBanner {
-  background: #fff;
-  padding: 15px 0;
-}
-
 #CookielawBanner .container {
   position: relative;
 }
 
-
-#CookielawBanner #CookielawCross {
+#CookielawCross {
   background: url('../img/close.png') no-repeat 0 0;
   cursor: pointer;
   display: block;
@@ -209,17 +94,14 @@ table tr th {
   border: 0.5px solid darkgrey;
 } 
 
-
 .pagination li a {
   color: black;
 } 
 
-
 .pagination .active {
   color: white;
-  background-color: darkcyan;
+  background-color: var(--color-brand-strong);
 } 
-
 
 ul {
   list-style-type: none !important;
@@ -235,20 +117,6 @@ ul .disabled {
   background: lightgrey;
   color: darkgrey;
 }
-
-
-@media (max-width: 1000px) {
-  #logout {
-    float: None;
-  }
-}
-
-@media (max-width: 500px) {
-  .btn {
-    width: 100%;
-  }
-}
-
 
 a[data-toggle="collapse"] {
   position: relative;
@@ -277,30 +145,6 @@ a[data-toggle="collapse"] {
   margin-left: -250px;
 }
 
-.warning {
-  color: white;
-  margin: auto;
-  background: darkred;
-  text-align: center;
-  padding: 5px;
-  border-radius: 5px;
-  font-weight: bold;
-}
-
-
 a:hover {
   text-decoration: None;
 }
-
-#username {
-  font-weight: bold;
-  padding: 5px;
-}
-
-.flex-wrapper {
-  display: flex;
-  min-height: 90vh;
-  flex-direction: column;
-  justify-content: space-between;
-}
-

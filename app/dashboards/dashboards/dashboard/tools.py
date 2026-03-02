@@ -1,5 +1,4 @@
 import os
-from select import select
 import sys
 import json
 import logging
@@ -65,9 +64,12 @@ def get_projects():
     url = f"{URL}/api/projects"
     try:
         _json = requests.post(url).json()
-    except:
+        if not isinstance(_json, list):
+            return []
+    except Exception:
         return []
     output = [{"label": i["name"], "value": i["slug"]} for i in _json]
+    output.sort(key=lambda o: o["label"].lower())
     return output
 
 
@@ -124,10 +126,20 @@ def get_protein_names(
 def get_qc_data(project, pipeline, columns, data_range=None):
     url = f"{URL}/api/qc-data"
     headers = {"Content-type": "application/json"}
-    data = json.dumps(
-        dict(project=project, pipeline=pipeline, columns=columns, data_range=data_range)
-    )
-    return requests.post(url, data=data, headers=headers).json()
+    payload = dict(project=project, pipeline=pipeline, columns=columns, data_range=data_range)
+    try:
+        resp = requests.post(url, data=json.dumps(payload), headers=headers, timeout=30)
+        if not resp.ok:
+            logging.error(f"QC data request failed ({resp.status_code}): {resp.text[:500]}")
+            return {}
+        try:
+            return resp.json()
+        except ValueError as e:
+            logging.error(f"QC data JSON decode failed: {e}; body: {resp.text[:500]}")
+            return {}
+    except Exception as e:
+        logging.error(f"QC data request error: {e}")
+        return {}
 
 
 def gen_figure_config(
@@ -187,7 +199,7 @@ def gen_tabulator_columns(
 def log2p1(x):
     try:
         return np.log2(x + 1)
-    except:
+    except (TypeError, ValueError):
         return x
 
 
@@ -226,7 +238,7 @@ class ShapAnalysis:
             for ch in ax.get_children():
                 try:
                     ch.set_color("0.3")
-                except:
+                except AttributeError:
                     break
 
 
@@ -407,18 +419,21 @@ def detect_anomalies(
     algorithm=None,
     columns=None,
     max_features=None,
-    precentage=None,
+    percentage=None,
     **model_kws,
 ):
 
-    selected_cols = [c for c in columns if is_numeric_dtype(qc_data[c])]
+    if columns is None:
+        columns = []
+
+    # only use columns that exist and are numeric
+    available_cols = [c for c in columns if c in qc_data.columns]
+    selected_cols = [c for c in available_cols if is_numeric_dtype(qc_data[c])]
+    if not selected_cols:
+        raise ValueError("No numeric columns available for anomaly detection")
     selected_cols.reverse()
     if max_features is not None:
         max_features = max(max_features, len(selected_cols))
-    for col in selected_cols:
-        if not col in qc_data.columns:
-            selected_cols.remove(col)
-            logging.warning(f"Column not found in QC data: {col}")
     log_cols = [
         "Ms1MedianSummedIntensity",
         "Ms2MedianSummedIntensity",
@@ -427,7 +442,7 @@ def detect_anomalies(
     for c in log_cols:
         qc_data[c] = qc_data[c].apply(log2p1)
 
-    df_train = qc_data[qc_data["Use Downstream"] == True][selected_cols].fillna(0)
+    df_train = qc_data[qc_data["Use Downstream"].fillna(False)][selected_cols].fillna(0)
     df_all = qc_data[selected_cols].fillna(0)
 
     _ = setup(

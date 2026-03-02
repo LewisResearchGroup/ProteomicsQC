@@ -8,10 +8,28 @@ run:
 	sudo docker-compose down && sudo docker-compose up
 
 serve:
-	sudo docker-compose down && sudo docker-compose up -d
+	sudo docker-compose -f docker-compose.yml down
+	sudo docker-compose -f docker-compose.yml up -d
+	@echo "Waiting for dev server on http://localhost:8080 ..."
+	@until curl -sf http://localhost:8080/ >/dev/null; do \
+		sleep 2; \
+	done
+	@echo "server is responding"
+	@xdg-open http://localhost:8080 2>/dev/null || open http://localhost:8080 2>/dev/null || true
+	@echo "Tailing web logs (Ctrl+C to stop logs; stack keeps running)..."
+	sudo docker-compose -f docker-compose.yml logs -f web celery
 
 devel:
-	sudo docker-compose -f docker-compose-develop.yml down && sudo docker-compose -f docker-compose-develop.yml up
+	sudo docker-compose -f docker-compose-develop.yml down
+	sudo docker-compose -f docker-compose-develop.yml up -d
+	@echo "Waiting for dev server on http://localhost:8000 ..."
+	@until curl -sf http://localhost:8000/ >/dev/null; do \
+		sleep 2; \
+	done
+	@echo "server is responding"
+	@xdg-open http://localhost:8000 2>/dev/null || open http://localhost:8000 2>/dev/null || true
+	@echo "Tailing web logs (Ctrl+C to stop logs; stack keeps running)..."
+	sudo docker-compose -f docker-compose-develop.yml logs -f web celery
 
 build:
 	sudo docker-compose build
@@ -68,5 +86,3 @@ schema:
 
 versions:
 	sudo docker-compose run proteomicsqc_web conda env export -n base
-
-

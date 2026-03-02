@@ -49,10 +49,25 @@ This will create the `.env` file in the root directory of ProteomicsQC.
     
     ## CELERY
     CONCURRENCY=8
-    
-    ##USERID
+    RESOURCE_RETRY_SECONDS=60
+    MIN_FREE_MEM_GB_MAXQUANT=8
+    MAX_LOAD_PER_CPU_MAXQUANT=0.85
+    MIN_FREE_MEM_GB_RAWTOOLS=2
+    MAX_LOAD_PER_CPU_RAWTOOLS=0.90
+
+    ## RESULT STATUS (web UI responsiveness vs strictness)
+    RESULT_STATUS_INSPECT_TIMEOUT_SECONDS=10.0
+    RESULT_STATUS_PENDING_STALLED_WARNING_SECONDS=7200
+    RESULT_STATUS_DONE_MTIME_SKEW_SECONDS=300
+    RESULT_STATUS_MAXQUANT_STALE_SECONDS=21600
+    RESULT_STATUS_RAWTOOLS_STALE_SECONDS=3600
+    RESULT_STATUS_ACTIVITY_FALLBACK_SECONDS=300
+    RESULT_STATUS_INSPECT_MAX_VISIBLE_RUNS=25
+    RESULT_STATUS_INSPECT_MAX_ACTIVE_RUNS=12
+
+    ## USERID
     UID=1000:1000
-    
+
     ## SECURITY KEYS
     SECRET_KEY=
 
@@ -75,6 +90,31 @@ You can start the server with the following commands:
     
     make serve  # starts the production server on port 8080
 
+Resource-aware scheduling for Celery tasks is enabled by default. Each task checks
+current host load and free memory before starting; if resources are tight, it is retried
+after `RESOURCE_RETRY_SECONDS`. Thresholds can be tuned in `.env` using the
+`MIN_FREE_MEM_GB_*` and `MAX_LOAD_PER_CPU_*` variables above.
+
+Result-status rendering thresholds can also be tuned in `.env`:
+- `RESULT_STATUS_INSPECT_MAX_VISIBLE_RUNS`
+- `RESULT_STATUS_INSPECT_MAX_ACTIVE_RUNS`
+
+Lower values reduce web latency for large run lists by disabling expensive
+queue inspection earlier. Higher values increase strictness on smaller queues.
+
+
+## API Authentication
+
+All API endpoints require authentication. The API uses Django REST Framework with session-based authentication. Users must be logged in to access API endpoints. Attempting to access API endpoints without authentication will return a 403 Forbidden response.
+
+## MaxQuant Compatibility
+
+The server supports multiple MaxQuant versions:
+- MaxQuant 1.6.10.43
+- MaxQuant 2.4.12.0
+- MaxQuant 2.7.5.0
+
+The appropriate mqpar template is selected based on the MaxQuant version detected in the container. Newer versions (2.x) use .NET Core runtime, while older versions use Mono.
 
 ## Limitations
 The pipeline is restricted to single file setup which might conflict with the setup of some laboratories that split sample results into multiple files. The pipeline processes each file separately and independently.
@@ -121,10 +161,3 @@ Timelines of up to 60 quality control metrics can be viewed simultanously in one
 -   `flagged` samples, potential outliers, are colored red 
 
 ![](./docs/img/QC-barplot-small.jpg 'Many customiable Quality Control metrics in one place.')
-
-### Explainable AI to gain insights into anomaly detection
-
-In order to assist users in identifying abnormal trends within the extensive feature space, both outlier detection techniques and explainable AI methods are employed. Specifically, algorithms such as Isolation Forest or other comparable outlier detection approaches can be utilized to spot unusual patterns. These algorithms are then analyzed using the SHapley Additive exPlanations (SHAP) algorithm, which is a powerful tool for interpreting the output of machine learning models. By applying the SHAP algorithm, a plot can be generated that emphasizes the particular features that deviate significantly from normal statistical behavior, making it easier for users to understand the underlying causes of these anomalies.
-
-![](./docs/img/XAI-small.jpg 'Many customiable Quality Control metrics in one place.')
-

@@ -1,17 +1,15 @@
 import os
 import hashlib
 import shutil
-import logging
 
 from pathlib import Path as P
 
-from django.db import models, IntegrityError
+from django.db import models
 from django_currentuser.db.models import CurrentUserField
 from django.template.defaultfilters import slugify
 from django.dispatch import receiver
 from django.utils import timezone
 from django.conf import settings
-from django.shortcuts import reverse
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import mark_safe
 
@@ -73,12 +71,7 @@ class RawFile(models.Model):
         if not self.id:
             self.created = timezone.now()
 
-        try:
-            super(RawFile, self).save(*args, **kwargs)
-
-        except IntegrityError as e:
-            logging.warning(e)
-            pass
+        super(RawFile, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(self.name)
@@ -156,7 +149,7 @@ def move_rawfile_to_input_dir(sender, instance, created, *args, **kwargs):
     # Create Results only if not present yet
     if raw_file.pipeline.has_maxquant_config:
         if len(Result.objects.filter(raw_file=raw_file)) == 0:
-            Result.objects.create(raw_file=raw_file)
+            Result.objects.create(raw_file=raw_file, input_source="upload")
 
 
 @receiver(models.signals.post_delete, sender=RawFile)

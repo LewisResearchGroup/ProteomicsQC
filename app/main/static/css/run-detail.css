@@ -1,0 +1,197 @@
+/*
+ * Scope: run detail page-specific controls, metadata, and actions.
+ * Do not place global component defaults, nav/header styles, or utility-only helpers here.
+ */
+
+.run-actions-column {
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 16px;
+}
+
+.run-actions-column .download-btn {
+  align-self: flex-end;
+}
+
+.btn.run-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 224px;
+  min-height: 46px;
+  text-align: center;
+  margin: 0 !important;
+  padding: 0 14px !important;
+  border-radius: 12px !important;
+  border: 1px solid transparent !important;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.15px;
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease, border-color 120ms ease;
+}
+
+.run-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.btn.run-btn.run-btn-primary {
+  background: linear-gradient(135deg, var(--color-brand-soft) 0%, var(--color-brand-strong) 100%) !important;
+  border-color: var(--color-brand-strong) !important;
+  color: #fff !important;
+  box-shadow: 0 8px 18px rgba(59, 143, 163, 0.28);
+}
+
+.btn.run-btn.run-btn-primary:hover {
+  background: linear-gradient(135deg, var(--color-brand-strong) 0%, #327b8d 100%) !important;
+  border-color: #327b8d !important;
+  color: #fff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(59, 143, 163, 0.34);
+}
+
+.btn.run-btn.run-btn-secondary {
+  background: var(--color-surface-soft) !important;
+  border-color: #9fc2cf !important;
+  color: var(--color-brand-ink) !important;
+  box-shadow: 0 6px 14px rgba(59, 143, 163, 0.12);
+}
+
+.btn.run-btn.run-btn-secondary:hover {
+  background: var(--color-surface-selected) !important;
+  border-color: var(--color-brand-soft) !important;
+  color: #2a6172 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(59, 143, 163, 0.2);
+}
+
+.btn.run-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-mint-accent-shadow);
+}
+
+.btn.run-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.run-actions {
+  margin-top: 10px;
+}
+
+.run-actions .pipeline-actions {
+  justify-content: flex-start;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.download-status {
+  color: #666;
+  font-size: 14px;
+  margin: 0 0 8px 0;
+}
+
+.download-btn.is-downloading {
+  opacity: 0.8;
+}
+
+.raw-file-title {
+  margin: 0;
+  font-size: 18px;
+  color: #666;
+}
+
+.figure-section-title {
+  margin: 8px 0 12px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #4a5568;
+}
+
+.run-summary-card {
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.run-summary-title {
+  margin: 0 0 8px 0;
+  color: #444;
+}
+
+.run-summary-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.run-summary-stat {
+  flex: 1 1 160px;
+  min-width: 140px;
+  border: 1px solid #e6e6e6;
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: #fafafa;
+}
+
+.run-summary-stat-label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.run-summary-stat-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+}
+
+.result-figure {
+  width: 100%;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.result-figure-help-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 6px 6px 0;
+}
+
+.result-figure-help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #bfbfbf;
+  border-radius: 50%;
+  color: #666;
+  font-size: 12px;
+  cursor: help;
+  background: #fafafa;
+}
+
+.result-figure .js-plotly-plot,
+.result-figure .plot-container,
+.result-figure .svg-container {
+  width: 100% !important;
+}
+
+.result-figure .plot-container {
+  overflow: hidden !important;
+}
+
+@media (max-width: 900px) {
+  .run-actions-column {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .run-actions-column .btn.run-btn {
+    width: 100%;
+  }
+}

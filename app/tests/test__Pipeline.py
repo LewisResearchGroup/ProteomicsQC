@@ -2,7 +2,6 @@ from django.test import TestCase
 from project.models import Project
 from maxquant.models import Pipeline
 
-from pathlib import Path as P
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 
@@ -23,11 +22,8 @@ class PipelineTestCaseWithFiles(TestCase):
         Project.objects.create(name="project", description="a test project")
         project = Project.objects.get(name="project")
 
-        fn_mqpar = P("tests/data/TMT11.xml")
-        fn_fasta = P("tests/data/minimal.fasta")
-
-        contents_mqpar = fn_mqpar.read_bytes()
-        contents_fasta = fn_fasta.read_bytes()
+        contents_mqpar = b"<mqpar></mqpar>"
+        contents_fasta = b">protein\nSEQUENCE"
 
         self.pipeline = Pipeline.objects.create(
             name="pipe",

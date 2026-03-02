@@ -1,0 +1,21 @@
+/*
+ * Scope: typography primitives and shared design tokens.
+ * Do not place component geometry, page spacing systems, or utility overrides here.
+ */
+
+@import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
+
+body {
+  font-family: 'Dongle', sans-serif;
+  background: var(--color-bg-page);
+  margin-bottom: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1 {
+  font-size: 30;
+  color: var(--color-brand-ink);
+  font-weight: bold;
+}

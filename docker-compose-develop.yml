@@ -12,7 +12,6 @@ services:
     command: /miniforge/bin/mamba run -p /miniforge python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./app/:/app/
-      - ./lib/lrg-omics/:/lrg-omics/
       - ${DATALAKE}:/datalake/
       - ${MEDIA}:/appmedia/
       - ${STATIC}:/static/
@@ -28,7 +27,8 @@ services:
   db:
     container_name: proteomicsqc_db
     #restart: never
-    image: postgres:13.4
+    #image: postgres:13.4
+    image: postgres:14
     volumes:
       - ${DB}:/var/lib/postgresql/data
     environment:
@@ -52,11 +52,10 @@ services:
       dockerfile: dockerfiles/Dockerfile
     command: /miniforge/bin/mamba run -p /miniforge celery -A main worker -l info --concurrency ${CONCURRENCY}
     env_file:
-      - ./.env    
+      - ./.env
     volumes:
       - ./app/:/app/
-      - ./lib/lrg-omics/:/lrg-omics/
-      - ${DATALAKE}:/datalake/      
+      - ${DATALAKE}:/datalake/
       - ${COMPUTE}:/compute/
     environment:
       - DB_HOST=db

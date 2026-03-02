@@ -49,9 +49,9 @@
     "eslint-plugin-jsdoc": "36",
     "eslint-plugin-prettier": "4",
     "prettier": "2",
-    "stylelint": "13",
+    "stylelint": "15",
     "stylelint-config-prettier": "8",
-    "stylelint-config-recommended": "5"
+    "stylelint-config-recommended": "13"
   },
   "stylelint": {
     "extends": [

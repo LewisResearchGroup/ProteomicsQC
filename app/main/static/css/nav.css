@@ -1,0 +1,114 @@
+/*
+ * Scope: primary navigation row and nav-specific responsive behavior.
+ * Do not place generic `.btn` rules, form controls, or per-page cards/tables here.
+ */
+
+.app-nav {
+  background: #eef3f7;
+  border-top: 1px solid #dbe4ef;
+  border-bottom: 1px solid #dbe4ef;
+  box-shadow: 0 2px 6px rgba(27, 52, 74, 0.06);
+}
+
+.app-nav-inner {
+  width: 100%;
+  padding: 8px 34px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.app-nav-left,
+.app-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-nav-logout-form {
+  margin: 0;
+}
+
+.app-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 136px;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid #c8d8e3;
+  background: #ffffff;
+  color: #2f6f83;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  box-shadow: 0 1px 4px rgba(17, 67, 98, 0.08);
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease, border-color 120ms ease;
+}
+
+.app-nav-btn:hover {
+  color: #2a6172;
+  text-decoration: none;
+  background: #edf7fa;
+  border-color: #9fc2cf;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(59, 143, 163, 0.16);
+}
+
+.app-nav-btn-active {
+  color: #2f6f83;
+  border-color: #7fb3c3;
+  background: var(--color-mint-accent-soft);
+  box-shadow: inset 0 0 0 1px rgba(59, 143, 163, 0.2);
+}
+
+.app-nav-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-mint-accent-shadow);
+}
+
+.app-nav-btn-logout {
+  border-color: #e3a1a1;
+  background: #fff4f4;
+  color: var(--color-danger-ink);
+  box-shadow: 0 6px 14px rgba(139, 30, 43, 0.14);
+}
+
+.app-nav-btn-logout:hover {
+  background: #fde6e7;
+  border-color: #d77e84;
+  color: #7a1823;
+  box-shadow: 0 10px 18px rgba(122, 24, 35, 0.2);
+}
+
+.app-nav-btn-login {
+  min-width: 120px;
+}
+
+@media (max-width: 900px) {
+  .app-nav-inner {
+    padding: 8px 16px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .app-nav-left,
+  .app-nav-right {
+    width: 100%;
+  }
+
+  .app-nav-left {
+    flex-wrap: wrap;
+  }
+
+  .app-nav-btn {
+    flex: 1 1 160px;
+  }
+
+  .app-nav-right .app-nav-btn {
+    width: 100%;
+  }
+}

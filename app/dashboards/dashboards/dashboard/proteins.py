@@ -1,4 +1,3 @@
-import logging
 import pandas as pd
 
 from dash import html, dcc
@@ -12,7 +11,7 @@ from dash_tabulator import DashTabulator
 try:
     from .tools import list_to_dropdown_options
     from . import tools as T
-except:
+except ImportError:
     from tools import list_to_dropdown_options
     import tools as T
 
@@ -66,6 +65,7 @@ plot_columns = [
 
 layout = html.Div(
     [
+        html.H3("Proteins", className="pqc-tab-title"),
         dcc.Dropdown(
             id="proteins-options",
             placeholder="Options",
@@ -78,9 +78,9 @@ layout = html.Div(
             ],
             value=["remove_contaminants", "remove_reversed_sequences"],
             multi=True,
-            style={"margin-top": "50px", "margin-bottom": "50px"},
+            style={"marginTop": "10px", "marginBottom": "10px"},
         ),
-        html.Button("Update table", id="proteins-update"),
+        html.Button("Update table", id="proteins-update", className="btn"),
         dcc.Loading(proteins_table),
         dcc.Dropdown(
             id="protein-plot-column",
@@ -91,11 +91,11 @@ layout = html.Div(
             style={
                 "width": "100%",
                 "max-width": "100%",
-                "margin-top": "50px",
-                "margin-bottom": "50px",
+                "marginTop": "10px",
+                "marginBottom": "10px",
             },
         ),
-        html.Button("Update figure", id="proteins-fig-update"),
+        html.Button("Update figure", id="proteins-fig-update", className="btn"),
         dcc.Loading(
             [
                 html.Div(style={"min-width": 400}),

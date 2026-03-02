@@ -2,28 +2,154 @@
 
 {% block content %}
 
-  <div class='block'>
-    <h1 class='pipeline'>{{ project.name }} - {{ pipeline.name }} ({{ pipeline.id}})</h1>
-    <h2>{{ raw_file.name }}</h2>
-    <a href="{% url 'maxquant:detail' project=project.slug pipeline=pipeline.slug %}"><button class="btn" title='Back to pipeline overview.'><i class="fas fa-arrow-left"></i></button></a>
-    <a href="{% url 'maxquant:download_run' object.pk %}" download><button class='btn' title='Download all MaxQuant files for this particular run (~70MB).'>Download</button></a>
-    <a href="{{ object.path }}"><button class='btn'>Browse</button></a>
+  <div class='block run-header-card'>
+    <div class="pipeline-header-row">
+      <div class="pipeline-header-text">
+        <div class="run-meta-grid">
+          <div class="run-meta-tile">
+            <div class="run-meta-tile-label">Project</div>
+            <div class="run-meta-tile-value">{{ project.name }}</div>
+          </div>
+          <div class="run-meta-tile">
+            <div class="run-meta-tile-label">Pipeline</div>
+            <div class="run-meta-tile-value">{{ pipeline.name }}</div>
+          </div>
+          <div class="run-meta-tile">
+            <div class="run-meta-tile-label">Description</div>
+            <div class="run-meta-tile-value">{{ pipeline.description }}</div>
+          </div>
+          <div class="run-meta-tile">
+            <div class="run-meta-tile-label">Raw file</div>
+            <div class="run-meta-tile-value">{{ raw_file.name }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="pipeline-actions run-actions-column">
+        <a href="{% url 'maxquant:detail' project=project.slug pipeline=pipeline.slug %}">
+          <button class='btn run-btn run-btn-primary'
+                  title='Back to pipeline overview.'>
+            <span class="run-btn-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" focusable="false">
+                <path
+                  d="M15.5 5.5a1 1 0 0 1 0 1.4L10.4 12l5.1 5.1a1 1 0 0 1-1.4 1.4l-5.8-5.8a1 1 0 0 1 0-1.4l5.8-5.8a1 1 0 0 1 1.4 0Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            <span class="project-back-text">Back to pipeline</span>
+          </button>
+        </a>
+        <a href="{% url 'maxquant:download_run' object.pk %}" download id="download-run-link">
+          <button class='btn run-btn run-btn-secondary' id="download-run-btn" title='Download all MaxQuant files for this particular run'>Download all results</button>
+        </a>
+      </div>
+    </div>
 
   </div>
 
   <br> 
 
-  <h2>{{ object.raw_file }}</h2>
+  <h3 class='name raw-file-title'><strong>Results for file:</strong> {{ object.raw_file }}</h3>
 
-  <p>MaxQuant output from {{object.raw_file}} in pipeline {{ pipeline.project.name }} - {{ pipeline.name }}.</p>
-
-  <hr />
-
-  {% for figure in figures %}
-    <div style="width:100%; height:400">
-    {{ figure|safe }}
+  <div class="processing-status-card">
+    <div class="processing-status-header">
+      <strong>Processing status:</strong>
+      <span class="status-pill status-{{ object.overall_status }}">{{ object.overall_status|upper }}</span>
     </div>
+    <div class="processing-status-stages">
+      <div class="status-chip">RawTools metrics: <span class="status-pill status-{{ object.stage_statuses.rawtools_metrics }}">{{ object.stage_statuses.rawtools_metrics }}</span></div>
+      <div class="status-chip">RawTools QC: <span class="status-pill status-{{ object.stage_statuses.rawtools_qc }}">{{ object.stage_statuses.rawtools_qc }}</span></div>
+      <div class="status-chip">MaxQuant: <span class="status-pill status-{{ object.stage_statuses.maxquant }}">{{ object.stage_statuses.maxquant }}</span></div>
+    </div>
+    <p class="processing-status-message">{{ object.processing_message }}</p>
+    {% if object.stage_error_details %}
+      <div class="processing-error-panel">
+        <div class="processing-error-title">Error details</div>
+        {% for stage_error in object.stage_error_details %}
+          <div class="processing-error-item">
+            <div class="processing-error-stage">{{ stage_error.label }}</div>
+            <pre class="processing-error-log">{{ stage_error.message }}</pre>
+          </div>
+        {% endfor %}
+        <p class="processing-status-note">Showing log excerpts from stage error files.</p>
+      </div>
+    {% endif %}
+    {% if object.is_processing %}
+      <p class="processing-status-note">This page auto-refreshes every 20 seconds while processing.</p>
+    {% endif %}
+  </div>
+
+  <!-- <p>MaxQuant output from {{object.raw_file}} in pipeline {{ pipeline.project.name }} - {{ pipeline.name }}.</p> -->
+
+  <p id="download-status" class="download-status" aria-live="polite"></p>
+
+  {% if summary_stats %}
+    <div class="card run-summary-card">
+      <h4 class="run-summary-title">Run summary</h4>
+      <div class="run-summary-grid">
+        {% for stat in summary_stats %}
+          <div class="run-summary-stat">
+            <div class="run-summary-stat-label">{{ stat.label }}</div>
+            <div class="run-summary-stat-value">{{ stat.value }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  {% for section in figure_sections %}
     <hr />
+    <h4 class="figure-section-title">{{ section.title }}</h4>
+    {% for figure in section.figures %}
+      <div class="result-figure">
+      {% if figure.help %}
+        <div class="result-figure-help-wrap">
+          <span
+            data-toggle="tooltip"
+            data-placement="left"
+            title="{{ figure.help }}"
+            class="result-figure-help"
+            aria-label="Plot help"
+          >?</span>
+        </div>
+      {% endif %}
+      {{ figure.html|safe }}
+      </div>
+    {% endfor %}
   {% endfor %}
+
+  <script>
+    (function() {
+      const btn = document.getElementById("download-run-btn");
+      const status = document.getElementById("download-status");
+      if (!btn || !status) return;
+
+      btn.addEventListener("click", function() {
+        status.textContent = "Preparing download...";
+        btn.disabled = true;
+        btn.classList.add("is-downloading");
+        // After a few seconds, assume the browser handled the download; update/helpful note and clear.
+        setTimeout(() => {
+          status.textContent = "Download almost ready. If not prompted, please check your browser's download bar.";
+          btn.disabled = false;
+          setTimeout(() => {
+            status.textContent = "";
+          }, 10000);
+        }, 10000);
+      });
+
+      if (window.jQuery && window.jQuery.fn && window.jQuery.fn.tooltip) {
+        window.jQuery('[data-toggle="tooltip"]').tooltip();
+      }
+
+      const isProcessing = "{{ object.is_processing|yesno:'true,false' }}" === "true";
+
+      if (isProcessing) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 20000);
+      }
+    })();
+  </script>
 
 {% endblock %}

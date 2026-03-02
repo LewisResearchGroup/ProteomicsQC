@@ -14,6 +14,7 @@ from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 from django.http import JsonResponse
 from django.conf import settings
@@ -24,9 +25,7 @@ from maxquant.models import Pipeline, Result
 from maxquant.serializers import PipelineSerializer, RawFileSerializer
 from project.models import Project
 from project.serializers import ProjectsNamesSerializer
-from user.models import User
 
-from tqdm import tqdm
 
 VERBOSE = settings.DEBUG
 
@@ -63,16 +62,19 @@ class QcDataAPI(generics.ListAPIView):
 
         df = get_qc_data(project_slug, pipeline_slug, data_range)
 
+        # Ensure JSON-serializable values
+        df = df.replace({np.nan: None})
+
         response = {}
 
-        if "columns" not in data:
+        if ("columns" not in data) or (not data.get("columns")):
             cols = df.columns
         else:
             cols = data["columns"]
 
         for col in cols:
             if col in df.columns:
-                response[col] = list(df[col])
+                response[col] = df[col].tolist()
             else:
                 response[col] = ""
 
@@ -186,11 +188,12 @@ class ProteinGroupsAPI(generics.ListAPIView):
 
 class RawFileUploadAPI(APIView):
     parser_classes = (MultiPartParser, FormParser)
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
 
         pipeline = get_pipeline(request)
-        user = get_user(request)
+        user = request.user
         orig_file = request.data["orig_file"]
 
         file_serializer = RawFileSerializer(
@@ -206,11 +209,6 @@ class RawFileUploadAPI(APIView):
             return Response(file_serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-def get_user(request):
-    uuid = request.data["uid"]
-    return get_instance_from_uuid(User, uuid)
 
 
 def get_pipeline(request):
@@ -229,8 +227,10 @@ def get_protein_quant_fn(
     only_use_downstream=False,
     raw_files=None,
 ):
-    pipeline = Pipeline.objects.get(project__slug=project_slug, slug=pipeline_slug)
-    results = Result.objects.filter(raw_file__pipeline=pipeline)
+    pipeline = Pipeline.objects.select_related('project').get(
+        project__slug=project_slug, slug=pipeline_slug
+    )
+    results = Result.objects.select_related('raw_file').filter(raw_file__pipeline=pipeline)
 
     if only_use_downstream:
         results = results.filter(raw_file__use_downstream=True)
@@ -244,7 +244,7 @@ def get_protein_quant_fn(
             results = results.order_by("raw_file__created")[n_results - data_range :]
 
     fns = []
-    for res in tqdm(results):
+    for res in results:
         fn = res.create_protein_quant()
         if fn is None:
             continue
@@ -269,7 +269,7 @@ def get_protein_groups_data(
 
 def get_qc_data(project_slug, pipeline_slug, data_range=None):
     pipeline = Pipeline.objects.get(slug=pipeline_slug)
-    results = Result.objects.filter(raw_file__pipeline=pipeline)
+    results = Result.objects.select_related('raw_file').filter(raw_file__pipeline=pipeline)
     n_results = len(results)
 
     if isinstance(data_range, int) and (n_results > data_range) and (n_results > 0):
@@ -280,7 +280,7 @@ def get_qc_data(project_slug, pipeline_slug, data_range=None):
 
     flagged = pd.DataFrame()
     use_downstream = pd.DataFrame()
-    for result in tqdm(results):
+    for result in results:
         raw_fn = P(result.raw_file.name).with_suffix("").name
         raw_is_flagged = result.raw_file.flagged
         raw_use_downstream = result.raw_file.use_downstream
@@ -330,26 +330,28 @@ def get_qc_data(project_slug, pipeline_slug, data_range=None):
 
 
 class CreateFlag(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         """Add flags to raw files."""
 
         data = request.data
 
-        user = get_user(request)
+        user = request.user
 
         project_slug = data["project"]
         pipeline_slug = data["pipeline"]
         raw_files = request.POST.getlist("raw_files")
 
         project = Project.objects.get(slug=project_slug)
-        if not user in project.users.all():
+        if user not in project.users.all():
             logging.warning(
                 f"User {user.email} does not belong to project {project.name}"
             )
-            return JsonResponse({})
+            return JsonResponse({"error": "Permission denied"}, status=403)
 
         pipeline = Pipeline.objects.get(project__slug=project_slug, slug=pipeline_slug)
-        results = Result.objects.filter(raw_file__pipeline=pipeline)
+        results = Result.objects.select_related('raw_file').filter(raw_file__pipeline=pipeline)
         for result in results:
             if result.raw_file.name in raw_files:
                 logging.warning(f"Flag {result.raw_file.name} in {pipeline.name}")
@@ -360,25 +362,27 @@ class CreateFlag(generics.ListAPIView):
 
 
 class DeleteFlag(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         """Remove flags from raw files."""
         data = request.data
 
-        user = get_user(request)
+        user = request.user
 
         project_slug = data["project"]
         pipeline_slug = data["pipeline"]
         raw_files = request.POST.getlist("raw_files")
 
         project = Project.objects.get(slug=project_slug)
-        if not user in project.users.all():
+        if user not in project.users.all():
             logging.warning(
                 f"User {user.email} does not belong to project {project.name}"
             )
-            return JsonResponse({})
+            return JsonResponse({"error": "Permission denied"}, status=403)
 
         pipeline = Pipeline.objects.get(project__slug=project_slug, slug=pipeline_slug)
-        results = Result.objects.filter(raw_file__pipeline=pipeline)
+        results = Result.objects.select_related('raw_file').filter(raw_file__pipeline=pipeline)
         for result in results:
             if result.raw_file.name in raw_files:
                 logging.warning(f"Un-flag {result.raw_file.name} in {pipeline.name}")
@@ -389,29 +393,31 @@ class DeleteFlag(generics.ListAPIView):
 
 
 class RawFile(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         """Add flags to raw files."""
 
         data = request.data
 
-        user = get_user(request)
+        user = request.user
 
         project_slug = data["project"]
         pipeline_slug = data["pipeline"]
         action = data["action"]
 
         project = Project.objects.get(slug=project_slug)
-        if not user in project.users.all():
+        if user not in project.users.all():
             logging.warning(
                 f"User {user.email} does not belong to project {project.name}"
             )
-            return JsonResponse({"status": "Missing permissions"})
+            return JsonResponse({"error": "Permission denied"}, status=403)
 
         raw_files = request.POST.getlist("raw_files")
 
         pipeline = Pipeline.objects.get(project__slug=project_slug, slug=pipeline_slug)
 
-        results = Result.objects.filter(raw_file__pipeline=pipeline)
+        results = Result.objects.select_related('raw_file').filter(raw_file__pipeline=pipeline)
         for result in results:
             if result.raw_file.name in raw_files:
                 logging.warning(f"{result.raw_file.name}: {action}")

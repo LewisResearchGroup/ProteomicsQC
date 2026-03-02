@@ -14,5 +14,7 @@ htmlcov
 Untitled*.ipynb
 nohup.out
 data
-
+node_modules/
 logs.log
+venv/
+!.github/

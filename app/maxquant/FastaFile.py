@@ -1,5 +1,4 @@
 import os
-import hashlib
 import shutil
 
 from pathlib import Path as P

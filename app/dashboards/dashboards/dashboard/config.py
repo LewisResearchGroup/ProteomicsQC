@@ -10,17 +10,13 @@ qc_columns_always = [
 ]
 
 qc_columns_default = [
-    "MS/MS Identified [%]",
     "N_peptides",
     "N_protein_groups",
+    "MS/MS Identified [%]",
     "Oxidations [%]",
     "N_missed_cleavages_eq_1 [%]",
+    "N_peptides_potential_contaminants",
     "NumEsiInstabilityFlags",
-    "MeanMs2TriggerRate(/Ms1Scan)",
-    "MedianMs2PeakFractionConsumingTop80PercentTotalIntensity",
-    "MedianPeakWidthAt50%H(s)",
-    "MedianAsymmetryAt50%H",
-    "TimeBeforeFirstExceedanceOf10%MaxIntensity",
     "TMT1_missing_values",
     "TMT2_missing_values",
     "TMT3_missing_values",
@@ -32,10 +28,7 @@ qc_columns_default = [
     "TMT9_missing_values",
     "TMT10_missing_values",
     "TMT11_missing_values",
-    "N_peptides_potential_contaminants",
-    "Mean_parent_int_frac",
     "Uncalibrated - Calibrated m/z [ppm] (ave)",
-    "Uncalibrated - Calibrated m/z [ppm] (sd)",
     "calibrated_retention_time_qc1",
     "calibrated_retention_time_qc2",
 ]

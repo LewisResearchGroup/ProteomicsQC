@@ -1,22 +1,52 @@
-<div class='block'>
-  <h1 class='pipeline'>{{ project.name }} - {{ pipeline.name }} ({{pipeline.id}})</h1>
-  <p>{{ pipeline.description }}</p>
-  <a href="{% url 'project:detail' project.slug %}">
-    <button class='btn' title='Back to underlying project.'>
-      <i class="fas fa-arrow-left"></i>
-    </button>
-  </a>
-  <a href="{% url 'maxquant:upload_raw' pipeline.pk %}">
-    <button class="btn" title='Upload new RAW file to a pipeline.'>
-      <i class="fas fa-upload"></i>
-      Upload RAW
-    </button>
-  </a>
-  <a href="{{ pipeline.path }}"><button class='btn'>Browse</button></a>
+<div class='block run-header-card pipeline-page-header-card'>
+  <div class="pipeline-header-row">
+    <div class="pipeline-header-text">
+      <div class="run-meta-grid pipeline-meta-grid">
+        <div class="run-meta-tile">
+          <div class="run-meta-tile-label">Project</div>
+          <div class="run-meta-tile-value">{{ project.name }}</div>
+        </div>
+        <div class="run-meta-tile">
+          <div class="run-meta-tile-label">Pipeline</div>
+          <div class="run-meta-tile-value">{{ pipeline.name }}</div>
+        </div>
+        <div class="run-meta-tile">
+          <div class="run-meta-tile-label">Description</div>
+          <div class="run-meta-tile-value">{{ pipeline.description }}</div>
+        </div>
+        <div class="run-meta-tile">
+          <div class="run-meta-tile-label">Pipeline ID</div>
+          <div class="run-meta-tile-value">{{ pipeline.id }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="pipeline-actions run-actions-column">
+      <a href="{% url 'project:detail' project.slug %}">
+        <button class='btn run-btn run-btn-primary'
+                title='Back to pipelines overview.'>
+          <span class="run-btn-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" focusable="false">
+              <path
+                d="M15.5 5.5a1 1 0 0 1 0 1.4L10.4 12l5.1 5.1a1 1 0 0 1-1.4 1.4l-5.8-5.8a1 1 0 0 1 0-1.4l5.8-5.8a1 1 0 0 1 1.4 0Z"
+                fill="currentColor"
+              />
+            </svg>
+          </span>
+          <span class="project-back-text">Back to pipelines</span>
+        </button>
+      </a>
+      <a href="{% url 'maxquant:pipeline-download-file' pipeline.pk %}?file=summary.txt">
+        <button class='btn run-btn run-btn-secondary'
+                title='Download combined Summary table (CSV) for this pipeline.'>
+          Download summary CSV
+        </button>
+      </a>
+    </div>
+  </div>
 </div>
 
 
-<div class='block'>
+<!-- <div class='block'>
    <h2>MaxQuant Bulk Downloads</h2>
    <p> This will download all MaxQuant results in the current pipeline. <br> That may take a long time, depending on how many files there are.</p>
    <a href="{% url 'maxquant:pipeline-download-file' pipeline.pk %}?file=evidence.txt"><button class='btn'>Evidence</button></a>
@@ -26,4 +56,4 @@
    <a href="{% url 'maxquant:pipeline-download-file' pipeline.pk %}?file=ms3Scans.txt"><button class='btn'>MS3Scans</button></a>
    <a href="{% url 'maxquant:pipeline-download-file' pipeline.pk %}?file=matchedFeatures.txt"><button class='btn'>Matched Features</button></a>
    <a href="{% url 'maxquant:pipeline-download-file' pipeline.pk %}?file=summary.txt"><button class='btn'>Summary</button></a>
-</div>
+</div> -->

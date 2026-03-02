@@ -8,7 +8,6 @@ from dash import html, dcc
 from dash import dash_table as dt
 import dash_bootstrap_components as dbc
 
-import plotly.express as px
 import panel as pn
 
 pn.extension("plotly")
@@ -16,21 +15,16 @@ pn.extension("plotly")
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from lrg_omics.plotly_tools import (
-    plotly_heatmap,
-    plotly_bar,
-    plotly_histogram,
+from omics.plotly_tools import (
     set_template,
 )
-from lrg_omics.proteomics import ProteomicsQC
+from omics.proteomics import ProteomicsQC
 
-from scipy.cluster.hierarchy import dendrogram
-from scipy.spatial.distance import squareform
 
 import logging
 
 try:
-    from .tools import list_to_dropdown_options
+    from . tools import list_to_dropdown_options
     from . import tools as T
 except Exception as e:
     logging.warning(f'Trying to import .tools this error occurred:\n{e}')
@@ -41,8 +35,14 @@ set_template()
 
 
 if __name__ == "__main__":
-    app = dash.Dash(__name__)
-    import proteins, quality_control, explorer, anomaly
+    app = dash.Dash(
+        __name__,
+        external_stylesheets=["/static/css/dashboard.css"],
+    )
+    import proteins
+    import quality_control
+    import explorer
+    import anomaly
     import config as C
     import tools as T
 
@@ -57,155 +57,223 @@ else:
         "dashboard",
         add_bootstrap_links=True,
         suppress_callback_exceptions=True,
-        external_stylesheets=[],
+        external_stylesheets=["/static/css/dashboard.css"],
     )
 
 timeout = 360
 
 protein_table_default_cols = []
+BUTTON_STYLE = {
+    "padding": "6px 16px",
+    "backgroundColor": "#e9f3fe",
+    "color": "#2994ff",
+    "border": "1px solid #2994ff",
+    "borderRadius": "1px",
+    "cursor": "pointer",
+    "fontWeight": 500,
+    "fontSize": "14px",
+}
 
 layout = html.Div(
     [
         dcc.Loading(dcc.Store(id="store")),
-        html.H1("Dashboard"),
-        dbc.Row(
-            [
-                dbc.Col(
-                    [
-                        html.Button(
-                            "Load projects and pipelines",
-                            id="B_update",
-                            className="btn",
-                        ),
-                        dcc.Dropdown(
-                            id="project", options=T.get_projects(), value="lsarp"
-                        ),
-                    ]
-                ),
-                dbc.Col([dcc.Dropdown(id="pipeline", options=[], value=None)]),
-                dbc.Col(
-                    [
+        dcc.Store(id="qc-scope-data"),
+        html.Button("", id="B_update", className="pqc-hidden-trigger"),
+        html.Div(
+            className="pqc-layout",
+            children=[
+                html.Div(
+                    className="pqc-sidebar",
+                    children=[
                         html.Div(
-                            dcc.Dropdown(
-                                id="data-range", options=C.data_range_options, value=300
-                            ),
-                            style={"display": "block"},
-                        ),
-                    ]
-                ),
-            ],
-            style={"width": 300, "display": "inline-block"},
-        ),
-        dcc.Markdown("---"),
-        dbc.Row(
-            [
-                dbc.Col(
-                    html.Div(
-                        [
-                            dcc.Tabs(
-                                id="tabs",
-                                value="quality_control",
-                                children=[
-                                    dcc.Tab(
-                                        id="tab-qc",
-                                        label="Quality Control",
-                                        value="quality_control",
-                                    ),
-                                    dcc.Tab(
-                                        id="tab-anomaly",
-                                        label="Anomaly detection",
-                                        value="anomaly",
-                                    ),
-                                    dcc.Tab(
-                                        id="tab-explorer",
-                                        label="Explorer",
-                                        value="explorer",
-                                    ),
-                                    dcc.Tab(label="Proteins", value="proteins"),
-                                ],
-                            ),
-                            dcc.Markdown("---"),
-                            html.P(
-                                [
-                                    "Choose columns:",
-                                    dcc.Dropdown(
-                                        id="qc-table-columns",
-                                        multi=True,
-                                        options=list_to_dropdown_options(
-                                            C.qc_columns_options
+                            className="pqc-panel",
+                            children=[
+                                html.Div(
+                                    className="pqc-scope-grid",
+                                    children=[
+                                        html.Div(
+                                            className="pqc-scope-field",
+                                            children=[
+                                                html.Label("Project", className="pqc-field-label"),
+                                                dcc.Dropdown(
+                                                    id="project",
+                                                    options=T.get_projects(),
+                                                    value="lsarp",
+                                                ),
+                                            ],
                                         ),
-                                        placeholder="Select data columns",
-                                        value=C.qc_columns_default,
-                                    ),
-                                ]
-                            ),
-                            html.Button(
-                                "Load Data",
-                                id="qc-update-table",
-                                className="btn",
-                            ),
-                            html.Button(
-                                "Clear Selection",
-                                id="qc-clear-selection",
-                                className="btn",
-                            ),
-                            html.Button(
-                                "Remove unselected",
-                                id="qc-remove-unselected",
-                                className="btn",
-                            ),
-                            html.Button(
-                                "Use downstream",
-                                id="accept",
-                                className="btn",
-                            ),
-                            html.Button(
-                                "Prevent downstream",
-                                id="reject",
-                                className="btn",
-                            ),
-                            html.Div(
-                                id="accept-reject-output",
-                                style={
-                                    "visibility": "visible",
-                                    "width": "300px",
-                                    "float": "right",
-                                },
-                            ),
-                            dcc.Loading(
-                                [
+                                        html.Div(
+                                            className="pqc-scope-field",
+                                            children=[
+                                                html.Label("Pipeline", className="pqc-field-label"),
+                                                dcc.Dropdown(id="pipeline", options=[], value=None),
+                                            ],
+                                        ),
+                                        html.Div(
+                                            className="pqc-scope-field",
+                                            children=[
+                                                html.Label("Data Range", className="pqc-field-label"),
+                                                dcc.Dropdown(
+                                                    id="data-range",
+                                                    options=C.data_range_options,
+                                                    value=300,
+                                                ),
+                                            ],
+                                        ),
+                                    ],
+                                ),
+                            ],
+                        ),
+                        html.Div(
+                            className="pqc-kpi-grid",
+                            children=[
+                                html.Div(
+                                    className="pqc-kpi-card",
+                                    children=[
+                                        html.Div("Samples", className="pqc-kpi-label"),
+                                        html.Div("0", id="kpi-samples", className="pqc-kpi-value"),
+                                    ],
+                                ),
+                                html.Div(
+                                    className="pqc-kpi-card",
+                                    children=[
+                                        html.Div("Median Protein Groups", className="pqc-kpi-label"),
+                                        html.Div(
+                                            "--",
+                                            id="kpi-median-protein-groups",
+                                            className="pqc-kpi-value",
+                                        ),
+                                    ],
+                                ),
+                                html.Div(
+                                    className="pqc-kpi-card",
+                                    children=[
+                                        html.Div("Median Peptides", className="pqc-kpi-label"),
+                                        html.Div("--", id="kpi-median-peptides", className="pqc-kpi-value"),
+                                    ],
+                                ),
+                                html.Div(
+                                    className="pqc-kpi-card",
+                                    children=[
+                                        html.Div("Median MS/MS Identified [%]", className="pqc-kpi-label"),
+                                        html.Div("--", id="kpi-median-msms", className="pqc-kpi-value"),
+                                    ],
+                                ),
+                                html.Div(
+                                    className="pqc-kpi-card",
+                                    children=[
+                                        html.Div(
+                                            "Median Missed Cleavages Eq1 [%]",
+                                            className="pqc-kpi-label",
+                                        ),
+                                        html.Div(
+                                            "--",
+                                            id="kpi-median-missed-cleavages",
+                                            className="pqc-kpi-value",
+                                        ),
+                                    ],
+                                ),
+                                html.Div(
+                                    className="pqc-kpi-card",
+                                    children=[
+                                        html.Div("Median Oxidations [%]", className="pqc-kpi-label"),
+                                        html.Div("--", id="kpi-median-oxidations", className="pqc-kpi-value"),
+                                    ],
+                                ),
+                                html.Div(
+                                    className="pqc-kpi-card",
+                                    children=[
+                                        html.Div(
+                                            "Median Delta m/z [ppm]",
+                                            className="pqc-kpi-label",
+                                        ),
+                                        html.Div(
+                                            "--",
+                                            id="kpi-median-mz-delta",
+                                            className="pqc-kpi-value",
+                                        ),
+                                    ],
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
+                html.Div(
+                    className="pqc-workspace",
+                    children=[
+                        html.Div(
+                            className="pqc-panel pqc-workspace-panel",
+                            children=[
+                                dcc.Tabs(
+                                    id="tabs",
+                                    value="quality_control",
+                                    className="pqc-tabs",
+                                    children=[
+                                        dcc.Tab(
+                                            id="tab-qc",
+                                            label="Quality Control",
+                                            value="quality_control",
+                                        ),
+                                        dcc.Tab(
+                                            id="tab-anomaly",
+                                            label="Anomaly detection",
+                                            value="anomaly",
+                                        ),
+                                        dcc.Tab(
+                                            id="tab-explorer",
+                                            label="Explorer",
+                                            value="explorer",
+                                        ),
+                                        dcc.Tab(label="Proteins", value="proteins"),
+                                    ],
+                                ),
+                                html.Div(
+                                    id="tabs-content",
+                                    className="pqc-canvas",
+                                    children=[
+                                        dcc.Graph(id="explorer-figure", style={"display": "none"}),
+                                        dcc.Graph(
+                                            id="explorer-scatter-matrix",
+                                            style={"display": "none"},
+                                        ),
+                                    ],
+                                ),
+                                dcc.Loading(
                                     html.Div(
                                         id="qc-table-div",
+                                        className="pqc-table-wrap",
+                                        style={"display": "none"},
                                         children=[dt.DataTable(id="qc-table")],
-                                        style={
-                                            "margin-top": "1.5em",
-                                            "minHeight": "400px",
-                                        },
                                     )
-                                ]
-                            ),
-                            # hack to turn off browser autocomplete
-                            html.Script(
-                                children='document.getElementById("qc-table-columns").getAttribute("autocomplete") = "off";'
-                            ),
-                            html.Div(
-                                id="tabs-content",
-                                children=[
-                                    dcc.Graph(id="qc-figure", style={}),
-                                    dcc.Graph(id="explorer-figure", style={}),
-                                    dcc.Graph(id="explorer-scatter-matrix", style={}),
-                                ],
-                            ),
-                        ]
-                    )
-                )
-            ]
+                                ),
+                            ],
+                        )
+                    ],
+                ),
+            ],
         ),
         html.Div(id="selection-output"),
-        html.Div(id="selected-raw-files", style={"visibility": "hidden"}),
-        dcc.Loading(html.Div(id="shapley-values", style={"visibility": "hidden"})),
+        html.Div(id="selected-raw-files", style={"display": "none"}),
+        html.Div(id="shapley-values", style={"display": "none"}),
+        html.Div(
+            [
+                dcc.Dropdown(
+                    id="qc-table-columns",
+                    multi=True,
+                    options=list_to_dropdown_options(C.qc_columns_options),
+                    value=C.qc_columns_default,
+                ),
+                html.Button("Apply", id="qc-update-table"),
+                html.Button("Clear Selection", id="qc-clear-selection"),
+                html.Button("Remove Unselected", id="qc-remove-unselected"),
+                html.Button("Use Downstream", id="accept"),
+                html.Button("Prevent Downstream", id="reject"),
+                html.Div(id="accept-reject-output"),
+            ],
+            style={"display": "none"},
+        ),
     ],
-    style={"max-width": "90%", "display": "block", "margin": "auto"},
+    className="pqc-dashboard-root",
 )
 
 app.layout = layout
@@ -233,6 +301,20 @@ def populate_projects(project):
     return T.get_projects()
 
 
+@app.callback(
+    Output("project", "value"),
+    Input("project", "options"),
+    State("project", "value"),
+)
+def pick_default_project(options, current_value):
+    if not options:
+        return None
+    valid_values = [o["value"] for o in options]
+    if current_value in valid_values:
+        return current_value
+    return valid_values[0]
+
+
 @app.callback(Output("pipeline", "options"), [Input("project", "value")])
 def populate_pipelines(project):
     _json = T.get_pipelines(project)
@@ -242,18 +324,36 @@ def populate_pipelines(project):
         output = [{"label": i["name"], "value": i["slug"]} for i in _json]
         return output
 
+
+@app.callback(
+    Output("pipeline", "value"),
+    Input("pipeline", "options"),
+    State("pipeline", "value"),
+)
+def pick_default_pipeline(options, current_value):
+    if not options:
+        return None
+    valid_values = [o["value"] for o in options]
+    if current_value in valid_values:
+        return current_value
+    return valid_values[0]
+
 @app.callback(
     Output("qc-table-div", "children"),
-    Input("qc-update-table", "n_clicks"),
+    Output("qc-scope-data", "data"),
+    Input("project", "value"),
     Input("pipeline", "value"),
-    State("project", "value"),
+    Input("data-range", "value"),
     State("qc-table-columns", "value"),
-    State("data-range", "value"),
 )
-def refresh_qc_table(n_clicks, pipeline, project, optional_columns, data_range):
+def refresh_qc_table(project, pipeline, data_range, optional_columns):
 
     if (project is None) or (pipeline is None):
-        raise PreventUpdate
+        return (
+            T.table_from_dataframe(pd.DataFrame(), id="qc-table", row_selectable="multi"),
+            [],
+        )
+    optional_columns = optional_columns or C.qc_columns_default
     columns = C.qc_columns_always + optional_columns
     data = T.get_qc_data(
         project=project, pipeline=pipeline, columns=columns, data_range=data_range
@@ -261,11 +361,59 @@ def refresh_qc_table(n_clicks, pipeline, project, optional_columns, data_range):
 
     df = pd.DataFrame(data)
 
-    if "DateAcquired" in df.columns:
-        df["DateAcquired"] = pd.to_datetime(df["DateAcquired"])
-        df = df.replace("not detected", np.NaN)[C.qc_columns_always + optional_columns]
+    if df.empty:
+        return (
+            T.table_from_dataframe(df, id="qc-table", row_selectable="multi"),
+            [],
+        )
 
-    return T.table_from_dataframe(df, id="qc-table", row_selectable="multi")
+    # keep only columns that exist to avoid key errors
+    available_cols = [c for c in columns if c in df.columns]
+
+    if "DateAcquired" in df.columns:
+        df["DateAcquired"] = pd.to_datetime(df["DateAcquired"], errors="coerce")
+    df = df.replace("not detected", np.nan)
+    if len(available_cols) > 0:
+        df = df[available_cols]
+
+    records = df.to_dict("records")
+    return T.table_from_dataframe(df, id="qc-table", row_selectable="multi"), records
+
+
+@app.callback(
+    Output("kpi-samples", "children"),
+    Output("kpi-median-protein-groups", "children"),
+    Output("kpi-median-peptides", "children"),
+    Output("kpi-median-msms", "children"),
+    Output("kpi-median-missed-cleavages", "children"),
+    Output("kpi-median-oxidations", "children"),
+    Output("kpi-median-mz-delta", "children"),
+    Input("qc-scope-data", "data"),
+)
+def update_kpis(data):
+    if data is None:
+        return "0", "--", "--", "--", "--", "--", "--"
+    df = pd.DataFrame(data)
+    if df.empty:
+        return "0", "--", "--", "--", "--", "--", "--"
+
+    def _median(column, suffix=""):
+        if column not in df.columns:
+            return "--"
+        series = pd.to_numeric(df[column], errors="coerce")
+        if series.notna().sum() == 0:
+            return "--"
+        return f"{series.median():.1f}{suffix}"
+
+    return (
+        str(len(df)),
+        _median("N_protein_groups"),
+        _median("N_peptides"),
+        _median("MS/MS Identified [%]", "%"),
+        _median("N_missed_cleavages_eq_1 [%]", "%"),
+        _median("Oxidations [%]", "%"),
+        _median("Uncalibrated - Calibrated m/z [ppm] (ave)"),
+    )
 
 
 @app.callback(

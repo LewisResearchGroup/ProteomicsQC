@@ -1,0 +1,184 @@
+/*
+ * Scope: app top header bar and user-menu interactions.
+ * Do not place navigation row buttons, global form controls, or page body styles here.
+ */
+
+#title {
+  color: rgb(240, 240, 240);
+  font-size: 30;
+  font-weight: bold;
+  text-align: left;
+  padding: 20;
+}
+
+.app-header {
+  background: linear-gradient(135deg, var(--color-brand-soft) 0%, var(--color-brand-strong) 100%);
+  color: #fff;
+  width: 100%;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 4px 12px rgba(59, 143, 163, 0.2);
+}
+
+.app-header-inner {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 10px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.app-title {
+  margin: 0;
+  padding: 0;
+  color: #ffffff;
+  font-size: 36px;
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.app-title-link {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.app-title-link:hover {
+  color: #ecfeff;
+  text-decoration: none;
+}
+
+.app-user {
+  min-height: 38px;
+  padding: 7px 12px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(235, 252, 255, 0.4);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(218, 243, 248, 0.2) 100%);
+  color: #f4feff;
+  font-weight: 700;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
+  box-shadow: 0 2px 8px rgba(12, 52, 72, 0.16);
+  transition: background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.app-user:hover {
+  border-color: rgba(255, 255, 255, 0.65);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.28) 0%, rgba(227, 247, 252, 0.26) 100%);
+  box-shadow: 0 5px 14px rgba(12, 52, 72, 0.22);
+}
+
+.app-user-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  font-size: 16px;
+  opacity: 0.95;
+}
+
+.app-user-name {
+  display: inline-block;
+  max-width: 210px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-user-menu {
+  position: relative;
+}
+
+.app-user-menu summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.app-user-menu summary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(205, 244, 252, 0.5);
+}
+
+.app-user-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.app-user-caret {
+  font-size: 12px;
+  opacity: 0.9;
+  margin-left: 2px;
+}
+
+.app-user-menu[open] .app-user-caret {
+  transform: rotate(180deg);
+}
+
+.app-user-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 260px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: 0 14px 28px rgba(8, 38, 44, 0.22);
+  padding: 8px;
+  z-index: 40;
+}
+
+.app-user-item {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  color: var(--color-text-strong);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  background: transparent;
+  text-align: left;
+}
+
+.app-user-item:hover {
+  background: var(--color-surface-soft);
+  color: var(--color-brand-ink);
+  text-decoration: none;
+}
+
+.app-user-logout-form {
+  margin: 0;
+}
+
+.app-user-item-logout {
+  color: var(--color-danger-ink);
+}
+
+.app-user-item-logout:hover {
+  background: #fde6e7;
+  color: #7a1823;
+}
+
+#username {
+  font-weight: inherit;
+  padding: 7px 12px;
+}
+
+@media (max-width: 900px) {
+  .app-header-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .app-title {
+    font-size: 30px;
+  }
+}

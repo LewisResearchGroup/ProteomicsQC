@@ -11,7 +11,6 @@ services:
     command: /miniforge/bin/mamba run -p /miniforge python server.py
     volumes:
       - ./app/:/app/
-      - ./lib/lrg-omics/:/lrg-omics/
       - ${DATALAKE}:/datalake/
       - ${MEDIA}:/appmedia/
       - ${STATIC}:/static/
@@ -27,7 +26,8 @@ services:
   db:
     container_name: proteomicsqc_db
     restart: always
-    image: postgres:13.4
+    # update to postgres v14
+    image: postgres:14
     volumes:
       - ${DB}:/var/lib/postgresql/data
     environment:
@@ -49,11 +49,10 @@ services:
     image: ghcr.io/lewisresearchgroup/proteomicsqc:${IMAGE_TAG:-latest}
     command:  /miniforge/bin/mamba run -p /miniforge celery -A main worker -l info --concurrency ${CONCURRENCY}
     env_file:
-      - ./.env    
+      - ./.env
     volumes:
       - ./app/:/app/
-      - ./lib/lrg-omics/:/lrg-omics/
-      - ${DATALAKE}:/datalake/      
+      - ${DATALAKE}:/datalake/
       - ${COMPUTE}:/compute/
     environment:
       - DB_HOST=db

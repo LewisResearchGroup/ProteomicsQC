@@ -1,11 +1,8 @@
 from django.contrib import admin
 from .models import (
     Pipeline,
-    MaxQuantExecutable,
-    MaxQuantParameter,
     RawFile,
     Result,
-    RawToolsSetup,
 )
 
 

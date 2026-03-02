@@ -1,0 +1,13 @@
+/*
+ * Scope: generic form control defaults and table-header form labels.
+ * Do not place button appearance, full table shells, or page-specific toolbars here.
+ */
+
+input[type=text] {
+  width: 100%;
+  font-size: large;
+}
+
+tr th label {
+  font-size: large;
+}

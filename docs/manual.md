@@ -21,7 +21,8 @@ To setup a
 ## Setup MaxQuant
 
 To setup MaxQuant you can upload a zipped MaxQuant version. 
-Version 1.6.14 works with [Mono](https://www.mono-project.com/docs/about-mono/) and is the recommended version to use with the Proteomics Pipelines server.
+- Versions < 2.6 run with [Mono](https://www.mono-project.com/docs/about-mono/).
+- Versions >= 2.6 are executed via `dotnet` (the container ships .NET 8). The runtime is picked automatically based on the file version/extension, but you can force it with the `MAXQUANT_RUNTIME` environment variable (`mono` or `dotnet`).
 Please contact the MaxQuant [mailing list](https://groups.google.com/u/1/g/maxquant-list/c/X94RkHSoEYo/m/LuYDKHskDwAJ) for information on how to obtain older versions. 
 
 Once you downloaded the zip-file you can upload it to the Pipeline server. Go to 'admin/pipelines/maxquantbin/add' and upload the zip file from 
@@ -52,7 +53,6 @@ The MaxQuant Setup defines a pipeline. It is a combination of a MaxQuant binary,
 Once created you will be able to submit `.RAW` files to this pipeline. 
 
 ### 5. Setup RawFile type for RawTools
-
 
 
 

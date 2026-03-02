@@ -1,19 +1,17 @@
-import time
 
 from django.test import TestCase
+from django.urls import reverse
 from project.models import Project
 from maxquant.models import Pipeline
 from maxquant.models import Result
 
 from maxquant.models import RawFile
 
-from pathlib import Path as P
 from glob import glob
 
 from django.core.files.uploadedfile import SimpleUploadedFile
-from celery.contrib.testing.worker import start_worker
 
-from main.celery import app
+from user.models import User
 
 
 class RawFileTestCase(TestCase):
@@ -24,11 +22,8 @@ class RawFileTestCase(TestCase):
                 name="project", description="A test project"
             )
 
-            fn_mqpar = P("tests/data/TMT11.xml")
-            fn_fasta = P("tests/data/minimal.fasta")
-
-            contents_mqpar = fn_mqpar.read_bytes()
-            contents_fasta = fn_fasta.read_bytes()
+            contents_mqpar = b"<mqpar></mqpar>"
+            contents_fasta = b">protein\nSEQUENCE"
 
             self.pipeline = Pipeline.objects.create(
                 name="pipe",
@@ -64,11 +59,8 @@ class SameRawFileCanBeUploadedToMultiplePipelines(TestCase):
             name="project", description="A test project"
         )
 
-        fn_mqpar = P("tests/data/TMT11.xml")
-        fn_fasta = P("tests/data/minimal.fasta")
-
-        contents_mqpar = fn_mqpar.read_bytes()
-        contents_fasta = fn_fasta.read_bytes()
+        contents_mqpar = b"<mqpar></mqpar>"
+        contents_fasta = b">protein\nSEQUENCE"
 
         self.pipeline_A = Pipeline.objects.create(
             name="pipeA",
@@ -95,3 +87,57 @@ class SameRawFileCanBeUploadedToMultiplePipelines(TestCase):
         self.raw_file = RawFile.objects.create(
             pipeline=self.pipeline_B, orig_file=SimpleUploadedFile("fake.raw", b"...")
         )
+
+
+class ReuploadAfterResultDeletionRestoresResult(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            email="tester@example.com", password="pass1234"
+        )
+        self.project = Project.objects.create(
+            name="project", description="A test project", created_by=self.user
+        )
+
+        contents_mqpar = b"<mqpar></mqpar>"
+        contents_fasta = b">protein\nSEQUENCE"
+
+        self.pipeline = Pipeline.objects.create(
+            name="pipe",
+            project=self.project,
+            created_by=self.user,
+            fasta_file=SimpleUploadedFile("my_fasta.fasta", contents_fasta),
+            mqpar_file=SimpleUploadedFile("my_mqpar.xml", contents_mqpar),
+            rawtools_args="-p -q -x -u -l -m -r TMT11 -chro 12TB",
+        )
+
+        self.raw_file = RawFile.objects.create(
+            pipeline=self.pipeline, orig_file=SimpleUploadedFile("fake.raw", b"...")
+        )
+        self.result = Result.objects.get(raw_file=self.raw_file)
+
+    def test_reupload_same_filename_recreates_missing_result(self):
+        self.client.force_login(self.user)
+
+        self.result.delete()
+        self.assertFalse(Result.objects.filter(raw_file=self.raw_file).exists())
+
+        response = self.client.post(
+            reverse("maxquant:basic_upload"),
+            data={
+                "project": self.project.pk,
+                "pipeline": self.pipeline.pk,
+                "orig_file": SimpleUploadedFile("fake.raw", b"..."),
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertTrue(payload["is_valid"])
+        self.assertTrue(payload.get("already_exists"))
+        self.assertTrue(payload.get("restored_result"))
+
+        self.assertEqual(
+            RawFile.objects.filter(pipeline=self.pipeline, orig_file="upload/fake.raw").count(),
+            1,
+        )
+        self.assertTrue(Result.objects.filter(raw_file=self.raw_file).exists())

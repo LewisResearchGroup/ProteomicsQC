@@ -11,7 +11,10 @@ services:
       - ./.env
     environment:
       - ENVIRONMENT=develop
-    command: /miniforge/bin/mamba run -p /miniforge python manage.py runserver 0.0.0.0:8000
+      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+      - CSRF_TRUSTED_ORIGINS=http://localhost,http://127.0.0.1
+      - SECRET_KEY=dummy-test-secret-key-123
+    command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./app/:/app/
     ports:
@@ -24,7 +27,7 @@ services:
   
   db:
     container_name: proteomicsqc_db
-    image: postgres:13.4
+    image: postgres:14
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
@@ -47,7 +50,6 @@ services:
       - ./.env    
     volumes:
       - ./app/:/app/
-      - ./lib/lrg_omics/:/lrg-omics/
     environment:
       - DB_HOST=db
       - DB_NAME=app
