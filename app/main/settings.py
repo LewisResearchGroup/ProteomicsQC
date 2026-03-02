@@ -196,12 +196,17 @@ STATICFILES_DIRS = [
 ]
 
 # Whitenoise for serving static files in production
+# Use simpler storage in dev/test mode (no manifest required)
+_is_testing = "test" in sys.argv or any("pytest" in arg for arg in sys.argv)
+
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+        if (DEBUG or _is_testing)
+        else "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 
