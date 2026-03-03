@@ -1,6 +1,21 @@
 version: "3.3"
 
 services:
+  watchtower:
+    container_name: proteomicsqc_watchtower
+    image: containrrr/watchtower
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_LABEL_ENABLE=true
+      - WATCHTOWER_POLL_INTERVAL=${WATCHTOWER_INTERVAL:-3600}
+      - WATCHTOWER_NOTIFICATIONS=${WATCHTOWER_NOTIFICATIONS:-}
+      - WATCHTOWER_NOTIFICATION_URL=${WATCHTOWER_NOTIFICATION_URL:-}
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
+
   traefik:
     container_name: proteomicsqc_traefik
     image: traefik:v3.0
@@ -49,6 +64,7 @@ services:
       - "traefik.http.routers.web.entrypoints=websecure"
       - "traefik.http.routers.web.tls.certresolver=letsencrypt"
       - "traefik.http.services.web.loadbalancer.server.port=8080"
+      - "com.centurylinklabs.watchtower.enable=true"
 
   db:
     container_name: proteomicsqc_db
@@ -88,3 +104,5 @@ services:
       - db
       - redis
       - web
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
