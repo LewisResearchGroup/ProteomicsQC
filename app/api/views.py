@@ -37,7 +37,7 @@ class ProjectNames(generics.ListAPIView):
         queryset = Project.objects.all()
         serializer = ProjectsNamesSerializer(queryset, many=True)
         data = serializer.data
-        return JsonResponse(data, status=201, safe=False)
+        return JsonResponse(data, status=200, safe=False)
 
 
 class PipelineNames(generics.ListAPIView):
@@ -49,7 +49,7 @@ class PipelineNames(generics.ListAPIView):
         queryset = Pipeline.objects.filter(project__slug=project)
         serializer = PipelineSerializer(queryset, many=True)
         data = serializer.data
-        return JsonResponse(data, status=201, safe=False)
+        return JsonResponse(data, status=200, safe=False)
 
 
 class QcDataAPI(generics.ListAPIView):

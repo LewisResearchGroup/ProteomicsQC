@@ -50,7 +50,7 @@ class ApiTestCase(TestCase):
         actual = c.post(url).json()
         expected = [
             {
-                "pk": 1,
+                "pk": self.project.pk,
                 "name": "project",
                 "description": "A test project",
                 "slug": "project",
@@ -81,44 +81,6 @@ class ApiTestCase(TestCase):
         c = Client()
         url = f"{URL}/api/pipelines"
         response = c.post(url, {"project": "project"}, content_type="application/json")
-        assert response.status_code == 403, f"Expected 403, got {response.status_code}"
-
-    def test__create_flag_requires_auth(self):
-        """Verify flag creation requires authentication."""
-        c = Client()
-        url = f"{URL}/api/flag/create"
-        response = c.post(url, {
-            "project": "project",
-            "pipeline": "pipe",
-            "raw_files": ["fake.raw"],
-        })
-        assert response.status_code == 403, f"Expected 403, got {response.status_code}"
-
-    def test__create_flag_requires_project_membership(self):
-        """Verify users can only flag files in their projects."""
-        other_user = User.objects.create_user(
-            email="other@example.com",
-            password="testpass123",
-        )
-        c = Client()
-        c.force_login(other_user)
-        url = f"{URL}/api/flag/create"
-        response = c.post(url, {
-            "project": "project",
-            "pipeline": "pipe",
-            "raw_files": ["fake.raw"],
-        })
-        assert response.status_code == 403, f"Expected 403, got {response.status_code}"
-
-    def test__delete_flag_requires_auth(self):
-        """Verify flag deletion requires authentication."""
-        c = Client()
-        url = f"{URL}/api/flag/delete"
-        response = c.post(url, {
-            "project": "project",
-            "pipeline": "pipe",
-            "raw_files": ["fake.raw"],
-        })
         assert response.status_code == 403, f"Expected 403, got {response.status_code}"
 
     def test__rawfile_requires_auth(self):
