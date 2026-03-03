@@ -119,28 +119,28 @@ layout = html.Div(
                         ),
                     ],
                 ),
-                # Color legend for status indicators
+                # Color and shape legend for status indicators (colorblind accessible)
                 html.Div(
                     className="pqc-qc-legend-wrap",
-                    style={"display": "flex", "alignItems": "center", "gap": "16px", "marginLeft": "20px", "fontSize": "12px"},
+                    style={"display": "flex", "alignItems": "center", "gap": "12px", "marginLeft": "16px", "fontSize": "11px", "flexWrap": "wrap"},
                     children=[
                         html.Span("Legend:", style={"fontWeight": "600", "color": "#555"}),
                         html.Span([
-                            html.Span("\u25CF", style={"color": C.colors["accepted"], "marginRight": "4px"}),
-                            "Accepted"
-                        ]),
+                            html.Span("\u25CF", style={"color": C.colors["accepted"], "marginRight": "3px", "fontSize": "14px"}),
+                            "Accepted (circle)"
+                        ], style={"whiteSpace": "nowrap"}),
                         html.Span([
-                            html.Span("\u25CF", style={"color": C.colors["rejected"], "marginRight": "4px"}),
-                            "Rejected"
-                        ]),
+                            html.Span("\u25A0", style={"color": C.colors["rejected"], "marginRight": "3px", "fontSize": "14px"}),
+                            "Rejected (square)"
+                        ], style={"whiteSpace": "nowrap"}),
                         html.Span([
-                            html.Span("\u25CF", style={"color": "grey", "marginRight": "4px"}),
-                            "Unassigned"
-                        ]),
+                            html.Span("\u25C6", style={"color": C.colors["unassigned"], "marginRight": "3px", "fontSize": "14px"}),
+                            "Unassigned (diamond)"
+                        ], style={"whiteSpace": "nowrap"}),
                         html.Span([
-                            html.Span("\u25CB", style={"color": C.colors["flagged"], "marginRight": "4px", "fontWeight": "bold"}),
-                            "Flagged (border)"
-                        ]),
+                            html.Span("\u25CF", style={"color": C.colors["flagged"], "marginRight": "3px", "fontSize": "16px"}),
+                            "Flagged (red border, larger)"
+                        ], style={"whiteSpace": "nowrap"}),
                     ],
                 ),
             ],
@@ -234,10 +234,10 @@ def callbacks(app):
 
         n_metrics = len(valid_metrics)
 
-        # Compute marker colors based on Flagged/Use Downstream status
+        # Compute marker colors and symbols based on Flagged/Use Downstream status
         has_status_cols = "Flagged" in df.columns and "Use Downstream" in df.columns
         if has_status_cols:
-            # Build color arrays based on flagged/use_downstream status
+            # Build color and symbol arrays based on flagged/use_downstream status
             df["_Selected"] = False  # No selection state in this view
             marker_colors = df[["Use Downstream", "Flagged", "_Selected"]].apply(
                 lambda row: T.get_marker_color(*row), axis=1
@@ -245,9 +245,16 @@ def callbacks(app):
             marker_line_colors = df[["Use Downstream", "Flagged", "_Selected"]].apply(
                 lambda row: T.get_marker_line_color(*row), axis=1
             ).tolist()
+            marker_symbols = df[["Use Downstream", "Flagged", "_Selected"]].apply(
+                lambda row: T.get_marker_symbol(*row), axis=1
+            ).tolist()
+            # Flagged samples get larger markers for visibility
+            marker_sizes = df["Flagged"].apply(lambda f: 14 if f else 10).tolist()
         else:
             marker_colors = None
             marker_line_colors = None
+            marker_symbols = None
+            marker_sizes = None
 
         # Create subplots - one row per metric (faceted layout)
         subplot_titles = [METRIC_LABELS.get(m, m) for m in valid_metrics]
@@ -292,9 +299,11 @@ def callbacks(app):
                     col=1,
                 )
             else:
-                # For line/scatter plots, use status-based colors for markers
+                # For line/scatter plots, use status-based colors and symbols for markers
                 scatter_marker_colors = marker_colors if marker_colors else fallback_color
-                scatter_line_colors = marker_line_colors if marker_line_colors else "#ffffff"
+                scatter_line_colors = marker_line_colors if marker_line_colors else "#333333"
+                scatter_symbols = marker_symbols if marker_symbols else "circle"
+                scatter_sizes = marker_sizes if marker_sizes else (10 if plot_type == "scatter" else 8)
                 # Scatter = markers only, Line = lines + markers
                 mode = "markers" if plot_type == "scatter" else "lines+markers"
                 fig.add_trace(
@@ -305,8 +314,9 @@ def callbacks(app):
                         mode=mode,
                         line=dict(width=2, color=fallback_color, shape="linear") if plot_type == "line" else None,
                         marker=dict(
-                            size=10 if plot_type == "scatter" else 8,
+                            size=scatter_sizes,
                             color=scatter_marker_colors,
+                            symbol=scatter_symbols,
                             line=dict(width=2, color=scatter_line_colors),
                         ),
                         hovertext=raw_labels + "<br>" + acquired,

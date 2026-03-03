@@ -179,20 +179,38 @@ data_range_options = [
 ]
 
 
+# Colorblind-safe palette (Tol palette)
+# https://personal.sron.nl/~pault/
+cb_blue = "#0077BB"      # Safe blue - visible to all
+cb_orange = "#EE7733"    # Orange - distinguishable from blue for colorblind
+cb_grey = "#BBBBBB"      # Neutral grey
+cb_red = "#CC3311"       # High-contrast red for borders/flags
+cb_purple = "#AA3377"    # Purple for selection
+
+# Legacy colors (kept for compatibility)
 turquoise = "rgb(64,224,208)"
-lightblue = "rgb(123,180,230)"
-maroon = "rgb(128,0,0)"
+lightblue = cb_blue
+maroon = cb_red
 midnight = "rgb(0,51,102)"
 slategrey = "rgb(112,128,144)"
-lightred = "rgb(255,230,230)"
+lightred = cb_orange
 
 colors = {
-    "accepted": lightblue,
-    "rejected": lightred,
-    "unassigned": "white",
-    "flagged": "maroon",
-    "not_flagged": "black",
-    "selected": "purple",
+    "accepted": cb_blue,
+    "rejected": cb_orange,
+    "unassigned": cb_grey,
+    "flagged": cb_red,
+    "not_flagged": "#333333",
+    "selected": cb_purple,
+}
+
+# Marker symbols for accessibility (shape + color redundancy)
+# Plotly marker symbols: circle, square, diamond, cross, x, triangle-up, etc.
+marker_symbols = {
+    "accepted": "circle",
+    "rejected": "square",
+    "unassigned": "diamond",
+    "flagged": "x",  # Additional symbol overlay for flagged
 }
 
 figure_font = dict(
