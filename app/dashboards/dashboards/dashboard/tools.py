@@ -61,23 +61,21 @@ def table_from_dataframe(df, id="table", row_deletable=True, row_selectable="mul
 
 
 def get_projects():
-    url = f"{URL}/api/projects"
-    try:
-        _json = requests.post(url).json()
-        if not isinstance(_json, list):
-            return []
-    except Exception:
-        return []
-    output = [{"label": i["name"], "value": i["slug"]} for i in _json]
+    """Get projects using Django ORM directly."""
+    from project.models import Project
+    projects = Project.objects.all()
+    output = [{"label": p.name, "value": p.slug} for p in projects]
     output.sort(key=lambda o: o["label"].lower())
     return output
 
 
 def get_pipelines(project):
-    url = f"{URL}/api/pipelines"
-    headers = {"Content-type": "application/json"}
-    data = json.dumps(dict(project=project))
-    return requests.post(url, data=data, headers=headers).json()
+    """Get pipelines using Django ORM directly."""
+    from maxquant.models import Pipeline
+    if not project:
+        return []
+    pipelines = Pipeline.objects.filter(project__slug=project)
+    return [{"name": p.name, "slug": p.slug, "path_as_str": str(p.path)} for p in pipelines]
 
 
 def get_protein_groups(
@@ -124,21 +122,28 @@ def get_protein_names(
 
 
 def get_qc_data(project, pipeline, columns, data_range=None):
-    url = f"{URL}/api/qc-data"
-    headers = {"Content-type": "application/json"}
-    payload = dict(project=project, pipeline=pipeline, columns=columns, data_range=data_range)
+    """Get QC data using Django ORM directly."""
+    from api.views import get_qc_data as _get_qc_data_orm
+    import numpy as np
+
     try:
-        resp = requests.post(url, data=json.dumps(payload), headers=headers, timeout=30)
-        if not resp.ok:
-            logging.error(f"QC data request failed ({resp.status_code}): {resp.text[:500]}")
+        df = _get_qc_data_orm(project, pipeline, data_range)
+        if df is None or df.empty:
             return {}
-        try:
-            return resp.json()
-        except ValueError as e:
-            logging.error(f"QC data JSON decode failed: {e}; body: {resp.text[:500]}")
-            return {}
+
+        # Ensure JSON-serializable values
+        df = df.replace({np.nan: None})
+
+        response = {}
+        cols = columns if columns else df.columns
+        for col in cols:
+            if col in df.columns:
+                response[col] = df[col].tolist()
+            else:
+                response[col] = ""
+        return response
     except Exception as e:
-        logging.error(f"QC data request error: {e}")
+        logging.error(f"QC data error: {e}")
         return {}
 
 

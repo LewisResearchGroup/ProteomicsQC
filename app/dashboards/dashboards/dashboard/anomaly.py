@@ -108,11 +108,7 @@ def callbacks(app):
 
         columns = columns or []
 
-        # Get user uuid if authenticated, otherwise None
-        user = kwargs.get("user")
-        uid = None
-        if user and hasattr(user, "uuid"):
-            uid = user.uuid
+        uid = kwargs["user"].uuid
 
         pqc = ProteomicsQC(
             host=os.getenv("OMICS_URL", "http://localhost:8000"),
@@ -133,15 +129,14 @@ def callbacks(app):
             qc_data, algorithm=algorithm, columns=columns, fraction=fraction, **params
         )
 
-        # Update flags in backend only if user is authenticated
-        if uid is not None:
-            currently_unflagged = list(qc_data[~qc_data.Flagged].reset_index().RawFile)
-            currently_flagged   = list(qc_data[qc_data.Flagged].reset_index().RawFile)
-            files_to_flag   = [i for i in predictions[predictions.Anomaly == 1].index if i in currently_unflagged]
-            files_to_unflag = [i for i in predictions[predictions.Anomaly == 0].index if i in currently_flagged]
+        # Update flags in backend
+        currently_unflagged = list(qc_data[~qc_data.Flagged].reset_index().RawFile)
+        currently_flagged   = list(qc_data[qc_data.Flagged].reset_index().RawFile)
+        files_to_flag   = [i for i in predictions[predictions.Anomaly == 1].index if i in currently_unflagged]
+        files_to_unflag = [i for i in predictions[predictions.Anomaly == 0].index if i in currently_flagged]
 
-            pqc.rawfile(files_to_flag, "flag")
-            pqc.rawfile(files_to_unflag, "unflag")
+        pqc.rawfile(files_to_flag, "flag")
+        pqc.rawfile(files_to_unflag, "unflag")
 
         payload = df_shap.to_json() if df_shap is not None else None
         return payload, f"updated-{project}-{pipeline}-{fraction_in}"
