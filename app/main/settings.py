@@ -141,11 +141,11 @@ ASGI_APPLICATION = "mail.routing.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "db",
-        "PORT": 5432,
+        "NAME": os.getenv("POSTGRES_DB", "postgres"),
+        "USER": os.getenv("POSTGRES_USER", "postgres"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "postgres"),
+        "HOST": os.getenv("DB_HOST", "db"),
+        "PORT": int(os.getenv("DB_PORT", "5432")),
     }
 }
 
@@ -254,8 +254,10 @@ else:
 
 class MediaFileSystemStorage(FileSystemStorage):
     def get_available_name(self, name, max_length=None):
+        # Sanitize filename to prevent command injection via shell metacharacters
+        name = self.get_valid_name(name)
         if max_length and len(name) > max_length:
-            raise (Exception("name's length is greater than max_length"))
+            raise Exception("name's length is greater than max_length")
         return name
 
     def _save(self, name, content):
