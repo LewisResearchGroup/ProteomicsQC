@@ -7,6 +7,7 @@ from dash.exceptions import PreventUpdate
 
 import plotly.graph_objects as go
 import plotly.express as px
+from plotly.subplots import make_subplots
 
 try:
     from . import tools as T
@@ -149,7 +150,7 @@ def callbacks(app):
         Input("qc-plot-type", "value"),
     )
     def plot_qc_figure(data_in, metrics_in, x_in, plot_type_in):
-        """Creates the QC trend plot figure with multiple metrics support."""
+        """Creates the QC trend plot figure with multiple metrics in separate facets."""
         data = data_in
         if data is None:
             raise PreventUpdate
@@ -202,10 +203,21 @@ def callbacks(app):
         )
         acquired = df["DateAcquired"].astype(str).replace("NaT", "N/A")
 
-        fig = go.Figure()
+        n_metrics = len(valid_metrics)
 
-        # Create a trace for each selected metric
+        # Create subplots - one row per metric (faceted layout)
+        subplot_titles = [METRIC_LABELS.get(m, m) for m in valid_metrics]
+        fig = make_subplots(
+            rows=n_metrics,
+            cols=1,
+            shared_xaxes=True,
+            vertical_spacing=0.08 if n_metrics > 1 else 0,
+            subplot_titles=subplot_titles if n_metrics > 1 else None,
+        )
+
+        # Create a trace for each metric in its own subplot
         for i, metric in enumerate(valid_metrics):
+            row = i + 1
             y_series = pd.to_numeric(df[metric], errors="coerce").fillna(0)
             metric_label = METRIC_LABELS.get(metric, metric)
             color = METRIC_COLORS[i % len(METRIC_COLORS)]
@@ -223,7 +235,10 @@ def callbacks(app):
                             + f"{metric_label}: "
                             + "%{y:.2f}<extra></extra>"
                         ),
-                    )
+                        showlegend=False,
+                    ),
+                    row=row,
+                    col=1,
                 )
             else:
                 fig.add_trace(
@@ -232,8 +247,8 @@ def callbacks(app):
                         y=y_series,
                         name=metric_label,
                         mode="lines+markers",
-                        line=dict(width=3, color=color, shape="linear"),
-                        marker=dict(size=8, color=color, line=dict(width=1, color="#ffffff")),
+                        line=dict(width=2, color=color, shape="linear"),
+                        marker=dict(size=6, color=color, line=dict(width=1, color="#ffffff")),
                         hovertext=raw_labels + "<br>" + acquired,
                         text=None if x == "RawFile" else raw_labels,
                         hovertemplate=(
@@ -241,61 +256,55 @@ def callbacks(app):
                             + f"{metric_label}: "
                             + "%{y:.2f}<extra></extra>"
                         ),
-                    )
+                        showlegend=False,
+                    ),
+                    row=row,
+                    col=1,
                 )
 
-        # Show legend when multiple metrics are selected
-        show_legend = len(valid_metrics) > 1
+            # Update y-axis for this subplot
+            fig.update_yaxes(
+                title_text=metric_label if n_metrics == 1 else None,
+                showgrid=True,
+                gridcolor="#e8f0f5",
+                zeroline=False,
+                showline=True,
+                linecolor="#cddbe6",
+                rangemode="tozero",
+                row=row,
+                col=1,
+            )
 
-        # Adjust height based on legend
-        height = 500 if show_legend else 450
+        # Height scales with number of metrics
+        height_per_metric = 200
+        base_height = 150
+        height = base_height + (n_metrics * height_per_metric)
+        height = min(height, 1200)  # Cap at reasonable max
 
         fig.update_layout(
-            hovermode="x unified" if plot_type == "bar" else "closest",
+            hovermode="x unified",
             hoverlabel_namelength=-1,
             height=height,
-            showlegend=show_legend,
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="left",
-                x=0,
-            ),
-            margin=dict(l=32, r=20, b=60, t=50 if show_legend else 24, pad=0),
+            showlegend=False,
+            margin=dict(l=50, r=20, b=60, t=40, pad=0),
             font=C.figure_font,
             plot_bgcolor="#fbfdff",
             paper_bgcolor="#f7fbfe",
-            yaxis={"automargin": True},
-            xaxis={"automargin": True},
-            barmode="group" if plot_type == "bar" else None,
         )
 
         fig.update_traces(opacity=0.95)
 
-        logging.info(f"QC plot built for metrics {valid_metrics} with plot type {plot_type}")
+        logging.info(f"QC plot built for {n_metrics} metrics with plot type {plot_type}")
 
+        # Update x-axis only on the bottom subplot
         fig.update_xaxes(
             title_text=x_axis_label,
             showgrid=False,
             zeroline=False,
             showline=True,
             linecolor="#cddbe6",
-        )
-
-        # Y-axis label: combine metric names if multiple, or use single metric label
-        if len(valid_metrics) == 1:
-            y_label = METRIC_LABELS.get(valid_metrics[0], valid_metrics[0])
-        else:
-            y_label = "Value"
-
-        fig.update_yaxes(
-            title_text=y_label,
-            showgrid=False,
-            zeroline=False,
-            showline=True,
-            linecolor="#cddbe6",
-            rangemode="tozero",
+            row=n_metrics,
+            col=1,
         )
 
         config = T.gen_figure_config(filename="QC-trends", editable=False)

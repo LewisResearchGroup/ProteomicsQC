@@ -14,7 +14,7 @@ from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from django.http import JsonResponse
 from django.conf import settings
@@ -31,6 +31,7 @@ VERBOSE = settings.DEBUG
 
 
 class ProjectNames(generics.ListAPIView):
+    permission_classes = [AllowAny]
     filter_fields = ["name", "slug"]
 
     def post(self, request, format=None):
@@ -41,6 +42,8 @@ class ProjectNames(generics.ListAPIView):
 
 
 class PipelineNames(generics.ListAPIView):
+    permission_classes = [AllowAny]
+
     def post(self, request, format=None):
 
         data = request.data
@@ -53,6 +56,8 @@ class PipelineNames(generics.ListAPIView):
 
 
 class QcDataAPI(generics.ListAPIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
 
         data = request.data
@@ -82,6 +87,8 @@ class QcDataAPI(generics.ListAPIView):
 
 
 class ProteinNamesAPI(generics.ListAPIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         data = request.data
 
@@ -146,6 +153,8 @@ def remove(df, what="contaminants"):
 
 
 class ProteinGroupsAPI(generics.ListAPIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         """Returns reporter corrected intensity columns for selected proteins"""
 
