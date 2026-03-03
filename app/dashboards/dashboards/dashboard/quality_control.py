@@ -20,6 +20,7 @@ except Exception as e:
 # Keep the graph responsive without forcing a tall container up front
 GRAPH_STYLE = {"maxWidth": "100%"}
 
+# Human-readable labels for common metrics
 METRIC_LABELS = {
     "N_peptides": "Peptides Identified",
     "N_protein_groups": "Protein Groups Identified",
@@ -47,18 +48,21 @@ METRIC_COLORS = px.colors.qualitative.Set2
 
 x_options = [dict(label=X_AXIS_LABELS[x], value=x) for x in X_AXIS_LABELS]
 
+# Build metric options from all available QC columns in config
+# Exclude non-numeric columns that don't make sense to plot
+_excluded_metrics = {"RawFile", "RawFilePath", "DateAcquired", "Date", "Day", "Week",
+                     "Month", "Year", "Index", "Flagged", "Use Downstream",
+                     "Instrument", "ExperimentMsOrder", "Ms1Analyzer", "Ms2Analyzer",
+                     "Ms3Analyzer", "SearchParameters"}
+_all_metrics = C.qc_columns_default + C.qc_columns_options
+_all_metrics = [m for m in _all_metrics if m not in _excluded_metrics]
+# Remove duplicates while preserving order
+_seen = set()
+_all_metrics = [m for m in _all_metrics if not (m in _seen or _seen.add(m))]
+
 metric_options = [
-    {"label": METRIC_LABELS[k], "value": k}
-    for k in [
-        "N_peptides",
-        "N_protein_groups",
-        "MS/MS Identified [%]",
-        "Oxidations [%]",
-        "N_missed_cleavages_eq_1 [%]",
-        "Uncalibrated - Calibrated m/z [ppm] (ave)",
-        "calibrated_retention_time_qc1",
-        "calibrated_retention_time_qc2",
-    ]
+    {"label": METRIC_LABELS.get(k, k), "value": k}
+    for k in _all_metrics
 ]
 
 BUTTON_STYLE = {
