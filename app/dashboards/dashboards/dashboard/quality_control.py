@@ -271,6 +271,7 @@ def callbacks(app):
                 showline=True,
                 linecolor="#cddbe6",
                 rangemode="tozero",
+                automargin=True,
                 row=row,
                 col=1,
             )
@@ -286,7 +287,7 @@ def callbacks(app):
             hoverlabel_namelength=-1,
             height=height,
             showlegend=False,
-            margin=dict(l=50, r=20, b=120, t=40, pad=0),
+            margin=dict(l=80, r=20, b=120, t=40, pad=0),
             font=C.figure_font,
             plot_bgcolor="#fbfdff",
             paper_bgcolor="#f7fbfe",
