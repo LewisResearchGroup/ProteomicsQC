@@ -40,6 +40,7 @@ X_AXIS_LABELS = {
 
 PLOT_TYPE_OPTIONS = [
     {"label": "Line", "value": "line"},
+    {"label": "Scatter", "value": "scatter"},
     {"label": "Bar", "value": "bar"},
 ]
 
@@ -267,18 +268,20 @@ def callbacks(app):
                     col=1,
                 )
             else:
-                # For line plots, use status-based colors for markers
+                # For line/scatter plots, use status-based colors for markers
                 scatter_marker_colors = marker_colors if marker_colors else fallback_color
                 scatter_line_colors = marker_line_colors if marker_line_colors else "#ffffff"
+                # Scatter = markers only, Line = lines + markers
+                mode = "markers" if plot_type == "scatter" else "lines+markers"
                 fig.add_trace(
                     go.Scatter(
                         x=df[x],
                         y=y_series,
                         name=metric_label,
-                        mode="lines+markers",
-                        line=dict(width=2, color=fallback_color, shape="linear"),
+                        mode=mode,
+                        line=dict(width=2, color=fallback_color, shape="linear") if plot_type == "line" else None,
                         marker=dict(
-                            size=8,
+                            size=10 if plot_type == "scatter" else 8,
                             color=scatter_marker_colors,
                             line=dict(width=2, color=scatter_line_colors),
                         ),
