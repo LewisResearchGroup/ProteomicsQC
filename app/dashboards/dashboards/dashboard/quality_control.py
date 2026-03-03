@@ -292,6 +292,7 @@ def callbacks(app):
                 )
 
             # Update y-axis for this subplot
+            # Bar plots should start at zero, line plots can auto-range
             fig.update_yaxes(
                 title_text=metric_label if n_metrics == 1 else None,
                 showgrid=True,
@@ -299,7 +300,7 @@ def callbacks(app):
                 zeroline=False,
                 showline=True,
                 linecolor="#cddbe6",
-                rangemode="tozero",
+                rangemode="tozero" if plot_type == "bar" else "normal",
                 automargin=True,
                 row=row,
                 col=1,
