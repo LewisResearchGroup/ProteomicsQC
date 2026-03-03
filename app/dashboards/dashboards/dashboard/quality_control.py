@@ -6,6 +6,7 @@ from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 
 import plotly.graph_objects as go
+import plotly.express as px
 
 try:
     from . import tools as T
@@ -34,6 +35,14 @@ X_AXIS_LABELS = {
     "RawFile": "Sample",
     "DateAcquired": "Acquisition Date",
 }
+
+PLOT_TYPE_OPTIONS = [
+    {"label": "Line", "value": "line"},
+    {"label": "Bar", "value": "bar"},
+]
+
+# Color palette for multiple metrics
+METRIC_COLORS = px.colors.qualitative.Set2
 
 x_options = [dict(label=X_AXIS_LABELS[x], value=x) for x in X_AXIS_LABELS]
 
@@ -66,14 +75,15 @@ layout = html.Div(
                 html.Div(
                     className="pqc-qc-metric-wrap",
                     children=[
-                        html.Div("QC Metric", className="pqc-field-label"),
+                        html.Div("QC Metrics", className="pqc-field-label"),
                         dcc.Dropdown(
                             id="qc-metric",
-                            multi=False,
+                            multi=True,
                             options=metric_options,
-                            value="N_peptides",
+                            value=["N_peptides"],
                             className="pqc-metric-dropdown",
                             clearable=False,
+                            placeholder="Select metrics...",
                         ),
                     ],
                 ),
@@ -85,6 +95,19 @@ layout = html.Div(
                             id="x",
                             options=x_options,
                             value="Index",
+                            className="pqc-metric-dropdown",
+                            clearable=False,
+                        ),
+                    ],
+                ),
+                html.Div(
+                    className="pqc-qc-plottype-wrap",
+                    children=[
+                        html.Div("Plot Type", className="pqc-field-label"),
+                        dcc.Dropdown(
+                            id="qc-plot-type",
+                            options=PLOT_TYPE_OPTIONS,
+                            value="line",
                             className="pqc-metric-dropdown",
                             clearable=False,
                         ),
@@ -123,20 +146,29 @@ def callbacks(app):
         Input("qc-scope-data", "data"),
         Input("qc-metric", "value"),
         Input("x", "value"),
+        Input("qc-plot-type", "value"),
     )
-    def plot_qc_figure(data_in, metric_in, x_in):
-        """Creates the QC trend plot figure."""
+    def plot_qc_figure(data_in, metrics_in, x_in, plot_type_in):
+        """Creates the QC trend plot figure with multiple metrics support."""
         data = data_in
         if data is None:
             raise PreventUpdate
         x = x_in or "RawFile"
-        selected_metric = metric_in or "N_peptides"
+        plot_type = plot_type_in or "line"
+
+        # Handle both single metric (string) and multiple metrics (list)
+        if metrics_in is None:
+            selected_metrics = ["N_peptides"]
+        elif isinstance(metrics_in, str):
+            selected_metrics = [metrics_in]
+        else:
+            selected_metrics = list(metrics_in) if metrics_in else ["N_peptides"]
 
         df = pd.DataFrame(data)
         if df.empty:
             return (
                 go.Figure(),
-                T.gen_figure_config(filename="QC-barplot", editable=False),
+                T.gen_figure_config(filename="QC-plot", editable=False),
                 {**GRAPH_STYLE, "display": "none"},
                 {"display": "flex"},
             )
@@ -151,16 +183,16 @@ def callbacks(app):
         if x not in df.columns:
             x = "Index" if "Index" in df.columns else "RawFile"
 
-        if selected_metric not in df.columns:
+        # Filter to valid metrics that exist in the data
+        valid_metrics = [m for m in selected_metrics if m in df.columns]
+        if not valid_metrics:
             return (
                 go.Figure(),
                 T.gen_figure_config(filename="QC-trends", editable=False),
                 {**GRAPH_STYLE, "display": "none"},
                 {"display": "flex"},
             )
-        # Keep all samples visible by imputing missing points as zero.
-        y_series = pd.to_numeric(df[selected_metric], errors="coerce").fillna(0)
-        metric_label = METRIC_LABELS.get(selected_metric, selected_metric)
+
         x_axis_label = X_AXIS_LABELS.get(x, x)
 
         raw_labels = (
@@ -169,42 +201,79 @@ def callbacks(app):
             else df.index.astype(str)
         )
         acquired = df["DateAcquired"].astype(str).replace("NaT", "N/A")
-        fig = go.Figure(
-            data=[
-                go.Scatter(
-                    x=df[x],
-                    y=y_series,
-                    name=metric_label,
-                    mode="lines+markers",
-                    line=dict(width=3, color="#1f6f8b", shape="linear"),
-                    marker=dict(size=8, color="#1f6f8b", line=dict(width=1, color="#ffffff")),
-                    hovertext=raw_labels + "<br>" + acquired,
-                    text=None if x == "RawFile" else raw_labels,
-                    hovertemplate=(
-                        "<b>%{hovertext}</b><br>"
-                        + f"{metric_label}: "
-                        + "%{y:.2f}<extra></extra>"
-                    ),
+
+        fig = go.Figure()
+
+        # Create a trace for each selected metric
+        for i, metric in enumerate(valid_metrics):
+            y_series = pd.to_numeric(df[metric], errors="coerce").fillna(0)
+            metric_label = METRIC_LABELS.get(metric, metric)
+            color = METRIC_COLORS[i % len(METRIC_COLORS)]
+
+            if plot_type == "bar":
+                fig.add_trace(
+                    go.Bar(
+                        x=df[x],
+                        y=y_series,
+                        name=metric_label,
+                        marker=dict(color=color, opacity=0.85),
+                        hovertext=raw_labels + "<br>" + acquired,
+                        hovertemplate=(
+                            "<b>%{hovertext}</b><br>"
+                            + f"{metric_label}: "
+                            + "%{y:.2f}<extra></extra>"
+                        ),
+                    )
                 )
-            ]
-        )
+            else:
+                fig.add_trace(
+                    go.Scatter(
+                        x=df[x],
+                        y=y_series,
+                        name=metric_label,
+                        mode="lines+markers",
+                        line=dict(width=3, color=color, shape="linear"),
+                        marker=dict(size=8, color=color, line=dict(width=1, color="#ffffff")),
+                        hovertext=raw_labels + "<br>" + acquired,
+                        text=None if x == "RawFile" else raw_labels,
+                        hovertemplate=(
+                            "<b>%{hovertext}</b><br>"
+                            + f"{metric_label}: "
+                            + "%{y:.2f}<extra></extra>"
+                        ),
+                    )
+                )
+
+        # Show legend when multiple metrics are selected
+        show_legend = len(valid_metrics) > 1
+
+        # Adjust height based on legend
+        height = 500 if show_legend else 450
 
         fig.update_layout(
-            hovermode="closest",
+            hovermode="x unified" if plot_type == "bar" else "closest",
             hoverlabel_namelength=-1,
-            height=450,
-            showlegend=False,
-            margin=dict(l=32, r=20, b=60, t=24, pad=0),
+            height=height,
+            showlegend=show_legend,
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="left",
+                x=0,
+            ),
+            margin=dict(l=32, r=20, b=60, t=50 if show_legend else 24, pad=0),
             font=C.figure_font,
             plot_bgcolor="#fbfdff",
             paper_bgcolor="#f7fbfe",
             yaxis={"automargin": True},
             xaxis={"automargin": True},
+            barmode="group" if plot_type == "bar" else None,
         )
 
-        fig.update_traces(marker_line_width=1, opacity=0.95)
+        fig.update_traces(opacity=0.95)
 
-        logging.info(f"QC plot built for metric {selected_metric} with height {fig.layout.height}")
+        logging.info(f"QC plot built for metrics {valid_metrics} with plot type {plot_type}")
 
         fig.update_xaxes(
             title_text=x_axis_label,
@@ -213,8 +282,15 @@ def callbacks(app):
             showline=True,
             linecolor="#cddbe6",
         )
+
+        # Y-axis label: combine metric names if multiple, or use single metric label
+        if len(valid_metrics) == 1:
+            y_label = METRIC_LABELS.get(valid_metrics[0], valid_metrics[0])
+        else:
+            y_label = "Value"
+
         fig.update_yaxes(
-            title_text=metric_label,
+            title_text=y_label,
             showgrid=False,
             zeroline=False,
             showline=True,
