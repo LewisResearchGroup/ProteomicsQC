@@ -119,6 +119,30 @@ layout = html.Div(
                         ),
                     ],
                 ),
+                # Color legend for status indicators
+                html.Div(
+                    className="pqc-qc-legend-wrap",
+                    style={"display": "flex", "alignItems": "center", "gap": "16px", "marginLeft": "20px", "fontSize": "12px"},
+                    children=[
+                        html.Span("Legend:", style={"fontWeight": "600", "color": "#555"}),
+                        html.Span([
+                            html.Span("\u25CF", style={"color": C.colors["accepted"], "marginRight": "4px"}),
+                            "Accepted"
+                        ]),
+                        html.Span([
+                            html.Span("\u25CF", style={"color": C.colors["rejected"], "marginRight": "4px"}),
+                            "Rejected"
+                        ]),
+                        html.Span([
+                            html.Span("\u25CF", style={"color": "grey", "marginRight": "4px"}),
+                            "Unassigned"
+                        ]),
+                        html.Span([
+                            html.Span("\u25CB", style={"color": C.colors["flagged"], "marginRight": "4px", "fontWeight": "bold"}),
+                            "Flagged (border)"
+                        ]),
+                    ],
+                ),
             ],
         ),
         html.Div(
