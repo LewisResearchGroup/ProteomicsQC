@@ -225,13 +225,20 @@ def _resolve_storage_root(env_var, container_default):
         return P(container_default)
 
     path = P(value)
+    container_path = P(container_default)
+
+    # In docker-compose, env vars may contain host paths (e.g. /mnt/data/datalake)
+    # used for volume mounts, but inside the container they're mounted at different
+    # paths (/datalake, /compute). Prefer the container mount point when it exists
+    # and the env var path doesn't exist inside the container.
     if path.is_absolute():
+        if path.exists():
+            return path
+        if container_path.exists():
+            return container_path
         return path
 
-    # In docker-compose, host-relative env values (e.g. ./data/datalake)
-    # are used for bind mounts, while the app should write to container mount
-    # points (/datalake, /compute). Prefer the mounted container path when present.
-    container_path = P(container_default)
+    # Relative paths: prefer container mount if available.
     if container_path.exists():
         return container_path
 
