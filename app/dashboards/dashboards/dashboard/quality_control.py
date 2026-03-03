@@ -205,6 +205,21 @@ def callbacks(app):
 
         n_metrics = len(valid_metrics)
 
+        # Compute marker colors based on Flagged/Use Downstream status
+        has_status_cols = "Flagged" in df.columns and "Use Downstream" in df.columns
+        if has_status_cols:
+            # Build color arrays based on flagged/use_downstream status
+            df["_Selected"] = False  # No selection state in this view
+            marker_colors = df[["Use Downstream", "Flagged", "_Selected"]].apply(
+                lambda row: T.get_marker_color(*row), axis=1
+            ).tolist()
+            marker_line_colors = df[["Use Downstream", "Flagged", "_Selected"]].apply(
+                lambda row: T.get_marker_line_color(*row), axis=1
+            ).tolist()
+        else:
+            marker_colors = None
+            marker_line_colors = None
+
         # Create subplots - one row per metric (faceted layout)
         subplot_titles = [METRIC_LABELS.get(m, m) for m in valid_metrics]
         fig = make_subplots(
@@ -220,15 +235,22 @@ def callbacks(app):
             row = i + 1
             y_series = pd.to_numeric(df[metric], errors="coerce").fillna(0)
             metric_label = METRIC_LABELS.get(metric, metric)
-            color = METRIC_COLORS[i % len(METRIC_COLORS)]
+            fallback_color = METRIC_COLORS[i % len(METRIC_COLORS)]
 
             if plot_type == "bar":
+                # For bar plots, use status-based colors if available
+                bar_colors = marker_colors if marker_colors else fallback_color
+                bar_line_colors = marker_line_colors if marker_line_colors else None
                 fig.add_trace(
                     go.Bar(
                         x=df[x],
                         y=y_series,
                         name=metric_label,
-                        marker=dict(color=color, opacity=0.85),
+                        marker=dict(
+                            color=bar_colors,
+                            opacity=0.85,
+                            line=dict(width=2, color=bar_line_colors) if bar_line_colors else None,
+                        ),
                         hovertext=raw_labels + "<br>" + acquired,
                         hovertemplate=(
                             "<b>%{hovertext}</b><br>"
@@ -241,14 +263,21 @@ def callbacks(app):
                     col=1,
                 )
             else:
+                # For line plots, use status-based colors for markers
+                scatter_marker_colors = marker_colors if marker_colors else fallback_color
+                scatter_line_colors = marker_line_colors if marker_line_colors else "#ffffff"
                 fig.add_trace(
                     go.Scatter(
                         x=df[x],
                         y=y_series,
                         name=metric_label,
                         mode="lines+markers",
-                        line=dict(width=2, color=color, shape="linear"),
-                        marker=dict(size=6, color=color, line=dict(width=1, color="#ffffff")),
+                        line=dict(width=2, color=fallback_color, shape="linear"),
+                        marker=dict(
+                            size=8,
+                            color=scatter_marker_colors,
+                            line=dict(width=2, color=scatter_line_colors),
+                        ),
                         hovertext=raw_labels + "<br>" + acquired,
                         text=None if x == "RawFile" else raw_labels,
                         hovertemplate=(
