@@ -1,0 +1,118 @@
+body.pqc-admin-toolbarized.change-list #changelist .actions,
+body.pqc-admin-toolbarized.change-list #changelist .object-tools {
+    float: none;
+}
+
+body.pqc-admin-toolbarized.change-list #changelist .pqc-admin-user-toolbar-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+body.pqc-admin-toolbarized.change-list #changelist .pqc-admin-user-toolbar-row-object-tools {
+    justify-content: flex-end;
+    margin-bottom: 12px;
+}
+
+body.pqc-admin-toolbarized.change-list #changelist .pqc-admin-user-toolbar-row-search {
+    align-items: stretch;
+}
+
+body.pqc-admin-toolbarized.change-list #changelist .pqc-admin-user-toolbar-row-actions {
+    justify-content: flex-start;
+    margin-bottom: 14px;
+}
+
+body.pqc-admin-toolbarized.change-list #changelist #toolbar {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+}
+
+body.pqc-admin-toolbarized.change-list #changelist #toolbar form {
+    display: block;
+    width: 100%;
+    margin: 0;
+}
+
+body.pqc-admin-toolbarized.change-list #changelist #toolbar form > div {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    max-width: 460px;
+}
+
+body.pqc-admin-toolbarized.change-list #changelist #toolbar label {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+}
+
+body.pqc-admin-toolbarized.change-list #changelist #toolbar input[type="text"] {
+    width: 370px;
+    max-width: min(370px, calc(100vw - 180px));
+    flex: 0 1 auto;
+    min-width: 220px;
+    margin: 0;
+}
+
+body.pqc-admin-toolbarized.change-list #changelist .actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+}
+
+body.pqc-admin-toolbarized.change-list #changelist .actions label,
+body.pqc-admin-toolbarized.change-list #changelist .actions select,
+body.pqc-admin-toolbarized.change-list #changelist .actions button,
+body.pqc-admin-toolbarized.change-list #changelist .actions .action-counter {
+    margin: 0;
+}
+
+body.pqc-admin-toolbarized.change-list #changelist .actions .all,
+body.pqc-admin-toolbarized.change-list #changelist .actions .question,
+body.pqc-admin-toolbarized.change-list #changelist .actions .clear {
+    display: none;
+}
+
+body.pqc-admin-toolbarized.change-list #content-main > .object-tools,
+body.pqc-admin-toolbarized.change-list #changelist-form > .actions:last-of-type {
+    display: none;
+}
+
+body.pqc-admin-toolbarized.change-list #changelist .object-tools {
+    display: flex;
+    justify-content: flex-end;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+}
+
+body.pqc-admin-toolbarized.change-list #changelist .object-tools li {
+    margin: 0;
+}
+
+body.pqc-admin-toolbarized.change-list #changelist .object-tools a {
+    margin: 0;
+}
+
+@media (max-width: 1200px) {
+    body.pqc-admin-toolbarized.change-list #changelist .pqc-admin-user-toolbar-row-object-tools {
+        justify-content: flex-start;
+    }
+
+    body.pqc-admin-toolbarized.change-list #changelist #toolbar input[type="text"] {
+        width: auto;
+        max-width: calc(100vw - 180px);
+    }
+}

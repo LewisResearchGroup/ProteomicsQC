@@ -1,0 +1,102 @@
+body.app-user.change-list #changelist #toolbar,
+body.app-project.change-list #changelist #toolbar,
+body.app-maxquant.change-list #changelist #toolbar {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+body.app-user.change-list #changelist #toolbar form,
+body.app-project.change-list #changelist #toolbar form,
+body.app-maxquant.change-list #changelist #toolbar form {
+    display: block;
+    width: 100%;
+    margin: 0;
+}
+
+body.app-user.change-list #changelist #toolbar form > div,
+body.app-project.change-list #changelist #toolbar form > div,
+body.app-maxquant.change-list #changelist #toolbar form > div {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    max-width: 460px;
+}
+
+body.app-user.change-list #changelist #toolbar label,
+body.app-project.change-list #changelist #toolbar label,
+body.app-maxquant.change-list #changelist #toolbar label {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+}
+
+body.app-user.change-list #changelist #toolbar input[type="text"],
+body.app-project.change-list #changelist #toolbar input[type="text"],
+body.app-maxquant.change-list #changelist #toolbar input[type="text"] {
+    width: 370px;
+    max-width: min(370px, calc(100vw - 180px));
+    min-width: 220px;
+    margin: 0;
+}
+
+body.app-user.change-list #changelist .actions,
+body.app-project.change-list #changelist .actions,
+body.app-maxquant.change-list #changelist .actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+body.app-user.change-list #changelist .actions label,
+body.app-user.change-list #changelist .actions select,
+body.app-user.change-list #changelist .actions button,
+body.app-user.change-list #changelist .actions .action-counter,
+body.app-project.change-list #changelist .actions label,
+body.app-project.change-list #changelist .actions select,
+body.app-project.change-list #changelist .actions button,
+body.app-project.change-list #changelist .actions .action-counter,
+body.app-maxquant.change-list #changelist .actions label,
+body.app-maxquant.change-list #changelist .actions select,
+body.app-maxquant.change-list #changelist .actions button,
+body.app-maxquant.change-list #changelist .actions .action-counter {
+    margin: 0;
+}
+
+body.app-user.change-list #changelist .actions .all,
+body.app-user.change-list #changelist .actions .question,
+body.app-user.change-list #changelist .actions .clear,
+body.app-project.change-list #changelist .actions .all,
+body.app-project.change-list #changelist .actions .question,
+body.app-project.change-list #changelist .actions .clear,
+body.app-maxquant.change-list #changelist .actions .all,
+body.app-maxquant.change-list #changelist .actions .question,
+body.app-maxquant.change-list #changelist .actions .clear {
+    display: none;
+}
+
+body.app-user.change-list #changelist-form > .actions:last-of-type,
+body.app-project.change-list #changelist-form > .actions:last-of-type,
+body.app-maxquant.change-list #changelist-form > .actions:last-of-type {
+    display: none;
+}
+
+body.app-user.change-list #content-main > .object-tools,
+body.app-project.change-list #content-main > .object-tools,
+body.app-maxquant.change-list #content-main > .object-tools {
+    margin-bottom: 12px;
+}
+
+@media (max-width: 1200px) {
+    body.app-user.change-list #changelist #toolbar input[type="text"],
+    body.app-project.change-list #changelist #toolbar input[type="text"],
+    body.app-maxquant.change-list #changelist #toolbar input[type="text"] {
+        width: auto;
+        max-width: calc(100vw - 180px);
+    }
+}
+
+body.app-maxquant.model-pipeline.add-form .form-row.field-project .related-widget-wrapper-link,
+body.app-maxquant.model-pipeline.change-form .form-row.field-project .related-widget-wrapper-link {
+    display: none;
+}

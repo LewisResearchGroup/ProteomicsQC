@@ -1,50 +1,93 @@
+ifeq ($(shell command -v docker-compose >/dev/null 2>&1 && echo yes),yes)
+COMPOSE ?= docker-compose
+else
+COMPOSE ?= docker compose
+endif
+
+ifeq ($(shell id -u),0)
+SUDO :=
+else
+SUDO ?= sudo
+endif
+
+PYTHON ?= /opt/conda/bin/python
+RUN_WEB = $(SUDO) $(COMPOSE) run --rm web
+RUN_WEB_LOCAL = $(SUDO) $(COMPOSE) -f docker-compose-develop.yml run --rm web
+
 migrate: 
-	sudo docker-compose run proteomicsqc_web python manage.py migrate
+	$(RUN_WEB) $(PYTHON) manage.py migrate
 
 migrations: 
-	sudo docker-compose run proteomicsqc_web python manage.py makemigrations $(ARGS)
+	$(RUN_WEB) $(PYTHON) manage.py makemigrations $(ARGS)
+
+migrate-local:
+	$(RUN_WEB_LOCAL) $(PYTHON) manage.py migrate
+
+migrations-local:
+	$(RUN_WEB_LOCAL) $(PYTHON) manage.py makemigrations $(ARGS)
 
 run:
-	sudo docker-compose down && sudo docker-compose up
+	$(SUDO) $(COMPOSE) down && $(SUDO) $(COMPOSE) up
 
 serve:
-	sudo docker-compose -f docker-compose.yml down
-	sudo docker-compose -f docker-compose.yml up -d
-	@echo "Waiting for dev server on http://localhost:8080 ..."
+	$(SUDO) $(COMPOSE) -f docker-compose.yml down
+	$(SUDO) $(COMPOSE) -f docker-compose.yml up -d
+	@echo "Waiting for server on http://localhost:8080 ..."
 	@until curl -sf http://localhost:8080/ >/dev/null; do \
 		sleep 2; \
 	done
 	@echo "server is responding"
 	@xdg-open http://localhost:8080 2>/dev/null || open http://localhost:8080 2>/dev/null || true
 	@echo "Tailing web logs (Ctrl+C to stop logs; stack keeps running)..."
-	sudo docker-compose -f docker-compose.yml logs -f web celery
+	$(SUDO) $(COMPOSE) -f docker-compose.yml logs -f web celery
 
 devel:
-	sudo docker-compose -f docker-compose-develop.yml down
-	sudo docker-compose -f docker-compose-develop.yml up -d
-	@echo "Waiting for dev server on http://localhost:8000 ..."
-	@until curl -sf http://localhost:8000/ >/dev/null; do \
+	$(SUDO) $(COMPOSE) -f docker-compose-develop.yml down
+	$(SUDO) $(COMPOSE) -f docker-compose-develop.yml up -d
+	@echo "Waiting for dev server on http://127.0.0.1:8000 ..."
+	@until curl -sf http://127.0.0.1:8000/ >/dev/null; do \
 		sleep 2; \
 	done
 	@echo "server is responding"
-	@xdg-open http://localhost:8000 2>/dev/null || open http://localhost:8000 2>/dev/null || true
+	@xdg-open http://127.0.0.1:8000 2>/dev/null || open http://127.0.0.1:8000 2>/dev/null || true
 	@echo "Tailing web logs (Ctrl+C to stop logs; stack keeps running)..."
-	sudo docker-compose -f docker-compose-develop.yml logs -f web celery
+	$(SUDO) $(COMPOSE) -f docker-compose-develop.yml logs -f web celery
+
+devel-build:
+	$(SUDO) $(COMPOSE) -f docker-compose-develop.yml down
+	$(SUDO) $(COMPOSE) -f docker-compose-develop.yml up -d --build
+	@echo "Waiting for dev server on http://127.0.0.1:8000 ..."
+	@until curl -sf http://127.0.0.1:8000/ >/dev/null; do \
+		sleep 2; \
+	done
+	@echo "server is responding"
+	@xdg-open http://127.0.0.1:8000 2>/dev/null || open http://127.0.0.1:8000 2>/dev/null || true
+	@echo "Tailing web logs (Ctrl+C to stop logs; stack keeps running)..."
+	$(SUDO) $(COMPOSE) -f docker-compose-develop.yml logs -f web celery
 
 build:
-	sudo docker-compose build
+	$(SUDO) $(COMPOSE) build
+
+build-local:
+	$(SUDO) $(COMPOSE) -f docker-compose-develop.yml build
 
 createsuperuser:
-	sudo docker-compose run proteomicsqc_web python manage.py createsuperuser
+	$(RUN_WEB) $(PYTHON) manage.py createsuperuser
+
+createsuperuser-local:
+	$(RUN_WEB_LOCAL) $(PYTHON) manage.py createsuperuser
 
 collectstatic:
-	sudo docker-compose run proteomicsqc_web python manage.py collectstatic
+	$(RUN_WEB) $(PYTHON) manage.py collectstatic --noinput
+
+collectstatic-local:
+	$(RUN_WEB_LOCAL) $(PYTHON) manage.py collectstatic --noinput
 
 showenv:
-	sudo docker-compose run proteomicsqc_web pip list
+	$(RUN_WEB) pip list
 
 manage:
-	sudo docker-compose run proteomicsqc_web python manage.py $(CMD)
+	$(RUN_WEB) $(PYTHON) manage.py $(CMD)
 
 reset_migrations:
 	sudo find . -path "*/migrations/*.pyc"  -delete
@@ -61,6 +104,20 @@ init:
 	make migrate
 	make createsuperuser
 	make collectstatic
+	make bootstrap-demo
+
+init-local:
+	make build-local
+	make migrations-local
+	make migrations-local ARGS=user
+	make migrations-local ARGS=maxquant
+	make migrations-local ARGS=api
+	make migrations-local ARGS=project
+	make migrations-local ARGS=dashboards
+	make migrate-local
+	make createsuperuser-local
+	make collectstatic-local
+	make bootstrap-demo-local
 
 update:
 	git pull --recurse-submodules
@@ -69,11 +126,11 @@ update:
 	make migrate
 
 down:
-	sudo docker-compose down
-	sudo docker-compose -f docker-compose-develop.yml down
+	$(SUDO) $(COMPOSE) down
+	$(SUDO) $(COMPOSE) -f docker-compose-develop.yml down
 
 test: 
-	sudo docker-compose -f docker-compose-test.yml run proteomicsqc_web python manage.py test --noinput
+	$(SUDO) $(COMPOSE) -f docker-compose-test.yml run --rm web $(PYTHON) -m pytest
 
 get-test-data:
 	gdown --folder https://drive.google.com/drive/folders/1kdQUXbr6DTBNLFBXLYrR_RLoXDFwCh_N?usp=sharing --output app/tests/data/D01
@@ -82,7 +139,13 @@ doc:
 	mkdocs gh-deploy
 
 schema:
-	sudo docker-compose -f docker-compose-develop.yml run proteomicsqc_web python manage.py graph_models --arrow-shape normal -o schema.png -a 
+	$(SUDO) $(COMPOSE) -f docker-compose-develop.yml run --rm web $(PYTHON) manage.py graph_models --arrow-shape normal -o schema.png -a 
 
 versions:
-	sudo docker-compose run proteomicsqc_web conda env export -n base
+	$(SUDO) $(COMPOSE) run web conda env export -n base
+
+bootstrap-demo:
+	$(RUN_WEB) $(PYTHON) manage.py bootstrap_demo --user $${DEMO_USER:-user@email.com} --with-results
+
+bootstrap-demo-local:
+	$(RUN_WEB_LOCAL) $(PYTHON) manage.py bootstrap_demo --user $${DEMO_USER:-user@email.com} --with-results

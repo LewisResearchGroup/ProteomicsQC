@@ -1,0 +1,110 @@
+/*
+ * Scope: unauthenticated account/auth flow panels (password reset, etc.).
+ * Do not place shared app-nav/table/dashboard styling here.
+ */
+
+.auth-panel {
+  max-width: 820px;
+  margin: 10px auto 0 auto;
+  padding: 28px;
+  border: 1px solid #e3e6ea;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fff 0%, #f8fbfd 100%) !important;
+}
+
+.auth-kicker {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--color-text-muted);
+}
+
+.auth-title {
+  margin: 0 0 10px 0;
+  color: var(--color-brand-ink);
+}
+
+.auth-copy {
+  margin: 0 0 8px 0;
+  font-size: 17px;
+  line-height: 1.4;
+  color: var(--color-text-strong);
+}
+
+.auth-form {
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid #dbe5f0;
+  border-radius: 10px;
+  background: #f9fcff;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+}
+
+.auth-field + .auth-field {
+  margin-top: 10px;
+}
+
+.auth-field span {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.auth-form input[type="email"],
+.auth-form input[type="text"],
+.auth-form input[type="password"] {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid #b7cada;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 16px;
+}
+
+.auth-error {
+  margin: 8px 0 0 0;
+  color: #9b2f2f;
+  font-size: 13px;
+}
+
+.auth-message {
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid #dbe5f0;
+  border-radius: 10px;
+  background: #f9fcff;
+  color: var(--color-text-strong);
+}
+
+.auth-message-danger {
+  border-color: var(--color-danger-border-soft);
+  background: var(--color-danger-bg-soft);
+  color: var(--color-danger-ink);
+}
+
+.auth-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+@media (max-width: 650px) {
+  .auth-panel {
+    padding: 18px;
+  }
+
+  .auth-actions .btn.run-btn {
+    width: 100%;
+  }
+}

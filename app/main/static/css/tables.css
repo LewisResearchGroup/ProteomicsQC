@@ -33,6 +33,25 @@
   box-shadow: 0 0 0 3px rgba(13, 143, 143, 0.12);
 }
 
+.mq-runs-user-filter {
+  width: 260px;
+  max-width: 260px;
+  border: 1px solid #d6dbe3;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+  background: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mq-runs-user-filter:focus {
+  outline: none;
+  border-color: #86bdc8;
+  box-shadow: 0 0 0 3px rgba(13, 143, 143, 0.12);
+}
+
 .mq-runs-count {
   color: #5d6a7b;
   font-size: 13px;
@@ -124,29 +143,39 @@
   max-width: 360px;
 }
 
+.mq-user-cell {
+  overflow: hidden;
+}
+
+.mq-user-name {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .upload-queue-name {
   max-width: 360px;
 }
 
-.mq-runs-table .mq-col-raw-file { width: 36%; }
+.mq-runs-table .mq-col-raw-file { width: 28%; }
+.mq-runs-table .mq-col-user { width: 12%; }
 .mq-runs-table .mq-col-overall { width: 7%; }
 .mq-runs-table .mq-col-maxquant { width: 7%; }
-.mq-runs-table .mq-col-rawtools-metrics { width: 7%; }
-.mq-runs-table .mq-col-rawtools-qc { width: 10%; }
+.mq-runs-table .mq-col-rawtools-metrics { width: 8%; }
+.mq-runs-table .mq-col-rawtools-qc { width: 9%; }
 .mq-runs-table .mq-col-open { width: 7%; }
 .mq-runs-table .mq-col-cancel { width: 7%; }
 .mq-runs-table .mq-col-queue { width: 7%; }
-.mq-runs-table .mq-col-delete { width: 7%; }
+.mq-runs-table .mq-col-delete { width: 8%; }
 
 .mq-runs-table thead th,
 .mq-runs-table tbody td {
   padding: 8px 8px;
 }
 
-.mq-runs-table td:nth-child(6),
-.mq-runs-table td:nth-child(7),
-.mq-runs-table td:nth-child(8),
-.mq-runs-table td:nth-child(9) {
+.mq-runs-table td.mq-run-action {
   text-align: center;
 }
 

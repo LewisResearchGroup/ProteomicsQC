@@ -1,0 +1,132 @@
+.md-content p {
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+/* Hero section styles */
+.mdx-hero {
+    color: #fff;
+    align-items: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0 .8rem;
+    padding: 3rem 0 5rem;
+    text-align: center;
+    gap: 1rem;
+}
+
+/* Container for the hero section with gradient and wave */
+.mdx-container {
+    padding-top: 1rem;
+    background:
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1123 258'><path d='M1124,2c0,0 0,256 0,256l-1125,0l0,-48c0,0 16,5 55,5c116,0 197,-92 325,-92c121,0 114,46 254,46c140,0 214,-167 572,-166Z' style='fill: white' /></svg>") no-repeat bottom,
+        linear-gradient(to bottom, var(--md-primary-fg-color), #00897b 99%, white 99%);
+}
+
+/* Dark Mode adjustment for the wave color and gradient end */
+[data-md-color-scheme="slate"] .mdx-container {
+    background:
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1123 258'><path d='M1124,2c0,0 0,256 0,256l-1125,0l0,-48c0,0 16,5 55,5c116,0 197,-92 325,-92c121,0 114,46 254,46c140,0 214,-167 572,-166Z' style='fill: hsla(232, 15%, 21%, 1)' /></svg>") no-repeat bottom,
+        linear-gradient(to bottom, var(--md-primary-fg-color), #00897b 99%, var(--md-default-bg-color) 99%);
+}
+
+
+@media screen and (min-width: 60em) {
+    .mdx-hero {
+        align-items: center;
+        flex-direction: row;
+        justify-content: center;
+        text-align: left;
+    }
+}
+
+.mdx-hero__image {
+    flex-shrink: 0;
+    order: 1;
+    width: min(72vw, 18rem);
+    /* Adjust as needed */
+    margin: 0 auto;
+}
+
+.mdx-hero__image img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+@media screen and (min-width: 60em) {
+    .mdx-hero__image {
+        margin-left: 4rem;
+        order: 2;
+        transform: translateX(2rem) translateY(-7rem);
+        width: 25rem;
+    }
+}
+
+.mdx-hero__content {
+    flex-grow: 1;
+    margin: 0 auto;
+    max-width: 35rem;
+    /* Limit width for better readability */
+    order: 2;
+    transform: none;
+    padding-bottom: 10rem;
+    /* Add padding to avoid overlap with wave */
+}
+
+@media screen and (min-width: 60em) {
+    .mdx-hero__content {
+        order: 1;
+    }
+}
+
+.mdx-hero h1 {
+    color: white;
+    /* Explicitly white */
+    font-weight: 700;
+    font-size: 2rem;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+}
+
+@media screen and (min-width: 60em) {
+    .mdx-hero h1 {
+        font-size: 2.5rem;
+    }
+}
+
+.mdx-hero p {
+    color: white;
+    /* Explicitly white */
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.mdx-hero .md-button {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--md-primary-fg-color);
+    /* Text color for buttons to match branding */
+    background-color: white;
+    border-color: white;
+}
+
+.mdx-hero .md-button:hover {
+    background-color: var(--md-accent-fg-color);
+    color: white;
+    border-color: var(--md-accent-fg-color);
+}
+
+.mdx-hero .md-button--primary {
+    background-color: #156c83;
+    /* Darker teal for primary */
+    border-color: #156c83;
+    color: white;
+}
+
+.mdx-hero .md-button--primary:hover {
+    background-color: #156c83;
+    opacity: 1;
+}

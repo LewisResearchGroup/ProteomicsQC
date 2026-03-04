@@ -1,0 +1,246 @@
+html,
+body.pqc-admin-login-body {
+  min-height: 100%;
+  margin: 0;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(95, 178, 198, 0.28) 0%, rgba(95, 178, 198, 0) 32%),
+    radial-gradient(circle at 86% 10%, rgba(49, 119, 150, 0.18) 0%, rgba(49, 119, 150, 0) 28%),
+    linear-gradient(180deg, #eff7fa 0%, #e6f0f5 100%);
+  font-family: "Manrope", sans-serif;
+  color: #1f3e59;
+}
+
+body.pqc-admin-login-body #header,
+body.pqc-admin-login-body #nav-sidebar,
+body.pqc-admin-login-body .breadcrumbs,
+body.pqc-admin-login-body #footer {
+  display: none;
+}
+
+body.pqc-admin-login-body #container {
+  min-height: 100vh;
+  background: transparent;
+}
+
+body.pqc-admin-login-body #content {
+  padding: 0;
+}
+
+body.pqc-admin-login-body #content-main {
+  float: none;
+}
+
+.pqc-admin-login-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+}
+
+.pqc-admin-login-card {
+  width: min(980px, 100%);
+  display: grid;
+  grid-template-columns: minmax(280px, 1.05fr) minmax(320px, 0.95fr);
+  border: 1px solid #c6dbe6;
+  border-radius: 22px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 24px 64px rgba(23, 74, 96, 0.16);
+  backdrop-filter: blur(10px);
+}
+
+.pqc-admin-login-brand {
+  padding: 44px 40px;
+  background:
+    linear-gradient(155deg, rgba(16, 157, 147, 0.94) 0%, rgba(43, 143, 211, 0.9) 100%);
+  color: #f7ffff;
+  position: relative;
+}
+
+.pqc-admin-login-brand::after {
+  content: "";
+  position: absolute;
+  inset: auto -70px -80px auto;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.pqc-admin-login-kicker {
+  margin: 0 0 14px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(244, 255, 255, 0.82);
+}
+
+.pqc-admin-login-title {
+  margin: 0;
+  font-size: clamp(32px, 4vw, 46px);
+  line-height: 0.98;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.pqc-admin-login-copy {
+  max-width: 28rem;
+  margin: 18px 0 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(245, 254, 255, 0.88);
+}
+
+.pqc-admin-login-panel {
+  padding: 40px 36px 36px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(247, 251, 253, 0.98) 100%);
+}
+
+.pqc-admin-login-alert,
+.pqc-admin-login-note {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.pqc-admin-login-alert {
+  border: 1px solid #ebc8d0;
+  background: #fbeff1;
+  color: #8b1e2b;
+}
+
+.pqc-admin-login-note {
+  border: 1px solid #d7e5ee;
+  background: #f3f9fc;
+  color: #315167;
+}
+
+.pqc-admin-login-form {
+  margin: 0;
+}
+
+.pqc-admin-login-field + .pqc-admin-login-field {
+  margin-top: 18px;
+}
+
+.pqc-admin-login-field label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4f6c7f;
+}
+
+.pqc-admin-login-field input[type="text"],
+.pqc-admin-login-field input[type="email"],
+.pqc-admin-login-field input[type="password"] {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid #b7cada;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #17374f;
+  font-size: 16px;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+}
+
+.pqc-admin-login-field input:focus {
+  outline: none;
+  border-color: #4e9bc0;
+  box-shadow: 0 0 0 4px rgba(86, 156, 192, 0.18);
+}
+
+.pqc-admin-login-field-error {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #8b1e2b;
+}
+
+.pqc-admin-login-help {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #5a7181;
+}
+
+.pqc-admin-login-links {
+  margin-top: 16px;
+}
+
+.pqc-admin-login-links a {
+  color: #1f6b8d;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.pqc-admin-login-links a:hover {
+  color: #0f9d93;
+  text-decoration: underline;
+}
+
+.pqc-admin-login-actions {
+  margin-top: 22px;
+}
+
+.pqc-admin-login-actions input[type="submit"] {
+  width: 100%;
+  min-height: 50px;
+  margin: 0;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0f9d93 0%, #2b8fd3 100%);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  box-shadow: 0 14px 28px rgba(17, 126, 176, 0.26);
+  cursor: pointer;
+  transition: transform 140ms ease, box-shadow 140ms ease, filter 140ms ease;
+}
+
+.pqc-admin-login-actions input[type="submit"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 30px rgba(17, 126, 176, 0.32);
+  filter: saturate(1.05);
+}
+
+.pqc-admin-login-actions input[type="submit"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(176, 232, 236, 0.7), 0 14px 28px rgba(17, 126, 176, 0.26);
+}
+
+@media (max-width: 860px) {
+  .pqc-admin-login-card {
+    grid-template-columns: 1fr;
+  }
+
+  .pqc-admin-login-brand,
+  .pqc-admin-login-panel {
+    padding: 28px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pqc-admin-login-shell {
+    padding: 14px;
+  }
+
+  .pqc-admin-login-card {
+    border-radius: 18px;
+  }
+
+  .pqc-admin-login-title {
+    font-size: 30px;
+  }
+}
