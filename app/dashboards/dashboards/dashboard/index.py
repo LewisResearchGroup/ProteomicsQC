@@ -97,8 +97,8 @@ layout = html.Div(
                                                 html.Label("Project", className="pqc-field-label"),
                                                 dcc.Dropdown(
                                                     id="project",
-                                                    options=T.get_projects(),
-                                                    value="lsarp",
+                                                    options=[],
+                                                    value=None,
                                                 ),
                                             ],
                                         ),
