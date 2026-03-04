@@ -2,12 +2,14 @@ import os
 import sys
 import json
 import logging
+import numbers
+from pathlib import Path as P
 
 # from xml.etree.ElementPath import _SelectorContext
-import requests
 import shap
 import pandas as pd
 import numpy as np
+import dask.dataframe as dd
 
 from dash import dash_table as dt
 from dash.dash_table.Format import Format
@@ -18,6 +20,22 @@ import plotly.figure_factory as ff
 from matplotlib import pyplot as pl
 
 from pandas.api.types import is_numeric_dtype
+from django.db import models
+
+from api.views import (
+    _dataframe_json_payload,
+    _is_admin,
+    _pipelines_for_user,
+    _projects_for_user,
+    _results_for_pipeline_mutation,
+    get_protein_groups_data,
+    get_protein_quant_fn,
+    get_qc_data as api_get_qc_data,
+    remove,
+)
+from maxquant.models import RawFile as RawFileModel
+from maxquant.serializers import PipelineSerializer
+from project.serializers import ProjectsNamesSerializer
 
 
 from pycaret.anomaly import (
@@ -60,41 +78,92 @@ def table_from_dataframe(df, id="table", row_deletable=True, row_selectable="mul
     )
 
 
-def get_projects():
-    """Get projects using Django ORM directly."""
-    from project.models import Project
-    projects = Project.objects.all()
-    output = [{"label": p.name, "value": p.slug} for p in projects]
+def get_projects(user=None):
+    if user is None:
+        return []
+    try:
+        queryset = _projects_for_user(user)
+        _json = ProjectsNamesSerializer(queryset, many=True).data
+    except Exception as e:
+        logging.error(f"Projects request error: {e}")
+        return []
+    if not isinstance(_json, list):
+        return []
+    output = [{"label": i["name"], "value": i["slug"]} for i in _json]
     output.sort(key=lambda o: o["label"].lower())
     return output
 
 
-def get_pipelines(project):
-    """Get pipelines using Django ORM directly."""
-    from maxquant.models import Pipeline
-    if not project:
+def get_pipelines(project, user=None):
+    if user is None:
         return []
-    pipelines = Pipeline.objects.filter(project__slug=project)
-    return [{"name": p.name, "slug": p.slug, "path_as_str": str(p.path)} for p in pipelines]
+    try:
+        queryset = _pipelines_for_user(user).filter(project__slug=project)
+        payload = PipelineSerializer(queryset, many=True).data
+        return payload if isinstance(payload, list) else []
+    except Exception as e:
+        logging.error(f"Pipelines request error: {e}")
+        return []
+
+
+def get_pipeline_uploaders(project, pipeline, user=None):
+    if user is None:
+        return []
+    try:
+        pipeline_obj = _pipelines_for_user(user).filter(
+            project__slug=project,
+            slug=pipeline,
+        ).first()
+        if pipeline_obj is None:
+            return []
+        queryset = RawFileModel.objects.filter(pipeline=pipeline_obj).select_related("created_by")
+        if not _is_admin(user):
+            queryset = queryset.filter(created_by_id=user.id)
+        rows = (
+            queryset.values("created_by__email")
+            .distinct()
+            .order_by("created_by__email")
+        )
+        output = []
+        for row in rows:
+            email = (row.get("created_by__email") or "").strip()
+            if not email:
+                continue
+            output.append({"label": email, "value": email})
+        return output
+    except Exception as e:
+        logging.error(f"Pipeline uploaders request error: {e}")
+        return []
 
 
 def get_protein_groups(
-    project, pipeline, protein_names=None, columns=None, data_range=None, raw_files=None
+    project, pipeline, protein_names=None, columns=None, data_range=None, raw_files=None, user=None
 ):
-    url = f"{URL}/api/protein-groups"
-    headers = {"Content-type": "application/json"}
-    data = json.dumps(
-        dict(
-            project=project,
-            pipeline=pipeline,
-            protein_names=protein_names,
-            columns=columns,
+    if user is None:
+        return {}
+    if columns is None or protein_names is None:
+        return {}
+    try:
+        fns = get_protein_quant_fn(
+            project,
+            pipeline,
             data_range=data_range,
+            user=user,
             raw_files=raw_files,
         )
-    )
-    res = requests.post(url, data=data, headers=headers).json()
-    return res
+        if len(fns) == 0:
+            return {}
+        columns = list(columns)
+        if "Reporter intensity corrected" in columns:
+            df = pd.read_parquet(fns[0])
+            intensity_columns = df.filter(regex="Reporter intensity corrected").columns.to_list()
+            columns.remove("Reporter intensity corrected")
+            columns = columns + intensity_columns
+        df = get_protein_groups_data(fns, columns=columns, protein_names=protein_names)
+        return _dataframe_json_payload(df)
+    except Exception as e:
+        logging.error(f"Protein groups request error: {e}")
+        return {}
 
 
 def get_protein_names(
@@ -104,47 +173,96 @@ def get_protein_names(
     remove_reversed_sequences=True,
     data_range=None,
     raw_files=None,
+    user=None,
 ):
-    url = f"{URL}/api/protein-names"
-    headers = {"Content-type": "application/json"}
-    data = json.dumps(
-        dict(
-            project=project,
-            pipeline=pipeline,
-            remove_contaminants=remove_contaminants,
-            remove_reversed_sequences=remove_reversed_sequences,
+    if user is None:
+        return {}
+    try:
+        fns = get_protein_quant_fn(
+            project,
+            pipeline,
             data_range=data_range,
+            user=user,
             raw_files=raw_files,
         )
-    )
-    _json = requests.post(url, data=data, headers=headers).json()
-    return _json
-
-
-def get_qc_data(project, pipeline, columns, data_range=None):
-    """Get QC data using Django ORM directly."""
-    from api.views import get_qc_data as _get_qc_data_orm
-    import numpy as np
-
-    try:
-        df = _get_qc_data_orm(project, pipeline, data_range)
-        if df is None or df.empty:
+        if len(fns) == 0:
             return {}
-
-        # Ensure JSON-serializable values
-        df = df.replace({np.nan: None})
-
+        cols = ["Majority protein IDs", "Fasta headers", "Score", "Intensity"]
+        ddf = dd.read_parquet(fns, engine="pyarrow")[cols]
+        if remove_contaminants:
+            ddf = remove(ddf, "contaminants")
+        if remove_reversed_sequences:
+            ddf = remove(ddf, "reversed_sequences")
+        dff = (
+            ddf.groupby(["Majority protein IDs", "Fasta headers"])
+            .mean()
+            .sort_values("Score")
+            .reset_index()
+            .rename(columns={"Majority protein IDs": "protein_names"})
+        )
+        res = dff.compute()
         response = {}
-        cols = columns if columns else df.columns
+        for col in res.columns:
+            response[col] = res[col].to_list()
+        return response
+    except Exception as e:
+        logging.error(f"Protein names request error: {e}")
+        return {}
+
+
+def get_qc_data(project, pipeline, columns, data_range=None, user=None):
+    if user is None:
+        return {}
+    try:
+        df = api_get_qc_data(project, pipeline, data_range, user=user)
+        if df is None:
+            df = pd.DataFrame()
+        df = df.replace({np.nan: None})
+        response = {}
+        cols = df.columns if (not columns) else columns
+        n_rows = len(df.index)
         for col in cols:
             if col in df.columns:
                 response[col] = df[col].tolist()
             else:
-                response[col] = ""
+                response[col] = [None] * n_rows
         return response
     except Exception as e:
-        logging.error(f"QC data error: {e}")
+        logging.error(f"QC data request error: {e}")
         return {}
+
+
+def set_rawfile_action(project, pipeline, raw_files, action, user=None):
+    if user is None:
+        return {"status": "Missing user context."}
+    try:
+        pipeline_obj = _pipelines_for_user(user).filter(
+            project__slug=project,
+            slug=pipeline,
+        ).first()
+        if pipeline_obj is None:
+            return {"status": "Missing permissions"}
+        results = _results_for_pipeline_mutation(user, pipeline_obj)
+        raw_file_set = {str(P(i).name) for i in list(raw_files or [])}
+        for result in results:
+            if result.raw_file.name not in raw_file_set:
+                continue
+            if action == "flag":
+                result.raw_file.flagged = True
+                result.raw_file.save(update_fields=["flagged"])
+            elif action == "unflag":
+                result.raw_file.flagged = False
+                result.raw_file.save(update_fields=["flagged"])
+            elif action == "accept":
+                result.raw_file.use_downstream = True
+                result.raw_file.save(update_fields=["use_downstream"])
+            elif action == "reject":
+                result.raw_file.use_downstream = False
+                result.raw_file.save(update_fields=["use_downstream"])
+        return {"status": "success"}
+    except Exception as e:
+        logging.error(f"Raw file action error: {e}")
+        return {"status": str(e)}
 
 
 def gen_figure_config(
@@ -419,11 +537,54 @@ def plotly_heatmap(
         return fig
 
 
+def _normalize_max_features(max_features, n_features):
+    """
+    Normalize max_features for anomaly models.
+    - int-like values are capped to [1, n_features]
+    - float values in (0, 1] are kept as-is (fraction semantics)
+    - float values > 1 are treated as absolute counts and capped
+    - numeric strings are parsed to int/float using the same rules
+    - invalid values return None so model defaults are used
+    """
+    if max_features is None:
+        return None
+
+    if n_features <= 0:
+        return None
+
+    if isinstance(max_features, (bool, np.bool_)):
+        return None
+
+    value = max_features
+    if isinstance(value, str):
+        stripped = value.strip()
+        if not stripped:
+            return None
+        try:
+            value = float(stripped) if "." in stripped else int(stripped)
+        except ValueError:
+            return None
+
+    if isinstance(value, (int, np.integer)):
+        return max(1, min(int(value), n_features))
+
+    if isinstance(value, (float, np.floating)) or isinstance(value, numbers.Real):
+        value = float(value)
+        if value <= 0:
+            return 1
+        if value <= 1:
+            return value
+        return max(1, min(int(value), n_features))
+
+    return None
+
+
 def detect_anomalies(
     qc_data,
     algorithm=None,
     columns=None,
     max_features=None,
+    fraction=None,
     percentage=None,
     **model_kws,
 ):
@@ -435,26 +596,53 @@ def detect_anomalies(
     available_cols = [c for c in columns if c in qc_data.columns]
     selected_cols = [c for c in available_cols if is_numeric_dtype(qc_data[c])]
     if not selected_cols:
+        fallback_cols = [
+            c
+            for c in qc_data.select_dtypes(include=[np.number]).columns
+            if c not in {"Index"}
+        ]
+        selected_cols = [c for c in fallback_cols if is_numeric_dtype(qc_data[c])]
+    if not selected_cols:
         raise ValueError("No numeric columns available for anomaly detection")
     selected_cols.reverse()
-    if max_features is not None:
-        max_features = max(max_features, len(selected_cols))
+    normalized_max_features = _normalize_max_features(max_features, len(selected_cols))
+    if normalized_max_features is not None:
+        model_kws["max_features"] = normalized_max_features
+    if "contamination" not in model_kws:
+        contamination = fraction if fraction is not None else percentage
+        if contamination is not None:
+            model_kws["contamination"] = float(contamination)
     log_cols = [
         "Ms1MedianSummedIntensity",
         "Ms2MedianSummedIntensity",
         "MedianPrecursorIntensity",
     ]
     for c in log_cols:
-        qc_data[c] = qc_data[c].apply(log2p1)
+        if c in qc_data.columns:
+            qc_data[c] = qc_data[c].apply(log2p1)
 
     df_train = qc_data[qc_data["Use Downstream"].fillna(False)][selected_cols].fillna(0)
     df_all = qc_data[selected_cols].fillna(0)
 
+    # Keep anomaly setup from consuming all CPUs by default.
+    env_n_jobs = os.getenv("PQC_ANOMALY_N_JOBS")
+    if env_n_jobs is not None:
+        try:
+            n_jobs = max(1, int(env_n_jobs))
+        except ValueError:
+            n_jobs = 2
+            logging.warning(
+                "Invalid PQC_ANOMALY_N_JOBS=%r. Falling back to %s.", env_n_jobs, n_jobs
+            )
+    else:
+        cpu_count = os.cpu_count() or 2
+        n_jobs = min(4, max(1, cpu_count // 2))
+
     _ = setup(
         df_train,
-        # silent=True,
-        # ignore_low_variance=False,
-        # remove_perfect_collinearity=False,
+        verbose=False,
+        html=False,
+        n_jobs=n_jobs,
         numeric_features=selected_cols,
     )
 
@@ -475,64 +663,49 @@ def detect_anomalies(
 
 
 def get_marker_color(use_downstream, flagged, selected):
-    """Get marker fill color based on sample status.
-
-    Uses colorblind-safe palette:
-    - Blue (#0077BB): Accepted for downstream
-    - Orange (#EE7733): Rejected from downstream
-    - Grey (#BBBBBB): Unassigned/unknown status
-    - Purple (#AA3377): Selected
-    """
-    # Import colors from config for consistency
-    from . import config as C
-
-    # Determine base color from use_downstream status
-    if selected:
-        return C.colors["selected"]
-
-    if use_downstream is True:
-        return C.colors["accepted"]  # Blue
-    elif use_downstream is False:
-        return C.colors["rejected"]  # Orange
-    else:
-        return C.colors["unassigned"]  # Grey
+    colors = {
+        ("unknown", False, False): "grey",
+        ("unknown", True, False): "grey",
+        ("unknown", False, True): "black",
+        ("unknown", True, True): "black",
+        (True, False, False): "blue",
+        (False, False, False): "deepskyblue",
+        (True, True, False): "red",
+        (False, True, False): "pink",
+        (True, False, True): "magenta",
+        (False, False, True): "magenta",
+        (True, True, True): "cyan",
+        (False, True, True): "cyan",
+    }
+    key = (
+        use_downstream if isinstance(use_downstream, bool) else "unknown",
+        flagged,
+        selected,
+    )
+    color = colors[key]
+    return color
 
 
 def get_marker_line_color(use_downstream, flagged, selected):
-    """Get marker border color based on flagged status.
-
-    Uses colorblind-safe palette:
-    - Red border (#CC3311): Flagged as outlier
-    - Dark grey border (#333333): Not flagged
-    """
-    from . import config as C
-
-    if selected:
-        return C.colors["selected"]
-
-    if flagged:
-        return C.colors["flagged"]  # Red border for flagged
-    else:
-        return C.colors["not_flagged"]  # Dark grey
-
-
-def get_marker_symbol(use_downstream, flagged, selected):
-    """Get marker symbol based on sample status for shape redundancy.
-
-    Provides accessibility through shape + color redundancy:
-    - Circle: Accepted
-    - Square: Rejected
-    - Diamond: Unassigned
-    - Star: Selected
-
-    Flagged samples get larger markers for visibility.
-    """
-    if selected:
-        return "star"
-
-    if use_downstream is True:
-        return "circle"
-    elif use_downstream is False:
-        return "square"
-    else:
-        return "diamond"
+    colors = {
+        ("unknown", False, False): "lightblue",
+        ("unknown", True, False): "red",
+        ("unknown", False, True): "black",
+        ("unknown", True, True): "black",
+        (True, False, False): "deepskyblue",
+        (False, False, False): "lightblue",
+        (True, True, False): "red",
+        (False, True, False): "pink",
+        (True, False, True): "magenta",
+        (False, False, True): "magenta",
+        (True, True, True): "cyan",
+        (False, True, True): "cyan",
+    }
+    color = colors[
+        (
+            use_downstream if isinstance(use_downstream, bool) else "unknown",
+            flagged,
+            selected,
+        )
+    ]
+    return color
