@@ -61,23 +61,21 @@ def table_from_dataframe(df, id="table", row_deletable=True, row_selectable="mul
 
 
 def get_projects():
-    url = f"{URL}/api/projects"
-    try:
-        _json = requests.post(url).json()
-        if not isinstance(_json, list):
-            return []
-    except Exception:
-        return []
-    output = [{"label": i["name"], "value": i["slug"]} for i in _json]
+    """Get projects using Django ORM directly."""
+    from project.models import Project
+    projects = Project.objects.all()
+    output = [{"label": p.name, "value": p.slug} for p in projects]
     output.sort(key=lambda o: o["label"].lower())
     return output
 
 
 def get_pipelines(project):
-    url = f"{URL}/api/pipelines"
-    headers = {"Content-type": "application/json"}
-    data = json.dumps(dict(project=project))
-    return requests.post(url, data=data, headers=headers).json()
+    """Get pipelines using Django ORM directly."""
+    from maxquant.models import Pipeline
+    if not project:
+        return []
+    pipelines = Pipeline.objects.filter(project__slug=project)
+    return [{"name": p.name, "slug": p.slug, "path_as_str": str(p.path)} for p in pipelines]
 
 
 def get_protein_groups(
@@ -124,21 +122,28 @@ def get_protein_names(
 
 
 def get_qc_data(project, pipeline, columns, data_range=None):
-    url = f"{URL}/api/qc-data"
-    headers = {"Content-type": "application/json"}
-    payload = dict(project=project, pipeline=pipeline, columns=columns, data_range=data_range)
+    """Get QC data using Django ORM directly."""
+    from api.views import get_qc_data as _get_qc_data_orm
+    import numpy as np
+
     try:
-        resp = requests.post(url, data=json.dumps(payload), headers=headers, timeout=30)
-        if not resp.ok:
-            logging.error(f"QC data request failed ({resp.status_code}): {resp.text[:500]}")
+        df = _get_qc_data_orm(project, pipeline, data_range)
+        if df is None or df.empty:
             return {}
-        try:
-            return resp.json()
-        except ValueError as e:
-            logging.error(f"QC data JSON decode failed: {e}; body: {resp.text[:500]}")
-            return {}
+
+        # Ensure JSON-serializable values
+        df = df.replace({np.nan: None})
+
+        response = {}
+        cols = columns if columns else df.columns
+        for col in cols:
+            if col in df.columns:
+                response[col] = df[col].tolist()
+            else:
+                response[col] = ""
+        return response
     except Exception as e:
-        logging.error(f"QC data request error: {e}")
+        logging.error(f"QC data error: {e}")
         return {}
 
 
@@ -470,49 +475,64 @@ def detect_anomalies(
 
 
 def get_marker_color(use_downstream, flagged, selected):
-    colors = {
-        ("unknown", False, False): "grey",
-        ("unknown", True, False): "grey",
-        ("unknown", False, True): "black",
-        ("unknown", True, True): "black",
-        (True, False, False): "blue",
-        (False, False, False): "deepskyblue",
-        (True, True, False): "red",
-        (False, True, False): "pink",
-        (True, False, True): "magenta",
-        (False, False, True): "magenta",
-        (True, True, True): "cyan",
-        (False, True, True): "cyan",
-    }
-    key = (
-        use_downstream if isinstance(use_downstream, bool) else "unknown",
-        flagged,
-        selected,
-    )
-    color = colors[key]
-    return color
+    """Get marker fill color based on sample status.
+
+    Uses colorblind-safe palette:
+    - Blue (#0077BB): Accepted for downstream
+    - Orange (#EE7733): Rejected from downstream
+    - Grey (#BBBBBB): Unassigned/unknown status
+    - Purple (#AA3377): Selected
+    """
+    # Import colors from config for consistency
+    from . import config as C
+
+    # Determine base color from use_downstream status
+    if selected:
+        return C.colors["selected"]
+
+    if use_downstream is True:
+        return C.colors["accepted"]  # Blue
+    elif use_downstream is False:
+        return C.colors["rejected"]  # Orange
+    else:
+        return C.colors["unassigned"]  # Grey
 
 
 def get_marker_line_color(use_downstream, flagged, selected):
-    colors = {
-        ("unknown", False, False): "lightblue",
-        ("unknown", True, False): "red",
-        ("unknown", False, True): "black",
-        ("unknown", True, True): "black",
-        (True, False, False): "deepskyblue",
-        (False, False, False): "lightblue",
-        (True, True, False): "red",
-        (False, True, False): "pink",
-        (True, False, True): "magenta",
-        (False, False, True): "magenta",
-        (True, True, True): "cyan",
-        (False, True, True): "cyan",
-    }
-    color = colors[
-        (
-            use_downstream if isinstance(use_downstream, bool) else "unknown",
-            flagged,
-            selected,
-        )
-    ]
-    return color
+    """Get marker border color based on flagged status.
+
+    Uses colorblind-safe palette:
+    - Red border (#CC3311): Flagged as outlier
+    - Dark grey border (#333333): Not flagged
+    """
+    from . import config as C
+
+    if selected:
+        return C.colors["selected"]
+
+    if flagged:
+        return C.colors["flagged"]  # Red border for flagged
+    else:
+        return C.colors["not_flagged"]  # Dark grey
+
+
+def get_marker_symbol(use_downstream, flagged, selected):
+    """Get marker symbol based on sample status for shape redundancy.
+
+    Provides accessibility through shape + color redundancy:
+    - Circle: Accepted
+    - Square: Rejected
+    - Diamond: Unassigned
+    - Star: Selected
+
+    Flagged samples get larger markers for visibility.
+    """
+    if selected:
+        return "star"
+
+    if use_downstream is True:
+        return "circle"
+    elif use_downstream is False:
+        return "square"
+    else:
+        return "diamond"

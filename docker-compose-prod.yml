@@ -1,0 +1,108 @@
+version: "3.3"
+
+services:
+  watchtower:
+    container_name: proteomicsqc_watchtower
+    image: containrrr/watchtower
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_LABEL_ENABLE=true
+      - WATCHTOWER_POLL_INTERVAL=${WATCHTOWER_INTERVAL:-3600}
+      - WATCHTOWER_NOTIFICATIONS=${WATCHTOWER_NOTIFICATIONS:-}
+      - WATCHTOWER_NOTIFICATION_URL=${WATCHTOWER_NOTIFICATION_URL:-}
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
+
+  traefik:
+    container_name: proteomicsqc_traefik
+    image: traefik:v3.0
+    restart: always
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./data/letsencrypt:/letsencrypt
+
+  web:
+    container_name: proteomicsqc_web
+    restart: always
+    user: ${UID}
+    platform: linux/amd64
+    image: ghcr.io/lewisresearchgroup/proteomicsqc:${IMAGE_TAG:-latest}
+    env_file:
+      - ./.env
+    command: /opt/conda/bin/python server.py
+    volumes:
+      - ./app/:/app/
+      - ${DATALAKE}:/datalake/
+      - ${MEDIA}:/appmedia/
+      - ${STATIC}:/static/
+      - ${COMPUTE}:/compute/
+    expose:
+      - "8080"
+    depends_on:
+      - db
+      - redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.web.entrypoints=websecure"
+      - "traefik.http.routers.web.tls.certresolver=letsencrypt"
+      - "traefik.http.services.web.loadbalancer.server.port=8080"
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  db:
+    container_name: proteomicsqc_db
+    restart: always
+    image: postgres:14
+    volumes:
+      - ${DB}:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+
+  redis:
+    container_name: proteomicsqc_redis
+    restart: always
+    image: redis:alpine
+
+  celery:
+    container_name: proteomicsqc_celery
+    restart: always
+    user: ${UID}
+    platform: linux/amd64
+    image: ghcr.io/lewisresearchgroup/proteomicsqc:${IMAGE_TAG:-latest}
+    command: /opt/conda/bin/celery -A main worker -l info --concurrency ${CONCURRENCY}
+    env_file:
+      - ./.env
+    volumes:
+      - ./app/:/app/
+      - ${DATALAKE}:/datalake/
+      - ${COMPUTE}:/compute/
+    environment:
+      - DB_HOST=db
+      - DB_NAME=app
+      - DB_USER=postgres
+      - DB_PASS=${POSTGRES_PASSWORD:-postgres}
+    depends_on:
+      - db
+      - redis
+      - web
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"

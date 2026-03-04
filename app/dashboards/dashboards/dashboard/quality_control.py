@@ -6,6 +6,8 @@ from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 
 import plotly.graph_objects as go
+import plotly.express as px
+from plotly.subplots import make_subplots
 
 try:
     from . import tools as T
@@ -18,6 +20,7 @@ except Exception as e:
 # Keep the graph responsive without forcing a tall container up front
 GRAPH_STYLE = {"maxWidth": "100%"}
 
+# Human-readable labels for common metrics
 METRIC_LABELS = {
     "N_peptides": "Peptides Identified",
     "N_protein_groups": "Protein Groups Identified",
@@ -35,20 +38,32 @@ X_AXIS_LABELS = {
     "DateAcquired": "Acquisition Date",
 }
 
+PLOT_TYPE_OPTIONS = [
+    {"label": "Line", "value": "line"},
+    {"label": "Scatter", "value": "scatter"},
+    {"label": "Bar", "value": "bar"},
+]
+
+# Color palette for multiple metrics
+METRIC_COLORS = px.colors.qualitative.Set2
+
 x_options = [dict(label=X_AXIS_LABELS[x], value=x) for x in X_AXIS_LABELS]
 
+# Build metric options from all available QC columns in config
+# Exclude non-numeric columns that don't make sense to plot
+_excluded_metrics = {"RawFile", "RawFilePath", "DateAcquired", "Date", "Day", "Week",
+                     "Month", "Year", "Index", "Flagged", "Use Downstream",
+                     "Instrument", "ExperimentMsOrder", "Ms1Analyzer", "Ms2Analyzer",
+                     "Ms3Analyzer", "SearchParameters"}
+_all_metrics = C.qc_columns_default + C.qc_columns_options
+_all_metrics = [m for m in _all_metrics if m not in _excluded_metrics]
+# Remove duplicates while preserving order
+_seen = set()
+_all_metrics = [m for m in _all_metrics if not (m in _seen or _seen.add(m))]
+
 metric_options = [
-    {"label": METRIC_LABELS[k], "value": k}
-    for k in [
-        "N_peptides",
-        "N_protein_groups",
-        "MS/MS Identified [%]",
-        "Oxidations [%]",
-        "N_missed_cleavages_eq_1 [%]",
-        "Uncalibrated - Calibrated m/z [ppm] (ave)",
-        "calibrated_retention_time_qc1",
-        "calibrated_retention_time_qc2",
-    ]
+    {"label": METRIC_LABELS.get(k, k), "value": k}
+    for k in _all_metrics
 ]
 
 BUTTON_STYLE = {
@@ -66,14 +81,15 @@ layout = html.Div(
                 html.Div(
                     className="pqc-qc-metric-wrap",
                     children=[
-                        html.Div("QC Metric", className="pqc-field-label"),
+                        html.Div("QC Metrics", className="pqc-field-label"),
                         dcc.Dropdown(
                             id="qc-metric",
-                            multi=False,
+                            multi=True,
                             options=metric_options,
-                            value="N_peptides",
+                            value=["N_peptides"],
                             className="pqc-metric-dropdown",
                             clearable=False,
+                            placeholder="Select metrics...",
                         ),
                     ],
                 ),
@@ -88,6 +104,43 @@ layout = html.Div(
                             className="pqc-metric-dropdown",
                             clearable=False,
                         ),
+                    ],
+                ),
+                html.Div(
+                    className="pqc-qc-plottype-wrap",
+                    children=[
+                        html.Div("Plot Type", className="pqc-field-label"),
+                        dcc.Dropdown(
+                            id="qc-plot-type",
+                            options=PLOT_TYPE_OPTIONS,
+                            value="line",
+                            className="pqc-metric-dropdown",
+                            clearable=False,
+                        ),
+                    ],
+                ),
+                # Color and shape legend for status indicators (colorblind accessible)
+                html.Div(
+                    className="pqc-qc-legend-wrap",
+                    style={"display": "flex", "alignItems": "center", "gap": "12px", "marginLeft": "16px", "fontSize": "11px", "flexWrap": "wrap"},
+                    children=[
+                        html.Span("Legend:", style={"fontWeight": "600", "color": "#555"}),
+                        html.Span([
+                            html.Span("\u25CF", style={"color": C.colors["accepted"], "marginRight": "3px", "fontSize": "14px"}),
+                            "Accepted (circle)"
+                        ], style={"whiteSpace": "nowrap"}),
+                        html.Span([
+                            html.Span("\u25A0", style={"color": C.colors["rejected"], "marginRight": "3px", "fontSize": "14px"}),
+                            "Rejected (square)"
+                        ], style={"whiteSpace": "nowrap"}),
+                        html.Span([
+                            html.Span("\u25C6", style={"color": C.colors["unassigned"], "marginRight": "3px", "fontSize": "14px"}),
+                            "Unassigned (diamond)"
+                        ], style={"whiteSpace": "nowrap"}),
+                        html.Span([
+                            html.Span("\u25CF", style={"color": C.colors["flagged"], "marginRight": "3px", "fontSize": "16px"}),
+                            "Flagged (red border, larger)"
+                        ], style={"whiteSpace": "nowrap"}),
                     ],
                 ),
             ],
@@ -123,20 +176,29 @@ def callbacks(app):
         Input("qc-scope-data", "data"),
         Input("qc-metric", "value"),
         Input("x", "value"),
+        Input("qc-plot-type", "value"),
     )
-    def plot_qc_figure(data_in, metric_in, x_in):
-        """Creates the QC trend plot figure."""
+    def plot_qc_figure(data_in, metrics_in, x_in, plot_type_in):
+        """Creates the QC trend plot figure with multiple metrics in separate facets."""
         data = data_in
         if data is None:
             raise PreventUpdate
         x = x_in or "RawFile"
-        selected_metric = metric_in or "N_peptides"
+        plot_type = plot_type_in or "line"
+
+        # Handle both single metric (string) and multiple metrics (list)
+        if metrics_in is None:
+            selected_metrics = ["N_peptides"]
+        elif isinstance(metrics_in, str):
+            selected_metrics = [metrics_in]
+        else:
+            selected_metrics = list(metrics_in) if metrics_in else ["N_peptides"]
 
         df = pd.DataFrame(data)
         if df.empty:
             return (
                 go.Figure(),
-                T.gen_figure_config(filename="QC-barplot", editable=False),
+                T.gen_figure_config(filename="QC-plot", editable=False),
                 {**GRAPH_STYLE, "display": "none"},
                 {"display": "flex"},
             )
@@ -151,16 +213,16 @@ def callbacks(app):
         if x not in df.columns:
             x = "Index" if "Index" in df.columns else "RawFile"
 
-        if selected_metric not in df.columns:
+        # Filter to valid metrics that exist in the data
+        valid_metrics = [m for m in selected_metrics if m in df.columns]
+        if not valid_metrics:
             return (
                 go.Figure(),
                 T.gen_figure_config(filename="QC-trends", editable=False),
                 {**GRAPH_STYLE, "display": "none"},
                 {"display": "flex"},
             )
-        # Keep all samples visible by imputing missing points as zero.
-        y_series = pd.to_numeric(df[selected_metric], errors="coerce").fillna(0)
-        metric_label = METRIC_LABELS.get(selected_metric, selected_metric)
+
         x_axis_label = X_AXIS_LABELS.get(x, x)
 
         raw_labels = (
@@ -169,57 +231,153 @@ def callbacks(app):
             else df.index.astype(str)
         )
         acquired = df["DateAcquired"].astype(str).replace("NaT", "N/A")
-        fig = go.Figure(
-            data=[
-                go.Scatter(
-                    x=df[x],
-                    y=y_series,
-                    name=metric_label,
-                    mode="lines+markers",
-                    line=dict(width=3, color="#1f6f8b", shape="linear"),
-                    marker=dict(size=8, color="#1f6f8b", line=dict(width=1, color="#ffffff")),
-                    hovertext=raw_labels + "<br>" + acquired,
-                    text=None if x == "RawFile" else raw_labels,
-                    hovertemplate=(
-                        "<b>%{hovertext}</b><br>"
-                        + f"{metric_label}: "
-                        + "%{y:.2f}<extra></extra>"
-                    ),
-                )
-            ]
+
+        n_metrics = len(valid_metrics)
+
+        # Compute marker colors and symbols based on Flagged/Use Downstream status
+        has_status_cols = "Flagged" in df.columns and "Use Downstream" in df.columns
+        if has_status_cols:
+            # Build color and symbol arrays based on flagged/use_downstream status
+            df["_Selected"] = False  # No selection state in this view
+            marker_colors = df[["Use Downstream", "Flagged", "_Selected"]].apply(
+                lambda row: T.get_marker_color(*row), axis=1
+            ).tolist()
+            marker_line_colors = df[["Use Downstream", "Flagged", "_Selected"]].apply(
+                lambda row: T.get_marker_line_color(*row), axis=1
+            ).tolist()
+            marker_symbols = df[["Use Downstream", "Flagged", "_Selected"]].apply(
+                lambda row: T.get_marker_symbol(*row), axis=1
+            ).tolist()
+            # Flagged samples get larger markers for visibility
+            marker_sizes = df["Flagged"].apply(lambda f: 14 if f else 10).tolist()
+        else:
+            marker_colors = None
+            marker_line_colors = None
+            marker_symbols = None
+            marker_sizes = None
+
+        # Create subplots - one row per metric (faceted layout)
+        subplot_titles = [METRIC_LABELS.get(m, m) for m in valid_metrics]
+        fig = make_subplots(
+            rows=n_metrics,
+            cols=1,
+            shared_xaxes=True,
+            vertical_spacing=0.08 if n_metrics > 1 else 0,
+            subplot_titles=subplot_titles if n_metrics > 1 else None,
         )
 
+        # Create a trace for each metric in its own subplot
+        for i, metric in enumerate(valid_metrics):
+            row = i + 1
+            y_series = pd.to_numeric(df[metric], errors="coerce").fillna(0)
+            metric_label = METRIC_LABELS.get(metric, metric)
+            fallback_color = METRIC_COLORS[i % len(METRIC_COLORS)]
+
+            if plot_type == "bar":
+                # For bar plots, use status-based colors if available
+                bar_colors = marker_colors if marker_colors else fallback_color
+                bar_line_colors = marker_line_colors if marker_line_colors else None
+                fig.add_trace(
+                    go.Bar(
+                        x=df[x],
+                        y=y_series,
+                        name=metric_label,
+                        marker=dict(
+                            color=bar_colors,
+                            opacity=0.85,
+                            line=dict(width=2, color=bar_line_colors) if bar_line_colors else None,
+                        ),
+                        hovertext=raw_labels + "<br>" + acquired,
+                        hovertemplate=(
+                            "<b>%{hovertext}</b><br>"
+                            + f"{metric_label}: "
+                            + "%{y:.2f}<extra></extra>"
+                        ),
+                        showlegend=False,
+                    ),
+                    row=row,
+                    col=1,
+                )
+            else:
+                # For line/scatter plots, use status-based colors and symbols for markers
+                scatter_marker_colors = marker_colors if marker_colors else fallback_color
+                scatter_line_colors = marker_line_colors if marker_line_colors else "#333333"
+                scatter_symbols = marker_symbols if marker_symbols else "circle"
+                scatter_sizes = marker_sizes if marker_sizes else (10 if plot_type == "scatter" else 8)
+                # Scatter = markers only, Line = lines + markers
+                mode = "markers" if plot_type == "scatter" else "lines+markers"
+                fig.add_trace(
+                    go.Scatter(
+                        x=df[x],
+                        y=y_series,
+                        name=metric_label,
+                        mode=mode,
+                        line=dict(width=2, color=fallback_color, shape="linear") if plot_type == "line" else None,
+                        marker=dict(
+                            size=scatter_sizes,
+                            color=scatter_marker_colors,
+                            symbol=scatter_symbols,
+                            line=dict(width=2, color=scatter_line_colors),
+                        ),
+                        hovertext=raw_labels + "<br>" + acquired,
+                        text=None if x == "RawFile" else raw_labels,
+                        hovertemplate=(
+                            "<b>%{hovertext}</b><br>"
+                            + f"{metric_label}: "
+                            + "%{y:.2f}<extra></extra>"
+                        ),
+                        showlegend=False,
+                    ),
+                    row=row,
+                    col=1,
+                )
+
+            # Update y-axis for this subplot
+            # Bar plots should start at zero, line plots can auto-range
+            fig.update_yaxes(
+                title_text=metric_label if n_metrics == 1 else None,
+                showgrid=True,
+                gridcolor="#e8f0f5",
+                zeroline=False,
+                showline=True,
+                linecolor="#cddbe6",
+                rangemode="tozero" if plot_type == "bar" else "normal",
+                automargin=True,
+                row=row,
+                col=1,
+            )
+
+        # Height scales with number of metrics
+        height_per_metric = 200
+        base_height = 150
+        height = base_height + (n_metrics * height_per_metric)
+        height = min(height, 1200)  # Cap at reasonable max
+
         fig.update_layout(
-            hovermode="closest",
+            hovermode="x unified",
             hoverlabel_namelength=-1,
-            height=450,
+            height=height,
             showlegend=False,
-            margin=dict(l=32, r=20, b=60, t=24, pad=0),
+            margin=dict(l=80, r=20, b=120, t=40, pad=0),
             font=C.figure_font,
             plot_bgcolor="#fbfdff",
             paper_bgcolor="#f7fbfe",
-            yaxis={"automargin": True},
-            xaxis={"automargin": True},
         )
 
-        fig.update_traces(marker_line_width=1, opacity=0.95)
+        fig.update_traces(opacity=0.95)
 
-        logging.info(f"QC plot built for metric {selected_metric} with height {fig.layout.height}")
+        logging.info(f"QC plot built for {n_metrics} metrics with plot type {plot_type}")
 
+        # Update x-axis only on the bottom subplot
         fig.update_xaxes(
             title_text=x_axis_label,
             showgrid=False,
             zeroline=False,
             showline=True,
             linecolor="#cddbe6",
-        )
-        fig.update_yaxes(
-            title_text=metric_label,
-            showgrid=False,
-            zeroline=False,
-            showline=True,
-            linecolor="#cddbe6",
-            rangemode="tozero",
+            tickangle=-45,
+            row=n_metrics,
+            col=1,
         )
 
         config = T.gen_figure_config(filename="QC-trends", editable=False)

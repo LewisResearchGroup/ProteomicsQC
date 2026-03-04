@@ -1,4 +1,5 @@
 import os
+import shlex
 import pandas as pd
 
 from os.path import isdir, isfile, dirname, abspath, join
@@ -111,8 +112,11 @@ def rawtools_metrics_cmd(
     raw_basename = os.path.basename(raw)
     os.makedirs(output_dir, exist_ok=True)
     if not isfile(join(output_dir, f"{raw_basename}_Matrix.txt")) or rerun:
+        # Use shlex.quote() to prevent command injection via filenames
+        safe_output_dir = shlex.quote(output_dir)
+        safe_raw = shlex.quote(raw)
         cmd = (
-            f'cd "{output_dir}"; rawtools.sh -f "{raw}" -o "{output_dir}" '
+            f"cd {safe_output_dir}; rawtools.sh -f {safe_raw} -o {safe_output_dir} "
             f"{arguments}  2>rawtools_metrics.err 1>rawtools_metrics.out"
         )
     else:
@@ -129,9 +133,12 @@ def rawtools_qc_cmd(input_dir, output_dir, rerun=False):
     output_dir = abspath(str(output_dir))
     os.makedirs(output_dir, exist_ok=True)
     if not isfile(join(output_dir, "QcDataTable.csv")) or rerun:
+        # Use shlex.quote() to prevent command injection via filenames
+        safe_output_dir = shlex.quote(output_dir)
+        safe_input_dir = shlex.quote(input_dir)
         cmd = (
-            f'cd "{output_dir}"; rawtools.sh -d "{input_dir}" '
-            f'-qc "{output_dir}" 2>rawtools_qc.err 1>rawtools_qc.out'
+            f"cd {safe_output_dir}; rawtools.sh -d {safe_input_dir} "
+            f"-qc {safe_output_dir} 2>rawtools_qc.err 1>rawtools_qc.out"
         )
     else:
         cmd = None

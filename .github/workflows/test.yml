@@ -2,7 +2,7 @@ name: Django Test Suite
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "dev" ]
   pull_request:
     branches: [ "main" ]
 
@@ -23,4 +23,4 @@ jobs:
         ALLOWED_HOSTS: "localhost,127.0.0.1,0.0.0.0"
       run: |
         touch .env
-        docker compose -f docker-compose-test.yml run web pytest tests/
+        docker compose -f docker-compose-test.yml run web /opt/conda/bin/pytest tests/

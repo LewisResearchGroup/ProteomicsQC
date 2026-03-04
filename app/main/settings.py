@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path as P
 from django.core.files.storage import FileSystemStorage
 
@@ -140,11 +141,11 @@ ASGI_APPLICATION = "mail.routing.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "db",
-        "PORT": 5432,
+        "NAME": os.getenv("POSTGRES_DB", "postgres"),
+        "USER": os.getenv("POSTGRES_USER", "postgres"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "postgres"),
+        "HOST": os.getenv("DB_HOST", "db"),
+        "PORT": int(os.getenv("DB_PORT", "5432")),
     }
 }
 
@@ -196,12 +197,15 @@ STATICFILES_DIRS = [
 ]
 
 # Whitenoise for serving static files in production
+# Use simpler storage in dev/test mode (no manifest required)
+_is_testing = "test" in sys.argv or any("pytest" in arg for arg in sys.argv)
+
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
 
@@ -213,22 +217,26 @@ CELERY_RESULT_BACKEND = "redis://redis:6379"
 AUTH_USER_MODEL = "user.User"
 
 
-import sys
-
-
 def _resolve_storage_root(env_var, container_default):
     value = os.getenv(env_var)
     if not value:
         return P(container_default)
 
     path = P(value)
+    container_path = P(container_default)
+
+    # In docker-compose, env vars may contain host paths (e.g. /mnt/data/datalake)
+    # used for volume mounts, but inside the container they're mounted at different
+    # paths (/datalake, /compute). Prefer the container mount point when it exists
+    # and the env var path doesn't exist inside the container.
     if path.is_absolute():
+        if path.exists():
+            return path
+        if container_path.exists():
+            return container_path
         return path
 
-    # In docker-compose, host-relative env values (e.g. ./data/datalake)
-    # are used for bind mounts, while the app should write to container mount
-    # points (/datalake, /compute). Prefer the mounted container path when present.
-    container_path = P(container_default)
+    # Relative paths: prefer container mount if available.
     if container_path.exists():
         return container_path
 
@@ -246,8 +254,10 @@ else:
 
 class MediaFileSystemStorage(FileSystemStorage):
     def get_available_name(self, name, max_length=None):
+        # Sanitize filename to prevent command injection via shell metacharacters
+        name = self.get_valid_name(name)
         if max_length and len(name) > max_length:
-            raise (Exception("name's length is greater than max_length"))
+            raise Exception("name's length is greater than max_length")
         return name
 
     def _save(self, name, content):

@@ -37,10 +37,11 @@ class ProjectNames(generics.ListAPIView):
         queryset = Project.objects.all()
         serializer = ProjectsNamesSerializer(queryset, many=True)
         data = serializer.data
-        return JsonResponse(data, status=201, safe=False)
+        return JsonResponse(data, status=200, safe=False)
 
 
 class PipelineNames(generics.ListAPIView):
+
     def post(self, request, format=None):
 
         data = request.data
@@ -49,10 +50,11 @@ class PipelineNames(generics.ListAPIView):
         queryset = Pipeline.objects.filter(project__slug=project)
         serializer = PipelineSerializer(queryset, many=True)
         data = serializer.data
-        return JsonResponse(data, status=201, safe=False)
+        return JsonResponse(data, status=200, safe=False)
 
 
 class QcDataAPI(generics.ListAPIView):
+
     def post(self, request):
 
         data = request.data
@@ -82,6 +84,7 @@ class QcDataAPI(generics.ListAPIView):
 
 
 class ProteinNamesAPI(generics.ListAPIView):
+
     def post(self, request):
         data = request.data
 
@@ -146,6 +149,7 @@ def remove(df, what="contaminants"):
 
 
 class ProteinGroupsAPI(generics.ListAPIView):
+
     def post(self, request):
         """Returns reporter corrected intensity columns for selected proteins"""
 

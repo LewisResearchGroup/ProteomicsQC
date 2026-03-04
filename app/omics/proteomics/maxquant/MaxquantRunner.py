@@ -1,4 +1,5 @@
 import os
+import shlex
 import shutil
 from os.path import isfile, basename, join, abspath, isdir
 from uuid import uuid1
@@ -157,28 +158,34 @@ class MaxquantRunner:
         run_mqpar = P(run_dir) / P(self._mqpar).name
         run_sbatch = P(run_dir) / "run.sbatch"
 
+        # Use shlex.quote() for all paths to prevent command injection
+        safe_run_dir = shlex.quote(run_dir)
+        safe_tgt_dir = shlex.quote(tgt_dir)
+        safe_run_mqpar = shlex.quote(str(run_mqpar))
+        safe_raw_label = shlex.quote(raw_label)
+
         if with_time:
-            time_cmd = f'/usr/bin/time -o {run_dir}/time.txt -f "%E" '
+            time_cmd = f"/usr/bin/time -o {safe_run_dir}/time.txt -f '%E' "
         else:
             time_cmd = "touch time.txt;"
 
         # these are just the commands
         # directories will be created later
         cmds = [
-            f"cd {run_dir}",
+            f"cd {safe_run_dir}",
             "sleep 10",
-            f"{time_cmd} {self._mqcmd} {run_mqpar} 1>maxquant.out 2>maxquant.err",
-            f"if [ ! -d {run_dir}/combined ]; then mkdir {run_dir}/combined ; fi",
-            f"if [ ! -d {run_dir}/combined/txt ]; then mkdir {run_dir}/combined/txt ; fi",
-            f"cp time.txt maxquant.err maxquant.out {run_mqpar} {run_dir}/combined/txt/",
-            f"mv {run_dir}/combined/txt/* {tgt_dir}",
-            f"rm -rf {run_dir}/combined",
-            f"rm -rf {run_dir}/{raw_label}",
-            f"ls -artlh {tgt_dir}"
+            f"{time_cmd} {self._mqcmd} {safe_run_mqpar} 1>maxquant.out 2>maxquant.err",
+            f"if [ ! -d {safe_run_dir}/combined ]; then mkdir {safe_run_dir}/combined ; fi",
+            f"if [ ! -d {safe_run_dir}/combined/txt ]; then mkdir {safe_run_dir}/combined/txt ; fi",
+            f"cp time.txt maxquant.err maxquant.out {safe_run_mqpar} {safe_run_dir}/combined/txt/",
+            f"mv {safe_run_dir}/combined/txt/* {safe_tgt_dir}",
+            f"rm -rf {safe_run_dir}/combined",
+            f"rm -rf {safe_run_dir}/{safe_raw_label}",
+            f"ls -artlh {safe_tgt_dir}"
         ]
 
         if self._cleanup:
-            cmds.append(f"rm -r {run_dir}")
+            cmds.append(f"rm -r {safe_run_dir}")
 
         if not cold_run:
             os.makedirs(run_dir, exist_ok=True)
@@ -234,12 +241,14 @@ def gen_sbatch_file(
     runtime="10:00:00"
 ):
     cmds_txt = "\n\n".join(commands)
+    # Sanitize jobname for use in SBATCH directives
+    safe_jobname = "".join(c for c in jobname if c.isalnum() or c in "-_")
     txt = f"""#!/bin/bash
 #SBATCH --time={runtime}
 #SBATCH --ntasks-per-node=1
 #SBATCH --nodes=1
 #SBATCH --mem=5000
-#SBATCH -J {jobname}
+#SBATCH -J {safe_jobname}
 #SBATCH -e {rundir}/slurm.err
 #SBATCH -o {rundir}/slurm.out
 
@@ -255,7 +264,8 @@ which {maxquantcmd}
         with open(fn, "w") as file:
             file.write(txt)
         if submit:
-            os.system(f"sbatch {fn}")
+            safe_fn = shlex.quote(str(fn))
+            os.system(f"sbatch {safe_fn}")
     else:
         print(txt)
 

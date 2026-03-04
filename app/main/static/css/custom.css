@@ -44,6 +44,11 @@
   padding-top: 10px;
 }
 
+.dashapp iframe {
+  min-height: 1200px;
+  overflow: hidden;
+}
+
 iframe {
   overflow: hidden;
 }

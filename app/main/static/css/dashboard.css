@@ -165,16 +165,26 @@ body {
 }
 
 .pqc-qc-metric-wrap {
-  width: 320px;
-  min-width: 260px;
+  flex-grow: 1;
+  min-width: 280px;
+  max-width: 500px;
 }
 
 .pqc-qc-xaxis-wrap {
-  width: 220px;
-  min-width: 180px;
+  width: 180px;
+  min-width: 150px;
 }
 
 .pqc-qc-xaxis-wrap .pqc-field-label {
+  margin-bottom: 4px;
+}
+
+.pqc-qc-plottype-wrap {
+  width: 120px;
+  min-width: 100px;
+}
+
+.pqc-qc-plottype-wrap .pqc-field-label {
   margin-bottom: 4px;
 }
 
