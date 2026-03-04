@@ -981,23 +981,27 @@ class UploadRaw(LoginRequiredMixin, View):
                         existing = None
 
             if existing is not None:
-                result, created = Result.objects.get_or_create(
-                    raw_file=existing,
-                    defaults={
-                        "created_by": request.user,
-                        "input_source": "upload",
-                    },
-                )
-                data = {
-                    "is_valid": True,
-                    "name": str(existing.name),
-                    "url": str(existing.path),
-                    "already_exists": True,
-                    "restored_result": created,
-                    "result_url": result.url,
-                    "result_pk": result.pk,
-                }
-                return JsonResponse(data)
+                try:
+                    result, created = Result.objects.get_or_create(
+                        raw_file=existing,
+                        defaults={
+                            "created_by": request.user,
+                            "input_source": "upload",
+                        },
+                    )
+                    data = {
+                        "is_valid": True,
+                        "name": str(existing.name),
+                        "url": str(existing.path),
+                        "already_exists": True,
+                        "restored_result": created,
+                        "result_url": result.url,
+                        "result_pk": result.pk,
+                    }
+                    return JsonResponse(data)
+                except Exception as exc:
+                    logging.exception("Error handling existing file: %s", exc)
+                    raise
 
             try:
                 with transaction.atomic():
