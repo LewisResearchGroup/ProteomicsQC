@@ -2,7 +2,7 @@ name: Django Test Suite
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -14,13 +14,19 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        submodules: recursive
+        lfs: true
 
-    - name: Run Pytest via Docker Compose
+    - name: Verify LFS assets
+      run: |
+        git lfs ls-files
+        file app/seed/defaults/maxquant/MaxQuant_v_2.4.12.0.zip
+        unzip -tq app/seed/defaults/maxquant/MaxQuant_v_2.4.12.0.zip >/dev/null
+
+    - name: Run pytest via Docker Compose
       env:
         UID: 1000
         CONCURRENCY: 1
         ALLOWED_HOSTS: "localhost,127.0.0.1,0.0.0.0"
       run: |
         touch .env
-        docker compose -f docker-compose-test.yml run web /opt/conda/bin/pytest tests/
+        docker compose -f docker-compose-test.yml run --rm web /opt/conda/bin/python -m pytest

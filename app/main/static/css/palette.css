@@ -28,6 +28,11 @@
 
   /* Semantic */
   --color-danger-ink: #8b1e2b;
+  --color-danger-bg-soft: #faecef;
+  --color-danger-border-soft: #e8c8cf;
+  --color-info-bg-soft: #eef6fb;
+  --color-warn-bg-soft: #fff2e8;
+  --color-warn-ink: #7a4a1b;
 
   /* Shape & depth */
   --radius-sm: 6px;

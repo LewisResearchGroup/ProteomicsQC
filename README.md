@@ -1,163 +1,92 @@
-![](docs/img/ProteomicsQC.jpg)
+# LAMPrEY
 
-# **ProteomicsQC**: Quality Control Server for large-cohort quantitative proteomics using tandem-mass-tags (e.g. TMT11)
+LAMPrEY is a Docker-based quality control pipeline server for quantitative proteomics. It is designed for laboratories that want to organize proteomics pipelines, process RAW files automatically, and review QC results through a web interface.
 
-A quality control (QC) pipeline server for quantitative proteomics, automated processing, and interactive visualisations of QC results.
-The server allows to setup multiple proteomics pipelines grouped by projects. 
-The user can drag and drop new RAW mass spectrometry files which are processed automatically. 
-Results are visualized in an interactive dashboard and accessible via a RESTful API for third party applications and extensions.
-The server can be started with a single command using `docker-compose`.
-Underlying software is _MaxQuant_ and _RawTools_ for proteomics, _Django_ for the web-server and API and _Plotly/Dash_ for the interactive dashboard.
+![](docs/img/ProteomicsQC1.png "ProteomicsQC overview")
 
-More information can be found in the [Documentation](https://LewisResearchGroup.github.io/ProteomicsQC/).
+Full documentation: [LewisResearchGroup.github.io/ProteomicsQC](https://LewisResearchGroup.github.io/ProteomicsQC/)
 
-## Installation
+## What It Provides
 
-This repository contains git submodules and should be cloned with:
+- project and pipeline management through the Django admin
+- automated RAW file processing with MaxQuant and RawTools
+- an interactive QC dashboard
+- an authenticated API for programmatic access
 
-    git clone --recursive git@github.com:LewisResearchGroup/ProteomicsQC.git
+## Requirements
 
-After cloning the repository a configuration file needs to be created and edited.
+- Docker Engine
+- Docker Compose, either `docker-compose` or `docker compose`
+- `make`
+- `git-lfs`
 
-    ./scripts/generate_config.sh  # generates a .env file for configuration
+## Quick Start
 
-This will create the `.env` file in the root directory of ProteomicsQC.
+Clone the repository:
 
-    #.env content
-    # OMICS PIPELINES CONFIG
-    
-    ## HOMPAGE SETTINGS
-    HOME_TITLE=ProteomicsQC
-    HOSTNAME=localhost
-    ALLOWED_HOSTS=localhost
-    
-    ## STORAGE
-    DATALAKE=./data/datalake
-    COMPUTE=./data/compute
-    MEDIA=./data/media
-    STATIC=./data/static
-    DB=./data/db
-    
-    ## EMAIL SETTINGS
-    EMAIL_HOST=smtp.gmail.com
-    EMAIL_USE_TLS=True
-    EMAIL_USE_SSL=False
-    EMAIL_PORT=587
-    EMAIL_HOST_USER=''
-    EMAIL_HOST_PASSWORD=''
-    DEFAULT_FROM_EMAIL=''
-    
-    ## CELERY
-    CONCURRENCY=8
-    RESOURCE_RETRY_SECONDS=60
-    MIN_FREE_MEM_GB_MAXQUANT=8
-    MAX_LOAD_PER_CPU_MAXQUANT=0.85
-    MIN_FREE_MEM_GB_RAWTOOLS=2
-    MAX_LOAD_PER_CPU_RAWTOOLS=0.90
+```bash
+git lfs install
+git clone git@github.com:LewisResearchGroup/ProteomicsQC.git ProteomicsQC
+cd ProteomicsQC
+git lfs pull
+```
 
-    ## RESULT STATUS (web UI responsiveness vs strictness)
-    RESULT_STATUS_INSPECT_TIMEOUT_SECONDS=10.0
-    RESULT_STATUS_PENDING_STALLED_WARNING_SECONDS=7200
-    RESULT_STATUS_DONE_MTIME_SKEW_SECONDS=300
-    RESULT_STATUS_MAXQUANT_STALE_SECONDS=21600
-    RESULT_STATUS_RAWTOOLS_STALE_SECONDS=3600
-    RESULT_STATUS_ACTIVITY_FALLBACK_SECONDS=300
-    RESULT_STATUS_INSPECT_MAX_VISIBLE_RUNS=25
-    RESULT_STATUS_INSPECT_MAX_ACTIVE_RUNS=12
+The repository stores the bundled MaxQuant executable ZIP with Git LFS. Install `git-lfs` before cloning so `app/seed/defaults/maxquant/MaxQuant_v_2.4.12.0.zip` is downloaded as a real file instead of a small pointer.
 
-    ## USERID
-    UID=1000:1000
+If you download the repository from the GitHub web UI instead of cloning it, make sure the repository is configured to include Git LFS objects in archives. Otherwise the archive will contain only the LFS pointer file.
 
-    ## SECURITY KEYS
-    SECRET_KEY=
+Generate the local configuration:
 
-The storage section defines the relative or absolute paths to the file system of your server to store persistent data.
-Importantly, for production the location of the static folder should be exposed by your server under `https://your-url/static`, since
-Django does not serve static files in production. We recommend using NGINX to serve the static files. 
+```bash
+./scripts/generate_config.sh
+```
 
-To enable email-notifications (e.g. for authentification, or password changes) from the server the EMAIL settings need to be updated with information from your email provider.
-If you use your own domain to serve ProteomicsQC, you need to add it to the `ALLOWED_HOSTS` as a comma separated list:
-    
-    HOSTNAME=localhost
-    ALLOWED_HOSTS=localhost,your-url,your-internal-ip
-    OMICS_URL=http://localhost:8080
+Run the first-time setup:
 
-You can start the server with the following commands:
+```bash
+make init
+```
 
-    make init  # to start the server the first time
+By default, `make init` uses the published container image.
 
-    make devel  # starts a development server on port 8000
-    
-    make serve  # starts the production server on port 8080
+If the published image is unavailable, use the local-build fallback:
 
-Resource-aware scheduling for Celery tasks is enabled by default. Each task checks
-current host load and free memory before starting; if resources are tight, it is retried
-after `RESOURCE_RETRY_SECONDS`. Thresholds can be tuned in `.env` using the
-`MIN_FREE_MEM_GB_*` and `MAX_LOAD_PER_CPU_*` variables above.
+```bash
+make init-local
+```
 
-Result-status rendering thresholds can also be tuned in `.env`:
-- `RESULT_STATUS_INSPECT_MAX_VISIBLE_RUNS`
-- `RESULT_STATUS_INSPECT_MAX_ACTIVE_RUNS`
+Start the application:
 
-Lower values reduce web latency for large run lists by disabling expensive
-queue inspection earlier. Higher values increase strictness on smaller queues.
+```bash
+make devel   # development server on http://127.0.0.1:8000
+make serve   # production-style server on http://localhost:8080
+```
 
+## Setup Modes
 
-## API Authentication
+`make init` performs the first-time setup using the published container image:
 
-All API endpoints require authentication. The API uses Django REST Framework with session-based authentication. Users must be logged in to access API endpoints. Attempting to access API endpoints without authentication will return a 403 Forbidden response.
+- runs migrations
+- prompts for a Django superuser
+- collects static files
+- bootstraps demo data
 
-## MaxQuant Compatibility
+`make init-local` performs the same setup, but builds the image locally with `docker-compose-develop.yml`.
 
-The server supports multiple MaxQuant versions:
-- MaxQuant 1.6.10.43
-- MaxQuant 2.4.12.0
-- MaxQuant 2.7.5.0
+## Common Commands
 
-The appropriate mqpar template is selected based on the MaxQuant version detected in the container. Newer versions (2.x) use .NET Core runtime, while older versions use Mono.
+```bash
+make devel         # start the development stack
+make devel-build   # rebuild and start the development stack
+make serve         # start the production-style stack
+make down          # stop containers
+make test          # run tests
+```
 
-## Limitations
-The pipeline is restricted to single file setup which might conflict with the setup of some laboratories that split sample results into multiple files. The pipeline processes each file separately and independently.
+## Notes
 
-## Overview
-
-The server manages proteomics pipelines belonging to multiple projects. The server is mostly implemented in Python and is composed of several components such as a PostgreSQL database, a queuing system (Celery, Redis), a dashboard (Plotly-Dash) and an API (Django REST-Framwork).
-
-<img src="./docs/img/workflow.png" width="100%">
-
-## Features
-
-1.  Different project spaces    
-2.  Setup of different pipelines (using MaxQuant and RawTools)
-3.  Upload .RAW files and automatic submission to a job queueing system
-4.  Data management of input and output files
-5.  User rights management
-6.  Data API for programmatic file submission and download of results
-7.  Dashboard for quality control (QC)
-8.  Anomaly detection with Isolation Forest and explainable AI using SHAP
-
-## The GUI
-
-### Pipelines overview
-The server has a simple static http frontend and admin view, generated with Django; and a dynamic and interactive dashboard implemented with Plotly-Dash. The Project detail-view, for example, shows and overview over all pipelines associated with the current project and the number of submitted files.
-
-<img src="./docs/img/Pipelines.png" width="100%">
-
-### Admin view
-
-Django is a popular web framework for building web applications in Python. The Django admin view is a built-in feature of Django that provides an easy-to-use interface for managing the application's data models. The admin view is automatically generated based on the models defined in the application's code, and allows administrators to perform CRUD (Create, Read, Update, and Delete) operations on the application's data. This way new projects, and pipelines can be setup. It also provides an overview over all results and raw files stored on the server and can be used for troubleshooting, if some runs are unsuccessful.
-
-![](./docs/img/example-admin-view.png 'Overview over all jobs on the server.')
-
-## Dashboard
-
-When the user drops a file to the web-upload page of a particular pipeline, it is automatically processed and the results are sent to the dashboard.
-Here, all quality control metrics can be visualized simultaneously in customized order, and the relationships between QC metrics can be plotted.
-Timelines of up to 60 quality control metrics can be viewed simultanously in one place. 
-
--   `accepted` samples for downstream processing have a dark hue
--   `rejected` samples have a brighter hue 
--   `normal` samples are colored blue
--   `flagged` samples, potential outliers, are colored red 
-
-![](./docs/img/QC-barplot-small.jpg 'Many customiable Quality Control metrics in one place.')
+- Generated configuration is stored in `.env`.
+- Local persistent data is stored under `./data/`.
+- The admin panel is available at `/admin` after startup.
+- The bundled MaxQuant ZIP is stored with Git LFS.
+- For installation details, admin usage, API documentation, and operational notes, see the documentation site.
