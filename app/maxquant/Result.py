@@ -3,7 +3,6 @@ import re
 import shutil
 import zipfile
 import subprocess
-import signal
 import pandas as pd
 import logging
 import datetime
@@ -30,12 +29,10 @@ from omics.proteomics.tools import load_rawtools_data_from, load_maxquant_data_f
 from omics.proteomics.maxquant.MaxquantReader import MaxquantReader
 
 from .tasks import rawtools_metrics, rawtools_qc, run_maxquant
-from .defaults import ensure_bundled_maxquant_installed
 
 DATALAKE_ROOT = settings.DATALAKE_ROOT
 COMPUTE_ROOT = settings.COMPUTE_ROOT
 COMPUTE = settings.COMPUTE
-DEFAULT_MAXQUANT_EXECUTABLE = settings.DEFAULT_MAXQUANT_EXECUTABLE
 
 
 def get_time_of_file_modification(fn):
@@ -92,7 +89,7 @@ class Result(models.Model):
 
     @property
     def run_dir(self):
-        return COMPUTE_ROOT / "tmp" / "MaxQuant" / f"rf{self.raw_file.pk}"
+        return COMPUTE_ROOT / "tmp" / "MaxQuant" / self.name
 
     @property
     def pipename(self):
@@ -129,10 +126,12 @@ class Result(models.Model):
     @property
     def maxquantcmd(self):
         dotnet_cmd = os.getenv("DOTNET_CMD", "dotnet")
+        if (
+            self.raw_file.pipeline.maxquant_executable is None
+            or self.raw_file.pipeline.maxquant_executable == ""
+        ):
+            return "maxquant"
         exe = self.raw_file.pipeline.maxquant_executable
-        if exe is None or exe == "":
-            bundled = ensure_bundled_maxquant_installed()
-            exe = str(bundled) if bundled is not None else DEFAULT_MAXQUANT_EXECUTABLE
         exe_str = str(exe)
         exe_quoted = shlex.quote(exe_str)
         runtime = os.getenv("MAXQUANT_RUNTIME", "").lower()
@@ -185,7 +184,7 @@ class Result(models.Model):
             fasta_file=fasta_file,
             run_dir=run_dir,
             output_dir=output_dir,
-            add_uuid_to_rundir=False,
+            add_uuid_to_rundir=True,
             cleanup=True,
         )
         return params
@@ -304,21 +303,20 @@ class Result(models.Model):
         return stream.getvalue()
 
     def maxquant_qc_data(self):
-        df = None
         try:
             df = load_maxquant_data_from(self.path, unpack=False)
         except Exception as e:
             logging.warning(f"{e}: load_maxquant_data_from({self.path})")
         if df is None:
             df = pd.DataFrame()
-        df["RawFile"] = P(self.raw_file.logical_name).with_suffix("").name
+        df["RawFile"] = self.raw_fn.with_suffix("").name
         return df.set_index("RawFile").reset_index()
 
     def rawtools_qc_data(self):
         df = load_rawtools_data_from(self.path)
         if df is None:
             df = pd.DataFrame()
-        df["RawFile"] = P(self.raw_file.logical_name).with_suffix("").name
+        df["RawFile"] = self.raw_fn.with_suffix("").name
         return df.set_index("RawFile").reset_index()
 
     @property
@@ -553,21 +551,13 @@ class Result(models.Model):
         )
 
     def _stage_is_queued(self, task_id, task_state, submitted_at):
+        del submitted_at
         if task_state in {"RECEIVED", "RETRY"}:
             return True
         if task_state == "PENDING":
             # Keep PENDING as queued to avoid "missing" churn that can trigger
             # duplicate re-submissions during normal broker backlogs.
             return True
-        if task_state is None and task_id and submitted_at is not None:
-            # If the result backend is unavailable, AsyncResult.state can fail.
-            # Treat recently submitted tasks as queued so the UI/tests still
-            # reflect in-flight work, but avoid keeping them queued forever.
-            warning_after = int(
-                getattr(settings, "RESULT_STATUS_PENDING_STALLED_WARNING_SECONDS", 7200)
-            )
-            age_seconds = (timezone.now() - submitted_at).total_seconds()
-            return age_seconds <= warning_after
         if task_state != "STARTED":
             return False
         # STARTED jobs are active if they are visible on a worker snapshot.
@@ -609,56 +599,20 @@ class Result(models.Model):
         ]
 
     @property
-    def is_demo_input(self):
-        return self.input_source == "demo"
-
-    def _demo_stage_has_error(self, err_fn):
-        return err_fn.is_file() and err_fn.read_text(errors="ignore").strip() != ""
-
-    def _demo_maxquant_status(self):
-        err_fn = self.output_dir_maxquant / "maxquant.err"
-        out_fn = self.output_dir_maxquant / "maxquant.out"
-        done_fn = self.output_dir_maxquant / "time.txt"
-        if self._demo_stage_has_error(err_fn):
-            return "failed"
-        if done_fn.is_file():
-            return "done"
-        if out_fn.is_file() and self._has_success_text(out_fn, "Finish writing tables"):
-            return "done"
-        return "missing"
-
-    def _demo_rawtools_metrics_status(self):
-        err_fn = self.output_dir_rawtools / "rawtools_metrics.err"
-        if self._demo_stage_has_error(err_fn):
-            return "failed"
-        if all(fn.is_file() for fn in self.rawtools_metrics_expected_files):
-            return "done"
-        return "missing"
-
-    def _demo_rawtools_qc_status(self):
-        err_fn = self.output_dir_rawtools_qc / "rawtools_qc.err"
-        if self._demo_stage_has_error(err_fn):
-            return "failed"
-        if any(fn.is_file() for fn in self.rawtools_qc_expected_files):
-            return "done"
-        return "missing"
-
-    @property
     def maxquant_run_root(self):
         return COMPUTE_ROOT / "tmp" / "MaxQuant"
 
     @cached_property
     def maxquant_run_dir_candidates(self):
-        # Current runs use a short deterministic directory:
-        # <compute>/tmp/MaxQuant/rf<raw_file_id>
-        # Older runs may still use nested or basename-derived layouts.
+        # MaxquantRunner uses add_uuid_to_rundir=True, yielding directories like:
+        # <compute>/tmp/MaxQuant/<uuid>-<raw_basename>
         raw_base = self.basename
         run_root = self.maxquant_run_root
         if not run_root.is_dir():
             return []
         candidates = []
-        candidates.append(run_root / f"rf{self.raw_file.pk}")
         candidates.extend(run_root.glob(f"*-{raw_base}"))
+        # keep backward-compatibility if add_uuid_to_rundir is disabled
         candidates.extend(
             [
                 run_root / raw_base,
@@ -678,8 +632,6 @@ class Result(models.Model):
 
     @cached_property
     def maxquant_status(self):
-        if self.is_demo_input:
-            return self._demo_maxquant_status()
         err_fn = self.output_dir_maxquant / "maxquant.err"
         out_fn = self.output_dir_maxquant / "maxquant.out"
         done_fn = self.output_dir_maxquant / "time.txt"
@@ -772,8 +724,6 @@ class Result(models.Model):
 
     @cached_property
     def rawtools_metrics_status(self):
-        if self.is_demo_input:
-            return self._demo_rawtools_metrics_status()
         err_fn = self.output_dir_rawtools / "rawtools_metrics.err"
         done_fns = self.rawtools_metrics_expected_files
         started_stale_seconds = int(
@@ -845,8 +795,6 @@ class Result(models.Model):
 
     @cached_property
     def rawtools_qc_status(self):
-        if self.is_demo_input:
-            return self._demo_rawtools_qc_status()
         err_fn = self.output_dir_rawtools_qc / "rawtools_qc.err"
         done_fns = self.rawtools_qc_expected_files
         started_stale_seconds = int(
@@ -1211,10 +1159,10 @@ class Result(models.Model):
                 continue
             for pid in _pids_for_pattern(pattern):
                 matched_pids.add(pid)
-            for pkill_signal in ("TERM", "KILL"):
+            for signal in ("TERM", "KILL"):
                 try:
                     proc = subprocess.run(
-                        ["pkill", f"-{pkill_signal}", "-f", pattern],
+                        ["pkill", f"-{signal}", "-f", pattern],
                         capture_output=True,
                         text=True,
                         check=False,
@@ -1229,7 +1177,7 @@ class Result(models.Model):
                 elif proc.returncode > 1:
                     logging.warning(
                         "pkill -%s -f %s failed (rc=%s): %s",
-                        pkill_signal,
+                        signal,
                         pattern,
                         proc.returncode,
                         (proc.stderr or "").strip(),
@@ -1253,8 +1201,6 @@ class Result(models.Model):
 @receiver(models.signals.post_save, sender=Result)
 def run_maxquant_after_save(sender, instance, created, *args, **kwargs):
     if created:
-        if instance.input_source == "demo":
-            return
         instance.run()
         # Default new processed samples to be usable downstream; users can unmark later.
         if instance.raw_file.use_downstream is not True:

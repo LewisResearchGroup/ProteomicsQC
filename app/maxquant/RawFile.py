@@ -1,8 +1,6 @@
 import os
 import hashlib
 import shutil
-import uuid
-import re
 
 from pathlib import Path as P
 
@@ -56,18 +54,7 @@ class RawFile(models.Model):
     use_downstream = models.BooleanField(default=None, null=True, blank=True)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["orig_file", "pipeline", "created_by"],
-                condition=models.Q(created_by__isnull=False),
-                name="rawfile_unique_owned_upload",
-            ),
-            models.UniqueConstraint(
-                fields=["orig_file", "pipeline"],
-                condition=models.Q(created_by__isnull=True),
-                name="rawfile_unique_null_owner_upload",
-            ),
-        ]
+        unique_together = ("orig_file", "pipeline")
         verbose_name = _("RawFile")
         verbose_name_plural = _("RawFiles")
 
@@ -94,43 +81,8 @@ class RawFile(models.Model):
         return P(self.orig_file.name).name
 
     @property
-    def logical_name(self):
-        match = re.match(r"^[0-9a-f]{32}_(.+)$", self.name, re.IGNORECASE)
-        if match:
-            return match.group(1)
-        return self.name
-
-    @property
-    def display_ref(self):
-        if self.pk:
-            return f"rf{self.pk}"
-        return "rf?"
-
-    @property
-    def _legacy_path(self):
-        return self.pipeline.input_path / P(self.name).with_suffix("").name / self.name
-
-    @property
-    def storage_scope(self):
-        stem = slugify(P(self.name).with_suffix("").name) or "raw"
-        uploader = self.created_by_id or 0
-        if self.pk:
-            return f"u{uploader}_rf{self.pk}_{stem}"
-        if not hasattr(self, "_pending_storage_scope"):
-            self._pending_storage_scope = f"u{uploader}_tmp{uuid.uuid4().hex[:12]}_{stem}"
-        return self._pending_storage_scope
-
-    @property
     def path(self):
-        namespaced = self.pipeline.input_path / self.storage_scope / self.name
-        legacy = self._legacy_path
-        if getattr(self, "_force_namespaced_storage", False):
-            return namespaced
-        if namespaced.is_file():
-            return namespaced
-        if legacy.is_file():
-            return legacy
-        return namespaced
+        return self.pipeline.input_path / P(self.name).with_suffix("").name / self.name
 
     @property
     def upload_path(self):
@@ -176,15 +128,7 @@ class RawFile(models.Model):
 
     @property
     def output_dir(self):
-        namespaced = self.pipeline.output_path / self.storage_scope
-        legacy = self.pipeline.output_path / self.name
-        if getattr(self, "_force_namespaced_storage", False):
-            return namespaced
-        if self.pk and namespaced.is_dir():
-            return namespaced
-        if legacy.is_dir():
-            return legacy
-        return namespaced
+        return self.pipeline.output_path / self.name
 
     def make_output_dir(self):
         os.makedirs(self.output_dir, exist_ok=True)
@@ -203,8 +147,6 @@ def move_rawfile_to_input_dir(sender, instance, created, *args, **kwargs):
     raw_file.make_output_dir()
 
     # Create Results only if not present yet
-    if getattr(raw_file, "_skip_auto_result", False):
-        return
     if raw_file.pipeline.has_maxquant_config:
         if len(Result.objects.filter(raw_file=raw_file)) == 0:
             Result.objects.create(raw_file=raw_file, input_source="upload")
