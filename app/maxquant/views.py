@@ -909,6 +909,14 @@ class UploadRaw(LoginRequiredMixin, View):
         basename = P(uploaded_name).name
         candidate = f"upload/{basename}"
         queryset = RawFile.objects.filter(pipeline=pipeline)
+        all_files = list(queryset.values_list("pk", "orig_file"))
+        logging.warning(
+            "Resolving existing raw file: basename=%s, candidate=%s, pipeline=%s, files=%s",
+            basename,
+            candidate,
+            pipeline.pk,
+            all_files,
+        )
         existing = queryset.filter(orig_file=candidate).first()
         if existing is not None:
             return existing
