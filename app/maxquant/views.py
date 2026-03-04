@@ -959,6 +959,12 @@ class UploadRaw(LoginRequiredMixin, View):
                 import sys
 
                 _is_testing = "test" in sys.argv or any("pytest" in arg for arg in sys.argv)
+                logging.warning(
+                    "Found existing RawFile pk=%s, testing=%s, argv=%s",
+                    existing.pk,
+                    _is_testing,
+                    sys.argv[:3],
+                )
 
                 def _file_exists_and_nonempty(path):
                     try:
