@@ -952,15 +952,25 @@ class UploadRaw(LoginRequiredMixin, View):
                 # A stale DB entry can remain even if the physical RAW file was
                 # removed manually from disk. In that case, recreate the RawFile
                 # instead of pretending upload succeeded.
-                existing_missing = (not existing.path.is_file()) or (
-                    existing.path.is_file() and existing.path.stat().st_size == 0
-                )
+                # Check both possible locations: the computed input path and the
+                # upload path (where Django stores the file before move_to_input_dir).
+                def _file_exists_and_nonempty(path):
+                    try:
+                        return path.is_file() and path.stat().st_size > 0
+                    except OSError:
+                        return False
+
+                file_at_path = _file_exists_and_nonempty(existing.path)
+                file_at_upload = _file_exists_and_nonempty(existing.upload_path)
+                existing_missing = not (file_at_path or file_at_upload)
+
                 if existing_missing:
                     logging.warning(
-                        "Replacing stale RawFile entry (pk=%s, name=%s): file missing/empty at %s",
+                        "Replacing stale RawFile entry (pk=%s, name=%s): file missing/empty at %s and %s",
                         existing.pk,
                         existing.name,
                         existing.path,
+                        existing.upload_path,
                     )
                     existing.delete()
                     existing = None
