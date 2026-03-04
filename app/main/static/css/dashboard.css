@@ -33,6 +33,10 @@ body {
   align-items: stretch;
 }
 
+.pqc-main-grid {
+  display: contents;
+}
+
 .pqc-sidebar,
 .pqc-workspace {
   display: flex;
