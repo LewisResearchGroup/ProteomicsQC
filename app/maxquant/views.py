@@ -904,23 +904,25 @@ def maxquant_download(request, pk):
 class UploadRaw(LoginRequiredMixin, View):
     def _resolve_existing_raw_file(self, pipeline, uploaded_name):
         # Raw files are usually stored as upload/<filename>, but historical
-        # entries may keep a variant path. Resolve by exact path first, then
-        # by basename inside the same pipeline.
+        # entries may keep a variant path (e.g., "uploadfilename.raw" without slash
+        # due to an old bug). Resolve by exact path first, then by basename.
         basename = P(uploaded_name).name
         candidate = f"upload/{basename}"
         queryset = RawFile.objects.filter(pipeline=pipeline)
-        all_files = list(queryset.values_list("pk", "orig_file"))
-        logging.warning(
-            "Resolving existing raw file: basename=%s, candidate=%s, pipeline=%s, files=%s",
-            basename,
-            candidate,
-            pipeline.pk,
-            all_files,
-        )
+
+        # Try exact match first
         existing = queryset.filter(orig_file=candidate).first()
         if existing is not None:
             return existing
-        return queryset.filter(orig_file__iendswith=f"/{basename}").order_by(
+
+        # Try legacy format without slash (bug in older storage config)
+        legacy_candidate = f"upload{basename}"
+        existing = queryset.filter(orig_file=legacy_candidate).first()
+        if existing is not None:
+            return existing
+
+        # Fallback to basename match
+        return queryset.filter(orig_file__iendswith=basename).order_by(
             "-created"
         ).first()
 
@@ -967,12 +969,6 @@ class UploadRaw(LoginRequiredMixin, View):
                 import sys
 
                 _is_testing = "test" in sys.argv or any("pytest" in arg for arg in sys.argv)
-                logging.warning(
-                    "Found existing RawFile pk=%s, testing=%s, argv=%s",
-                    existing.pk,
-                    _is_testing,
-                    sys.argv[:3],
-                )
 
                 def _file_exists_and_nonempty(path):
                     try:
@@ -995,27 +991,23 @@ class UploadRaw(LoginRequiredMixin, View):
                         existing = None
 
             if existing is not None:
-                try:
-                    result, created = Result.objects.get_or_create(
-                        raw_file=existing,
-                        defaults={
-                            "created_by": request.user,
-                            "input_source": "upload",
-                        },
-                    )
-                    data = {
-                        "is_valid": True,
-                        "name": str(existing.name),
-                        "url": str(existing.path),
-                        "already_exists": True,
-                        "restored_result": created,
-                        "result_url": result.url,
-                        "result_pk": result.pk,
-                    }
-                    return JsonResponse(data)
-                except Exception as exc:
-                    logging.exception("Error handling existing file: %s", exc)
-                    raise
+                result, created = Result.objects.get_or_create(
+                    raw_file=existing,
+                    defaults={
+                        "created_by": request.user,
+                        "input_source": "upload",
+                    },
+                )
+                data = {
+                    "is_valid": True,
+                    "name": str(existing.name),
+                    "url": str(existing.path),
+                    "already_exists": True,
+                    "restored_result": created,
+                    "result_url": result.url,
+                    "result_pk": result.pk,
+                }
+                return JsonResponse(data)
 
             try:
                 with transaction.atomic():

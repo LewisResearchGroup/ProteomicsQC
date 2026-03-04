@@ -254,11 +254,16 @@ else:
 
 class MediaFileSystemStorage(FileSystemStorage):
     def get_available_name(self, name, max_length=None):
-        # Sanitize filename to prevent command injection via shell metacharacters
-        name = self.get_valid_name(name)
-        if max_length and len(name) > max_length:
+        # Sanitize only the filename portion, preserving directory structure.
+        # This prevents command injection via shell metacharacters in filenames.
+        import os
+        dirname = os.path.dirname(name)
+        basename = os.path.basename(name)
+        safe_basename = self.get_valid_name(basename)
+        safe_name = os.path.join(dirname, safe_basename) if dirname else safe_basename
+        if max_length and len(safe_name) > max_length:
             raise Exception("name's length is greater than max_length")
-        return name
+        return safe_name
 
     def _save(self, name, content):
         if self.exists(name):
