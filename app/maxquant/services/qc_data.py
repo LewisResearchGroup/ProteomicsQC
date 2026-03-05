@@ -1,6 +1,6 @@
 import logging
 import re
-from pathlib import Path as P
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -165,7 +165,7 @@ def _normalize_rawfile_name(value):
     lowered = text.lower()
     if lowered in {"none", "nan"}:
         return None
-    return P(text).stem.lower()
+    return Path(text).stem.lower()
 
 
 def get_qc_data(project_slug, pipeline_slug, data_range=None, user=None):
@@ -186,7 +186,7 @@ def get_qc_data(project_slug, pipeline_slug, data_range=None, user=None):
     metadata_rows = []
     tmt_peptide_rows = []
     for result in results:
-        raw_fn = P(result.raw_file.name).with_suffix("").name
+        raw_fn = Path(result.raw_file.name).with_suffix("").name
         raw_is_flagged = result.raw_file.flagged
         raw_use_downstream = result.raw_file.use_downstream
         raw_file_id = result.raw_file_id
