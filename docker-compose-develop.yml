@@ -9,7 +9,7 @@ services:
       dockerfile: dockerfiles/Dockerfile
     env_file:
       - ./.env
-    command: /miniforge/bin/mamba run -p /miniforge python manage.py runserver 0.0.0.0:8000
+    command: /opt/conda/bin/python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./app/:/app/
       - ${DATALAKE}:/datalake/
@@ -50,7 +50,7 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/Dockerfile
-    command: /miniforge/bin/mamba run -p /miniforge celery -A main worker -l info --concurrency ${CONCURRENCY}
+    command: /opt/conda/bin/celery -A main worker -l info --concurrency ${CONCURRENCY}
     env_file:
       - ./.env
     volumes:
