@@ -5,8 +5,8 @@
 {% block app %}
   <div class="container-fluid" style="padding: 0;">
     <div class='dashapp' style="padding-top: 0;">
-      {# Dashboard iframe - large ratio for full content visibility #}
-      {% plotly_app name="dashboard" ratio=1.2 %}
+      {# Simple iframe embed (may show inner scrollbar, but stable) #}
+      {% plotly_app name="dashboard" ratio=0.34 %}
     </div>
   </div>
 {% endblock %}
