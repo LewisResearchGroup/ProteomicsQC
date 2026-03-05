@@ -2,7 +2,7 @@ import os
 import re
 import pandas as pd
 import numpy as np
-from pathlib import Path as P
+from pathlib import Path
 
 import dash
 from dash import html, dcc
@@ -415,14 +415,11 @@ def sync_scope_uploader_value(options, current_value):
     State("qc-admin-session", "data"),
     State("qc-user-uid", "data"),
 )
-def refresh_qc_table(project, pipeline, uploader_filter, optional_columns, admin_data, uid, **kwargs):
+def refresh_qc_table(project, pipeline, uploader_filter, optional_columns, _admin_data, _uid, **kwargs):
     user = kwargs.get("user")
-    effective_uid = getattr(user, "uuid", None) or uid
-    is_admin_session = bool(admin_data)
-    if user is not None:
-        is_admin_session = bool(
-            getattr(user, "is_staff", False) or getattr(user, "is_superuser", False)
-        )
+    is_admin_session = bool(
+        user and (getattr(user, "is_staff", False) or getattr(user, "is_superuser", False))
+    )
 
     if (project is None) or (pipeline is None):
         empty_options = [{"label": "All users", "value": "__all__"}]
@@ -508,28 +505,23 @@ def refresh_qc_table(project, pipeline, uploader_filter, optional_columns, admin
     db_uploader_by_raw = {}
     try:
         from maxquant.models import RawFile as RawFileModel
-        from user.models import User as UserModel
+        from api.views import _pipelines_for_user
 
-        dashboard_user = user
-        if dashboard_user is None and effective_uid:
-            dashboard_user = UserModel.objects.filter(uuid=effective_uid).first()
-        dashboard_is_admin = bool(
-            dashboard_user
-            and (
-                getattr(dashboard_user, "is_staff", False)
-                or getattr(dashboard_user, "is_superuser", False)
-            )
-        )
-        allow_all_uploaders = bool(is_admin_session or dashboard_is_admin)
-
-        queryset = RawFileModel.objects.filter(
-            pipeline__project__slug=project,
-            pipeline__slug=pipeline,
-        ).select_related("created_by")
-        if not allow_all_uploaders and dashboard_user is None:
-            queryset = queryset.none()
-        elif (dashboard_user is not None) and (not allow_all_uploaders):
-            queryset = queryset.filter(created_by_id=dashboard_user.id)
+        if user is None:
+            queryset = RawFileModel.objects.none()
+        else:
+            pipeline_obj = _pipelines_for_user(user).filter(
+                project__slug=project,
+                slug=pipeline,
+            ).first()
+            if pipeline_obj is None:
+                queryset = RawFileModel.objects.none()
+            else:
+                queryset = RawFileModel.objects.filter(
+                    pipeline=pipeline_obj
+                ).select_related("created_by")
+                if not is_admin_session:
+                    queryset = queryset.filter(created_by_id=user.id)
 
         rows = (
             queryset.values("orig_file", "created_by__email")
@@ -543,7 +535,7 @@ def refresh_qc_table(project, pipeline, uploader_filter, optional_columns, admin
             _add_uploader_option(email, email)
             raw_name = str(row.get("orig_file") or "").strip()
             if raw_name and email:
-                db_uploader_by_raw[P(raw_name).stem.lower()] = email
+                db_uploader_by_raw[Path(raw_name).stem.lower()] = email
     except Exception as exc:
         logging.warning(f"Uploader option DB source failed: {exc}")
 
@@ -551,7 +543,7 @@ def refresh_qc_table(project, pipeline, uploader_filter, optional_columns, admin
         df["Uploader"] = None
     if ("RawFile" in df.columns) and db_uploader_by_raw:
         mapped_uploaders = df["RawFile"].map(
-            lambda raw: db_uploader_by_raw.get(P(str(raw)).stem.lower()) if pd.notna(raw) else None
+            lambda raw: db_uploader_by_raw.get(Path(str(raw)).stem.lower()) if pd.notna(raw) else None
         )
         df["Uploader"] = df["Uploader"].where(
             df["Uploader"].notna() & (df["Uploader"].astype(str).str.strip() != ""),
@@ -843,7 +835,7 @@ def update_selected_raw_files(
 
     raw_files = data.RawFile.values
 
-    raw_files = [P(i).with_suffix(".raw") for i in raw_files]
+    raw_files = [Path(i).with_suffix(".raw") for i in raw_files]
 
     response = T.set_rawfile_action(project, pipeline, raw_files, action, user=user)
 
