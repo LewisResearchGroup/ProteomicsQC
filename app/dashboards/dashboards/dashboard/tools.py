@@ -3,7 +3,7 @@ import sys
 import json
 import logging
 import numbers
-from pathlib import Path as P
+from pathlib import Path
 
 # from xml.etree.ElementPath import _SelectorContext
 import shap
@@ -30,11 +30,11 @@ from api.views import (
     _results_for_pipeline_mutation,
     get_protein_groups_data,
     get_protein_quant_fn,
-    get_qc_data as api_get_qc_data,
     remove,
 )
 from maxquant.models import RawFile as RawFileModel
 from maxquant.serializers import PipelineSerializer
+from maxquant.services.qc_data import get_qc_data as orm_get_qc_data
 from project.serializers import ProjectsNamesSerializer
 
 
@@ -214,7 +214,7 @@ def get_qc_data(project, pipeline, columns, data_range=None, user=None):
     if user is None:
         return {}
     try:
-        df = api_get_qc_data(project, pipeline, data_range, user=user)
+        df = orm_get_qc_data(project, pipeline, data_range, user=user)
         if df is None:
             df = pd.DataFrame()
         df = df.replace({np.nan: None})
@@ -243,7 +243,7 @@ def set_rawfile_action(project, pipeline, raw_files, action, user=None):
         if pipeline_obj is None:
             return {"status": "Missing permissions"}
         results = _results_for_pipeline_mutation(user, pipeline_obj)
-        raw_file_set = {str(P(i).name) for i in list(raw_files or [])}
+        raw_file_set = {str(Path(i).name) for i in list(raw_files or [])}
         for result in results:
             if result.raw_file.name not in raw_file_set:
                 continue
