@@ -415,14 +415,11 @@ def sync_scope_uploader_value(options, current_value):
     State("qc-admin-session", "data"),
     State("qc-user-uid", "data"),
 )
-def refresh_qc_table(project, pipeline, uploader_filter, optional_columns, admin_data, uid, **kwargs):
+def refresh_qc_table(project, pipeline, uploader_filter, optional_columns, _admin_data, _uid, **kwargs):
     user = kwargs.get("user")
-    effective_uid = getattr(user, "uuid", None) or uid
-    is_admin_session = bool(admin_data)
-    if user is not None:
-        is_admin_session = bool(
-            getattr(user, "is_staff", False) or getattr(user, "is_superuser", False)
-        )
+    is_admin_session = bool(
+        user and (getattr(user, "is_staff", False) or getattr(user, "is_superuser", False))
+    )
 
     if (project is None) or (pipeline is None):
         empty_options = [{"label": "All users", "value": "__all__"}]
@@ -508,28 +505,23 @@ def refresh_qc_table(project, pipeline, uploader_filter, optional_columns, admin
     db_uploader_by_raw = {}
     try:
         from maxquant.models import RawFile as RawFileModel
-        from user.models import User as UserModel
+        from api.views import _pipelines_for_user
 
-        dashboard_user = user
-        if dashboard_user is None and effective_uid:
-            dashboard_user = UserModel.objects.filter(uuid=effective_uid).first()
-        dashboard_is_admin = bool(
-            dashboard_user
-            and (
-                getattr(dashboard_user, "is_staff", False)
-                or getattr(dashboard_user, "is_superuser", False)
-            )
-        )
-        allow_all_uploaders = bool(is_admin_session or dashboard_is_admin)
-
-        queryset = RawFileModel.objects.filter(
-            pipeline__project__slug=project,
-            pipeline__slug=pipeline,
-        ).select_related("created_by")
-        if not allow_all_uploaders and dashboard_user is None:
-            queryset = queryset.none()
-        elif (dashboard_user is not None) and (not allow_all_uploaders):
-            queryset = queryset.filter(created_by_id=dashboard_user.id)
+        if user is None:
+            queryset = RawFileModel.objects.none()
+        else:
+            pipeline_obj = _pipelines_for_user(user).filter(
+                project__slug=project,
+                slug=pipeline,
+            ).first()
+            if pipeline_obj is None:
+                queryset = RawFileModel.objects.none()
+            else:
+                queryset = RawFileModel.objects.filter(
+                    pipeline=pipeline_obj
+                ).select_related("created_by")
+                if not is_admin_session:
+                    queryset = queryset.filter(created_by_id=user.id)
 
         rows = (
             queryset.values("orig_file", "created_by__email")
